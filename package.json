@@ -1,0 +1,40 @@
+{
+  "name": "edizo-fullstack-app",
+  "version": "1.1.1",
+  "private": true,
+  "homepage": "https://eoxarun216.github.io/internsite",
+  "scripts": {
+    "client": "npm start --prefix frontend",
+    "server": "npm start --prefix server",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm run build --prefix frontend",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d frontend/dist",
+    "start": "npm run dev"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "browserslist": "^4.25.0",
+    "concurrently": "^9.1.2",
+    "gh-pages": "^6.3.0",
+    "postcss": "^8.5.4",
+    "postcss-preset-env": "^10.2.0"
+  },
+  "dependencies": {
+    "framer-motion": "^12.15.0",
+    "lucide-react": "^0.511.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.1"
+  }
+}

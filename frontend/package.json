@@ -1,0 +1,35 @@
+{
+  "name": "frontend",
+  "version": "1.1.1",
+  "private": true,
+  "type": "module",
+  "homepage": "https://eoxarun216.github.io/internsite",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.6.7",
+    "framer-motion": "^11.18.2",
+    "gsap": "^3.13.0",
+    "joi": "^17.12.1",
+    "lucide-react": "^0.344.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.1",
+    "three": "^0.161.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^9.9.1",
+    "gh-pages": "^6.3.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.5.3",
+    "vite": "^7.0.0"
+  }
+}
