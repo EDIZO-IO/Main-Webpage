@@ -506,8 +506,9 @@ const InternshipDetails = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Define the API base URL.
-  const API_BASE_URL = 'https://main-webpage-l85m.onrender.com'; // Render backend URL
+  // Define the API base URL for your Render backend.
+  // This URL should point to your deployed backend service that handles email sending.
+  const API_BASE_URL = 'https://main-webpage-l85m.onrender.com'; // Your Render backend URL
 
   // Handle form submission (directly sends email notifications)
   const handleFormSubmit = async (e: { preventDefault: () => void; }) => {
@@ -518,38 +519,40 @@ const InternshipDetails = () => {
 
     try {
       // 1. Send confirmation email to the applicant
+      // This sends an email to the user who filled out the form, confirming their application.
       const applicantRes = await fetch(`${API_BASE_URL}/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'applicationConfirmation',
+          type: 'applicationConfirmation', // Type of email for the backend to process
           name: formData.name,
           email: formData.email,
-          internshipTitle: internship?.title || 'Internship',
+          internshipTitle: internship?.title || 'Internship', // Pass internship title for context
         }),
       });
 
       if (!applicantRes.ok) {
         const errorText = await applicantRes.text();
         console.warn('Failed to send confirmation email to applicant:', errorText);
-        // Do not throw error here, as admin email might still succeed.
+        // We log a warning but don't throw an error here, as the admin email might still succeed.
       } else {
         console.log('Confirmation email sent to applicant.');
       }
 
       // 2. Send application details notification email to the admin
+      // This sends an email to the site administrator with the applicant's details.
       const adminRes = await fetch(`${API_BASE_URL}/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'internshipApplicationNotification',
+          type: 'internshipApplicationNotification', // Type of email for the backend to process
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          education: formData.education, // Corrected from formData.experience
+          education: formData.education,
           experience: formData.experience, // Ensure experience is passed
           message: formData.message,
-          internshipTitle: internship?.title || 'Internship',
+          internshipTitle: internship?.title || 'Internship', // Pass internship title for context
         }),
       });
 
@@ -561,7 +564,7 @@ const InternshipDetails = () => {
       setSubmissionStatus('success');
       setSubmissionMessage('Application submitted successfully! A confirmation email has been sent to you.');
 
-      // Reset the form
+      // Reset the form fields after successful submission
       setFormData({
         name: '',
         email: '',
@@ -573,7 +576,10 @@ const InternshipDetails = () => {
     } catch (error) {
       console.error('Error in sending application emails:', error);
       setSubmissionStatus('error');
-      setSubmissionMessage(`Application submission failed: ${error.message}`);
+      // Display a more user-friendly error message if available
+      // The "Failed to fetch" usually happens before the network request even starts,
+      // so 'error.message' often defaults to "TypeError: Failed to fetch"
+      setSubmissionMessage(`Application submission failed: ${error instanceof Error ? error.message : 'Unknown error'}. This often means the server is unreachable or there's a network/CORS issue.`);
     }
   };
 
@@ -582,7 +588,7 @@ const InternshipDetails = () => {
       <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-12">
         <span className="text-red-600">{internship.title}</span> Internship Application
       </h1>
-      
+
 
       <section className="section bg-gray-100 w-full max-w-6xl">
         <div className="container-custom">
