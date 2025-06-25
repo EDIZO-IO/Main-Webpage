@@ -14,8 +14,8 @@ const PORT = process.env.PORT || 3001;
 // Allowed frontend origins (update if you host elsewhere)
 const allowedOrigins = [
     'http://localhost:5173', // Local dev
-    'https://eoxarun216.github.io', // GitHub Pages root
-    'https://eoxarun216.github.io/internsite' // Specific subpath if needed
+    'https://EDIZO-IO.github.io', // GitHub Pages root
+    'https://EDIZO-IO.github.io/Main-Webpage' // Specific subpath if needed
 ];
 
 // --- Middleware ---

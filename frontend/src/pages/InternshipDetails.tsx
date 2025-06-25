@@ -507,7 +507,7 @@ const InternshipDetails = () => {
   };
 
   // Define the API base URL.
-  const API_BASE_URL = 'https://main-webpage-1.onrender.com'; // Render backend URL
+  const API_BASE_URL = 'https://main-webpage-l85m.onrender.com'; // Render backend URL
 
   // Handle form submission (directly sends email notifications)
   const handleFormSubmit = async (e: { preventDefault: () => void; }) => {
