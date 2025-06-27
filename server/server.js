@@ -49,17 +49,32 @@ async function sendEmail({ type, recipientEmail, subject, htmlContent, ...data }
   }
 
   switch (type) {
-    case 'applicationConfirmation': {
-      finalSubject = `Application Confirmation - ${data.internshipTitle || 'Internship'}`;
-      finalHtml = `
-        <div style="font-family: Arial; color: #333;">
-          <h2>Hi ${data.name},</h2>
-          <p>Thank you for applying for <strong>${data.internshipTitle}</strong> at E.D.I.Z.O.</p>
-          <p>We'll review your application and contact you shortly.</p>
-          <p>Regards,<br/>E.D.I.Z.O Team</p>
-        </div>`;
-      break;
-    }
+case 'applicationConfirmation': {
+  finalSubject = `Application Confirmation - ${data.internshipTitle || 'Internship'}`;
+  finalHtml = `
+    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+      <h2>Thank you for your Application ${data.name},</h2>
+      <p>We have successfully received your application for the <strong>${data.internshipTitle}</strong> at <strong>E.D.I.Z.O.</strong>.</p>
+      <p>Our team will review your application thoroughly and get in touch with you regarding the next steps.</p>
+      <p>In the meantime, if you have any questions, please do not hesitate to contact us.</p>
+      
+      <hr style="margin: 20px 0;" />
+      
+      <h3>📱 Join Our WhatsApp Group</h3>
+      <p>Stay updated about your internship by joining the official WhatsApp group:</p>
+      <a href="https://chat.whatsapp.com/LhhLFD6pbil3NFImE30UIQ" target="_blank" style="display: inline-block; text-decoration: none;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Join WhatsApp Group" width="48" style="vertical-align: middle; margin-right: 8px;" />
+        <span style="font-size: 16px; vertical-align: middle;">Join Group</span>
+      </a>
+      
+      <hr style="margin: 20px 0;" />
+      
+      <p>Best regards,<br/><strong>The E.D.I.Z.O Team</strong></p>
+    </div>
+  `;
+  break;
+}
+
 
     case 'internshipApplicationNotification': {
       recipient = process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER;
