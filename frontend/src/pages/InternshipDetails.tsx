@@ -17,17 +17,30 @@ import { motion } from 'framer-motion';
 // These are used instead of local image imports.
 const placeholderImage = (text: string | number | boolean) => `https://placehold.co/150x150/E0E0E0/666666?text=${encodeURIComponent(text)}`;
 
-// --- Reusable Components ---
+// --- Reusable Components (Simplified for this example) ---
 
-/**
- * Button component with primary, outline, and default variants.
- * Supports full width and disabled states.
- */
-const Button = ({ children, onClick, type = 'button', variant = 'default', fullWidth = false, className = '', disabled = false }) => {
+// Button component for consistent styling and behavior
+const Button = ({
+  children,
+  onClick,
+  type = 'button',
+  variant = 'default',
+  fullWidth = false,
+  className = '',
+  disabled = false
+}: {
+  children: React.ReactNode;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'outline' | 'default';
+  fullWidth?: boolean;
+  className?: string;
+  disabled?: boolean;
+}) => {
   const baseClasses = "px-6 py-3 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
   const variants = {
-    primary: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-md hover:shadow-lg",
-    outline: "border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-400 hover:border-red-500",
+    primary: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+    outline: "border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-400",
     default: "bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400",
   };
   const widthClass = fullWidth ? "w-full" : "";
@@ -45,16 +58,13 @@ const Button = ({ children, onClick, type = 'button', variant = 'default', fullW
   );
 };
 
-/**
- * AnimatedSection component for fade-in and slide-up animations.
- */
-const AnimatedSection = ({ children, delay = 0 }) => {
+// AnimatedSection component for smooth entrance animations
+const AnimatedSection = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }} // Start slightly lower and invisible
-      animate={{ opacity: 1, y: 0 }}   // Animate to full opacity and original position
-      transition={{ duration: 0.6, delay, ease: "easeOut" }} // Smooth transition
-      className="rounded-lg" // Add a class for consistent rounding if needed
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay }}
     >
       {children}
     </motion.div>
@@ -62,10 +72,10 @@ const AnimatedSection = ({ children, delay = 0 }) => {
 };
 
 // Input Field styling (common class for form inputs)
-const inputFieldClasses = "w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-sm hover:border-red-400";
+const inputFieldClasses = "w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200";
 
-// --- Internship Data (with placeholder images and rich content) ---
-const internshipsData = {
+// --- Internship Data (with placeholder images for demonstration) ---
+const internshipsData: { [key: string]: any } = { // Explicitly type internshipsData
   'ui-ux-design': {
     title: 'UI/UX Design Intern',
     category: 'Paid',
@@ -73,30 +83,30 @@ const internshipsData = {
     duration: '3 months',
     department: 'Computer Science',
     description:
-      'Immerse yourself in the world of user-centered design! Work alongside our expert design team to craft stunning, intuitive user interfaces and elevate overall user experiences for our diverse product portfolio.',
+      'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
     responsibilities: [
-      'Collaborate on creating impactful wireframes, interactive mockups, and functional prototypes.',
-      'Conduct insightful user research and meticulous usability testing to inform design decisions.',
-      'Design cutting-edge responsive interfaces optimized for both web and mobile applications.',
-      'Develop and refine visual assets and intricate design elements, maintaining brand consistency.',
-      'Work hand-in-hand with development teams to ensure seamless implementation of design concepts.',
-      'Actively participate in dynamic design thinking workshops and engaging brainstorming sessions.',
+      'Create wireframes, mockups, and prototypes',
+      'Conduct user research and usability testing',
+      'Design responsive interfaces for web and mobile applications',
+      'Create visual assets and design elements',
+      'Collaborate with developers to implement designs',
+      'Participate in design thinking workshops and brainstorming sessions',
     ],
     requirements: [
-      'Currently pursuing a degree in Design, Human-Computer Interaction (HCI), or a closely related field.',
-      'Demonstrated proficiency with industry-standard design tools such as Figma, Adobe XD, or Sketch.',
-      'A solid understanding of foundational user-centered design principles and methodologies.',
-      'Basic command of HTML/CSS for effective communication with developers.',
-      'Possess strong visual design skills, an exceptional eye for detail, and a passion for aesthetics.',
-      'Ability to both give and graciously receive constructive feedback, fostering a collaborative environment.',
+      'Currently pursuing a degree in Design, HCI, or related field',
+      'Proficiency with Figma, Adobe XD, or Sketch',
+      'Understanding of user-centered design principles',
+      'Basic knowledge of HTML/CSS',
+      'Strong visual design skills and attention to detail',
+      'Ability to give and receive constructive feedback',
     ],
     benefits: [
-      'Receive a competitive monthly stipend, acknowledging your valuable contributions.',
-      'Enjoy flexible working hours, promoting a healthy work-life balance.',
-      'Embrace the freedom of remote work options, allowing you to contribute from anywhere.',
-      'Benefit from personalized mentorship directly from senior designers, accelerating your growth.',
-      'Engage in portfolio-worthy projects that will showcase your skills to future employers.',
-      'Unlock invaluable networking opportunities with leading industry professionals and thought leaders.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from senior designers',
+      'Portfolio-worthy projects',
+      'Networking opportunities with industry professionals',
     ],
     priceINR: 4500,
     image: placeholderImage('UI/UX')
@@ -108,30 +118,30 @@ const internshipsData = {
     duration: '3 months',
     department: 'Computer Science',
     description:
-      'Dive deep into modern web development! You\'ll be building highly responsive and dynamic web applications using cutting-edge frontend technologies like React, Vue.js, and TypeScript, contributing to user-facing experiences.',
+      'Develop responsive web applications using modern frontend technologies like React, Vue.js, and TypeScript.',
     responsibilities: [
-      'Assist in the comprehensive development of responsive and high-performance web applications.',
-      'Implement visually appealing and functional UI components leveraging modern frontend frameworks.',
-      'Seamlessly integrate frontend with backend APIs and various database systems.',
-      'Actively participate in collaborative code reviews and productive team meetings.',
-      'Proactively debug and resolve issues within existing applications, ensuring smooth operation.',
-      'Collaborate closely with designers to meticulously translate UI/UX designs into code.',
+      'Assist in developing responsive web applications',
+      'Implement UI components using modern frontend frameworks',
+      'Work with backend APIs and databases',
+      'Participate in code reviews and team meetings',
+      'Debug and fix issues in existing applications',
+      'Collaborate with designers to implement UI/UX designs',
     ],
     requirements: [
-      'Currently pursuing a degree in Computer Science, Software Engineering, or a related technical field.',
-      'Demonstrable knowledge of core web technologies: HTML, CSS, and JavaScript.',
-      'Familiarity with at least one popular frontend framework: React, Vue, or Angular.',
-      'A basic understanding of how REST APIs function and are consumed.',
-      'Possess strong problem-solving skills, meticulous attention to detail, and a logical approach.',
-      'Exhibit strong communication and teamwork abilities, thriving in a collaborative setting.',
+      'Currently pursuing a degree in Computer Science or related field',
+      'Knowledge of HTML, CSS, JavaScript',
+      'Familiarity with React, Vue, or Angular',
+      'Basic understanding of REST APIs',
+      'Good problem-solving skills and attention to detail',
+      'Strong communication and teamwork abilities',
     ],
     benefits: [
-      'Receive a competitive monthly stipend to support your learning journey.',
-      'Benefit from flexible working hours, accommodating your academic schedule.',
-      'Leverage remote work options, providing convenience and flexibility.',
-      'Gain invaluable mentorship from experienced senior developers, guiding your career path.',
-      'Seize the opportunity to work on real, impactful projects that challenge and grow your skills.',
-      'Expand your professional network through engagement with industry professionals and peers.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced developers',
+      'Opportunity to work on real projects',
+      'Networking opportunities with industry professionals',
     ],
     priceINR: 4500,
     image: placeholderImage('Frontend')
@@ -143,30 +153,30 @@ const internshipsData = {
     duration: '3 months',
     department: 'Computer Science',
     description:
-      'Become a core part of our engineering team by building robust and scalable backend systems. You\'ll work with technologies like Node.js, Django, or Spring Boot, managing databases and designing efficient APIs.',
+      'Build scalable backend systems using Node.js, Django, or Spring Boot while working with databases and APIs.',
     responsibilities: [
-      'Construct scalable and high-performance backend systems utilizing Node.js, Django, or Spring Boot.',
-      'Engage in comprehensive database management and API integration tasks.',
-      'Efficiently debug and resolve complex backend issues, ensuring system stability.',
-      'Produce clean, maintainable, secure, and well-documented code.',
-      'Collaborate effectively with frontend developers to ensure seamless API integration.',
-      'Adhere to industry best practices for security, performance, and code quality.',
+      'Build scalable backend systems using Node.js, Django, or Spring Boot',
+      'Work with databases and APIs',
+      'Debug and fix backend issues',
+      'Write clean, maintainable, and secure code',
+      'Collaborate with frontend developers to integrate APIs',
+      'Follow best practices for security and performance',
     ],
     requirements: [
-      'Currently pursuing a degree in Computer Science, Information Technology, or a related field.',
-      'Proficiency in at least one backend programming language (Node.js, Python, Java).',
-      'Hands-on experience with various database systems (SQL or NoSQL).',
-      'A solid understanding of RESTful API development principles and best practices.',
-      'Exceptional problem-solving skills and a keen eye for detail.',
-      'Demonstrated team collaboration and effective communication abilities.',
+      'Currently pursuing a degree in Computer Science or related field',
+      'Knowledge of at least one backend language (Node.js, Python, Java)',
+      'Experience with databases (SQL or NoSQL)',
+      'Understanding of RESTful API development',
+      'Problem-solving skills and attention to detail',
+      'Team collaboration and communication abilities',
     ],
     benefits: [
-      'Receive a competitive monthly stipend for your dedicated efforts.',
-      'Benefit from flexible working hours to balance your commitments.',
-      'Enjoy the convenience and freedom of remote work options.',
-      'Gain specialized mentorship from seasoned backend engineers.',
-      'Acquire real-world project experience, solving complex technical challenges.',
-      'Expand your professional network by connecting with tech leaders and innovators.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced engineers',
+      'Real-world project experience',
+      'Networking opportunities with tech leaders',
     ],
     priceINR: 4500,
     image: placeholderImage('Backend')
@@ -178,65 +188,65 @@ const internshipsData = {
     duration: '3 months',
     department: 'Computer Science',
     description:
-      'Gain invaluable practical experience in building comprehensive full-stack web applications. You\'ll master modern frameworks and tools, taking projects from concept to deployment.',
+      'Get practical experience building full-stack web applications using modern frameworks and tools.',
     responsibilities: [
-      'Develop end-to-end full-stack web applications, from user interface to database.',
-      'Work proficiently with both frontend (e.g., React, Vue) and backend (e.g., Node.js, Python) technologies.',
-      'Implement highly responsive and intuitive UI/UX designs, ensuring cross-device compatibility.',
-      'Manage database interactions and deployment on various cloud hosting platforms.',
-      'Thoroughly debug, test, and optimize applications for performance and reliability.',
-      'Collaborate effectively with designers, product managers, and other stakeholders.',
+      'Build full-stack web applications',
+      'Work with both frontend and backend technologies',
+      'Implement responsive UI/UX designs',
+      'Work with databases and cloud hosting platforms',
+      'Debug and test applications',
+      'Collaborate with designers and product managers',
     ],
     requirements: [
-      'Currently pursuing a degree in Computer Science or a closely related technical field.',
-      'Foundational familiarity with web development basics (HTML, CSS, JavaScript).',
-      'Demonstrable experience with either a frontend (React, Vue) or backend (Node, Python) framework.',
-      'A basic understanding of Git and modern version control systems.',
-      'Strong analytical and problem-solving skills, with an aptitude for learning new technologies.',
-      'Excellent communication and teamwork abilities, fostering a productive environment.',
+      'Currently pursuing a degree in Computer Science or related field',
+      'Familiarity with web development basics (HTML, CSS, JS)',
+      'Experience with frontend (React, Vue) or backend (Node, Python)',
+      'Basic understanding of Git and version control',
+      'Good problem-solving skills',
+      'Strong communication and teamwork abilities',
     ],
     benefits: [
-      'Receive a competitive monthly stipend to support your professional development.',
-      'Enjoy the flexibility of remote work options, balancing your personal and professional life.',
-      'Gain hands-on experience with real client projects, building a robust portfolio.',
-      'Expand your professional network by interacting with experienced engineering teams and industry experts.',
-      'Benefit from comprehensive mentorship from senior developers, guiding your growth.',
-      'Opportunity to contribute to open-source projects or internal tools, enhancing your skill set.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced developers',
+      'Hands-on experience with real clients',
+      'Networking opportunities with engineering teams',
     ],
     priceINR: 4500,
     image: placeholderImage('WebDev')
   },
   'digital-marketing': {
     title: 'Digital Marketing Intern',
-    category: 'Paid',
+    category: 'paid',
     mode: 'Online',
     duration: '3 months',
-    department: 'Marketing',
+    department: 'Computer Science',
     description:
-      'Ignite your career in digital marketing! Gain hands-on experience in essential areas like SEO, engaging content marketing, dynamic social media strategy, and insightful campaign analytics.',
+      'Gain hands-on experience in SEO, content marketing, social media strategy, and campaign analytics.',
     responsibilities: [
-      'Actively assist with the creation and strategic scheduling of compelling social media content.',
-      'Contribute to the development and successful implementation of impactful marketing campaigns.',
-      'Rigorously analyze campaign performance metrics and generate comprehensive reports.',
-      'Conduct in-depth market research and competitive analysis to identify opportunities.',
-      'Provide robust support for various email marketing initiatives and automation.',
-      'Play a key role in developing and optimizing SEO and content marketing strategies.',
+      'Assist with social media content creation and scheduling',
+      'Help develop and implement marketing campaigns',
+      'Analyze campaign performance and create reports',
+      'Conduct market research and competitor analysis',
+      'Support email marketing initiatives',
+      'Contribute to SEO and content marketing strategies',
     ],
     requirements: [
-      'Currently pursuing a degree in Marketing, Communications, Business, or a related field.',
-      'A fundamental understanding of core digital marketing principles and concepts.',
-      'Practical experience with major social media platforms and content creation.',
-      'Basic knowledge of Search Engine Optimization (SEO) and content marketing best practices.',
-      'Possess a strong analytical mindset, excellent organizational skills, and attention to detail.',
-      'Exhibit strong written and verbal communication skills, with a flair for creativity.',
+      'Currently pursuing a degree in Marketing, Communications, or related field',
+      'Understanding of digital marketing principles',
+      'Experience with social media platforms',
+      'Basic knowledge of SEO and content marketing',
+      'Analytical mindset and attention to detail',
+      'Strong written and verbal communication skills',
     ],
     benefits: [
-      'Receive a competitive monthly stipend for your dedicated contributions.',
-      'Enjoy flexible working hours, allowing for better personal and academic balance.',
-      'Embrace the convenience of remote work options, fostering productivity from anywhere.',
-      'Gain direct mentorship from seasoned marketing professionals, accelerating your expertise.',
-      'Acquire hands-on experience with industry-standard marketing tools and platforms.',
-      'Cultivate valuable networking opportunities with industry professionals and leaders.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from marketing professionals',
+      'Hands-on experience with marketing tools and platforms',
+      'Networking opportunities with industry professionals',
     ],
     priceINR: 4500,
     image: placeholderImage('DigitalMarketing')
@@ -248,30 +258,30 @@ const internshipsData = {
     duration: '3 months',
     department: 'Computer Science',
     description:
-      'Step into the realm of enterprise-level Java development! You\'ll learn to build robust applications using powerful frameworks like Spring Boot and Hibernate, contributing to real-world software solutions.',
+      'Learn enterprise-level Java development with frameworks like Spring Boot and Hibernate.',
     responsibilities: [
-      'Work on complex enterprise Java applications utilizing Spring Boot and Hibernate frameworks.',
-      'Assist in the design, development, and enhancement of scalable microservices.',
-      'Participate actively in debugging and resolving intricate backend issues.',
-      'Collaborate seamlessly with cross-functional teams, including frontend and QA.',
-      'Write comprehensive unit tests and engage in constructive code reviews.',
-      'Adhere to agile methodologies and actively participate in sprint planning and stand-ups.',
+      'Work on enterprise Java applications using Spring Boot and Hibernate',
+      'Assist in building and enhancing microservices',
+      'Participate in debugging and fixing backend issues',
+      'Collaborate with cross-functional teams',
+      'Write unit tests and perform code reviews',
+      'Follow agile methodologies and sprint planning',
     ],
     requirements: [
-      'Currently pursuing a degree in Computer Science, Software Engineering, or a related technical discipline.',
-      'Strong foundational knowledge of Java and object-oriented programming (OOP) principles.',
-      'Familiarity with Spring Boot or Hibernate is a significant advantage.',
-      'A basic understanding of RESTful APIs and inter-service communication.',
-      'Possess strong problem-solving skills and an analytical approach to complex challenges.',
-      'Exhibit excellent written and verbal communication skills for effective team collaboration.',
+      'Currently pursuing a degree in Computer Science or related field',
+      'Knowledge of Java and object-oriented programming',
+      'Familiarity with Spring Boot or Hibernate is a plus',
+      'Basic understanding of RESTful APIs',
+      'Strong problem-solving skills',
+      'Excellent written and verbal communication',
     ],
     benefits: [
-      'Receive a competitive monthly stipend for your dedicated contributions.',
-      'Enjoy flexible working hours, promoting a healthy work-life integration.',
-      'Embrace the freedom and convenience of remote work options.',
-      'Gain specialized mentorship from experienced Java developers, accelerating your learning.',
-      'Acquire direct exposure to enterprise-level application architecture and design patterns.',
-      'Unlock valuable networking opportunities with seasoned IT professionals and engineers.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced Java developers',
+      'Exposure to enterprise-level application architecture',
+      'Networking opportunities with IT professionals',
     ],
     priceINR: 4500,
     image: placeholderImage('Java')
@@ -283,30 +293,30 @@ const internshipsData = {
     duration: '3 months',
     department: 'Computer Science',
     description:
-      'Unleash the power of Python! Explore exciting areas like scripting, automation, and backend development. You\'ll work with various Python libraries and frameworks to build innovative solutions.',
+      'Explore scripting, automation, and backend development using Python and related libraries.',
     responsibilities: [
-      'Develop efficient scripts and robust automation tools to streamline processes.',
-      'Construct scalable backend services using popular Python frameworks (e.g., Django, Flask).',
-      'Work extensively with APIs and manage complex database integrations.',
-      'Thoroughly test and debug Python-based applications, ensuring high quality.',
-      'Collaborate effectively with data scientists and machine learning engineers on joint projects.',
-      'Meticulously document processes, code, and project specifications.',
+      'Develop scripts and automation tools',
+      'Build backend services using Python frameworks (Django, Flask)',
+      'Work with APIs and database integrations',
+      'Test and debug Python-based applications',
+      'Collaborate with data scientists and ML engineers',
+      'Document processes and write clean code',
     ],
     requirements: [
-      'Currently pursuing a degree in Computer Science, Data Science, or a related quantitative field.',
-      'Demonstrated proficiency in Python programming, including data structures and algorithms.',
-      'Familiarity with backend frameworks like Django or Flask is highly beneficial.',
-      'A clear understanding of RESTful APIs and JSON data exchange formats.',
-      'Possess strong logical reasoning and algorithmic thinking skills.',
-      'Exhibit good communication and teamwork abilities, thriving in a collaborative environment.',
+      'Currently pursuing a degree in Computer Science or related field',
+      'Proficiency in Python programming',
+      'Familiarity with backend frameworks (e.g., Django, Flask)',
+      'Understanding of RESTful APIs and JSON',
+      'Strong logic and algorithmic thinking',
+      'Good communication and teamwork abilities',
     ],
     benefits: [
-      'Receive a competitive monthly stipend for your valuable contributions.',
-      'Enjoy flexible working hours, supporting a balanced lifestyle.',
-      'Embrace the convenience and flexibility of remote work options.',
-      'Gain expert mentorship from senior Python developers, accelerating your skill development.',
-      'Acquire hands-on exposure to real-world projects, building a practical portfolio.',
-      'Cultivate invaluable networking opportunities with experienced engineering teams.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from senior Python developers',
+      'Real-world project exposure',
+      'Networking opportunities with engineering teams',
     ],
     priceINR: 4500,
     image: placeholderImage('Python')
@@ -316,32 +326,32 @@ const internshipsData = {
     category: 'Paid',
     mode: 'Online',
     duration: '3 months',
-    department: 'Human Resources',
+    department: 'Computer Science',
     description:
-      'Step into the dynamic world of Human Resources! You\'ll gain practical experience by assisting in key HR functions, including recruitment, seamless onboarding, vibrant employee engagement, and effective performance management.',
+      'Assist in recruitment, onboarding, employee engagement, and performance management tasks.',
     responsibilities: [
-      'Actively assist in the recruitment process, including resume screening and interview scheduling.',
-      'Manage and optimize the end-to-end employee onboarding process for new hires.',
-      'Provide comprehensive support for internal employee engagement and wellness initiatives.',
-      'Accurately maintain HR records, confidential documentation, and employee databases.',
-      'Coordinate various training programs, workshops, and company events.',
-      'Gain hands-on experience working with HR software and information systems.',
+      'Assist in recruitment and interview scheduling',
+      'Manage employee onboarding process',
+      'Support internal employee engagement initiatives',
+      'Maintain HR records and documentation',
+      'Coordinate training programs and events',
+      'Work with HR software and systems',
     ],
     requirements: [
-      'Currently pursuing a degree in Human Resources, Business Administration, or a related field.',
-      'A foundational understanding of core HR practices, policies, and procedures.',
-      'Possess strong organizational skills, meticulous attention to detail, and excellent communication abilities.',
-      'Proficiency with Microsoft Office Suite (Word, Excel, PowerPoint) and general office tools.',
-      'Demonstrated ability to handle confidential and sensitive information with the utmost professionalism and discretion.',
-      'Exhibit a detail-oriented, proactive, and empathetic attitude.',
+      'Currently pursuing a degree in Human Resources, Business, or related field',
+      'Basic knowledge of HR practices and procedures',
+      'Strong organizational and communication skills',
+      'Familiarity with Microsoft Office Suite',
+      'Ability to handle confidential information professionally',
+      'Detail-oriented and proactive attitude',
     ],
     benefits: [
-      'Receive a competitive monthly stipend for your dedicated contributions.',
-      'Enjoy flexible working hours, supporting a balanced work and personal life.',
-      'Embrace the convenience and accessibility of remote work options.',
-      'Gain personalized mentorship from seasoned HR professionals, accelerating your growth.',
-      'Acquire hands-on experience in diverse human resources functions, building a practical skill set.',
-      'Cultivate valuable networking opportunities within the company and the broader HR community.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from HR professionals',
+      'Hands-on experience in human resources',
+      'Networking opportunities within the company',
     ],
     priceINR: 4500,
     image: placeholderImage('HR')
@@ -351,32 +361,32 @@ const internshipsData = {
     category: 'Paid',
     mode: 'Online',
     duration: '3 months',
-    department: 'Data Science',
+    department: 'Computer Science',
     description:
-      'Transform raw data into actionable insights! As a Data Analytics Intern, you\'ll analyze real-world datasets, generate compelling reports, and directly support strategic business decision-making using powerful tools like Python, SQL, and Tableau.',
+      'Analyze real-world datasets, generate insights, and support business decision-making using tools like Python, SQL, and Tableau.',
     responsibilities: [
-      'Collect, clean, and analyze complex datasets from various internal and external sources.',
-      'Create insightful reports and compelling data visualizations to effectively communicate findings.',
-      'Provide data-driven support for decision-making processes across different departments.',
-      'Assist in the implementation and meticulous maintenance of robust data tracking systems.',
-      'Help identify key trends, patterns, and anomalies in customer behavior and operational data.',
-      'Contribute to the development of predictive modeling and forecasting initiatives.',
+      'Collect and analyze data from various sources',
+      'Create reports and visualizations to communicate findings',
+      'Support data-driven decision making across departments',
+      'Assist in implementing and maintaining data tracking systems',
+      'Help identify trends and patterns in customer behavior',
+      'Contribute to predictive modeling and forecasting',
     ],
     requirements: [
-      'Currently pursuing a degree in Statistics, Data Science, Computer Science, or a related quantitative field.',
-      'Demonstrated experience with data analysis tools such as Python (Pandas, NumPy), R, or Excel.',
-      'A solid basic understanding of SQL and relational database concepts.',
-      'Knowledge of data visualization techniques and tools (e.g., Matplotlib, Seaborn, Tableau, Power BI).',
-      'Possess strong analytical and problem-solving skills, with an aptitude for critical thinking.',
-      'Exceptional attention to detail and proven ability to work effectively with complex datasets.',
+      'Currently pursuing a degree in Statistics, Data Science, or related field',
+      'Experience with Python, R, Excel, or similar',
+      'Basic understanding of SQL and database concepts',
+      'Knowledge of data visualization techniques',
+      'Strong analytical and problem-solving skills',
+      'Attention to detail and ability to work with complex datasets',
     ],
     benefits: [
-      'Receive a competitive monthly stipend for your contributions to data insights.',
-      'Enjoy flexible working hours, supporting a balanced academic and professional schedule.',
-      'Embrace the convenience and collaboration of remote work options.',
-      'Gain personalized mentorship from experienced senior data analysts.',
-      'Access and utilize cutting-edge data analysis tools and platforms.',
-      'Cultivate valuable networking opportunities with industry professionals and data experts.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced data analysts',
+      'Access to cutting-edge data analysis tools',
+      'Networking opportunities with industry professionals',
     ],
     priceINR: 4500,
     image: placeholderImage('DataAnalytics')
@@ -386,32 +396,32 @@ const internshipsData = {
     category: 'Paid',
     mode: 'Online',
     duration: '3 months',
-    department: 'Artificial Intelligence',
+    department: 'Computer Science',
     description:
-      'Pioneer the future with us! Work on cutting-edge machine learning models, intricate deep learning projects, and solve real-world AI use cases, contributing to intelligent systems.',
+      'Work on machine learning models, deep learning projects, and real-world AI use cases.',
     responsibilities: [
-      'Design, build, and rigorously train various machine learning models.',
-      'Implement and optimize deep learning solutions for specific challenges.',
-      'Work extensively with large and complex datasets, including preprocessing and feature engineering.',
-      'Collaborate seamlessly with data science and engineering teams on integrated projects.',
-      'Research, evaluate, and apply the latest advancements in AI algorithms and techniques.',
-      'Present findings, insights, and contribute to the development of AI-powered products.',
+      'Build and train machine learning models',
+      'Implement deep learning solutions',
+      'Work with large datasets and preprocessing',
+      'Collaborate with data science and engineering teams',
+      'Research and apply latest AI algorithms and techniques',
+      'Present findings and contribute to AI-powered products',
     ],
     requirements: [
-      'Currently pursuing a degree in Computer Science, Data Science, Artificial Intelligence, or a related quantitative field.',
-      'Proficiency in Python and core ML/DL libraries (e.g., Pandas, Scikit-learn, TensorFlow, PyTorch).',
-      'A deep understanding of supervised, unsupervised, and reinforcement learning paradigms.',
-      'Experience with development environments like Jupyter Notebooks or Google Colab.',
-      'Possess a strong mathematical foundation in linear algebra, calculus, and statistics.',
-      'Demonstrated curiosity, a passion for AI, and an eagerness to explore emerging technologies.',
+      'Currently pursuing a degree in CS, Data Science, or related field',
+      'Proficiency in Python and ML libraries (Pandas, Scikit-learn, TensorFlow)',
+      'Understanding of supervised and unsupervised learning',
+      'Experience with Jupyter Notebooks or similar environments',
+      'Strong mathematical foundation and analytical thinking',
+      'Curiosity and passion for AI and emerging technologies',
     ],
     benefits: [
-      'Receive a competitive monthly stipend for your contributions to AI innovation.',
-      'Enjoy flexible working hours, accommodating your academic and personal commitments.',
-      'Embrace the convenience and collaboration of remote work options.',
-      'Gain invaluable mentorship directly from experienced AI researchers and engineers.',
-      'Acquire hands-on experience with state-of-the-art AI models and methodologies.',
-      'Cultivate unparalleled networking opportunities with top AI professionals and thought leaders.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from AI researchers',
+      'Hands-on experience with AI models',
+      'Networking opportunities with top AI professionals',
     ],
     priceINR: 4500,
     image: placeholderImage('AI/ML')
@@ -421,32 +431,32 @@ const internshipsData = {
     category: 'Paid',
     mode: 'Online',
     duration: '3 months',
-    department: 'Artificial Intelligence',
+    department: 'Computer science',
     description:
-      'Become a pioneer in conversational AI! You\'ll explore natural language processing (NLP), cutting-edge chatbot development, and master prompt engineering using advanced GPT-based models.',
+      'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
     responsibilities: [
-      'Design, develop, and deploy intelligent chatbots and conversational agents.',
-      'Fine-tune Large Language Models (LLMs) and expertly optimize prompts for desired outputs.',
-      'Integrate sophisticated NLP models into various applications and workflows.',
-      'Rigorously evaluate model performance, accuracy, and identify areas for improvement.',
-      'Collaborate closely with AI engineers, product teams, and UX designers.',
-      'Contribute significantly to ongoing AI research and drive innovation in language models.',
+      'Develop chatbots and conversational agents',
+      'Fine-tune LLMs and optimize prompts',
+      'Integrate NLP models into applications',
+      'Evaluate model performance and accuracy',
+      'Collaborate with AI engineers and product teams',
+      'Contribute to AI research and innovation',
     ],
     requirements: [
-      'Currently pursuing a degree in Computer Science, AI, Computational Linguistics, or a related field.',
-      'A strong understanding of Natural Language Processing (NLP) concepts and Large Language Models (LLMs).',
-      'Demonstrated experience with Python and relevant machine learning libraries.',
-      'Familiarity with NLP frameworks such as Hugging Face Transformers or LangChain is a plus.',
-      'Possess strong analytical, problem-solving, and technical skills.',
-      'Exhibit a deep passion for AI, language models, and their real-world applications.',
+      'Currently pursuing a degree in CS, AI, or related field',
+      'Understanding of NLP and LLMs',
+      'Experience with Python and ML libraries',
+      'Familiarity with Hugging Face or LangChain',
+      'Strong analytical and technical skills',
+      'Passion for AI and language models',
     ],
     benefits: [
-      'Receive a competitive monthly stipend for your contributions to conversational AI.',
-      'Enjoy flexible working hours, supporting a balanced academic and professional life.',
-      'Embrace the convenience and collaboration of remote work options.',
-      'Gain expert mentorship directly from seasoned NLP specialists and AI architects.',
-      'Acquire hands-on exposure to state-of-the-art AI technologies and models.',
-      'Cultivate valuable networking opportunities with leading AI and chatbot specialists.',
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from NLP experts',
+      'Exposure to state-of-the-art AI',
+      'Networking with AI and chatbot specialists',
     ],
     priceINR: 4500,
     image: placeholderImage('ChatGPT')
@@ -458,30 +468,30 @@ const internshipsData = {
     duration: '3 months',
     department: 'Computer Science',
     description:
-      'Master C# development! Learn fundamental syntax, core object-oriented programming concepts, and delve into the .NET framework fundamentals. You\'ll build applications using C# and related libraries.',
+      'Learn fundamental syntax, object-oriented programming concepts, and .NET framework fundamentals using C# and related libraries.',
     responsibilities: [
-      'Assist in developing robust applications using C# and the .NET framework, spanning desktop, web, and cloud.',
-      'Collaborate closely with the development team to design, develop, test, and deploy new features and enhancements.',
-      'Write clean, well-documented, and efficient code adhering to best practices and OOP principles.',
-      'Work with various database systems (e.g., SQL Server, Cosmos DB) and implement data access logic using ORMs like Entity Framework.',
-      'Actively participate in team workflows, including version control (Git), Agile processes, and rigorous code reviews.',
+      'Assist in developing applications using C# and the .NET framework, both desktop and web-based',
+      'Collaborate with the development team to design, develop, test, and deploy features',
+      'Write clean, well-documented, and efficient code following best practices and OOP principles',
+      'Work with databases (e.g., SQL Server) and implement data access logic using tools like Entity Framework',
+      'Participate in team workflows, including version control (Git), Agile processes, and code reviews',
     ],
     requirements: [
-      'Currently pursuing a degree in Computer Science, Software Engineering, or a related technical field.',
-      'Familiarity with the Visual Studio integrated development environment.',
-      'Possess strong logical reasoning and algorithmic thinking skills.',
-      'Exhibit good communication and teamwork abilities, fostering a productive environment.',
-      'Prior experience in C# programming is highly appreciated.',
-      'A foundational understanding of the .NET framework and its ecosystem is beneficial.',
+      'Currently pursuing a degree in Computer Science or related field',
+      'Familiarity with Visual Studio',
+      'Strong logic and algorithmic thinking',
+      'Good communication and teamwork abilities',
+      'Prior experience in C# programming is appreciated',
+      'Understanding of .NET framework is appreciated',
     ],
     benefits: [
-      'Develop a strong understanding of C# syntax and set up a productive development environment.',
-      'Master C# fundamentals, including variables, data types, operators, and control flow.',
-      'Implement control structures such as if statements, for loops, and while loops for logical flow.',
-      'Comprehend and effectively apply object-oriented programming (OOP) concepts: classes, objects, inheritance, polymorphism, and encapsulation.',
-      'Create and utilize methods to modularize and organize your code, enhancing readability and maintainability.',
-      'Implement robust error handling mechanisms (try-catch) to manage exceptions gracefully.',
-      'Gain practical experience in writing, compiling, and running C# programs.',
+      'Understand C# and set up a development environment',
+      'Learn C#, including syntax, variables, data types, and operators',
+      'Use control structures such as if statements, for loops, and while loops',
+      'Understand and apply object-oriented programming (OOP) concepts: classes, objects, and inheritance',
+      'Create and use methods to organize your code and make it easier to understand',
+      'Handle errors in your code and write code to manage them properly',
+      'Write and run C# programs',
     ],
     priceINR: 4500,
     image: placeholderImage('C#')
@@ -490,15 +500,16 @@ const internshipsData = {
 
 // --- Main InternshipDetails Component ---
 const InternshipDetails = () => {
-  const { id } = useParams();
-  const internshipId = id && id in internshipsData ? id : 'web-development'; // Default to web-development if ID is invalid
+  const { id } = useParams<{ id: string }>(); // Specify type for useParams
+  const internshipId = id && id in internshipsData ? id : 'web-development';
   const internship = internshipsData[internshipId];
 
-  // State for form submission status and messages
-  const [submissionStatus, setSubmissionStatus] = useState('idle'); // 'idle', 'processing', 'success', 'error'
-  const [submissionMessage, setSubmissionMessage] = useState('');
+  // State to manage the application submission status
+  const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle'); // 'idle', 'processing', 'success', 'error'
+  // State to store and display submission messages to the user
+  const [submissionMessage, setSubmissionMessage] = useState<string>('');
 
-  // State for form data
+  // State to hold form data
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -509,58 +520,61 @@ const InternshipDetails = () => {
   });
 
   // Handle input changes for text fields
-  const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Define the API base URL for your Render backend.
   // This URL should point to your deployed backend service that handles email sending.
+  // It's hardcoded here for simplicity, but in a production environment,
+  // it would typically be loaded from an environment variable.
   const API_BASE_URL = 'https://main-webpage-l85m.onrender.com'; // Your Render backend URL
 
-  // Handle form submission (sends email notifications to applicant and admin)
-  const handleFormSubmit = async (e: { preventDefault: () => void; }) => {
-    e.preventDefault();
+  // Handle form submission (directly sends email notifications)
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent default form submission behavior
     console.log('Attempting to submit form with data:', formData);
     setSubmissionStatus('processing');
     setSubmissionMessage('Sending your application and confirmation email...');
 
     try {
       // 1. Send confirmation email to the applicant
-      // This email confirms to the user that their application has been received.
+      // This sends an email to the user who filled out the form, confirming their application.
       const applicantRes = await fetch(`${API_BASE_URL}/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'applicationConfirmation', // Backend email template type
+          type: 'applicationConfirmation', // Type of email for the backend to process
           name: formData.name,
           email: formData.email,
-          internshipTitle: internship?.title || 'Internship', // Pass internship title for email context
+          internshipTitle: internship?.title || 'Internship', // Pass internship title for context
         }),
       });
 
       if (!applicantRes.ok) {
         const errorText = await applicantRes.text();
         console.warn('Failed to send confirmation email to applicant:', errorText);
-        // Log a warning, but proceed to try sending admin email as it's independent.
+        // We log a warning but don't throw an error here, as the admin email might still succeed.
+        // This allows for partial success and more specific error messages later if admin email fails.
       } else {
-        console.log('Confirmation email sent to applicant successfully.');
+        console.log('Confirmation email sent to applicant.');
       }
 
       // 2. Send application details notification email to the admin
-      // This email contains the full application details for the administrator.
+      // This sends an email to the site administrator with the applicant's details.
       const adminRes = await fetch(`${API_BASE_URL}/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'internshipApplicationNotification', // Backend email template type
+          type: 'internshipApplicationNotification', // Type of email for the backend to process
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
           education: formData.education,
           experience: formData.experience,
           message: formData.message,
-          internshipTitle: internship?.title || 'Internship', // Pass internship title for email context
+          internshipTitle: internship?.title || 'Internship', // Pass internship title for context
         }),
       });
 
@@ -568,7 +582,7 @@ const InternshipDetails = () => {
         const errorText = await adminRes.text();
         throw new Error(`Failed to notify admin: ${adminRes.status} - ${errorText}`);
       }
-      console.log('Application notification email sent to admin successfully.');
+      console.log('Application notification email sent to admin.');
       setSubmissionStatus('success');
       setSubmissionMessage('Application submitted successfully! A confirmation email has been sent to you.');
 
@@ -582,318 +596,273 @@ const InternshipDetails = () => {
         message: '',
       });
     } catch (error) {
-      console.error('Error during application submission:', error);
+      console.error('Error in sending application emails:', error);
       setSubmissionStatus('error');
-      // Provide a user-friendly error message, handling different error types
-      setSubmissionMessage(`Application submission failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your network connection or contact support.`);
+      // Provide a more specific error message based on common issues
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        errorMessage = 'Network error: Could not connect to the server. Please check your internet connection or try again later.';
+      } else if (error instanceof Error) {
+        errorMessage = `Submission failed: ${error.message}`;
+      }
+      setSubmissionMessage(errorMessage);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 flex flex-col items-center py-16 px-4 font-sans">
-      {/* Page Title with animation */}
-      <motion.h1
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="text-4xl md:text-5xl font-extrabold text-gray-900 text-center mb-12 drop-shadow-sm"
-      >
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-16 px-4 font-sans">
+      <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-12">
         <span className="text-red-600">{internship.title}</span> Internship Application
-      </motion.h1>
+      </h1>
 
-      <section className="section w-full max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Internship Details Section */}
-          <div className="lg:col-span-2">
-            <AnimatedSection>
-              <div className="bg-white p-8 rounded-xl shadow-xl border border-gray-100 mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">Internship Overview</h2>
-                <p className="text-lg text-gray-700 mb-8 leading-relaxed">{internship.description}</p>
+      <section className="section bg-gray-100 w-full max-w-6xl">
+        <div className="container-custom">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Internship Details Section */}
+            <div className="lg:col-span-2">
+              <AnimatedSection>
+                <h2 className="text-3xl font-bold text-gray-800 mb-6">Internship Overview</h2>
+                <p className="text-lg text-gray-700 mb-8">{internship.description}</p>
 
-                {/* Key Info Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="bg-white p-5 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-300"
-                  >
+                  {/* Duration Card */}
+                  <div className="bg-white p-5 rounded-lg shadow-md border border-gray-200">
                     <div className="flex items-center">
-                      <Calendar className="text-red-500 mr-3 flex-shrink-0" size={24} />
+                      <Calendar className="text-red-500 mr-3" size={20} />
                       <div>
-                        <h3 className="font-semibold text-gray-700 text-lg">Duration</h3>
+                        <h3 className="font-semibold text-gray-700">Duration</h3>
                         <p className="text-gray-600">{internship.duration}</p>
                       </div>
                     </div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="bg-white p-5 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-300"
-                  >
+                  </div>
+                  {/* Mode Card (Online/Offline) */}
+                  <div className="bg-white p-5 rounded-lg shadow-md border border-gray-200">
                     <div className="flex items-center">
                       {internship.mode === 'Online' ? (
                         <>
-                          <Wifi className="text-red-500 mr-3 flex-shrink-0" size={24} />
+                          <Wifi className="text-red-500 mr-3" size={20} />
                           <div>
-                            <h3 className="font-semibold text-gray-700 text-lg">Mode</h3>
-                            <p className="text-gray-600">Online / Remote</p>
+                            <h3 className="font-semibold text-gray-700">Mode</h3>
+                            <p className="text-gray-600">Online</p>
                           </div>
                         </>
                       ) : (
                         <>
-                          <Home className="text-red-500 mr-3 flex-shrink-0" size={24} />
+                          <Home className="text-red-500 mr-3" size={20} />
                           <div>
-                            <h3 className="font-semibold text-gray-700 text-lg">Mode</h3>
-                            <p className="text-gray-600">Offline / On-site</p>
+                            <h3 className="font-semibold text-gray-700">Mode</h3>
+                            <p className="text-gray-600">Offline</p>
                           </div>
                         </>
                       )}
                     </div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="bg-white p-5 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-300"
-                  >
+                  </div>
+                  {/* Department Card */}
+                  <div className="bg-white p-5 rounded-lg shadow-md border border-gray-200">
                     <div className="flex items-center">
-                      <Users className="text-red-500 mr-3 flex-shrink-0" size={24} />
+                      <Users className="text-red-500 mr-3" size={20} />
                       <div>
-                        <h3 className="font-semibold text-gray-700 text-lg">Department</h3>
+                        <h3 className="font-semibold text-gray-700">Department</h3>
                         <p className="text-gray-600">{internship.department}</p>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
 
-                {/* Responsibilities */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                  className="mb-8"
-                >
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Responsibilities</h3>
+                {/* Responsibilities Section */}
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">Responsibilities</h3>
                   <ul className="space-y-3">
-                    {internship.responsibilities.map((item: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
-                      <li key={index} className="flex items-start text-gray-700 text-base">
-                        <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={20} />
+                    {internship.responsibilities.map((item: string, index: number) => (
+                      <li key={index} className="flex items-start text-gray-700">
+                        <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
-                </motion.div>
+                </div>
 
-                {/* Requirements */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                  className="mb-8"
-                >
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Requirements</h3>
+                {/* Requirements Section */}
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">Requirements</h3>
                   <ul className="space-y-3">
-                    {internship.requirements.map((item: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
-                      <li key={index} className="flex items-start text-gray-700 text-base">
-                        <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={20} />
+                    {internship.requirements.map((item: string, index: number) => (
+                      <li key={index} className="flex items-start text-gray-700">
+                        <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
-                </motion.div>
+                </div>
 
-                {/* Benefits */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.6 }}
-                >
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Benefits</h3>
+                {/* Benefits Section */}
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">Benefits</h3>
                   <ul className="space-y-3">
-                    {internship.benefits.map((item: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
-                      <li key={index} className="flex items-start text-gray-700 text-base">
-                        <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={20} />
+                    {internship.benefits.map((item: string, index: number) => (
+                      <li key={index} className="flex items-start text-gray-700">
+                        <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
-                </motion.div>
-              </div>
-            </AnimatedSection>
-          </div>
+                </div>
+              </AnimatedSection>
+            </div>
 
-          {/* Application Form Section */}
-          <div className="lg:col-span-1">
-            <AnimatedSection delay={0.2}>
-              <div className="bg-white rounded-xl p-8 border border-gray-100 sticky top-24 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-                {submissionStatus === 'idle' || submissionStatus === 'processing' ? (
-                  <>
-                    <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">Apply Now</h3>
-                    <form onSubmit={handleFormSubmit} className="space-y-5">
-                      {/* Form Fields with subtle animations */}
-                      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                          Full Name <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          required
-                          className={inputFieldClasses}
-                          placeholder="Enter your full name"
-                        />
-                      </motion.div>
-                      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.25 }}>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                          Email Address <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          required
-                          className={inputFieldClasses}
-                          placeholder="your.email@example.com"
-                        />
-                      </motion.div>
-                      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.3 }}>
-                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                          Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          id="phone"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          className={inputFieldClasses}
-                          placeholder="+1 (123) 456-7890"
-                        />
-                      </motion.div>
-                      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.35 }}>
-                        <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
-                          Highest Degree and Branch <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          id="education"
-                          name="education"
-                          value={formData.education}
-                          onChange={handleInputChange}
-                          required
-                          className={inputFieldClasses}
-                          placeholder="e.g., B.Tech in Computer Science"
-                        />
-                      </motion.div>
-                      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.4 }}>
-                        <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-1">
-                          Relevant Experience
-                        </label>
-                        <textarea
-                          id="experience"
-                          name="experience"
-                          value={formData.experience}
-                          onChange={handleInputChange}
-                          rows={4}
-                          className={`${inputFieldClasses} resize-none`}
-                          placeholder="Briefly describe your relevant experience, projects, or internships..."
-                        />
-                      </motion.div>
-                      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.45 }}>
-                        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                          Cover Letter (Optional)
-                        </label>
-                        <textarea
-                          id="message"
-                          name="message"
-                          value={formData.message}
-                          onChange={handleInputChange}
-                          rows={5}
-                          className={`${inputFieldClasses} resize-none`}
-                          placeholder="Tell us why you're interested in this internship and what makes you a great fit..."
-                        />
-                      </motion.div>
-                      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }}>
+            {/* Application Form Section */}
+            <div className="lg:col-span-1">
+              <AnimatedSection delay={0.2}>
+                <div className="bg-white rounded-lg p-6 border border-gray-200 sticky top-24 shadow-md hover:shadow-lg transition-shadow duration-300">
+                  {submissionStatus === 'idle' || submissionStatus === 'processing' ? (
+                    <>
+                      <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Apply Now</h3>
+                      <form onSubmit={handleFormSubmit} className="space-y-4">
+                        <div>
+                          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                            Full Name *
+                          </label>
+                          <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            required
+                            className={inputFieldClasses}
+                            placeholder="Enter Name"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            Email Address *
+                          </label>
+                          <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            required
+                            className={inputFieldClasses}
+                            placeholder="Example@gmail.com"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                            Phone Number
+                          </label>
+                          <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleInputChange}
+                            className={inputFieldClasses}
+                            placeholder="+1 (123) 456-7890"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
+                            Degree and Branch *
+                          </label>
+                          <input
+                            type="text"
+                            id="education"
+                            name="education"
+                            value={formData.education}
+                            onChange={handleInputChange}
+                            required
+                            className={inputFieldClasses}
+                            placeholder="e.g., B.Tech in Computer Science"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-1">
+                            Relevant Experience
+                          </label>
+                          <textarea
+                            id="experience"
+                            name="experience"
+                            value={formData.experience}
+                            onChange={handleInputChange}
+                            rows={3}
+                            className={`${inputFieldClasses} resize-none`}
+                            placeholder="Briefly describe your relevant experience..."
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                            Cover Letter
+                          </label>
+                          <textarea
+                            id="message"
+                            name="message"
+                            value={formData.message}
+                            onChange={handleInputChange}
+                            rows={4}
+                            className={`${inputFieldClasses} resize-none`}
+                            placeholder="Why are you interested in this internship?"
+                          />
+                        </div>
                         <Button
                           type="submit"
                           variant="primary"
                           fullWidth
-                          className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl text-lg mt-6"
+                          className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white"
                           disabled={submissionStatus === 'processing'}
                         >
                           {submissionStatus === 'processing' ? (
-                            <>
-                              <Loader2 className="mr-2 animate-spin" size={20} />
-                              Submitting...
-                            </>
+                            <Loader2 className="mr-2 animate-spin" size={18} />
                           ) : (
-                            <>
-                              <Send className="mr-2" size={20} />
-                              Submit Application
-                            </>
+                            <Send className="mr-2" size={18} />
                           )}
+                          Submit Application
                         </Button>
-                      </motion.div>
+                      </form>
                       {submissionStatus === 'processing' && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.3 }}
-                          className="mt-4 text-center text-red-600 flex items-center justify-center font-medium"
-                        >
+                        <div className="mt-4 text-center text-red-600 flex items-center justify-center">
                           <Loader2 className="mr-2 animate-spin" size={20} /> {submissionMessage}
-                        </motion.div>
+                        </div>
                       )}
-                    </form>
-                  </>
-                ) : (
-                  // Submission Status Message (Success/Error)
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="text-center py-8 px-4"
-                  >
-                    <div className={`p-6 rounded-lg mb-6 ${submissionStatus === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
-                      {submissionStatus === 'success' ? (
-                        <>
-                          <CheckCircle className="inline-block mb-3 text-green-600" size={32} />
-                          <p className="text-xl font-semibold mb-2">Application Submitted Successfully!</p>
-                          <p className="text-base mt-2">
-                            Thank you for applying. A confirmation email has been sent to <span className="font-bold">{formData.email}</span>. Our team will review your application and contact you soon.
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="inline-block mb-3 text-red-600" size={32} />
-                          <p className="text-xl font-semibold mb-2">Application Submission Failed!</p>
-                          <p className="text-base mt-2">
-                            {submissionMessage || "There was an unexpected issue submitting your application. Please try again later or contact support."}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
+                    </>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="text-center py-6"
+                    >
+                      <div className={`p-4 rounded-lg mb-4 ${submissionStatus === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {submissionStatus === 'success' ? (
+                          <>
+                            <CheckCircle className="inline-block mr-2 text-green-600" size={24} />
+                            <p className="font-medium">Application Submitted Successfully!</p>
+                            <p className="text-sm mt-2">
+                              Thank you for applying. A confirmation email has been sent to <span className="font-semibold">{formData.email}</span>. Our team will contact you soon.
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="inline-block mr-2 text-red-600" size={24} />
+                            <p className="font-medium">Application Submission Failed!</p>
+                            <p className="text-sm mt-2">
+                              {submissionMessage} {/* Display specific error message */}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                      <Button variant="outline" onClick={() => {
                         setSubmissionStatus('idle');
                         setSubmissionMessage('');
-                      }}
-                      className="mt-4"
-                    >
-                      Submit Another Application
-                    </Button>
-                  </motion.div>
-                )}
-              </div>
-            </AnimatedSection>
+                      }}>
+                        Submit Another Application
+                      </Button>
+                    </motion.div>
+                  )}
+                </div>
+              </AnimatedSection>
+            </div>
           </div>
         </div>
       </section>

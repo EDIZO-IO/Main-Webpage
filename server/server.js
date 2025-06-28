@@ -4,270 +4,213 @@ import cors from 'cors';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
-dotenv.config(); // Load .env variables from .env file
+dotenv.config(); // Load .env variables from a .env file
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ✅ Allowed frontend URLs for CORS
+// ✅ Allowed frontend URLs for CORS policy
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5174', // Added the new local development origin
   'https://EDIZO-IO.github.io',
   'https://EDIZO-IO.github.io/Main-Webpage'
 ];
 
-// Configure CORS for allowed origins
+// Configure CORS middleware
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
+    // Check if the requesting origin is in the allowed list
     if (!allowedOrigins.includes(origin)) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      const msg = 'CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }
     return callback(null, true);
   },
-  credentials: true
+  credentials: true // Allow cookies to be sent with cross-origin requests
 }));
 
-// Middleware to parse JSON and URL-encoded data
+// Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // ✅ Email Sender Function
-/**
- * Sends an email using Nodemailer.
- * @param {object} options - Email options.
- * @param {string} options.type - Type of email (e.g., 'applicationConfirmation', 'internshipApplicationNotification', 'contactForm', 'custom').
- * @param {string} [options.recipientEmail] - Explicit recipient email address.
- * @param {string} [options.subject] - Email subject for custom types.
- * @param {string} [options.htmlContent] - HTML content for custom types.
- * @param {object} data - Additional data relevant to the email type.
- */
+// This function centralizes the email sending logic using Nodemailer.
 async function sendEmail({ type, recipientEmail, subject, htmlContent, ...data }) {
-  // Create a Nodemailer transporter using Gmail service
+  // Create a Nodemailer transporter using Gmail service and authentication from environment variables
+  // Ensure EMAIL_USER and EMAIL_PASS are set in your .env file
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER, // Your Gmail email address
-      pass: process.env.EMAIL_PASS  // Your Gmail app password (NOT your regular password)
+      user: process.env.EMAIL_USER, // Your Gmail address (e.g., your_email@gmail.com)
+      pass: process.env.EMAIL_PASS   // Your Gmail app password (NOT your regular password)
     }
   });
 
   let finalSubject = subject || '';
   let finalHtml = htmlContent || '';
-  let recipient = recipientEmail || data.email; // Default recipient from data.email if recipientEmail is not provided
+  let recipient = recipientEmail || data.email; // Prioritize recipientEmail, then fallback to data.email
 
-  // Enhanced logging for debugging recipient email
-  console.log(`✉️ Attempting to send email of type: ${type}`);
-  console.log(`Initial recipient for email: ${recipient}`);
-  console.log(`Process ENV Internship Recipient: ${process.env.INTERNSHIP_RECIPIENT_EMAIL}`);
-  console.log(`Process ENV Contact Form Recipient: ${process.env.CONTACT_FORM_RECIPIENT_EMAIL}`);
-  console.log(`Process ENV Email User: ${process.env.EMAIL_USER}`);
-
-
-  // Validate recipient email
-  if (!recipient && (type === 'applicationConfirmation' || type === 'custom')) {
-    throw new Error('Recipient email is missing for confirmation or custom email types.');
+  // Ensure a recipient email is provided
+  if (!recipient) {
+    throw new Error('Recipient email is missing for sending email.');
   }
 
-  // Logic to determine subject, HTML content, and final recipient based on email type
+  // Determine email content based on the 'type' of email
   switch (type) {
     case 'applicationConfirmation': {
+      // Email sent to the applicant to confirm their submission
       finalSubject = `Application Confirmation - ${data.internshipTitle || 'Internship'}`;
       finalHtml = `
-        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-          <h2 style="color: #E53E3E; text-align: center;">Thank you for your Application, ${data.name}!</h2>
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <h2>Thank you for your Application, ${data.name}!</h2>
           <p>We have successfully received your application for the <strong>${data.internshipTitle}</strong> at <strong>E.D.I.Z.O.</strong>.</p>
-          <p>Our team will review your application thoroughly and get in touch with you regarding the next steps within a few business days.</p>
+          <p>Our team will review your application thoroughly and get in touch with you regarding the next steps.</p>
           <p>In the meantime, if you have any questions, please do not hesitate to contact us.</p>
           
-          <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;" />
+          <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;" />
           
-          <h3 style="color: #4A5568;">📱 Join Our WhatsApp Community</h3>
-          <p>Stay updated about your internship process and connect with other applicants by joining our official WhatsApp group:</p>
-          <a href="https://chat.whatsapp.com/LhhLFD6pbil3NFImE30UIQ" target="_blank" style="display: inline-flex; align-items: center; background-color: #25D366; color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Icon" width="24" height="24" style="vertical-align: middle; margin-right: 10px;" />
+          <h3>📱 Join Our WhatsApp Group</h3>
+          <p>Stay updated about your internship by joining the official WhatsApp group:</p>
+          <a href="https://chat.whatsapp.com/LhhLFD6pbil3NFImE30UIQ" target="_blank" style="display: inline-block; padding: 10px 15px; background-color: #25D366; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Join WhatsApp Group" width="20" style="vertical-align: middle; margin-right: 8px;" />
             Join WhatsApp Group
           </a>
           
-          <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;" />
+          <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;" />
           
-          <p style="text-align: center; color: #718096; font-size: 0.9em;">Best regards,<br/><strong>The E.D.I.Z.O Team</strong></p>
+          <p>Best regards,<br/><strong>The E.D.I.Z.O Team</strong></p>
         </div>
       `;
       break;
     }
 
     case 'internshipApplicationNotification': {
-      // Ensure the recipient is explicitly the admin email from environment variables
-      recipient = process.env.INTERNSHIP_RECIPIENT_EMAIL;
-      if (!recipient) {
-        // Fallback to EMAIL_USER if specific recipient is not set for admin
-        console.warn('❌ INTERNSHIP_RECIPIENT_EMAIL is not set. Falling back to EMAIL_USER for admin notification.');
-        recipient = process.env.EMAIL_USER;
-      }
-      if (!recipient) {
-         throw new Error('INTERNSHIP_RECIPIENT_EMAIL or EMAIL_USER is not configured for admin notification.');
-      }
-
-      finalSubject = `New Internship Application - ${data.internshipTitle || 'Unknown Internship'}`;
+      // Email sent to the admin to notify about a new internship application
+      // Ensure INTERNSHIP_RECIPIENT_EMAIL is set in your .env file
+      recipient = process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER;
+      finalSubject = `New Internship Application - ${data.internshipTitle}`;
       finalHtml = `
-        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #E53E3E; text-align: center;">🎉 New Internship Application Received!</h2>
-          <p>A new application has been submitted for the <strong>${data.internshipTitle}</strong> internship.</p>
-          <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ddd;" />
-          <h3 style="color: #4A5568;">Applicant Details:</h3>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 8px;"><strong>Name:</strong> ${data.name}</li>
-            <li style="margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:${data.email}" style="color: #007bff; text-decoration: none;">${data.email}</a></li>
-            <li style="margin-bottom: 8px;"><strong>Phone:</strong> ${data.phone || 'N/A'}</li>
-            <li style="margin-bottom: 8px;"><strong>Education:</strong> ${data.education || 'N/A'}</li>
-            <li style="margin-bottom: 8px;"><strong>Relevant Experience:</strong><br/><pre style="background-color: #f8f8f8; padding: 10px; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-break: break-word;">${data.experience || 'Not provided'}</pre></li>
-            <li style="margin-bottom: 8px;"><strong>Cover Letter/Message:</strong><br/><pre style="background-color: #f8f8f8; padding: 10px; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-break: break-word;">${data.message || 'Not provided'}</pre></li>
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <h2>New Internship Application Received</h2>
+          <p>Details for <strong>${data.internshipTitle}</strong>:</p>
+          <ul style="list-style-type: none; padding: 0;">
+            <li><strong>Name:</strong> ${data.name}</li>
+            <li><strong>Email:</strong> ${data.email}</li>
+            <li><strong>Phone:</strong> ${data.phone || 'N/A'}</li>
+            <li><strong>Education:</strong> ${data.education || 'N/A'}</li>
+            <li><strong>Experience:</strong><br/><pre style="white-space: pre-wrap; background-color: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #eee;">${data.experience || 'No relevant experience provided.'}</pre></li>
+            <li><strong>Cover Letter/Message:</strong><br/><pre style="white-space: pre-wrap; background-color: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #eee;">${data.message || 'No message provided.'}</pre></li>
           </ul>
-          <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ddd;" />
-          <p style="font-size: 0.9em; color: #718096; text-align: center;">Please review this application promptly.</p>
         </div>`;
       break;
     }
 
     case 'contactForm': {
-      // Ensure the recipient is explicitly the contact form recipient email from environment variables
-      recipient = process.env.CONTACT_FORM_RECIPIENT_EMAIL;
-      if (!recipient) {
-        // Fallback to EMAIL_USER if specific recipient is not set for contact form
-        console.warn('❌ CONTACT_FORM_RECIPIENT_EMAIL is not set. Falling back to EMAIL_USER for contact form notification.');
-        recipient = process.env.EMAIL_USER;
-      }
-      if (!recipient) {
-        throw new Error('CONTACT_FORM_RECIPIENT_EMAIL or EMAIL_USER is not configured for contact form notification.');
-      }
-
+      // Email sent to the admin for contact form submissions
+      // Ensure CONTACT_FORM_RECIPIENT_EMAIL is set in your .env file
+      recipient = process.env.CONTACT_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER;
       finalSubject = `Contact Form Submission - ${data.subject || 'No Subject'}`;
       finalHtml = `
-        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #4A5568; text-align: center;">New Contact Form Submission</h2>
-          <p>You have received a new message from your website contact form.</p>
-          <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ddd;" />
-          <h3 style="color: #4A5568;">Message Details:</h3>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 8px;"><strong>Name:</strong> ${data.name || 'N/A'}</li>
-            <li style="margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:${data.email}" style="color: #007bff; text-decoration: none;">${data.email || 'N/A'}</a></li>
-            <li style="margin-bottom: 8px;"><strong>Phone:</strong> ${data.phone || 'N/A'}</li>
-            <li style="margin-bottom: 8px;"><strong>Subject:</strong> ${data.subject || 'N/A'}</li>
-            <li style="margin-bottom: 8px;"><strong>Message:</strong><br/><pre style="background-color: #f8f8f8; padding: 10px; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-break: break-word;">${data.message || 'Not provided'}</pre></li>
-          </ul>
-          <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ddd;" />
-          <p style="font-size: 0.9em; color: #718096; text-align: center;">Please respond to this inquiry as soon as possible.</p>
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <h2>New Contact Inquiry</h2>
+          <p><strong>Name:</strong> ${data.name}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+          <p><strong>Subject:</strong> ${data.subject || 'N/A'}</p>
+          <p><strong>Message:</strong><br/><pre style="white-space: pre-wrap; background-color: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #eee;">${data.message || 'No message provided.'}</pre></p>
         </div>`;
       break;
     }
 
     case 'custom': {
-      // For 'custom' type, `subject` and `htmlContent` are expected directly.
-      // `recipient` should also be explicitly provided in `options.recipientEmail`.
-      if (!subject || !htmlContent || !recipient) {
-        throw new Error('Subject, HTML content, and recipient email are required for custom email type.');
-      }
-      break; // No changes to finalSubject, finalHtml, recipient as they are directly passed
+      // For custom email types, subject and htmlContent are used as provided
+      break;
     }
 
     default: {
-      console.warn(`⚠️ Unknown email type: ${type}. Sending a generic notification.`);
-      finalSubject = subject || 'Generic Notification from E.D.I.Z.O.';
-      finalHtml = htmlContent || '<p>This is a generic email notification from your server.</p>';
-      if (!recipient) {
-        console.warn('No specific recipient provided for generic email. Falling back to EMAIL_USER.');
-        recipient = process.env.EMAIL_USER;
-      }
-      if (!recipient) {
-         throw new Error('Recipient is not defined for generic email.');
-      }
+      // Fallback for unknown email types
+      finalSubject = subject || 'General Notification';
+      finalHtml = htmlContent || '<p>No specific content provided for this notification type.</p>';
     }
   }
 
-  // Final check for recipient before sending
-  if (!recipient) {
-    throw new Error('Final recipient email address is undefined. Cannot send email.');
-  }
-
+  // Construct mail options
   const mailOptions = {
-    from: process.env.EMAIL_USER, // Sender email
-    to: recipient,                 // Final determined recipient
-    subject: finalSubject,         // Final determined subject
-    html: finalHtml                // Final determined HTML content
+    from: process.env.EMAIL_USER, // Sender email address
+    to: recipient, // Recipient email address
+    subject: finalSubject, // Email subject
+    html: finalHtml // HTML content of the email
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Email sent successfully to: ${recipient} | Subject: "${finalSubject}"`);
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${recipient} with subject "${finalSubject}". Error:`, error);
-    // Re-throw to be caught by the express error handler
-    throw error;
-  }
+  // Send the email
+  await transporter.sendMail(mailOptions);
+  console.log(`✅ Email sent to: ${recipient} | Subject: "${finalSubject}"`);
 }
 
-// ✅ API: Send Internship Email (handles both applicant confirmation and admin notification)
+// ✅ API Endpoint: Send Internship/Application Email
+// This route handles both internship application confirmations and admin notifications.
 app.post('/send-email', async (req, res, next) => {
   try {
+    // Call the sendEmail function with the request body as data
     await sendEmail(req.body);
     res.status(200).json({ success: true, message: 'Email sent successfully!' });
   } catch (err) {
-    console.error('❌ API Error: /send-email failed.', err);
-    next(err); // Pass error to global error handler
+    console.error('❌ Email send failed:', err);
+    // Pass the error to the global error handler
+    next(err);
   }
 });
 
-// ✅ API: Contact Form Email
+// ✅ API Endpoint: Send Contact Form Email
+// This route specifically handles contact form submissions.
 app.post('/send-contact-email', async (req, res, next) => {
   try {
-    // The sendEmail function will internally determine the recipient based on 'contactForm' type
-    await sendEmail({ ...req.body, type: 'contactForm' });
-    res.status(200).json({ success: true, message: 'Contact form email sent!' });
+    // The recipient for contact forms is typically a predefined admin email
+    const recipient = process.env.CONTACT_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER;
+    await sendEmail({
+      ...req.body, // Pass all data from the request body
+      type: 'contactForm', // Specify email type
+      recipientEmail: recipient // Explicitly set the recipient
+    });
+    res.status(200).json({ success: true, message: 'Contact form email sent successfully!' });
   } catch (err) {
-    console.error('❌ API Error: /send-contact-email failed.', err);
-    next(err); // Pass error to global error handler
+    console.error('❌ Contact form email error:', err);
+    next(err);
   }
 });
 
-// ✅ API: Test Email Endpoint (for quick testing of email configuration)
-app.get('/test-email', async (req, res, next) => {
+// ✅ API Endpoint: Test Email
+// A utility route to quickly test if email sending is configured correctly.
+app.get('/test-email', async (req, res) => {
   try {
-    const testRecipient = process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER;
-    if (!testRecipient) {
-      return res.status(400).send('Error: INTERNSHIP_RECIPIENT_EMAIL or EMAIL_USER not set for test email.');
-    }
     await sendEmail({
       type: 'custom',
       subject: 'Test Email from EDIZO Backend',
-      htmlContent: '<p>This is a <strong>test email</strong> sent successfully from your EDIZO backend server.</p><p>If you received this, your email configuration is likely working!</p>',
-      recipientEmail: testRecipient
+      htmlContent: '<p>This is a test email sent from your EDIZO backend server. If you received this, email sending is configured correctly!</p>',
+      recipientEmail: process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER // Send to the internship recipient or default user
     });
-    res.send('✅ Test email sent to INTERNSHIP_RECIPIENT_EMAIL or EMAIL_USER successfully.');
+    res.send('✅ Test email sent. Check recipient inbox.');
   } catch (err) {
-    console.error('❌ API Error: /test-email failed.', err);
-    next(err); // Pass error to global error handler
+    console.error('❌ Test email error:', err);
+    res.status(500).send('❌ Failed to send test email. Check server logs for details.');
   }
 });
 
 // ✅ Global Error Handler Middleware
+// This catches any errors passed via next(err) from other routes.
 app.use((err, req, res, next) => {
-  console.error('Global Error Handler:', err); // Log the full error for debugging
-  const statusCode = err.status || 500;
-  const message = err.message || 'An unexpected server error occurred.';
-
-  res.status(statusCode).json({
+  console.error('Global Error Handler:', err); // Log the error for debugging
+  res.status(err.status || 500).json({
     success: false,
-    message: message,
-    // In production, you might not want to send error.stack to the client
-    // stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    message: err.message || 'An unexpected server error occurred. Please try again.'
   });
 });
 
 // ✅ Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
-  console.log(`CORS allowed origins: ${allowedOrigins.join(', ')}`);
+  console.log(`Open http://localhost:${PORT}/test-email in your browser to test email sending.`);
 });
