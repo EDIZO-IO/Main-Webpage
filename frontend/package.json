@@ -3,7 +3,7 @@
   "version": "1.1.1",
   "private": true,
   "type": "module",
-  "homepage": "https://EDIZO-IO.github.io/Main-Webpage",
+  
   "scripts": {
     "start": "vite",
     "build": "vite build",
