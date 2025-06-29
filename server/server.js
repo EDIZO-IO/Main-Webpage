@@ -1,3 +1,4 @@
+
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -11,7 +12,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ✅ Allowed frontend origins
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -23,10 +23,8 @@ const allowedOrigins = [
   'https://main-webpage-l85m.onrender.com',
 ];
 
-// ✅ Optional wildcard for Netlify previews
 const netlifyPattern = /^https:\/\/.*\.netlify\.app$/;
 
-// ✅ Middleware setup
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 app.use(cors({
@@ -44,12 +42,10 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ✅ Health check
 app.get('/', (req, res) => {
   res.send('✅ EDIZO Backend is running.');
 });
 
-// ✅ Configure mail transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -58,7 +54,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ✅ Send email utility
 async function sendMail(to, subject, html) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -71,7 +66,6 @@ async function sendMail(to, subject, html) {
   console.log(`✅ Email sent to ${to}: ${info.messageId}`);
 }
 
-// ✅ Internship application handler
 app.post('/api/send-email', async (req, res) => {
   const data = req.body;
   const applicantEmail = data.email;
@@ -79,10 +73,10 @@ app.post('/api/send-email', async (req, res) => {
 
   try {
     if (!applicantEmail) throw new Error('Applicant email missing');
+    if (!adminEmail) throw new Error('Admin email missing');
 
-    // ✅ Email to applicant
     const applicantHtml = `
-  <div style="font-family: Arial, sans-serif; color: #333;">
+     <div style="font-family: Arial, sans-serif; color: #333;">
   <h2>Application Received – Thank You, ${data.name}!</h2>
   <p>Dear ${data.name},</p>
   <p>
@@ -103,11 +97,10 @@ app.post('/api/send-email', async (req, res) => {
     <strong>The E.D.I.Z.O. Talent Team</strong><br />
     <em>Empowering Digital Innovators</em>
   </p>
-</div>
-`;
+</div>`;
+
     await sendMail(applicantEmail, `Application Confirmation - ${data.internshipTitle}`, applicantHtml);
 
-    // ✅ Email to admin
     const adminHtml = `
      <div style="font-family: Arial, sans-serif; color: #333;">
   <h2>📥 New Internship Application Received</h2>
@@ -126,8 +119,8 @@ app.post('/api/send-email', async (req, res) => {
   <p>
     <strong>E.D.I.Z.O. Application System</strong>
   </p>
-</div>
-`;
+</div>`;
+
     await sendMail(adminEmail, `New Internship Application - ${data.internshipTitle}`, adminHtml);
 
     res.status(200).json({ success: true, message: '✅ Emails sent to applicant and admin.' });
@@ -137,7 +130,6 @@ app.post('/api/send-email', async (req, res) => {
   }
 });
 
-// ✅ Contact form email handler
 app.post('/api/send-contact-email', async (req, res) => {
   const data = req.body;
   const userEmail = data.email;
@@ -145,10 +137,10 @@ app.post('/api/send-contact-email', async (req, res) => {
 
   try {
     if (!userEmail) throw new Error('User email missing');
+    if (!adminEmail) throw new Error('Admin email missing');
 
-    // ✅ Email to user
     const userHtml = `
-    <div style="font-family: Arial, sans-serif; color: #333;">
+        <div style="font-family: Arial, sans-serif; color: #333;">
   <h2>Thank You for Reaching Out, ${data.name}!</h2>
   <p>
     We’ve received your message and appreciate you contacting <strong>E.D.I.Z.O.</strong>.
@@ -161,11 +153,10 @@ app.post('/api/send-contact-email', async (req, res) => {
     Best regards,<br />
     <strong>E.D.I.Z.O. Support Team</strong>
   </p>
-</div>
-`;
+</div>`;
+
     await sendMail(userEmail, `We've received your message`, userHtml);
 
-    // ✅ Email to admin
     const adminHtml = `
      <div style="font-family: Arial, sans-serif; color: #333;">
   <h2>📨 New Contact Form Submission</h2>
@@ -179,8 +170,8 @@ app.post('/api/send-contact-email', async (req, res) => {
   <p>
     This message was submitted via the contact form on the official E.D.I.Z.O. website.
   </p>
-</div>
-`;
+</div>`;
+
     await sendMail(adminEmail, `Contact Form - ${data.subject || 'New Inquiry'}`, adminHtml);
 
     res.status(200).json({ success: true, message: '✅ Contact emails sent to user and admin.' });
@@ -190,28 +181,11 @@ app.post('/api/send-contact-email', async (req, res) => {
   }
 });
 
-// ✅ Test route
-app.get('/api/test-email', async (req, res) => {
-  try {
-    await sendMail(
-      process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER,
-      '✅ Test Email from EDIZO Backend',
-      '<p>This is a test email. If you received it, everything works ✅</p>'
-    );
-    res.send('✅ Test email sent.');
-  } catch (err) {
-    console.error('❌ Error in /api/test-email:', err);
-    res.status(500).send('❌ Test email failed.');
-  }
-});
-
-// ✅ Global error fallback
 app.use((err, req, res, next) => {
   console.error('❌ Global error handler:', err);
   res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
-// ✅ Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
