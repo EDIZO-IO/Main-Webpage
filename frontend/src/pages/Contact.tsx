@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom'; // Import Link for the updated Button component
 
 // --- Reusable Components (Enhanced) ---
 
@@ -37,24 +38,111 @@ const AnimatedSection = ({ children, delay = 0 }) => (
 );
 
 /**
- * Button component with primary, outline, and default variants.
- * Supports disabled states.
+ * ButtonProps interface for the Button component.
+ * Describes the props accepted by the Button component.
  */
-const Button = ({ children, type = 'button', disabled = false, onClick, variant = 'primary', className = '' }) => (
-  <button
-    type={type}
-    onClick={onClick}
-    disabled={disabled}
-    className={`px-8 py-3 rounded-full font-semibold flex items-center justify-center transition-all duration-300
-      ${variant === 'primary' ? 'bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg' : ''}
-      ${variant === 'outline' ? 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white shadow-sm hover:shadow-md' : ''}
-      ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-      ${className}
-    `}
-  >
-    {children}
-  </button>
-);
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  to?: string; // For react-router-dom Link
+  href?: string; // For external links
+  className?: string;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  fullWidth?: boolean;
+  iconLeft?: React.ReactNode;
+  iconRight?: React.ReactNode;
+}
+
+/**
+ * Button component with primary, outline, and default variants.
+ * Supports disabled states, internal routing (Link), and external links (a tag).
+ * Includes improved animations and styling.
+ */
+const Button: React.FC<ButtonProps> = ({
+  children,
+  variant = 'primary',
+  size = 'md',
+  to,
+  href,
+  className = '',
+  onClick,
+  type = 'button',
+  disabled = false,
+  fullWidth = false,
+  iconLeft,
+  iconRight,
+}) => {
+  // Size classes for padding and font size
+  const sizeClasses = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-6 py-2.5 text-base',
+    lg: 'px-8 py-3 text-lg',
+    xl: 'px-10 py-4 text-xl',
+  };
+
+  // Variant classes for background, text, hover, and focus styles
+  const variantClasses = {
+    primary: 'bg-red-600 text-white hover:bg-red-700 focus:ring-2 ring-offset-2 ring-red-600', // edizo-red changed to red-600
+    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-2 ring-offset-2 ring-gray-300', // edizo-black changed to gray-900
+    outline: 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white focus:ring-2 ring-offset-2 ring-red-600', // edizo-red changed to red-600
+    ghost: 'text-red-600 hover:text-red-700 focus:ring-2 ring-offset-2 ring-red-600', // edizo-red changed to red-600
+  };
+
+  // Combined CSS classes for the button
+  const combinedClasses = `
+    ${variantClasses[variant]}
+    ${sizeClasses[size]}
+    ${fullWidth ? 'w-full' : ''}
+    ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+    ${className}
+    rounded-md font-medium transition-all duration-300 ease-in-out flex items-center justify-center gap-2
+  `;
+
+  // Render as Link component if 'to' prop is provided (for internal routing)
+  if (to) {
+    return (
+      <Link to={to} className={combinedClasses}>
+        {iconLeft && <span>{iconLeft}</span>}
+        {children}
+        {iconRight && <span>{iconRight}</span>}
+      </Link>
+    );
+  }
+
+  // Render as an anchor tag if 'href' prop is provided (for external links)
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={combinedClasses}
+      >
+        {iconLeft && <span>{iconLeft}</span>}
+        {children}
+        {iconRight && <span>{iconRight}</span>}
+      </a>
+    );
+  }
+
+  // Default render as a button
+  return (
+    <button
+      type={type}
+      className={combinedClasses}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {iconLeft && <span>{iconLeft}</span>}
+      {children}
+      {iconRight && <span>{iconRight}</span>}
+    </button>
+  );
+};
+
 
 /**
  * ContactInfo reusable component for displaying contact details with icons.
@@ -93,24 +181,25 @@ const Contact = () => {
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [formError, setFormError] = useState(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
+  // IMPORTANT: Replace this with the actual URL of your running backend server.
+  // This placeholder will not work for actual submissions.
+  // Ensure your backend is deployed and accessible at this URL.
+ const API_BASE_URL = import.meta.env.VITE_API_URL; // Example URL, replace with your actual backend URL
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Define the API base URL.
-const API_BASE_URL = import.meta.env.VITE_API_URL;
- // Your Render backend URL
-
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setFormError(null); // Clear previous errors
+    setFormError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/send-contact-email`, {
+      const res = await fetch(`${API_BASE_URL}/api/send-contact-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,14 +207,23 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Server error: ${response.statusText}`);
+      // Try to parse as JSON first, but handle if it's not JSON
+      let result;
+      try {
+        result = await res.json();
+      } catch (jsonError) {
+        // If parsing as JSON fails, read as text to see the raw response
+        const textResult = await res.text();
+        console.error('❌ Failed to parse response as JSON. Raw response:', textResult);
+        throw new Error(`Received unexpected response from server. It might not be JSON. Raw response: ${textResult.substring(0, 100)}...`);
       }
 
-      const data = await response.json();
-      console.log('Form submitted successfully:', data);
+      if (!res.ok) {
+        // If response is not OK (e.g., 4xx, 5xx status), throw an error with the message from the server
+        throw new Error(result?.message || `Server error: ${res.statusText}`);
+      }
 
+      console.log('✅ Contact form submitted successfully:', result);
       setFormSubmitted(true);
       // Reset form data after successful submission
       setFormData({
@@ -136,8 +234,17 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
         message: '',
       });
     } catch (error: any) {
-      console.error('Error submitting form:', error);
-      setFormError(error.message || 'Failed to send message. Please try again later.');
+      console.error('❌ Error submitting form:', error);
+      // Provide a more descriptive error message to the user
+      let userErrorMessage = 'Failed to send message. Please try again later.';
+      if (error.message.includes("Unexpected token '<'")) {
+        userErrorMessage = "It looks like the server returned an HTML error page instead of a JSON response. Please check your API URL and server status.";
+      } else if (error.message.includes("Failed to parse response as JSON")) {
+        userErrorMessage = "The server sent an unexpected response. Please check your API URL and server logs.";
+      } else if (error.message.includes("Failed to fetch")) {
+        userErrorMessage = "Could not connect to the server. Please check your internet connection and verify the API URL.";
+      }
+      setFormError(userErrorMessage);
     } finally {
       setLoading(false);
     }
@@ -145,7 +252,6 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // Common input field styling
   const inputFieldClasses = "input-field border border-gray-300 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-sm hover:border-red-400";
-
 
   return (
     <>
@@ -181,9 +287,9 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
                     icon={<Mail className="text-white" size={20} />}
                     title="Email Support"
                     lines={[
-                      <a href="mailto:edizo5491@gmail.com" className="text-gray-700 hover:text-red-500 transition-colors duration-200">e.d.i.z.o.pvt.ltd@gmail.com</a>,
+                      <a href="mailto:e.d.i.z.o.pvt.ltd@gmail.com" className="text-gray-700 hover:text-red-500 transition-colors duration-200">e.d.i.z.o.pvt.ltd@gmail.com</a>,
                       <span className="text-sm text-gray-600">For general inquiries and partnerships</span>,
-                      <a href="mailto:edizo5491@gmail.com" className="text-gray-700 hover:text-red-500 mt-2 block transition-colors duration-200">edizocorp@gmail.com</a>,
+                      <a href="mailto:edizocorp@gmail.com" className="text-gray-700 hover:text-red-500 mt-2 block transition-colors duration-200">edizocorp@gmail.com</a>,
                       <span className="text-sm text-gray-600">For technical support and service requests</span>,
                     ]}
                   />
@@ -336,7 +442,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
                       transition={{ duration: 0.5, delay: 0.4 }}
                       className="text-right mt-6"
                     >
-                      <Button type="submit" disabled={loading} className="py-3 px-8 text-lg rounded-xl">
+                      {/* Using the new, enhanced Button component */}
+                      <Button type="submit" disabled={loading} size="lg" className="py-3 px-8 rounded-xl">
                         {loading ? (
                           <>
                             Sending... <Loader2 className="ml-3 w-5 h-5 animate-spin" />
@@ -359,17 +466,4 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
   );
 };
 
-// Main App component to render the Contact page
-const App = () => {
-  return (
-    <>
-      {/* Link to Font Awesome for social media icons */}
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0V4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossOrigin="anonymous" referrerPolicy="no-referrer" />
-      <main className="min-h-screen bg-gray-50 font-sans antialiased">
-        <Contact />
-      </main>
-    </>
-  );
-};
-
-export default App;
+export default Contact;
