@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
               <a href="https://www.linkedin.com/in/edizo-pvt-ltd-149748367/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors duration-300">
                 <Linkedin size={20} />
               </a>
-              <a href="https://www.youtube.com/@edizopvtltd" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors duration-300">
+              <a href="https://www.youtube.com/@team-edizo" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors duration-300">
                 <Youtube size={20} /> {/* YouTube icon */}
               </a>
             </div>

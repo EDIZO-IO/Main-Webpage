@@ -181,9 +181,9 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
                     icon={<Mail className="text-white" size={20} />}
                     title="Email Support"
                     lines={[
-                      <a href="mailto:e.d.i.z.o.pvt.ltd@gmail.com" className="text-gray-700 hover:text-red-500 transition-colors duration-200">e.d.i.z.o.pvt.ltd@gmail.com</a>,
+                      <a href="mailto:edizo5491@gmail.com" className="text-gray-700 hover:text-red-500 transition-colors duration-200">e.d.i.z.o.pvt.ltd@gmail.com</a>,
                       <span className="text-sm text-gray-600">For general inquiries and partnerships</span>,
-                      <a href="mailto:edizocorp@gmail.com" className="text-gray-700 hover:text-red-500 mt-2 block transition-colors duration-200">edizocorp@gmail.com</a>,
+                      <a href="mailto:edizo5491@gmail.com" className="text-gray-700 hover:text-red-500 mt-2 block transition-colors duration-200">edizocorp@gmail.com</a>,
                       <span className="text-sm text-gray-600">For technical support and service requests</span>,
                     ]}
                   />
