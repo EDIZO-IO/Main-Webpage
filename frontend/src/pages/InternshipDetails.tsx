@@ -529,7 +529,8 @@ const InternshipDetails = () => {
   // This URL should point to your deployed backend service that handles email sending.
   // It's hardcoded here for simplicity, but in a production environment,
   // it would typically be loaded from an environment variable.
-  const API_BASE_URL = 'https://main-webpage-l85m.onrender.com'; // Your Render backend URL
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+ // Your Render backend URL
 
   // Handle form submission (directly sends email notifications)
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

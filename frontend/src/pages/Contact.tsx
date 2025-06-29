@@ -101,7 +101,8 @@ const Contact = () => {
   };
 
   // Define the API base URL.
-  const API_BASE_URL = 'https://main-webpage-l85m.onrender.com'; // Your Render backend URL
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+ // Your Render backend URL
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
