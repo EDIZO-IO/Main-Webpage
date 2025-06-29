@@ -538,77 +538,74 @@ const InternshipDetails = () => {
     setSubmissionStatus('processing');
     setSubmissionMessage('Sending your application and confirmation email...');
 
-    try {
-      // 1. Send confirmation email to the applicant
-      // This sends an email to the user who filled out the form, confirming their application.
-      const applicantRes = await fetch(`${API_BASE_URL}/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'applicationConfirmation', // Type of email for the backend to process
-          name: formData.name,
-          email: formData.email,
-          internshipTitle: internship?.title || 'Internship', // Pass internship title for context
-        }),
-      });
+  try {
+    
 
-      if (!applicantRes.ok) {
-        const errorText = await applicantRes.text();
-        console.warn('Failed to send confirmation email to applicant:', errorText);
-        // We log a warning but don't throw an error here, as the admin email might still succeed.
-        // This allows for partial success and more specific error messages later if admin email fails.
-      } else {
-        console.log('Confirmation email sent to applicant.');
-      }
+    // ✅ Step 1: Send confirmation email to applicant
+    const applicantRes = await fetch(`${API_BASE_URL}/api/send-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        internshipTitle: internship?.title || 'Internship',
+      }),
+    });
 
-      // 2. Send application details notification email to the admin
-      // This sends an email to the site administrator with the applicant's details.
-      const adminRes = await fetch(`${API_BASE_URL}/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'internshipApplicationNotification', // Type of email for the backend to process
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          education: formData.education,
-          experience: formData.experience,
-          message: formData.message,
-          internshipTitle: internship?.title || 'Internship', // Pass internship title for context
-        }),
-      });
-
-      if (!adminRes.ok) {
-        const errorText = await adminRes.text();
-        throw new Error(`Failed to notify admin: ${adminRes.status} - ${errorText}`);
-      }
-      console.log('Application notification email sent to admin.');
-      setSubmissionStatus('success');
-      setSubmissionMessage('Application submitted successfully! A confirmation email has been sent to you.');
-
-      // Reset the form fields after successful submission
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        education: '',
-        experience: '',
-        message: '',
-      });
-    } catch (error) {
-      console.error('Error in sending application emails:', error);
-      setSubmissionStatus('error');
-      // Provide a more specific error message based on common issues
-      let errorMessage = 'An unexpected error occurred. Please try again.';
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        errorMessage = 'Network error: Could not connect to the server. Please check your internet connection or try again later.';
-      } else if (error instanceof Error) {
-        errorMessage = `Submission failed: ${error.message}`;
-      }
-      setSubmissionMessage(errorMessage);
+    if (!applicantRes.ok) {
+      const errorText = await applicantRes.text();
+      console.warn('⚠️ Failed to send confirmation email to applicant:', errorText);
+    } else {
+      console.log('✅ Confirmation email sent to applicant.');
     }
-  };
 
+    // ✅ Step 2: Send application notification to admin
+    const adminRes = await fetch(`${API_BASE_URL}/api/send-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        education: formData.education,
+        experience: formData.experience,
+        message: formData.message,
+        internshipTitle: internship?.title || 'Internship',
+      }),
+    });
+
+    if (!adminRes.ok) {
+      const errorText = await adminRes.text();
+      throw new Error(`❌ Failed to notify admin: ${adminRes.status} - ${errorText}`);
+    }
+
+    console.log('✅ Application notification email sent to admin.');
+    setSubmissionStatus('success');
+    setSubmissionMessage('🎉 Application submitted successfully! A confirmation email has been sent to you.');
+
+    // ✅ Reset the form
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      education: '',
+      experience: '',
+      message: '',
+    });
+  } catch (error) {
+    console.error('❌ Error in form submission:', error);
+    let errorMessage = 'An unexpected error occurred. Please try again.';
+
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      errorMessage = 'Network error: Could not connect to the server.';
+    } else if (error instanceof Error) {
+      errorMessage = `Submission failed: ${error.message}`;
+    }
+
+    setSubmissionStatus('error');
+    setSubmissionMessage(errorMessage);
+  }
+};
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-16 px-4 font-sans">
       <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-12">

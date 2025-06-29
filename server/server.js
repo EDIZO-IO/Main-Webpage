@@ -3,26 +3,45 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// ✅ Allowed frontend origins
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://edizo-intern.netlify.app',           // ✅ Your actual project
   'https://edizo-io.netlify.app',
   'https://main-webpage.netlify.app',
   'https://edizo.github.io',
-  'https://edizo.github.io/Main-Webpage'
+  'https://edizo.github.io/Main-Webpage',
+  'https://main-webpage-l85m.onrender.com'
 ];
 
+
+// ✅ Secure headers
+app.use(helmet());
+
+// ✅ Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+app.use(limiter);
+
+// ✅ CORS middleware
 app.use(cors({
-  origin: (origin, callback) => {
+  origin: function (origin, callback) {
+    console.log('🌐 Incoming request from:', origin);
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.warn('❌ Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -32,7 +51,12 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ✅ Configure transporter
+// ✅ Root test route
+app.get('/', (req, res) => {
+  res.send('✅ EDIZO Backend is running.');
+});
+
+// ✅ Configure mail transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -41,14 +65,14 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// ✅ Utility: send single email
+// ✅ Email sending utility
 async function sendMail(to, subject, html) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
     subject,
     html,
-    text: html.replace(/<[^>]*>?/gm, '') // Fallback plain text
+    text: html.replace(/<[^>]*>?/gm, '')
   };
 
   const info = await transporter.sendMail(mailOptions);
@@ -56,7 +80,7 @@ async function sendMail(to, subject, html) {
 }
 
 // ✅ Internship application handler
-app.post('/send-email', async (req, res, next) => {
+app.post('/api/send-email', async (req, res, next) => {
   const data = req.body;
   const applicantEmail = data.email;
   const adminEmail = process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER;
@@ -64,7 +88,7 @@ app.post('/send-email', async (req, res, next) => {
   try {
     if (!applicantEmail) throw new Error('Applicant email missing');
 
-    // 1. Send confirmation email to applicant
+    // Applicant confirmation email
     const applicantHtml = `
       <div style="font-family: Arial; color: #333;">
         <h2>Thank you for your Application, ${data.name}!</h2>
@@ -75,7 +99,7 @@ app.post('/send-email', async (req, res, next) => {
       </div>`;
     await sendMail(applicantEmail, `Application Confirmation - ${data.internshipTitle}`, applicantHtml);
 
-    // 2. Send notification to admin
+    // Admin notification email
     const adminHtml = `
       <div>
         <h2>New Internship Application</h2>
@@ -92,13 +116,13 @@ app.post('/send-email', async (req, res, next) => {
 
     res.status(200).json({ success: true, message: 'Emails sent to applicant and admin.' });
   } catch (err) {
-    console.error('❌ Error in /send-email:', err);
+    console.error('❌ Error in /api/send-email:', err);
     next(err);
   }
 });
 
 // ✅ Contact form email handler
-app.post('/send-contact-email', async (req, res, next) => {
+app.post('/api/send-contact-email', async (req, res, next) => {
   const data = req.body;
   const userEmail = data.email;
   const adminEmail = process.env.CONTACT_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER;
@@ -106,7 +130,7 @@ app.post('/send-contact-email', async (req, res, next) => {
   try {
     if (!userEmail) throw new Error('User email missing');
 
-    // 1. Send acknowledgment to user
+    // Acknowledgment email to user
     const userHtml = `
       <div>
         <h2>Thank you for contacting E.D.I.Z.O., ${data.name}!</h2>
@@ -114,7 +138,7 @@ app.post('/send-contact-email', async (req, res, next) => {
       </div>`;
     await sendMail(userEmail, `We've received your message`, userHtml);
 
-    // 2. Send message to admin
+    // Admin contact alert
     const adminHtml = `
       <div>
         <h2>New Contact Form Submission</h2>
@@ -127,13 +151,13 @@ app.post('/send-contact-email', async (req, res, next) => {
 
     res.status(200).json({ success: true, message: 'Emails sent to user and admin.' });
   } catch (err) {
-    console.error('❌ Error in /send-contact-email:', err);
+    console.error('❌ Error in /api/send-contact-email:', err);
     next(err);
   }
 });
 
-// ✅ Test endpoint
-app.get('/test-email', async (req, res) => {
+// ✅ Test email route
+app.get('/api/test-email', async (req, res) => {
   try {
     await sendMail(
       process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER,
@@ -142,11 +166,12 @@ app.get('/test-email', async (req, res) => {
     );
     res.send('✅ Test email sent.');
   } catch (err) {
+    console.error('❌ Error in /api/test-email:', err);
     res.status(500).send('❌ Test email failed.');
   }
 });
 
-// ✅ Error handler
+// ✅ Global error handler
 app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: err.message });
 });
