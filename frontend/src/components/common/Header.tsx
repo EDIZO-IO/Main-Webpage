@@ -22,19 +22,20 @@ const Header: React.FC = () => {
     { name: 'Projects', path: '/projects' },
     { name: 'Internships', path: '/internships' },
     { name: 'Contact', path: '/contact' },
-    // { name: 'Support', path: '/support' },
   ];
 
   return (
-    <header
+    <motion.header
+      initial={{ y: -80 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
       className={`fixed w-full z-30 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
+        isScrolled ? 'bg-white shadow-md py-2' : 'bg-gradient-to-b from-black/60 to-transparent py-4'
       }`}
     >
       <div className="container-custom flex items-center justify-between px-4 md:px-8">
         {/* Logo Section */}
         <Link to="/" className="z-20">
-          {/* The Logo component should handle its color based on the `isScrolled` prop */}
           <Logo isScrolled={isScrolled} />
         </Link>
 
@@ -49,8 +50,8 @@ const Header: React.FC = () => {
                   isActive
                     ? 'text-edizo-red after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-edizo-red'
                     : isScrolled
-                    ? 'text-gray-900 hover:text-edizo-red' // Dark text for scrolled (white) background
-                    : 'text-white hover:text-edizo-red' // White text for transparent background
+                    ? 'text-gray-900 hover:text-edizo-red'
+                    : 'text-white hover:text-edizo-red'
                 }`
               }
             >
@@ -59,17 +60,15 @@ const Header: React.FC = () => {
           ))}
         </nav>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Toggle */}
         <button
           className="md:hidden z-30 focus:outline-none"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label={isMenuOpen ? 'Close Menu' : 'Open Menu'}
         >
           {isMenuOpen ? (
-            // Ensure 'X' icon is visible on white background
             <X className={`w-7 h-7 ${isScrolled ? 'text-gray-800' : 'text-white'}`} />
           ) : (
-            // Ensure 'Menu' icon is visible on white background
             <Menu className={`w-7 h-7 ${isScrolled ? 'text-gray-800' : 'text-white'}`} />
           )}
         </button>
@@ -79,6 +78,7 @@ const Header: React.FC = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <>
+            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
@@ -86,6 +86,7 @@ const Header: React.FC = () => {
               className="fixed inset-0 bg-black z-20"
               onClick={() => setIsMenuOpen(false)}
             />
+            {/* Drawer Panel */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -118,7 +119,7 @@ const Header: React.FC = () => {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 };
 

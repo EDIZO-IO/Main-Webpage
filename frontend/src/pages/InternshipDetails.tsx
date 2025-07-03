@@ -80,7 +80,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'UI/UX Design Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
@@ -115,7 +115,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'Frontend Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Develop responsive web applications using modern frontend technologies like React, Vue.js, and TypeScript.',
@@ -150,7 +150,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'Backend Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Build scalable backend systems using Node.js, Django, or Spring Boot while working with databases and APIs.',
@@ -185,7 +185,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'Web Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Get practical experience building full-stack web applications using modern frameworks and tools.',
@@ -220,7 +220,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'Digital Marketing Intern',
     category: 'paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Gain hands-on experience in SEO, content marketing, social media strategy, and campaign analytics.',
@@ -255,7 +255,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'Java Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Learn enterprise-level Java development with frameworks like Spring Boot and Hibernate.',
@@ -290,7 +290,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'Python Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Explore scripting, automation, and backend development using Python and related libraries.',
@@ -325,7 +325,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'HR Management Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Assist in recruitment, onboarding, employee engagement, and performance management tasks.',
@@ -360,7 +360,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'Data Analytics Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Analyze real-world datasets, generate insights, and support business decision-making using tools like Python, SQL, and Tableau.',
@@ -395,7 +395,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'AI & Machine Learning Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Work on machine learning models, deep learning projects, and real-world AI use cases.',
@@ -430,7 +430,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'AI with ChatGPT Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer science',
     description:
       'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
@@ -465,7 +465,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     title: 'C-Sharp Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     department: 'Computer Science',
     description:
       'Learn fundamental syntax, object-oriented programming concepts, and .NET framework fundamentals using C# and related libraries.',

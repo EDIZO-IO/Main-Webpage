@@ -28,7 +28,7 @@ const internships = [
     title: 'UI/UX Design Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
     image: webDesign,
   },
@@ -37,7 +37,7 @@ const internships = [
     title: 'Frontend Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Develop responsive web applications using modern frontend technologies like React, Vue.js, and TypeScript.',
     image: responsiveDesign,
   },
@@ -46,7 +46,7 @@ const internships = [
     title: 'Backend Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Build scalable backend systems using Node.js, Django, or Spring Boot while working with databases and APIs.',
     image: backEnd,
   },
@@ -55,7 +55,7 @@ const internships = [
     title: 'HR Management Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Assist in recruitment, onboarding, employee engagement, and performance management tasks.',
     image: hrManager,
   },
@@ -64,7 +64,7 @@ const internships = [
     title: 'Data Analytics Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Analyze datasets to uncover insights and support data-driven decisions using tools like Excel, SQL, and Python.',
     image: dataAnalytics,
   },
@@ -73,7 +73,7 @@ const internships = [
     title: 'Java Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Learn enterprise-level Java development with frameworks like Spring Boot and Hibernate.',
     image: java,
   },
@@ -82,7 +82,7 @@ const internships = [
     title: 'Python Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Explore scripting, automation, and backend development using Python and related libraries.',
     image: python,
   },
@@ -91,7 +91,7 @@ const internships = [
     title: 'Digital Marketing Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Gain hands-on experience in SEO, content marketing, social media strategy, and campaign analytics.',
     image: contentStrategy,
   },
@@ -100,7 +100,7 @@ const internships = [
     title: 'AI & Machine Learning Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Work on machine learning models, deep learning projects, and real-world AI use cases.',
     image: aiAssistant,
   },
@@ -109,7 +109,7 @@ const internships = [
     title: 'AI with ChatGPT Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
     image: aiChatgpt,
   },
@@ -118,7 +118,7 @@ const internships = [
     title: 'Web Development Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
     image: webDevelopment,
   },
@@ -127,7 +127,7 @@ const internships = [
     title: 'C-Sharp Intern',
     category: 'Paid',
     mode: 'Online',
-    duration: '3 months',
+    duration: '30 days / 3 months',
     description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
     image: Csharp,
   },
@@ -175,7 +175,7 @@ const Internships: React.FC = () => {
                 viewport={{ once: true, margin: '-50px' }}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
               >
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-58 overflow-hidden">
                   <img
                     src={internship.image}
                     alt={internship.title}
@@ -194,18 +194,18 @@ const Internships: React.FC = () => {
                     <div className="flex items-center text-sm text-gray-600">
                       {internship.mode === 'Online' ? (
                         <>
-                          <Wifi className="mr-2 text-edizo-red" size={16} />
+                          <Wifi className="mr-2 text-edizo-red" size={18} />
                           <span>Online</span>
                         </>
                       ) : (
                         <>
-                          <Home className="mr-2 text-edizo-red" size={16} />
+                          <Home className="mr-2 text-edizo-red" size={18} />
                           <span>Offline</span>
                         </>
                       )}
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
-                      <Clock className="mr-2 text-edizo-red" size={16} />
+                      <Clock className="mr-2 text-edizo-red" size={18} />
                       <span>{internship.duration}</span>
                     </div>
                   </div>
@@ -214,7 +214,7 @@ const Internships: React.FC = () => {
                       to={`/internships/${internship.id}`}
                       className="text-edizo-red font-medium hover:underline flex items-center"
                     >
-                      Details <ArrowRight className="ml-2 w-4 h-4" />
+                      Details <ArrowRight className="ml-1 w-5 h-5" />
                     </Link>
                   </div>
                 </div>

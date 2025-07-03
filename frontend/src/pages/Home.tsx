@@ -33,13 +33,11 @@ import backgroundimage from '../assets/background image/home.webp';
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
-  // Hide loader after 1.2s
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
 
-  // Animation Variants
   const fadeInUp = {
     initial: { opacity: 0, y: 40 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.6 } },
@@ -65,7 +63,6 @@ const Home: React.FC = () => {
 
   return (
     <>
-      {/* Loader */}
       {loading && (
         <motion.div
           initial={{ opacity: 1 }}
@@ -76,14 +73,13 @@ const Home: React.FC = () => {
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ loop: Infinity, duration: 2, ease: 'linear' }}
-            className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full"
+            className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full"
           />
         </motion.div>
       )}
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center z-0"
           style={{
@@ -94,22 +90,26 @@ const Home: React.FC = () => {
           <div className="absolute inset-0 bg-black/40"></div>
         </div>
 
-        {/* Content */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 1 }}
-          className="container mx-auto px-4 relative z-10 text-white pt-24 md:pt-0"
+          className="container mx-auto px-4 relative z-10 text-white text-center"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center justify-center">
+            <div className="w-full">
               <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-white">
-                Innovative <span className="text-red-500">Solutions</span> for Tomorrow's Challenges
+                Welcome to <span className="text-red-600">EDIZO</span>
               </h1>
-              <p className="text-lg md:text-xl text-white mb-8 max-w-lg">
-                We help businesses transform and grow through cutting-edge technology solutions and strategic consulting.
+              <p className="text-lg md:text-xl text-white mb-8 max-w-lg mx-auto">
+                Creative Services & Real-World Learning — All in One Place
               </p>
-              <div className="flex flex-wrap gap-4">
+              <p className="text-lg md:text-xl text-white mb-8 max-w-xl mx-auto">
+                Get premium <span className="text-red-600 font-bold">video editing</span>,
+                <span className="text-red-600 font-bold"> graphic design</span>, and
+                <span className="text-red-600 font-bold"> web development services</span>.<br></br> Launch your career with our exclusive<span className="text-red-600 font-bold"> internship programs.</span> 
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
                 <Button variant="primary" size="lg" to="/services">
                   Explore Services
                 </Button>
@@ -129,81 +129,53 @@ const Home: React.FC = () => {
         </motion.div>
       </section>
 
-{/* Services Section */}
-<section className="section bg-white py-20">
-  <div className="container mx-auto px-4">
-    <AnimatedSection>
-      <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
-        Our Premium Services
-      </h2>
-      <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center">
-        We offer specialized services tailored to help your brand stand out visually and digitally.
-      </p>
-    </AnimatedSection>
+      {/* Services Section */}
+      <section className="section bg-white py-20">
+        <div className="container mx-auto px-4">
+          <AnimatedSection>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
+              Our Premium Services
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center">
+              We offer specialized services tailored to help your brand stand out visually and digitally.
+            </p>
+          </AnimatedSection>
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-      {[
-        {
-          title: 'UI/UX Design',
-          desc: 'Create intuitive and engaging digital experiences through user-centered design principles that enhance usability and aesthetics.',
-          icon: <PenTool />,
-          image: uiuxImg,
-          link: '/services/ui-ux',
-        },
-        {
-          title: 'Video Editing',
-          desc: 'Professional video editing services to bring your creative vision to life — from raw footage to polished final product.',
-          icon: <Video />,
-          image: videoImg,
-          link: '/services/video-editing',
-        },
-        {
-          title: 'Graphic Design',
-          desc: 'Creative visual content creation for branding, marketing, and digital media tailored to your business identity.',
-          icon: <ImageIcon />,
-          image: graphicImg,
-          link: '/services/graphic-design',
-        },
-        {
-          title: 'Web Development',
-          desc: 'Building responsive, scalable, and secure websites and web applications tailored to your business needs and objectives.',
-          icon: <Code />,
-          image: webDevImg,
-          link: '/services/web-development',
-        },
-      ].map((service, i) => (
-        <div key={i} className="card p-6 rounded-xl hover:shadow-2xl transition-all duration-300 group">
-          <img
-            src={service.image}
-            alt={service.title}
-            className="w-full h-48 object-cover rounded-lg mb-4 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-md"
-          />
-          <div className="bg-red-500 rounded-full w-14 h-14 flex items-center justify-center mb-4 text-white group-hover:scale-110 transition-transform duration-300 mx-auto">
-            {service.icon}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            {[
+              { title: 'UI/UX Design', icon: <PenTool />, image: uiuxImg, link: '/services/ui-ux' },
+              { title: 'Video Editing', icon: <Video />, image: videoImg, link: '/services/video-editing' },
+              { title: 'Graphic Design', icon: <ImageIcon />, image: graphicImg, link: '/services/graphic-design' },
+              { title: 'Web Development', icon: <Code />, image: webDevImg, link: '/services/web-development' },
+            ].map((service, i) => (
+              <div key={i} className="card p-6 rounded-xl hover:shadow-2xl transition-all duration-300 group">
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  className="w-full h-55 object-cover rounded-lg mb-4 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-md"
+                />
+                <div className="bg-red-500 rounded-full w-14 h-14 flex items-center justify-center mb-4 text-white group-hover:scale-110 transition-transform duration-300 mx-auto">
+                  {service.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-center">{service.title}</h3>
+                <div className="text-center">
+                  <Link to={service.link} className="inline-flex items-center text-red-500 font-medium hover:underline">
+                    Learn more <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
-          <h3 className="text-xl font-semibold mb-3 text-center">{service.title}</h3>
-          <p className="text-gray-700 mb-4 text-center">{service.desc}</p>
-          <div className="text-center">
-            <Link
-              to={service.link}
-              className="inline-flex items-center text-red-500 font-medium hover:underline"
-            >
-              Learn more <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </div>
+
+          <AnimatedSection delay={0.4}>
+            <div className="text-center mt-12">
+              <Button variant="primary" to="/services">
+                View All Services
+              </Button>
+            </div>
+          </AnimatedSection>
         </div>
-      ))}
-    </div>
-
-    <AnimatedSection delay={0.4}>
-      <div className="text-center mt-12">
-        <Button variant="primary" to="/services">
-          View All Services
-        </Button>
-      </div>
-    </AnimatedSection>
-  </div>
-</section>
+      </section>
 
       {/* Projects Section */}
       <section className="section bg-white py-20">
@@ -230,33 +202,14 @@ const Home: React.FC = () => {
             className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12"
           >
             {[
-              {
-                title: 'AI-Based Ransomware Detection System',
-                shortDescription: 'An AI system for detecting and preventing ransomware attacks in real-time',
-                image: ransomware,
-                link: '/projects/s',
-              },
-              {
-                title: 'FaceGuard-GAN Deepfake Detection',
-                shortDescription: 'GAN-powered solution for detecting manipulated facial images and videos',
-                image: faceguard,
-                link: '/projects/ecommerce-automation',
-              },
-              {
-                title: 'Epic Nexus Gaming Community Platform',
-                shortDescription: 'Comprehensive gaming community platform with social features and reviews',
-                image: Epicnexus,
-                link: '/projects/faceguard-gan',
-              },
+              { title: 'AI-Based Ransomware Detection System', shortDescription: 'An AI system for detecting and preventing ransomware attacks in real-time', image: ransomware, link: '/projects/s' },
+              { title: 'FaceGuard-GAN Deepfake Detection', shortDescription: 'GAN-powered solution for detecting manipulated facial images and videos', image: faceguard, link: '/projects/ecommerce-automation' },
+              { title: 'Epic Nexus Gaming Community Platform', shortDescription: 'Comprehensive gaming community platform with social features and reviews', image: Epicnexus, link: '/projects/faceguard-gan' },
             ].map((project, i) => (
               <motion.div
                 key={i}
                 variants={fadeInUp}
-                whileHover={{
-                  y: -10,
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                  transition: { duration: 0.3 },
-                }}
+                whileHover={{ y: -10, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', transition: { duration: 0.3 } }}
                 className="rounded-xl overflow-hidden shadow-lg group transition-all duration-300 bg-white"
               >
                 <img
@@ -295,22 +248,10 @@ const Home: React.FC = () => {
                   Gain real-world experience working with industry experts in a fast-paced, innovative environment.
                 </p>
                 <ul className="space-y-4 mb-6">
-                  <li className="flex items-start">
-                    <Star className="text-red-500 mr-2 mt-1 flex-shrink-0" size={16} />
-                    <span>Hands-on training with cutting-edge technologies</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Star className="text-red-500 mr-2 mt-1 flex-shrink-0" size={16} />
-                    <span>Mentorship from industry professionals</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Star className="text-red-500 mr-2 mt-1 flex-shrink-0" size={16} />
-                    <span>Opportunity to work on real client projects</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Star className="text-red-500 mr-2 mt-1 flex-shrink-0" size={16} />
-                    <span>Potential for full-time employment</span>
-                  </li>
+                  <li className="flex items-start"><Star className="text-red-500 mr-2 mt-1 flex-shrink-0" size={16} /><span>Hands-on training with cutting-edge technologies</span></li>
+                  <li className="flex items-start"><Star className="text-red-500 mr-2 mt-1 flex-shrink-0" size={16} /><span>Mentorship from industry professionals</span></li>
+                  <li className="flex items-start"><Star className="text-red-500 mr-2 mt-1 flex-shrink-0" size={16} /><span>Opportunity to work on real client projects</span></li>
+                  <li className="flex items-start"><Star className="text-red-500 mr-2 mt-1 flex-shrink-0" size={16} /><span>Potential for full-time employment</span></li>
                 </ul>
                 <Button variant="primary" to="/internships">
                   Browse Opportunities
@@ -321,10 +262,7 @@ const Home: React.FC = () => {
             <AnimatedSection delay={0.3}>
               <motion.div
                 variants={cardVariants}
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: '0px 12px 30px rgba(0,0,0,0.2)',
-                }}
+                whileHover={{ scale: 1.05, boxShadow: '0px 12px 30px rgba(0,0,0,0.2)' }}
                 className="rounded-xl shadow-xl w-72 h-auto border border-gray-200 backdrop-blur-md bg-white/20 p-8 flex flex-col items-center justify-center text-center"
                 style={{ perspective: 600, transformStyle: 'preserve-3d' }}
               >
@@ -361,12 +299,7 @@ const Home: React.FC = () => {
                 <Button variant="secondary" size="lg" to="/contact" className="text-black font-semibold">
                   Contact Us
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  to="/services"
-                  className="text-white border-white hover:bg-white hover:text-red-500"
-                >
+                <Button variant="outline" size="lg" to="/services" className="text-white border-white hover:bg-white hover:text-red-500">
                   Explore Services
                 </Button>
               </div>
