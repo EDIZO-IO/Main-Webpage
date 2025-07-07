@@ -1,4 +1,5 @@
 // server.js
+
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -13,14 +14,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// IMPORTANT: Ensure these environment variables are set in your deployment environment
-// and in a .env file for local development:
-// EMAIL_USER: Your Gmail email address (e.g., your-email@gmail.com)
-// EMAIL_PASS: Your Gmail App Password (NOT your regular password, generate one in Google Account settings)
-// INTERNSHIP_RECIPIENT_EMAIL: The email address where internship applications should be sent (e.g., admin@yourcompany.com)
-// CONTACT_FORM_RECIPIENT_EMAIL: The email address where contact form submissions should be sent (e.g., info@yourcompany.com)
-
-// ✅ CORS
+// ✅ Allowed origins list
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -29,13 +23,13 @@ const allowedOrigins = [
   'https://main-webpage.netlify.app',
   'https://edizo.github.io',
   'https://edizo.github.io/Main-Webpage',
-  'https://main-webpage-l85m.onrender.com', // Added Render project URL
+  'https://main-webpage-l85m.onrender.com',
   'https://www.edizo.in',
   'https://edizo.in',
 ];
 const netlifyPattern = /^https:\/\/.*\.netlify\.app$/;
 
-// ✅ Middleware
+// ✅ Global middleware
 app.use(helmet());
 app.use(
   helmet.contentSecurityPolicy({
@@ -50,12 +44,12 @@ app.use(
 
 app.use(cors({
   origin: function (origin, callback) {
+    console.log('🌐 Incoming request from:', origin || 'undefined');
     if (!origin || allowedOrigins.includes(origin) || netlifyPattern.test(origin)) {
-      callback(null, true);
-    } else {
-      console.warn('❌ Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
+      return callback(null, true);
     }
+    console.warn('❌ Blocked by CORS:', origin);
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
 }));
@@ -63,14 +57,19 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ✅ Rate limit only on POST routes
+// ✅ Rate limiter (protect POST routes)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
   message: 'Too many requests, please try again later.',
 });
 
-// ✅ Nodemailer setup
+// ✅ Health check route
+app.get('/', (req, res) => {
+  res.send('✅ EDIZO Backend is running.');
+});
+
+// ✅ Nodemailer transport configuration
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -79,7 +78,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ✅ Reusable mail function
+// ✅ Reusable sendMail function
 async function sendMail(to, subject, html) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -98,16 +97,10 @@ async function sendMail(to, subject, html) {
   }
 }
 
-// ✅ Health check
-app.get('/', (req, res) => {
-  res.send('✅ EDIZO Backend is running.');
-});
-
-// ✅ Internship application
+// ✅ Internship application handler
 app.post('/api/send-email', limiter, async (req, res) => {
   const data = req.body;
   const applicantEmail = data.email;
-  // Use INTERNSHIP_RECIPIENT_EMAIL if set, otherwise fallback to EMAIL_USER
   const adminEmail = process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER;
 
   try {
@@ -148,9 +141,8 @@ app.post('/api/send-email', limiter, async (req, res) => {
       </ul>
       <p><strong>E.D.I.Z.O. Application System</strong></p>
     </div>`;
-
     await sendMail(applicantEmail, `Application Confirmation - ${data.internshipTitle}`, applicantHtml);
-    await sendMail(adminEmail, `New Application - ${data.internshipTitle}`, adminHtml);
+    await sendMail(adminEmail, `New Internship Application - ${data.internshipTitle}`, adminHtml);
 
     res.status(200).json({ success: true, message: '✅ Emails sent successfully.' });
   } catch (err) {
@@ -159,11 +151,10 @@ app.post('/api/send-email', limiter, async (req, res) => {
   }
 });
 
-// ✅ Contact form
+// ✅ Contact form handler
 app.post('/api/send-contact-email', limiter, async (req, res) => {
   const data = req.body;
   const userEmail = data.email;
-  // Use CONTACT_FORM_RECIPIENT_EMAIL if set, otherwise fallback to EMAIL_USER
   const adminEmail = process.env.CONTACT_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER;
 
   try {
@@ -177,7 +168,7 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
       </p>
       <p>If urgent, contact: <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a></p>
       <p><strong>E.D.I.Z.O. Support Team</strong></p>
-    </div>`;
+    </div>`
 
     const adminHtml = `
       <div style="font-family: Arial, sans-serif; color: #333;">
@@ -191,7 +182,6 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
       </ul>
       <p>Submitted via the contact form on E.D.I.Z.O. website.</p>
     </div>`;
-
     await sendMail(userEmail, `We’ve received your message`, userHtml);
     await sendMail(adminEmail, `Contact Form - ${data.subject || 'New Inquiry'}`, adminHtml);
 
@@ -208,7 +198,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
-// ✅ Start server
+// ✅ Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
