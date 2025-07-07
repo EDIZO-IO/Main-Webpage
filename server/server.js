@@ -85,8 +85,9 @@ async function sendMail(to, subject, html) {
     to,
     subject,
     html,
-    text: convert(html),
+    text: html.replace(/<[^>]*>/g, ''), // basic fallback
   };
+  
 
   try {
     const info = await transporter.sendMail(mailOptions);
