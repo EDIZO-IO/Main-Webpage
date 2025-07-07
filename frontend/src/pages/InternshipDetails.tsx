@@ -15,7 +15,7 @@ import { motion } from 'framer-motion';
 
 // --- Placeholder image URLs (to resolve compilation errors) ---
 // These are used instead of local image imports.
-const placeholderImage = (text: string | number | boolean) => `https://placehold.co/150x150/E0E0E0/666666?text=${encodeURIComponent(text)}`;
+const placeholderImage = (text) => `https://placehold.co/150x150/E0E0E0/666666?text=${encodeURIComponent(text)}`;
 
 // --- Reusable Components (Simplified for this example) ---
 
@@ -28,14 +28,6 @@ const Button = ({
   fullWidth = false,
   className = '',
   disabled = false
-}: {
-  children: React.ReactNode;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  type?: 'button' | 'submit' | 'reset';
-  variant?: 'primary' | 'outline' | 'default';
-  fullWidth?: boolean;
-  className?: string;
-  disabled?: boolean;
 }) => {
   const baseClasses = "px-6 py-3 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
   const variants = {
@@ -59,7 +51,7 @@ const Button = ({
 };
 
 // AnimatedSection component for smooth entrance animations
-const AnimatedSection = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
+const AnimatedSection = ({ children, delay = 0 }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -75,7 +67,7 @@ const AnimatedSection = ({ children, delay = 0 }: { children: React.ReactNode; d
 const inputFieldClasses = "w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200";
 
 // --- Internship Data (with placeholder images for demonstration) ---
-const internshipsData: { [key: string]: any } = { // Explicitly type internshipsData
+const internshipsData = { // Explicitly type internshipsData
   'ui-ux-design': {
     title: 'UI/UX Design Intern',
     category: 'Paid',
@@ -425,7 +417,7 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
     ],
     priceINR: 4500,
     image: placeholderImage('AI/ML')
-    },
+  },
   'ai-with-chatgpt': {
     title: 'AI with ChatGPT Intern',
     category: 'Paid',
@@ -500,14 +492,14 @@ const internshipsData: { [key: string]: any } = { // Explicitly type internships
 
 // --- Main InternshipDetails Component ---
 const InternshipDetails = () => {
-  const { id } = useParams<{ id: string }>(); // Specify type for useParams
+  const { id } = useParams(); // Specify type for useParams
   const internshipId = id && id in internshipsData ? id : 'web-development';
   const internship = internshipsData[internshipId];
 
   // State to manage the application submission status
-  const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle'); // 'idle', 'processing', 'success', 'error'
+  const [submissionStatus, setSubmissionStatus] = useState('idle'); // 'idle', 'processing', 'success', 'error'
   // State to store and display submission messages to the user
-  const [submissionMessage, setSubmissionMessage] = useState<string>('');
+  const [submissionMessage, setSubmissionMessage] = useState('');
 
   // State to hold form data
   const [formData, setFormData] = useState({
@@ -520,7 +512,7 @@ const InternshipDetails = () => {
   });
 
   // Handle input changes for text fields
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -529,84 +521,85 @@ const InternshipDetails = () => {
   // This URL should point to your deployed backend service that handles email sending.
   // It's hardcoded here for simplicity, but in a production environment,
   // it would typically be loaded from an environment variable.
-  const API_BASE_URL = import.meta.env.VITE_API_URL;
- // Your Render backend URL
+  // Use a fallback for VITE_API_URL in case it's not defined (e.g., during local development without a .env file)
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'; // Default to local backend
+
+  // Log the API base URL being used for debugging
+  console.log('Using API Base URL:', API_BASE_URL);
 
   // Handle form submission (directly sends email notifications)
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission behavior
     console.log('Attempting to submit form with data:', formData);
     setSubmissionStatus('processing');
     setSubmissionMessage('Sending your application and confirmation email...');
 
-  try {
-    
+    try {
+      // ✅ Step 1: Send confirmation email to applicant
+      const applicantRes = await fetch(`${API_BASE_URL}/api/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          internshipTitle: internship?.title || 'Internship',
+        }),
+      });
 
-    // ✅ Step 1: Send confirmation email to applicant
-    const applicantRes = await fetch(`${API_BASE_URL}/api/send-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        internshipTitle: internship?.title || 'Internship',
-      }),
-    });
+      if (!applicantRes.ok) {
+        const errorText = await applicantRes.text();
+        console.warn('⚠️ Failed to send confirmation email to applicant:', applicantRes.status, errorText);
+      } else {
+        console.log('✅ Confirmation email sent to applicant.');
+      }
 
-    if (!applicantRes.ok) {
-      const errorText = await applicantRes.text();
-      console.warn('⚠️ Failed to send confirmation email to applicant:', errorText);
-    } else {
-      console.log('✅ Confirmation email sent to applicant.');
+      // ✅ Step 2: Send application notification to admin
+      const adminRes = await fetch(`${API_BASE_URL}/api/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          education: formData.education,
+          experience: formData.experience,
+          message: formData.message,
+          internshipTitle: internship?.title || 'Internship',
+        }),
+      });
+
+      if (!adminRes.ok) {
+        const errorText = await adminRes.text();
+        throw new Error(`❌ Failed to notify admin: ${adminRes.status} - ${errorText}`);
+      }
+
+      console.log('✅ Application notification email sent to admin.');
+      setSubmissionStatus('success');
+      setSubmissionMessage('🎉 Application submitted successfully! A confirmation email has been sent to you.');
+
+      // ✅ Reset the form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        education: '',
+        experience: '',
+        message: '',
+      });
+    } catch (error) {
+      console.error('❌ Error in form submission:', error);
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        errorMessage = 'Network error: Could not connect to the server. Please check your internet connection and the server URL.';
+      } else if (error instanceof Error) {
+        errorMessage = `Submission failed: ${error.message}`;
+      }
+
+      setSubmissionStatus('error');
+      setSubmissionMessage(errorMessage);
     }
-
-    // ✅ Step 2: Send application notification to admin
-    const adminRes = await fetch(`${API_BASE_URL}/api/send-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        education: formData.education,
-        experience: formData.experience,
-        message: formData.message,
-        internshipTitle: internship?.title || 'Internship',
-      }),
-    });
-
-    if (!adminRes.ok) {
-      const errorText = await adminRes.text();
-      throw new Error(`❌ Failed to notify admin: ${adminRes.status} - ${errorText}`);
-    }
-
-    console.log('✅ Application notification email sent to admin.');
-    setSubmissionStatus('success');
-    setSubmissionMessage('🎉 Application submitted successfully! A confirmation email has been sent to you.');
-
-    // ✅ Reset the form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      education: '',
-      experience: '',
-      message: '',
-    });
-  } catch (error) {
-    console.error('❌ Error in form submission:', error);
-    let errorMessage = 'An unexpected error occurred. Please try again.';
-
-    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-      errorMessage = 'Network error: Could not connect to the server.';
-    } else if (error instanceof Error) {
-      errorMessage = `Submission failed: ${error.message}`;
-    }
-
-    setSubmissionStatus('error');
-    setSubmissionMessage(errorMessage);
-  }
-};
+  };
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-16 px-4 font-sans">
       <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-12">
@@ -671,7 +664,7 @@ const InternshipDetails = () => {
                 <div className="mb-8">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Responsibilities</h3>
                   <ul className="space-y-3">
-                    {internship.responsibilities.map((item: string, index: number) => (
+                    {internship.responsibilities.map((item, index) => (
                       <li key={index} className="flex items-start text-gray-700">
                         <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
                         <span>{item}</span>
@@ -684,7 +677,7 @@ const InternshipDetails = () => {
                 <div className="mb-8">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Requirements</h3>
                   <ul className="space-y-3">
-                    {internship.requirements.map((item: string, index: number) => (
+                    {internship.requirements.map((item, index) => (
                       <li key={index} className="flex items-start text-gray-700">
                         <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
                         <span>{item}</span>
@@ -697,7 +690,7 @@ const InternshipDetails = () => {
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Benefits</h3>
                   <ul className="space-y-3">
-                    {internship.benefits.map((item: string, index: number) => (
+                    {internship.benefits.map((item, index) => (
                       <li key={index} className="flex items-start text-gray-700">
                         <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
                         <span>{item}</span>

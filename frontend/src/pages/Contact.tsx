@@ -186,7 +186,7 @@ const Contact = () => {
   // IMPORTANT: Replace this with the actual URL of your running backend server.
   // This placeholder will not work for actual submissions.
   // Ensure your backend is deployed and accessible at this URL.
- const API_BASE_URL = import.meta.env.VITE_API_URL; // Example URL, replace with your actual backend URL
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://main-webpage-l85m.onrender.com'; // Default to Render project URL
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -312,7 +312,7 @@ const Contact = () => {
                       { platform: 'Twitter', url: 'https://x.com/EdizoPvtLtd' },
                       { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/' },
                       { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/' },
-                      { platform: 'Youtube',  url: 'https://www.youtube.com/@team-edizo'}
+                      { platform: 'Youtube', url: 'https://www.youtube.com/@team-edizo' }
                     ].map((social, i) => (
                       <motion.a
                         key={i}

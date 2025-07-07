@@ -24,14 +24,21 @@
   "devDependencies": {
     "browserslist": "^4.25.0",
     "concurrently": "^9.1.2",
+    "nodemon": "^3.1.10",
     "postcss": "^8.5.4",
     "postcss-preset-env": "^10.2.0"
   },
   "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
     "express-rate-limit": "^7.5.1",
     "framer-motion": "^12.15.0",
     "helmet": "^8.1.0",
+    "html-to-text": "^9.0.5",
     "lucide-react": "^0.511.0",
+    "nodemailer": "^7.0.4",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.1"
   }
