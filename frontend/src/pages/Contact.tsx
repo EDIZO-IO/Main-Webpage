@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle, Loader2 } from 'lucide-react';
+import {
+  Mail, Phone, MapPin, Send, CheckCircle, Loader2,
+  Facebook, Twitter, Linkedin, Instagram, Youtube // Import social media icons
+} from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom'; // Import Link for the updated Button component
+// import { Link } from 'react-router-dom'; // Link is not used in the provided snippet, so commenting out.
 
 // --- Reusable Components (Enhanced) ---
 
@@ -102,15 +105,16 @@ const Button: React.FC<ButtonProps> = ({
   `;
 
   // Render as Link component if 'to' prop is provided (for internal routing)
-  if (to) {
-    return (
-      <Link to={to} className={combinedClasses}>
-        {iconLeft && <span>{iconLeft}</span>}
-        {children}
-        {iconRight && <span>{iconRight}</span>}
-      </Link>
-    );
-  }
+  // Re-adding Link import if needed for the original context, otherwise it's fine to keep it commented if not used.
+  // if (to) {
+  //   return (
+  //     <Link to={to} className={combinedClasses}>
+  //       {iconLeft && <span>{iconLeft}</span>}
+  //       {children}
+  //       {iconRight && <span>{iconRight}</span>}
+  //     </Link>
+  //   );
+  // }
 
   // Render as an anchor tag if 'href' prop is provided (for external links)
   if (href) {
@@ -253,6 +257,15 @@ const Contact = () => {
   // Common input field styling
   const inputFieldClasses = "input-field border border-gray-300 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-sm hover:border-red-400";
 
+  // Map social platform names to Lucide icons
+  const socialIcons = {
+    Facebook: Facebook,
+    Twitter: Twitter,
+    LinkedIn: Linkedin,
+    Instagram: Instagram,
+    Youtube: Youtube,
+  };
+
   return (
     <>
       <PageHeader
@@ -313,21 +326,24 @@ const Contact = () => {
                       { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/' },
                       { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/' },
                       { platform: 'Youtube', url: 'https://www.youtube.com/@team-edizo' }
-                    ].map((social, i) => (
-                      <motion.a
-                        key={i}
-                        href={social.url}
-                        aria-label={social.platform}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: 0.1 * i + 0.3 }}
-                        className="bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white transition-colors duration-300 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-md hover:shadow-lg"
-                      >
-                        <i className={`fa-brands fa-${social.platform.toLowerCase()}`} />
-                      </motion.a>
-                    ))}
+                    ].map((social, i) => {
+                      const IconComponent = socialIcons[social.platform];
+                      return (
+                        <motion.a
+                          key={i}
+                          href={social.url}
+                          aria-label={social.platform}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.3, delay: 0.1 * i + 0.3 }}
+                          className="bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white transition-colors duration-300 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-md hover:shadow-lg"
+                        >
+                          {IconComponent && <IconComponent size={24} />}
+                        </motion.a>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

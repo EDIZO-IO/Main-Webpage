@@ -1,21 +1,16 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
 import {
   Calendar,
   Users,
   Wifi,
   Home,
   Check,
-  Send,
-  CheckCircle,
-  XCircle,
-  Loader2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // --- Placeholder image URLs (to resolve compilation errors) ---
-// These are used instead of local image imports.
-const placeholderImage = (text) => `https://placehold.co/150x150/E0E0E0/666666?text=${encodeURIComponent(text)}`;
+const placeholderImage = (text: string) => `https://placehold.co/150x150/E0E0E0/666666?text=${encodeURIComponent(text)}`;
 
 // --- Reusable Components (Simplified for this example) ---
 
@@ -28,6 +23,14 @@ const Button = ({
   fullWidth = false,
   className = '',
   disabled = false
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'outline' | 'default';
+  fullWidth?: boolean;
+  className?: string;
+  disabled?: boolean;
 }) => {
   const baseClasses = "px-6 py-3 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
   const variants = {
@@ -51,7 +54,7 @@ const Button = ({
 };
 
 // AnimatedSection component for smooth entrance animations
-const AnimatedSection = ({ children, delay = 0 }) => {
+const AnimatedSection = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -63,11 +66,22 @@ const AnimatedSection = ({ children, delay = 0 }) => {
   );
 };
 
-// Input Field styling (common class for form inputs)
-const inputFieldClasses = "w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200";
-
 // --- Internship Data (with placeholder images for demonstration) ---
-const internshipsData = { // Explicitly type internshipsData
+interface Internship {
+  title: string;
+  category: string;
+  mode: string;
+  duration: string;
+  department: string;
+  description: string;
+  responsibilities: string[];
+  requirements: string[];
+  benefits: string[];
+  priceINR: number;
+  image: string;
+}
+
+const internshipsData: { [key: string]: Internship } = {
   'ui-ux-design': {
     title: 'UI/UX Design Intern',
     category: 'Paid',
@@ -492,125 +506,27 @@ const internshipsData = { // Explicitly type internshipsData
 
 // --- Main InternshipDetails Component ---
 const InternshipDetails = () => {
-  const { id } = useParams(); // Specify type for useParams
+  const { id } = useParams<{ id: string }>(); // Specify type for useParams
+  const navigate = useNavigate(); // Initialize useNavigate hook
+
   const internshipId = id && id in internshipsData ? id : 'web-development';
   const internship = internshipsData[internshipId];
 
-  // State to manage the application submission status
-  const [submissionStatus, setSubmissionStatus] = useState('idle'); // 'idle', 'processing', 'success', 'error'
-  // State to store and display submission messages to the user
-  const [submissionMessage, setSubmissionMessage] = useState('');
-
-  // State to hold form data
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    education: '',
-    experience: '',
-    message: '',
-  });
-
-  // Handle input changes for text fields
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleApplyNowClick = () => {
+    navigate(`/apply/${internshipId}`); // Navigate to the application page with internship ID
   };
 
-  // Define the API base URL for your Render backend.
-  // This URL should point to your deployed backend service that handles email sending.
-  // It's hardcoded here for simplicity, but in a production environment,
-  // it would typically be loaded from an environment variable.
-  // Use a fallback for VITE_API_URL in case it's not defined (e.g., during local development without a .env file)
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'; // Default to local backend
-
-  // Log the API base URL being used for debugging
-  console.log('Using API Base URL:', API_BASE_URL);
-
-  // Handle form submission (directly sends email notifications)
-  const handleFormSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
-    console.log('Attempting to submit form with data:', formData);
-    setSubmissionStatus('processing');
-    setSubmissionMessage('Sending your application and confirmation email...');
-
-    try {
-      // ✅ Step 1: Send confirmation email to applicant
-      const applicantRes = await fetch(`${API_BASE_URL}/api/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          internshipTitle: internship?.title || 'Internship',
-        }),
-      });
-
-      if (!applicantRes.ok) {
-        const errorText = await applicantRes.text();
-        console.warn('⚠️ Failed to send confirmation email to applicant:', applicantRes.status, errorText);
-      } else {
-        console.log('✅ Confirmation email sent to applicant.');
-      }
-
-      // ✅ Step 2: Send application notification to admin
-      const adminRes = await fetch(`${API_BASE_URL}/api/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          education: formData.education,
-          experience: formData.experience,
-          message: formData.message,
-          internshipTitle: internship?.title || 'Internship',
-        }),
-      });
-
-      if (!adminRes.ok) {
-        const errorText = await adminRes.text();
-        throw new Error(`❌ Failed to notify admin: ${adminRes.status} - ${errorText}`);
-      }
-
-      console.log('✅ Application notification email sent to admin.');
-      setSubmissionStatus('success');
-      setSubmissionMessage('🎉 Application submitted successfully! A confirmation email has been sent to you.');
-
-      // ✅ Reset the form
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        education: '',
-        experience: '',
-        message: '',
-      });
-    } catch (error) {
-      console.error('❌ Error in form submission:', error);
-      let errorMessage = 'An unexpected error occurred. Please try again.';
-
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        errorMessage = 'Network error: Could not connect to the server. Please check your internet connection and the server URL.';
-      } else if (error instanceof Error) {
-        errorMessage = `Submission failed: ${error.message}`;
-      }
-
-      setSubmissionStatus('error');
-      setSubmissionMessage(errorMessage);
-    }
-  };
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-16 px-4 font-sans">
       <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-12">
-        <span className="text-red-600">{internship.title}</span> Internship Application
+        <span className="text-red-600">{internship.title}</span> Internship Details
       </h1>
 
       <section className="section bg-gray-100 w-full max-w-6xl">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Internship Details Section */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3"> {/* Changed to col-span-3 as form is removed */}
               <AnimatedSection>
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Internship Overview</h2>
                 <p className="text-lg text-gray-700 mb-8">{internship.description}</p>
@@ -687,7 +603,7 @@ const InternshipDetails = () => {
                 </div>
 
                 {/* Benefits Section */}
-                <div>
+                <div className="mb-8">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Benefits</h3>
                   <ul className="space-y-3">
                     {internship.benefits.map((item, index) => (
@@ -698,159 +614,16 @@ const InternshipDetails = () => {
                     ))}
                   </ul>
                 </div>
-              </AnimatedSection>
-            </div>
 
-            {/* Application Form Section */}
-            <div className="lg:col-span-1">
-              <AnimatedSection delay={0.2}>
-                <div className="bg-white rounded-lg p-6 border border-gray-200 sticky top-24 shadow-md hover:shadow-lg transition-shadow duration-300">
-                  {submissionStatus === 'idle' || submissionStatus === 'processing' ? (
-                    <>
-                      <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Apply Now</h3>
-                      <form onSubmit={handleFormSubmit} className="space-y-4">
-                        <div>
-                          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                            Full Name *
-                          </label>
-                          <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            required
-                            className={inputFieldClasses}
-                            placeholder="Enter Name"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                            Email Address *
-                          </label>
-                          <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            required
-                            className={inputFieldClasses}
-                            placeholder="Example@gmail.com"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                            Phone Number
-                          </label>
-                          <input
-                            type="tel"
-                            id="phone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleInputChange}
-                            className={inputFieldClasses}
-                            placeholder="+1 (123) 456-7890"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
-                            Degree and Branch *
-                          </label>
-                          <input
-                            type="text"
-                            id="education"
-                            name="education"
-                            value={formData.education}
-                            onChange={handleInputChange}
-                            required
-                            className={inputFieldClasses}
-                            placeholder="e.g., B.Tech in Computer Science"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-1">
-                            Relevant Experience
-                          </label>
-                          <textarea
-                            id="experience"
-                            name="experience"
-                            value={formData.experience}
-                            onChange={handleInputChange}
-                            rows={3}
-                            className={`${inputFieldClasses} resize-none`}
-                            placeholder="Briefly describe your relevant experience..."
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                            Cover Letter
-                          </label>
-                          <textarea
-                            id="message"
-                            name="message"
-                            value={formData.message}
-                            onChange={handleInputChange}
-                            rows={4}
-                            className={`${inputFieldClasses} resize-none`}
-                            placeholder="Why are you interested in this internship?"
-                          />
-                        </div>
-                        <Button
-                          type="submit"
-                          variant="primary"
-                          fullWidth
-                          className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white"
-                          disabled={submissionStatus === 'processing'}
-                        >
-                          {submissionStatus === 'processing' ? (
-                            <Loader2 className="mr-2 animate-spin" size={18} />
-                          ) : (
-                            <Send className="mr-2" size={18} />
-                          )}
-                          Submit Application
-                        </Button>
-                      </form>
-                      {submissionStatus === 'processing' && (
-                        <div className="mt-4 text-center text-red-600 flex items-center justify-center">
-                          <Loader2 className="mr-2 animate-spin" size={20} /> {submissionMessage}
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className="text-center py-6"
-                    >
-                      <div className={`p-4 rounded-lg mb-4 ${submissionStatus === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {submissionStatus === 'success' ? (
-                          <>
-                            <CheckCircle className="inline-block mr-2 text-green-600" size={24} />
-                            <p className="font-medium">Application Submitted Successfully!</p>
-                            <p className="text-sm mt-2">
-                              Thank you for applying. A confirmation email has been sent to <span className="font-semibold">{formData.email}</span>. Our team will contact you soon.
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="inline-block mr-2 text-red-600" size={24} />
-                            <p className="font-medium">Application Submission Failed!</p>
-                            <p className="text-sm mt-2">
-                              {submissionMessage} {/* Display specific error message */}
-                            </p>
-                          </>
-                        )}
-                      </div>
-                      <Button variant="outline" onClick={() => {
-                        setSubmissionStatus('idle');
-                        setSubmissionMessage('');
-                      }}>
-                        Submit Another Application
-                      </Button>
-                    </motion.div>
-                  )}
+                {/* Apply Now Button */}
+                <div className="flex justify-center mt-10">
+                  <Button
+                    onClick={handleApplyNowClick}
+                    variant="primary"
+                    className="px-8 py-4 text-xl"
+                  >
+                    Apply Now
+                  </Button>
                 </div>
               </AnimatedSection>
             </div>

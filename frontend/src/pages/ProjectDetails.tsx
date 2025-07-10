@@ -186,7 +186,7 @@ const ProjectDetails: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      {/* <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <AnimatedSection>
             <div className="max-w-3xl mx-auto">
@@ -211,7 +211,7 @@ const ProjectDetails: React.FC = () => {
             </div>
           </AnimatedSection>
         </div>
-      </section>
+      </section> */}
     </>
   );
 };

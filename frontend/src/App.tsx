@@ -16,6 +16,7 @@ import ProjectDetails from './pages/ProjectDetails';
 import Contact from './pages/Contact';
 // import Support from './pages/Support'; // Optional
 import NotFound from './pages/NotFound';
+import InternshipApplication from './pages/InternshipApplication';
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -29,6 +30,7 @@ const App: React.FC = () => {
           <Route path="services/:id" element={<ServiceDetails />} />
           <Route path="internships" element={<Internships />} />
           <Route path="internships/:id" element={<InternshipDetails />} />
+          <Route path="/apply/:id" element={<InternshipApplication />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projects/:id" element={<ProjectDetails />} />
           <Route path="contact" element={<Contact />} />

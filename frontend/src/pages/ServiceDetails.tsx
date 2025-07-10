@@ -2,16 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Code,
-   // Still imported but not used in the 4 services
-  TrendingUp, // Still imported but not used in the 4 services
+  TrendingUp,
   PenTool,
-   // Still imported but not used in the 4 services
-   // Still imported but not used in the 4 services
   Check,
   MessageSquare,
   Award,
   ArrowRight,
-  ChevronLeft
+  ChevronLeft,
+  Smartphone // Import Smartphone icon for App Design
 } from 'lucide-react';
 
 import PageHeader from '../components/common/PageHeader';
@@ -19,10 +17,12 @@ import AnimatedSection from '../components/common/AnimatedSection';
 import Button from '../components/common/Button';
 
 // Import local service images
-import webDevImg from '../assets/services/web development.png';
-import uiuxImg from '../assets/services/Uiux.png';
-import videoEditingImg from '../assets/services/Video editing.png';
-import graphicDesignImg from '../assets/services/Graphics Design.png';
+import webDevImg from '../assets/services/banner/website design ban.webp';
+import uiuxImg from '../assets/services/banner/graphic design ban.webp';
+import videoEditingImg from '../assets/services/banner/video editing ban.webp';
+import graphicDesignImg from '../assets/services/banner/graphic design ban.webp';
+import appDesignImg from '../assets/services/banner/app design ban.webp'; // Assuming this image exists for App Design
+
 
 // Service Data
 const servicesData = {
@@ -133,6 +133,33 @@ const servicesData = {
       'Finalization'
     ]
   },
+  'app-design': { // New service
+    title: 'App Design',
+    subtitle: 'Crafting intuitive and engaging mobile experiences',
+    description:
+      'Our app design services focus on creating user-friendly and visually appealing mobile applications for both iOS and Android. We cover everything from initial concept to final UI, ensuring a seamless and delightful user journey.',
+    image: appDesignImg, // Using local image
+    icon: Smartphone, // Using Smartphone icon
+    features: [
+      'Mobile User Research',
+      'Wireframing & Prototyping',
+      'Intuitive UI Design',
+      'Cross-Platform Compatibility',
+      'Interaction Design',
+      'Usability Testing for Mobile',
+      'App Store Guidelines Adherence',
+      'Icon & Asset Creation',
+    ],
+    technologies: ['Figma', 'Adobe XD', 'Sketch', 'ProtoPie', 'Principle'],
+    process: [
+      'Discovery & Strategy',
+      'UX Research & Wireframing',
+      'UI Design & Prototyping',
+      'User Testing & Iteration',
+      'Handoff to Development',
+      'Post-Launch Support'
+    ]
+  },
 };
 
 const ServiceDetails: React.FC = () => {
@@ -200,8 +227,8 @@ const ServiceDetails: React.FC = () => {
         subtitle={service.subtitle}
         backgroundImage={service.image}
         className="bg-gradient-to-r from-blue-800 to-purple-900"
-        // Add onError to PageHeader's background image if it uses an <img> tag internally
-        // or ensure PageHeader component handles image loading gracefully.
+      // Add onError to PageHeader's background image if it uses an <img> tag internally
+      // or ensure PageHeader component handles image loading gracefully.
       />
 
       <section className="py-16 bg-white">
@@ -330,7 +357,7 @@ const ServiceDetails: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
+      {/* <section className="py-16 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <AnimatedSection>
             <div className="max-w-3xl mx-auto">
@@ -356,7 +383,7 @@ const ServiceDetails: React.FC = () => {
             </div>
           </AnimatedSection>
         </div>
-      </section>
+      </section> */}
     </>
   );
 };

@@ -6,7 +6,8 @@ import {
   Video,
   Image as ImageIcon,
   Code,
-  ArrowRight
+  ArrowRight,
+  Smartphone // Import Smartphone icon for App Design
 } from 'lucide-react';
 
 import PageHeader from '../components/common/PageHeader';
@@ -14,10 +15,11 @@ import AnimatedSection from '../components/common/AnimatedSection';
 import headerBackground from '../assets/background image/service.png';
 
 // Import local service images
-import webDevImg from '../assets/services/web development.png'; // Assuming this image exists
-import uiuxImg from '../assets/services/Uiux.png'; // Assuming this image exists
-import videoEditingImg from '../assets/services/Video editing.png'; // Assuming this image exists
-import graphicDesignImg from '../assets/services/Graphics Design.png'; // Assuming this image exists
+import webDevImg from '../assets/services/website design.webp'; // Assuming this image exists
+import uiuxImg from '../assets/services/uiux.webp'; // Assuming this image exists
+import videoEditingImg from '../assets/services/video editing.webp'; // Assuming this image exists
+import graphicDesignImg from '../assets/services/graphic design.webp'; // Assuming this image exists
+import appDesignImg from '../assets/services/app design.webp'; // Assuming this image exists for App Design
 
 
 // Service data - Limited to 4 services as requested
@@ -58,6 +60,15 @@ const services = [
     primaryColor: 'bg-pink-600',
     secondaryColor: 'text-pink-600',
   },
+  {
+    id: 'app-design', // New service
+    title: 'App Design',
+    description: 'Designing intuitive and engaging mobile applications for iOS and Android platforms.',
+    icon: Smartphone, // Using Smartphone icon
+    image: appDesignImg, // Using local image
+    primaryColor: 'bg-green-600', // Example color
+    secondaryColor: 'text-green-600', // Example color
+  },
 ];
 
 const Services: React.FC = () => {
@@ -75,7 +86,7 @@ const Services: React.FC = () => {
 
   return (
     <>
-     
+
       <PageHeader
         title={<span className="text-red-500">Our Services</span>}
         subtitle={<span className="text-white">Comprehensive digital solutions tailored to your business needs</span>}
@@ -94,7 +105,7 @@ const Services: React.FC = () => {
           </AnimatedSection>
 
           {/* Adjusted grid for 4 items, ensuring responsiveness */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"> {/* Adjusted grid to handle 5 items gracefully */}
             {services.map((service, index) => {
               const Icon = service.icon;
 
@@ -141,7 +152,7 @@ const Services: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+      {/* <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <AnimatedSection>
@@ -158,7 +169,7 @@ const Services: React.FC = () => {
             </AnimatedSection>
           </div>
         </div>
-      </section>
+      </section> */}
     </>
   );
 };

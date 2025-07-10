@@ -10,6 +10,7 @@ import {
   ImageIcon,
   Code,
   Briefcase,
+  Smartphone, // Import Smartphone icon for App Design
 } from 'lucide-react';
 
 // Custom Components
@@ -17,10 +18,12 @@ import AnimatedSection from '../components/common/AnimatedSection';
 import Button from '../components/common/Button';
 
 // Service Images
-import uiuxImg from '../assets/services/Uiux.png';
-import videoImg from '../assets/services/Video editing.png';
-import graphicImg from '../assets/services/Graphics Design.png';
-import webDevImg from '../assets/services/web development.png';
+import uiuxImg from '../assets/services/uiux.webp';
+import videoImg from '../assets/services/video editing.webp';
+import graphicImg from '../assets/services/graphic design.webp';
+import webDevImg from '../assets/services/website design.webp';
+import appDesignImg from '../assets/services/app design.webp'; // Assuming this image exists for App Design
+
 
 // Project Images
 import faceguard from '../assets/project/face-Guard.png';
@@ -107,7 +110,7 @@ const Home: React.FC = () => {
               <p className="text-lg md:text-xl text-white mb-8 max-w-xl mx-auto">
                 Get premium <span className="text-red-600 font-bold">video editing</span>,
                 <span className="text-red-600 font-bold"> graphic design</span>, and
-                <span className="text-red-600 font-bold"> web development services</span>.<br></br> Launch your career with our exclusive<span className="text-red-600 font-bold"> internship programs.</span> 
+                <span className="text-red-600 font-bold"> web development services</span>.<br></br> Launch your career with our exclusive<span className="text-red-600 font-bold"> internship programs.</span>
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Button variant="primary" size="lg" to="/services">
@@ -141,12 +144,13 @@ const Home: React.FC = () => {
             </p>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 mt-12"> {/* Adjusted grid for 5 items */}
             {[
               { title: 'UI/UX Design', icon: <PenTool />, image: uiuxImg, link: '/services/ui-ux' },
               { title: 'Video Editing', icon: <Video />, image: videoImg, link: '/services/video-editing' },
               { title: 'Graphic Design', icon: <ImageIcon />, image: graphicImg, link: '/services/graphic-design' },
               { title: 'Web Development', icon: <Code />, image: webDevImg, link: '/services/web-development' },
+              { title: 'App Design', icon: <Smartphone />, image: appDesignImg, link: '/services/app-design' }, // New service
             ].map((service, i) => (
               <div key={i} className="card p-6 rounded-xl hover:shadow-2xl transition-all duration-300 group">
                 <img
@@ -282,7 +286,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Call to Action Section */}
-      <section className="section bg-gradient-to-r from-red-700 to-orange-800 text-white py-20">
+      {/* <section className="section bg-gradient-to-r from-red-700 to-orange-800 text-white py-20">
         <div className="container mx-auto px-4">
           <AnimatedSection>
             <motion.div
@@ -306,7 +310,7 @@ const Home: React.FC = () => {
             </motion.div>
           </AnimatedSection>
         </div>
-      </section>
+      </section> */}
     </>
   );
 };
