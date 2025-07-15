@@ -29,11 +29,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
+    // description: 'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
     image: webDesign,
     rating: 4.7, // Added rating
-    students: '12,500', // Added students enrolled
-    company: 'InnovateTech Solutions', // Added company
+    // students: '12,500', // Added students enrolled
+    // company: 'InnovateTech Solutions', // Added company
     // priceINR: 4500, // Removed price
   },
   {
@@ -42,11 +42,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Develop responsive web applications using modern frontend technologies like React, Vue.js, and TypeScript.',
+    // description: 'Develop responsive web applications using modern frontend technologies like React, Vue.js, and TypeScript.',
     image: responsiveDesign,
     rating: 4.5,
     students: '15,200',
-    company: 'WebCrafters Inc.',
+    // company: 'WebCrafters Inc.',
     // priceINR: 4500, // Removed price
   },
   {
@@ -55,11 +55,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Build scalable backend systems using Node.js, Django, or Spring Boot while working with databases and APIs.',
+    // description: 'Build scalable backend systems using Node.js, Django, or Spring Boot while working with databases and APIs.',
     image: backEnd,
     rating: 4.6,
-    students: '10,800',
-    company: 'ServerSide Innovations',
+    // students: '10,800',
+    // company: 'ServerSide Innovations',
     // priceINR: 4500, // Removed price
   },
   {
@@ -68,11 +68,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Assist in recruitment, onboarding, employee engagement, and performance management tasks.',
+    // description: 'Assist in recruitment, onboarding, employee engagement, and performance management tasks.',
     image: hrManager,
     rating: 4.2,
-    students: '8,100',
-    company: 'PeopleFirst HR',
+    // students: '8,100',
+    // company: 'PeopleFirst HR',
     // priceINR: 4500, // Removed price
   },
   {
@@ -81,11 +81,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Analyze datasets to uncover insights and support data-driven decisions using tools like Excel, SQL, and Python.',
+    // description: 'Analyze datasets to uncover insights and support data-driven decisions using tools like Excel, SQL, and Python.',
     image: dataAnalytics,
     rating: 4.8,
-    students: '18,900',
-    company: 'Insightful Data Co.',
+    // students: '18,900',
+    // company: 'Insightful Data Co.',
     // priceINR: 4500, // Removed price
   },
   {
@@ -94,11 +94,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Learn enterprise-level Java development with frameworks like Spring Boot and Hibernate.',
+    // description: 'Learn enterprise-level Java development with frameworks like Spring Boot and Hibernate.',
     image: java,
     rating: 4.4,
-    students: '11,300',
-    company: 'Enterprise Java Hub',
+    // students: '11,300',
+    // company: 'Enterprise Java Hub',
     // priceINR: 4500, // Removed price
   },
   {
@@ -107,11 +107,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Explore scripting, automation, and backend development using Python and related libraries.',
+    // description: 'Explore scripting, automation, and backend development using Python and related libraries.',
     image: python,
     rating: 4.6,
-    students: '14,000',
-    company: 'Pythonic Solutions',
+    // students: '14,000',
+    // company: 'Pythonic Solutions',
     // priceINR: 4500, // Removed price
   },
   {
@@ -120,11 +120,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Gain hands-on experience in SEO, content marketing, social media strategy, and campaign analytics.',
+    // description: 'Gain hands-on experience in SEO, content marketing, social media strategy, and campaign analytics.',
     image: contentStrategy,
     rating: 4.3,
-    students: '9,700',
-    company: 'GrowthMarketers',
+    // students: '9,700',
+    // company: 'GrowthMarketers',
     // priceINR: 4500, // Removed price
   },
   {
@@ -133,11 +133,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Work on machine learning models, deep learning projects, and real-world AI use cases.',
+    // description: 'Work on machine learning models, deep learning projects, and real-world AI use cases.',
     image: aiAssistant,
     rating: 4.9,
-    students: '20,100',
-    company: 'Cognitive AI Labs',
+    // students: '20,100',
+    // company: 'Cognitive AI Labs',
     // priceINR: 4500, // Removed price
   },
   {
@@ -146,11 +146,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
+    // description: 'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
     image: aiChatgpt,
     rating: 4.8,
-    students: '17,600',
-    company: 'Conversational AI Co.',
+    // students: '17,600',
+    // company: 'Conversational AI Co.',
     // priceINR: 4500, // Removed price
   },
   {
@@ -159,11 +159,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
+    // description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
     image: webDevelopment,
     rating: 4.7,
-    students: '16,800',
-    company: 'FullStack Devs',
+    // students: '16,800',
+    // company: 'FullStack Devs',
     // priceINR: 4500, // Removed price
   },
   {
@@ -172,11 +172,11 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
+    // description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
     image: Csharp,
     rating: 4.5,
-    students: '9,500',
-    company: '.NET Innovators',
+    // students: '9,500',
+    // company: '.NET Innovators',
     // priceINR: 4500, // Removed price
   },
 ];
