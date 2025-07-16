@@ -1,25 +1,44 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Clock, Wifi, Home, ArrowRight, Star } from 'lucide-react'; // Added Star for ratings
-import PageHeader from '../components/common/PageHeader';
-import AnimatedSection from '../components/common/AnimatedSection';
+// Mock Link and motion for self-contained example
+const Link = ({ to, children }) => <a href={to}>{children}</a>;
+const motion = {
+  // Modified mock to filter out framer-motion specific props
+  div: ({ children, whileInView, viewport, ...props }) => <div {...props}>{children}</div>,
+};
 
-import header from '../assets/background image/internship.png';
+import { Clock, Wifi, Home, ArrowRight, Star, Search } from 'lucide-react'; // Added Star for ratings and Search for the input
 
-// Import local images
+// Mock PageHeader and AnimatedSection for self-contained example
+const PageHeader = ({ title, subtitle, backgroundImage }) => (
+  <div
+    className="relative bg-cover bg-center py-20 text-white text-center rounded-lg shadow-lg"
+    style={{ backgroundImage: `url(${backgroundImage})` }}
+  >
+    <div className="absolute inset-0 bg-black opacity-50 rounded-lg"></div>
+    <div className="relative z-10 p-4">
+      <h1 className="text-4xl md:text-5xl font-extrabold mb-4">{title}</h1>
+      <p className="text-lg md:text-xl max-w-3xl mx-auto">{subtitle}</p>
+    </div>
+  </div>
+);
+
+const AnimatedSection = ({ children }) => <div className="animate-fade-in-up">{children}</div>;
+
+// Local image imports
 import webDesign from '../assets/images/web-design.png';
 import responsiveDesign from '../assets/images/responsive-design.png';
 import backEnd from '../assets/images/back-end.png';
 import hrManager from '../assets/images/hr-manager.png';
 import dataAnalytics from '../assets/images/data-Analystics.png';
 import java from '../assets/images/java.png';
-import python from '../assets/images/python.png';
+import python from '../assets/images/AI with CHATGPT.png';
 import contentStrategy from '../assets/images/content-strategy.png';
 import aiAssistant from '../assets/images/ai-assistant.png';
 import aiChatgpt from '../assets/images/AI with CHATGPT.png';
 import webDevelopment from '../assets/images/web-development.png';
 import Csharp from '../assets/images/c-sharp.png';
+import header from '../assets/background image/internship.png';
+
 
 // Internship opportunity data
 const internships = [
@@ -29,12 +48,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
-    image: webDesign,
-    rating: 4.7, // Added rating
-    // students: '12,500', // Added students enrolled
-    // company: 'InnovateTech Solutions', // Added company
-    // priceINR: 4500, // Removed price
+    image: webDesign, // Using imported local image
+    rating: 4.7,
+    company: 'InnovateTech Solutions',
   },
   {
     id: 'frontend-development',
@@ -42,12 +58,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Develop responsive web applications using modern frontend technologies like React, Vue.js, and TypeScript.',
-    image: responsiveDesign,
+    image: responsiveDesign, // Using imported local image
     rating: 4.5,
-    students: '15,200',
-    // company: 'WebCrafters Inc.',
-    // priceINR: 4500, // Removed price
+    company: 'WebCrafters Inc.',
   },
   {
     id: 'backend-development',
@@ -55,12 +68,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Build scalable backend systems using Node.js, Django, or Spring Boot while working with databases and APIs.',
-    image: backEnd,
+    image: backEnd, // Using imported local image
     rating: 4.6,
-    // students: '10,800',
-    // company: 'ServerSide Innovations',
-    // priceINR: 4500, // Removed price
+    company: 'ServerSide Innovations',
   },
   {
     id: 'hr-management',
@@ -68,12 +78,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Assist in recruitment, onboarding, employee engagement, and performance management tasks.',
-    image: hrManager,
+    image: hrManager, // Using imported local image
     rating: 4.2,
-    // students: '8,100',
-    // company: 'PeopleFirst HR',
-    // priceINR: 4500, // Removed price
+    company: 'PeopleFirst HR',
   },
   {
     id: 'data-analytics',
@@ -81,12 +88,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Analyze datasets to uncover insights and support data-driven decisions using tools like Excel, SQL, and Python.',
-    image: dataAnalytics,
+    image: dataAnalytics, // Using imported local image
     rating: 4.8,
-    // students: '18,900',
-    // company: 'Insightful Data Co.',
-    // priceINR: 4500, // Removed price
+    company: 'Insightful Data Co.',
   },
   {
     id: 'java-development',
@@ -94,12 +98,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Learn enterprise-level Java development with frameworks like Spring Boot and Hibernate.',
-    image: java,
+    image: java, // Using imported local image
     rating: 4.4,
-    // students: '11,300',
-    // company: 'Enterprise Java Hub',
-    // priceINR: 4500, // Removed price
+    company: 'Enterprise Java Hub',
   },
   {
     id: 'python-development',
@@ -107,12 +108,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Explore scripting, automation, and backend development using Python and related libraries.',
-    image: python,
+    image: python, // Using imported local image
     rating: 4.6,
-    // students: '14,000',
-    // company: 'Pythonic Solutions',
-    // priceINR: 4500, // Removed price
+    company: 'Pythonic Solutions',
   },
   {
     id: 'digital-marketing',
@@ -120,12 +118,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Gain hands-on experience in SEO, content marketing, social media strategy, and campaign analytics.',
-    image: contentStrategy,
+    image: contentStrategy, // Using imported local image
     rating: 4.3,
-    // students: '9,700',
-    // company: 'GrowthMarketers',
-    // priceINR: 4500, // Removed price
+    company: 'GrowthMarketers',
   },
   {
     id: 'ai-ml',
@@ -133,12 +128,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Work on machine learning models, deep learning projects, and real-world AI use cases.',
-    image: aiAssistant,
+    image: aiAssistant, // Using imported local image
     rating: 4.9,
-    // students: '20,100',
-    // company: 'Cognitive AI Labs',
-    // priceINR: 4500, // Removed price
+    company: 'Cognitive AI Labs',
   },
   {
     id: 'ai-with-chatgpt',
@@ -146,12 +138,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
-    image: aiChatgpt,
+    image: aiChatgpt, // Using imported local image
     rating: 4.8,
-    // students: '17,600',
-    // company: 'Conversational AI Co.',
-    // priceINR: 4500, // Removed price
+    company: 'Conversational AI Co.',
   },
   {
     id: 'web-development',
@@ -159,12 +148,9 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
-    image: webDevelopment,
+    image: webDevelopment, // Using imported local image
     rating: 4.7,
-    // students: '16,800',
-    // company: 'FullStack Devs',
-    // priceINR: 4500, // Removed price
+    company: 'FullStack Devs',
   },
   {
     id: 'Csharp',
@@ -172,19 +158,16 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    // description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
-    image: Csharp,
+    image: Csharp, // Using imported local image
     rating: 4.5,
-    // students: '9,500',
-    // company: '.NET Innovators',
-    // priceINR: 4500, // Removed price
+    company: '.NET Innovators',
   },
 ];
 
-const Internships: React.FC = () => {
+const Internships = () => {
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
+    visible: (i) => ({
       opacity: 1,
       y: 0,
       transition: {
@@ -197,16 +180,56 @@ const Internships: React.FC = () => {
 
   return (
     <>
+      {/* Tailwind CSS CDN */}
+      <script src="https://cdn.tailwindcss.com"></script>
+      {/* Inter Font */}
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      <style>
+        {`
+        body {
+          font-family: 'Inter', sans-serif;
+        }
+        .container-custom {
+          max-width: 1200px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.8s ease-out;
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        `}
+      </style>
+
       <PageHeader
         title={<span className="text-red-500">Internship Opportunities</span>}
         subtitle={<span className="text-white">Jumpstart your career with real-world experience in a dynamic, innovative environment.</span>}
         backgroundImage={header}
       />
-      <section className="section bg-gray-100 py-16">
+      <section className="section bg-gray-100 py-16 rounded-lg">
         <div className="container-custom mx-auto px-4">
           <AnimatedSection>
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">Available Internships</h2>
+              <div className="flex flex-col md:flex-row justify-center items-center gap-10 mb-8"> {/* Flex container for heading and search */}
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Available Internships</h2>
+                <div className="relative flex items-center w-full md:w-auto max-w-md">
+                  <input
+                    type="text"
+                    placeholder="Search Certificate ID..."
+                    className="p-2 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 w-full shadow-sm"
+                  />
+                  <Search className="absolute left-3 text-gray-400" size={20} />
+                </div>
+              </div>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                 Apply for one of our internship programs and gain valuable experience working with industry experts on real projects.
               </p>
@@ -224,14 +247,11 @@ const Internships: React.FC = () => {
                 className="bg-white rounded-lg shadow-md overflow-hidden transform hover:scale-105 transition-all duration-300 cursor-pointer"
               >
                 <Link to={`/internships/${internship.id}`}>
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-48 overflow-hidden rounded-t-lg">
                     <img
                       src={internship.image}
                       alt={internship.title}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = `https://placehold.co/300x180/E0E0E0/666666?text=${encodeURIComponent('Image Error')}`;
-                      }}
                     />
                     <div className="absolute top-3 right-3">
                       <span className="bg-red-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
@@ -241,10 +261,9 @@ const Internships: React.FC = () => {
                   </div>
                   <div className="p-4">
                     <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2">{internship.title}</h3>
-                    <p className="text-gray-600 text-sm mb-2">by {internship.company}</p>
-                    <p className="text-gray-700 text-sm mb-3 line-clamp-3">{internship.description}</p>
+                    {/* Removed the company name line */}
 
-                    {/* Rating and Students Section */}
+                    {/* Rating Section */}
                     <div className="flex items-center mb-3">
                       <div className="flex text-yellow-500 mr-2">
                         {[...Array(Math.floor(internship.rating))].map((_, i) => (
@@ -261,7 +280,6 @@ const Internships: React.FC = () => {
                         </svg>
                       </div>
                       <span className="text-gray-700 text-sm font-semibold">{internship.rating}</span>
-                      <span className="text-gray-500 text-sm ml-2">({internship.students} students)</span>
                     </div>
 
                     <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
@@ -283,13 +301,6 @@ const Internships: React.FC = () => {
                         <span>{internship.duration}</span>
                       </div>
                     </div>
-
-                    {/* Price Section - Removed */}
-                    {/* {internship.category === 'Paid' && (
-                      <div className="mb-3">
-                        <span className="text-xl font-bold text-gray-900">₹{internship.priceINR}</span>
-                      </div>
-                    )} */}
 
                     <div className="border-t border-gray-200 pt-3">
                       <span
