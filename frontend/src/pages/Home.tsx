@@ -10,7 +10,7 @@ import {
   ImageIcon,
   Code,
   Briefcase,
-  Smartphone, // Import Smartphone icon for App Design
+  Smartphone,
 } from 'lucide-react';
 
 // Custom Components
@@ -22,16 +22,15 @@ import uiuxImg from '../assets/services/uiux.webp';
 import videoImg from '../assets/services/video editing.webp';
 import graphicImg from '../assets/services/graphic design.webp';
 import webDevImg from '../assets/services/website design.webp';
-import appDesignImg from '../assets/services/app design.webp'; // Assuming this image exists for App Design
-
+import appDesignImg from '../assets/services/app design.webp';
 
 // Project Images
 import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
 
-// Background Image
-import backgroundimage from '../assets/background image/home.webp';
+// --- Remove the image background import ---
+// import backgroundimage from '../assets/background image/home.webp';
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -81,56 +80,66 @@ const Home: React.FC = () => {
         </motion.div>
       )}
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center z-0"
-          style={{
-            backgroundImage: `url(${backgroundimage})`,
-            filter: 'brightness(0.7) contrast(1.1)',
-          }}
-        >
-          <div className="absolute inset-0 bg-black/40"></div>
-        </div>
+     {/* Hero Section with Video Background */}
+<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+  {/* Background video */}
+  <video
+    autoPlay
+    loop
+    muted
+    playsInline
+    className="absolute inset-0 w-full h-full object-cover z-0"
+  >
+    <source src="/assets/videos/hero.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 1 }}
-          className="container mx-auto px-4 relative z-10 text-white text-center"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center justify-center">
-            <div className="w-full">
-              <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-white">
-                Welcome to <span className="text-red-600">EDIZO</span>
-              </h1>
-              <p className="text-lg md:text-xl text-white mb-8 max-w-lg mx-auto">
-                Creative Services & Real-World Learning — All in One Place
-              </p>
-              <p className="text-lg md:text-xl text-white mb-8 max-w-xl mx-auto">
-                Get premium <span className="text-red-600 font-bold">video editing</span>,
-                <span className="text-red-600 font-bold"> graphic design</span>, and
-                <span className="text-red-600 font-bold"> web development services</span>.<br></br> Launch your career with our exclusive<span className="text-red-600 font-bold"> internship programs.</span>
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button variant="primary" size="lg" to="/services">
-                  Explore Services
-                </Button>
-                <Button variant="outline" size="lg" to="/contact">
-                  Get in Touch
-                </Button>
-              </div>
-            </div>
-          </div>
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white hidden md:block"
-          >
-            <ChevronDown className="w-10 h-10" />
-          </motion.div>
-        </motion.div>
-      </section>
+  {/* Optional dark overlay */}
+  <div className="absolute inset-0 bg-black/50 z-0" />
+
+  {/* Hero Content */}
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.4, duration: 1 }}
+    className="container mx-auto px-4 relative z-10 text-white text-center"
+  >
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center justify-center">
+      <div className="w-full">
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-white">
+          Welcome to <span className="text-red-600">EDIZO</span>
+        </h1>
+        <p className="text-lg md:text-xl text-white mb-8 max-w-lg mx-auto">
+          Creative Services & Real-World Learning — All in One Place
+        </p>
+        <p className="text-lg md:text-xl text-white mb-8 max-w-xl mx-auto">
+          Get premium <span className="text-red-600 font-bold">video editing</span>,
+          <span className="text-red-600 font-bold"> graphic design</span>, and
+          <span className="text-red-600 font-bold"> web development services</span>.<br />
+          Launch your career with our exclusive<span className="text-red-600 font-bold"> internship programs.</span>
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Button variant="primary" size="lg" to="/services">
+            Explore Services
+          </Button>
+          <Button variant="outline" size="lg" to="/contact">
+            Get in Touch
+          </Button>
+        </div>
+      </div>
+    </div>
+
+    {/* Scroll down icon */}
+    <motion.div
+      animate={{ y: [0, 12, 0] }}
+      transition={{ repeat: Infinity, duration: 2 }}
+      className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white hidden md:block"
+    >
+      <ChevronDown className="w-10 h-10" />
+    </motion.div>
+  </motion.div>
+</section>
+
 
       {/* Services Section */}
       <section className="section bg-white py-20">
@@ -144,13 +153,13 @@ const Home: React.FC = () => {
             </p>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 mt-12"> {/* Adjusted grid for 5 items */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 mt-12">
             {[
               { title: 'UI/UX Design', icon: <PenTool />, image: uiuxImg, link: '/services/ui-ux' },
               { title: 'Video Editing', icon: <Video />, image: videoImg, link: '/services/video-editing' },
               { title: 'Graphic Design', icon: <ImageIcon />, image: graphicImg, link: '/services/graphic-design' },
               { title: 'Web Development', icon: <Code />, image: webDevImg, link: '/services/web-development' },
-              { title: 'App Design', icon: <Smartphone />, image: appDesignImg, link: '/services/app-design' }, // New service
+              { title: 'App Design', icon: <Smartphone />, image: appDesignImg, link: '/services/app-design' },
             ].map((service, i) => (
               <div key={i} className="card p-6 rounded-xl hover:shadow-2xl transition-all duration-300 group">
                 <img
@@ -284,33 +293,6 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* Call to Action Section */}
-      {/* <section className="section bg-gradient-to-r from-red-700 to-orange-800 text-white py-20">
-        <div className="container mx-auto px-4">
-          <AnimatedSection>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="text-center max-w-3xl mx-auto"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Business?</h2>
-              <p className="text-xl mb-8">
-                Let's discuss how Edizo can help you achieve your business goals through innovative solutions and strategic guidance.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button variant="secondary" size="lg" to="/contact" className="text-black font-semibold">
-                  Contact Us
-                </Button>
-                <Button variant="outline" size="lg" to="/services" className="text-white border-white hover:bg-white hover:text-red-500">
-                  Explore Services
-                </Button>
-              </div>
-            </motion.div>
-          </AnimatedSection>
-        </div>
-      </section> */}
     </>
   );
 };
