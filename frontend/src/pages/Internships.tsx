@@ -24,14 +24,16 @@ const PageHeader = ({ title, subtitle, backgroundImage }) => (
 
 const AnimatedSection = ({ children }) => <div className="animate-fade-in-up">{children}</div>;
 
-// Local image imports
+// Local image imports - These would typically be handled by a bundler
+// For this self-contained example, we'll use placeholder images or mock them if not directly available.
+// In a real project, ensure these paths are correct.
 import webDesign from '../assets/images/web-design.png';
 import responsiveDesign from '../assets/images/responsive-design.png';
 import backEnd from '../assets/images/back-end.png';
 import hrManager from '../assets/images/hr-manager.png';
 import dataAnalytics from '../assets/images/data-Analystics.png';
 import java from '../assets/images/java.png';
-import python from '../assets/images/AI with CHATGPT.png';
+import python from '../assets/images/AI with CHATGPT.png'; // Assuming this is also used for general Python
 import contentStrategy from '../assets/images/content-strategy.png';
 import aiAssistant from '../assets/images/ai-assistant.png';
 import aiChatgpt from '../assets/images/AI with CHATGPT.png';
@@ -40,17 +42,18 @@ import Csharp from '../assets/images/c-sharp.png';
 import header from '../assets/background image/internship.png';
 
 
-// Internship opportunity data
-const internships = [
+// Original Internship opportunity data - ADDED keyTopics to each internship
+const originalInternships = [
   {
     id: 'ui-ux-design',
     title: 'UI/UX Design Intern',
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: webDesign, // Using imported local image
+    image: webDesign,
     rating: 4.7,
     company: 'InnovateTech Solutions',
+    keyTopics: ['UI/UX Principles', 'Figma/Adobe XD', 'User Research'],
   },
   {
     id: 'frontend-development',
@@ -58,9 +61,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: responsiveDesign, // Using imported local image
+    image: responsiveDesign,
     rating: 4.5,
     company: 'WebCrafters Inc.',
+    keyTopics: ['React/Vue.js', 'HTML/CSS/JS', 'Responsive Design'],
   },
   {
     id: 'backend-development',
@@ -68,9 +72,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: backEnd, // Using imported local image
+    image: backEnd,
     rating: 4.6,
     company: 'ServerSide Innovations',
+    keyTopics: ['Node.js/Django', 'Databases', 'API Development'],
   },
   {
     id: 'hr-management',
@@ -78,9 +83,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: hrManager, // Using imported local image
+    image: hrManager,
     rating: 4.2,
     company: 'PeopleFirst HR',
+    keyTopics: ['Recruitment', 'Onboarding', 'Employee Engagement'],
   },
   {
     id: 'data-analytics',
@@ -88,9 +94,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: dataAnalytics, // Using imported local image
+    image: dataAnalytics,
     rating: 4.8,
     company: 'Insightful Data Co.',
+    keyTopics: ['Data Analysis', 'SQL/Python', 'Data Visualization'],
   },
   {
     id: 'java-development',
@@ -98,9 +105,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: java, // Using imported local image
+    image: java,
     rating: 4.4,
     company: 'Enterprise Java Hub',
+    keyTopics: ['Java OOP', 'Spring Boot', 'Microservices'],
   },
   {
     id: 'python-development',
@@ -108,9 +116,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: python, // Using imported local image
+    image: python,
     rating: 4.6,
     company: 'Pythonic Solutions',
+    keyTopics: ['Python Scripting', 'Django/Flask', 'Automation'],
   },
   {
     id: 'digital-marketing',
@@ -118,9 +127,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: contentStrategy, // Using imported local image
+    image: contentStrategy,
     rating: 4.3,
     company: 'GrowthMarketers',
+    keyTopics: ['SEO', 'Content Marketing', 'Social Media'],
   },
   {
     id: 'ai-ml',
@@ -128,9 +138,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: aiAssistant, // Using imported local image
+    image: aiAssistant,
     rating: 4.9,
     company: 'Cognitive AI Labs',
+    keyTopics: ['ML Models', 'Deep Learning', 'AI Algorithms'],
   },
   {
     id: 'ai-with-chatgpt',
@@ -138,9 +149,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: aiChatgpt, // Using imported local image
+    image: aiChatgpt,
     rating: 4.8,
     company: 'Conversational AI Co.',
+    keyTopics: ['NLP', 'Chatbot Development', 'Prompt Engineering'],
   },
   {
     id: 'web-development',
@@ -148,9 +160,10 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: webDevelopment, // Using imported local image
+    image: webDevelopment,
     rating: 4.7,
     company: 'FullStack Devs',
+    keyTopics: ['Full-stack Dev', 'Frontend/Backend', 'Database Integration'],
   },
   {
     id: 'Csharp',
@@ -158,11 +171,60 @@ const internships = [
     category: 'Paid',
     mode: 'Online',
     duration: '30 days / 3 months',
-    image: Csharp, // Using imported local image
+    image: Csharp,
     rating: 4.5,
     company: '.NET Innovators',
+    keyTopics: ['C# Programming', '.NET Framework', 'OOP Concepts'],
   },
 ];
+
+// Function to generate new topic-specific internships
+const generateTopicInternships = (originalInternship) => {
+    const newInternships = [];
+    originalInternship.keyTopics.forEach(topic => {
+        const topicSlug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, '');
+        const newId = `${originalInternship.id}-${topicSlug}`;
+
+        newInternships.push({
+            id: newId,
+            title: `${topic} Intern`,
+            category: originalInternship.category,
+            mode: originalInternship.mode,
+            // Set a shorter duration for the split courses
+            duration: '15 days / 1 month', // Updated duration for split courses
+            department: originalInternship.department,
+            description: `This specialized internship provides in-depth focus on ${topic.toLowerCase()}. You will develop advanced skills and practical experience in this specific area, building upon the foundational knowledge of ${originalInternship.title.replace(' Intern', '')}.`,
+            responsibilities: [
+                `Focus on tasks directly related to ${topic.toLowerCase()}`,
+                `Apply learned principles and techniques in ${topic.toLowerCase()} projects`,
+                `Collaborate with team members on specific ${topic.toLowerCase()} challenges`,
+                `Research and implement best practices in ${topic.toLowerCase()}`,
+            ],
+            requirements: [
+                `Strong interest and basic understanding of ${topic.toLowerCase()}`,
+                `Ability to quickly learn and adapt to new concepts in ${topic.toLowerCase()}`,
+                `Problem-solving skills relevant to ${topic.toLowerCase()}`,
+                `Good communication and teamwork abilities`,
+            ],
+            benefits: originalInternship.benefits, // Inherit all benefits
+            priceINR: originalInternship.priceINR,
+            image: originalInternship.image, // Inherit image
+            rating: originalInternship.rating, // Inherit rating
+            company: originalInternship.company, // Inherit company
+            keyTopics: [topic], // The new internship only has this one key topic
+        });
+    });
+    return newInternships;
+};
+
+// Combine original and newly generated topic-specific internships
+let internships = [...originalInternships]; // Start with existing internships
+originalInternships.forEach(original => {
+    if (original.keyTopics && original.keyTopics.length > 0) {
+        internships = internships.concat(generateTopicInternships(original));
+    }
+});
+
 
 const Internships = () => {
   const cardVariants = {
@@ -280,6 +342,22 @@ const Internships = () => {
                         </svg>
                       </div>
                       <span className="text-gray-700 text-sm font-semibold">{internship.rating}</span>
+                    </div>
+
+                    {/* Key Topics Section - NEW */}
+                    <div className="mb-4">
+                        {internship.keyTopics && internship.keyTopics.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {internship.keyTopics.map((topic, topicIndex) => (
+                                    <span
+                                        key={topicIndex}
+                                        className="bg-red-100 text-red-700 text-xs font-medium px-2.5 py-0.5 rounded-full"
+                                    >
+                                        {topic}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
