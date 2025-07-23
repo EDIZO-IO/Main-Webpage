@@ -9,7 +9,7 @@ import {
 import { motion } from 'framer-motion';
 
 // --- Placeholder image URLs (to resolve compilation errors) ---
-const placeholderImage = (text: string) => `https://placehold.co/150x150/E0E0E0/666666?text=${encodeURIComponent(text)}`;
+const placeholderImage = (text) => `https://placehold.co/150x150/E0E0E0/666666?text=${encodeURIComponent(text)}`;
 
 // --- Reusable Components (Simplified for this example) ---
 
@@ -22,14 +22,6 @@ const Button = ({
     fullWidth = false,
     className = '',
     disabled = false
-}: {
-    children: React.ReactNode;
-    onClick?: () => void;
-    type?: 'button' | 'submit' | 'reset';
-    variant?: 'primary' | 'outline' | 'default';
-    fullWidth?: boolean;
-    className?: string;
-    disabled?: boolean;
 }) => {
     const baseClasses = "px-6 py-3 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
     const variants = {
@@ -53,7 +45,7 @@ const Button = ({
 };
 
 // AnimatedSection component for smooth entrance animations
-const AnimatedSection = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
+const AnimatedSection = ({ children, delay = 0 }) => {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -81,441 +73,523 @@ interface Internship {
     benefits: string[];
     priceINR: number;
     image: string;
+    rating: number; // Added rating for consistency
+    company: string; // Added company for consistency
+    keyTopics: string[]; // Added keyTopics for consistency
 }
 
-const internshipsData: { [key: string]: Internship } = {
-    'ui-ux-design': {
-        title: 'UI/UX Design Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
-        responsibilities: [
-            'Create wireframes, mockups, and prototypes',
-            'Conduct user research and usability testing',
-            'Design responsive interfaces for web and mobile applications',
-            'Create visual assets and design elements',
-            'Collaborate with developers to implement designs',
-            'Participate in design thinking workshops and brainstorming sessions',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Design, HCI, or related field',
-            'Proficiency with Figma, Adobe XD, or Sketch',
-            'Understanding of user-centered design principles',
-            'Basic knowledge of HTML/CSS',
-            'Strong visual design skills and attention to detail',
-            'Ability to give and receive constructive feedback',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from senior designers',
-            'Portfolio-worthy projects',
-            'Networking opportunities with industry professionals',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('UI/UX')
-    },
-    'frontend-development': {
-        title: 'Frontend Development Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Develop responsive web applications using modern frontend technologies like React, Vue.js, and TypeScript.',
-        responsibilities: [
-            'Assist in developing responsive web applications',
-            'Implement UI components using modern frontend frameworks',
-            'Work with backend APIs and databases',
-            'Participate in code reviews and team meetings',
-            'Debug and fix issues in existing applications',
-            'Collaborate with designers to implement UI/UX designs',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Computer Science or related field',
-            'Knowledge of HTML, CSS, JavaScript',
-            'Familiarity with React, Vue, or Angular',
-            'Basic understanding of REST APIs',
-            'Good problem-solving skills and attention to detail',
-            'Strong communication and teamwork abilities',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from experienced developers',
-            'Opportunity to work on real projects',
-            'Networking opportunities with industry professionals',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('Frontend')
-    },
-    'backend-development': {
-        title: 'Backend Development Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Build scalable backend systems using Node.js, Django, or Spring Boot while working with databases and APIs.',
-        responsibilities: [
-            'Build scalable backend systems using Node.js, Django, or Spring Boot',
-            'Work with databases and APIs',
-            'Debug and fix backend issues',
-            'Write clean, maintainable, and secure code',
-            'Collaborate with frontend developers to integrate APIs',
-            'Follow best practices for security and performance',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Computer Science or related field',
-            'Knowledge of at least one backend language (Node.js, Python, Java)',
-            'Experience with databases (SQL or NoSQL)',
-            'Understanding of RESTful API development',
-            'Problem-solving skills and attention to detail',
-            'Team collaboration and communication abilities',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from experienced engineers',
-            'Real-world project experience',
-            'Networking opportunities with tech leaders',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('Backend')
-    },
-    'web-development': {
-        title: 'Web Development Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Get practical experience building full-stack web applications using modern frameworks and tools.',
-        responsibilities: [
-            'Build full-stack web applications',
-            'Work with both frontend and backend technologies',
-            'Implement responsive UI/UX designs',
-            'Work with databases and cloud hosting platforms',
-            'Debug and test applications',
-            'Collaborate with designers and product managers',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Computer Science or related field',
-            'Familiarity with web development basics (HTML, CSS, JS)',
-            'Experience with frontend (React, Vue) or backend (Node, Python)',
-            'Basic understanding of Git and version control',
-            'Good problem-solving skills',
-            'Strong communication and teamwork abilities',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from experienced developers',
-            'Hands-on experience with real clients',
-            'Networking opportunities with engineering teams',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('WebDev')
-    },
-    'digital-marketing': {
-        title: 'Digital Marketing Intern',
-        category: 'paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Gain hands-on experience in SEO, content marketing, social media strategy, and campaign analytics.',
-        responsibilities: [
-            'Assist with social media content creation and scheduling',
-            'Help develop and implement marketing campaigns',
-            'Analyze campaign performance and create reports',
-            'Conduct market research and competitor analysis',
-            'Support email marketing initiatives',
-            'Contribute to SEO and content marketing strategies',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Marketing, Communications, or related field',
-            'Understanding of digital marketing principles',
-            'Experience with social media platforms',
-            'Basic knowledge of SEO and content marketing',
-            'Analytical mindset and attention to detail',
-            'Strong written and verbal communication skills',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from marketing professionals',
-            'Hands-on experience with marketing tools and platforms',
-            'Networking opportunities with industry professionals',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('DigitalMarketing')
-    },
-    'java-development': {
-        title: 'Java Development Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Learn enterprise-level Java development with frameworks like Spring Boot and Hibernate.',
-        responsibilities: [
-            'Work on enterprise Java applications using Spring Boot and Hibernate',
-            'Assist in building and enhancing microservices',
-            'Participate in debugging and fixing backend issues',
-            'Collaborate with cross-functional teams',
-            'Write unit tests and perform code reviews',
-            'Follow agile methodologies and sprint planning',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Computer Science or related field',
-            'Knowledge of Java and object-oriented programming',
-            'Familiarity with Spring Boot or Hibernate is a plus',
-            'Basic understanding of RESTful APIs',
-            'Strong problem-solving skills',
-            'Excellent written and verbal communication',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from experienced Java developers',
-            'Exposure to enterprise-level application architecture',
-            'Networking opportunities with IT professionals',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('Java')
-    },
-    'python-development': {
-        title: 'Python Development Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Explore scripting, automation, and backend development using Python and related libraries.',
-        responsibilities: [
-            'Develop scripts and automation tools',
-            'Build backend services using Python frameworks (Django, Flask)',
-            'Work with APIs and database integrations',
-            'Test and debug Python-based applications',
-            'Collaborate with data scientists and ML engineers',
-            'Document processes and write clean code',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Computer Science or related field',
-            'Proficiency in Python programming',
-            'Familiarity with backend frameworks (e.g., Django, Flask)',
-            'Understanding of RESTful APIs and JSON',
-            'Strong logic and algorithmic thinking',
-            'Good communication and teamwork abilities',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from senior Python developers',
-            'Real-world project exposure',
-            'Networking opportunities with engineering teams',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('Python')
-    },
-    'hr-management': {
-        title: 'HR Management Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Assist in recruitment, onboarding, employee engagement, and performance management tasks.',
-        responsibilities: [
-            'Assist in recruitment and interview scheduling',
-            'Manage employee onboarding process',
-            'Support internal employee engagement initiatives',
-            'Maintain HR records and documentation',
-            'Coordinate training programs and events',
-            'Work with HR software and systems',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Human Resources, Business, or related field',
-            'Basic knowledge of HR practices and procedures',
-            'Strong organizational and communication skills',
-            'Familiarity with Microsoft Office Suite',
-            'Ability to handle confidential information professionally',
-            'Detail-oriented and proactive attitude',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from HR professionals',
-            'Hands-on experience in human resources',
-            'Networking opportunities within the company',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('HR')
-    },
-    'data-analytics': {
-        title: 'Data Analytics Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Analyze real-world datasets, generate insights, and support business decision-making using tools like Python, SQL, and Tableau.',
-        responsibilities: [
-            'Collect and analyze data from various sources',
-            'Create reports and visualizations to communicate findings',
-            'Support data-driven decision making across departments',
-            'Assist in implementing and maintaining data tracking systems',
-            'Help identify trends and patterns in customer behavior',
-            'Contribute to predictive modeling and forecasting',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Statistics, Data Science, or related field',
-            'Experience with Python, R, Excel, or similar',
-            'Basic understanding of SQL and database concepts',
-            'Knowledge of data visualization techniques',
-            'Strong analytical and problem-solving skills',
-            'Attention to detail and ability to work with complex datasets',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from experienced data analysts',
-            'Access to cutting-edge data analysis tools',
-            'Networking opportunities with industry professionals',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('DataAnalytics')
-    },
-    'ai-ml': {
-        title: 'AI & Machine Learning Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Work on machine learning models, deep learning projects, and real-world AI use cases.',
-        responsibilities: [
-            'Build and train machine learning models',
-            'Implement deep learning solutions',
-            'Work with large datasets and preprocessing',
-            'Collaborate with data science and engineering teams',
-            'Research and apply latest AI algorithms and techniques',
-            'Present findings and contribute to AI-powered products',
-        ],
-        requirements: [
-            'Currently pursuing a degree in CS, Data Science, or related field',
-            'Proficiency in Python and ML libraries (Pandas, Scikit-learn, TensorFlow)',
-            'Understanding of supervised and unsupervised learning',
-            'Experience with Jupyter Notebooks or similar environments',
-            'Strong mathematical foundation and analytical thinking',
-            'Curiosity and passion for AI and emerging technologies',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from AI researchers',
-            'Hands-on experience with AI models',
-            'Networking opportunities with top AI professionals',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('AI/ML')
-    },
-    'ai-with-chatgpt': {
-        title: 'AI with ChatGPT Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer science',
-        description:
-            'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
-        responsibilities: [
-            'Develop chatbots and conversational agents',
-            'Fine-tune LLMs and optimize prompts',
-            'Integrate NLP models into applications',
-            'Evaluate model performance and accuracy',
-            'Collaborate with AI engineers and product teams',
-            'Contribute to AI research and innovation',
-        ],
-        requirements: [
-            'Currently pursuing a degree in CS, AI, or related field',
-            'Understanding of NLP and LLMs',
-            'Experience with Python and ML libraries',
-            'Familiarity with Hugging Face or LangChain',
-            'Strong analytical and technical skills',
-            'Passion for AI and language models',
-        ],
-        benefits: [
-            'Competitive stipend',
-            'Flexible working hours',
-            'Remote work options',
-            'Mentorship from NLP experts',
-            'Exposure to state-of-the-art AI',
-            'Networking with AI and chatbot specialists',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('ChatGPT')
-    },
-    'Csharp': {
-        title: 'C-Sharp Intern',
-        category: 'Paid',
-        mode: 'Online',
-        duration: '30 days / 3 months',
-        department: 'Computer Science',
-        description:
-            'Learn fundamental syntax, object-oriented programming concepts, and .NET framework fundamentals using C# and related libraries.',
-        responsibilities: [
-            'Assist in developing applications using C# and the .NET framework, both desktop and web-based',
-            'Collaborate with the development team to design, develop, test, and deploy features',
-            'Write clean, well-documented, and efficient code following best practices and OOP principles',
-            'Work with databases (e.g., SQL Server) and implement data access logic using tools like Entity Framework',
-            'Participate in team workflows, including version control (Git), Agile processes, and code reviews',
-        ],
-        requirements: [
-            'Currently pursuing a degree in Computer Science or related field',
-            'Familiarity with Visual Studio',
-            'Strong logic and algorithmic thinking',
-            'Good communication and teamwork abilities',
-            'Prior experience in C# programming is appreciated',
-            'Understanding of .NET framework is appreciated',
-        ],
-        benefits: [
-            'Understand C# and set up a development environment',
-            'Learn C#, including syntax, variables, data types, and operators',
-            'Use control structures such as if statements, for loops, and while loops',
-            'Understand and apply object-oriented programming (OOP) concepts: classes, objects, and inheritance',
-            'Create and use methods to organize your code and make it easier to understand',
-            'Handle errors in your code and write code to manage them properly',
-            'Write and run C# programs',
-        ],
-        priceINR: 4500,
-        image: placeholderImage('C#')
-    },
+// Original Internship opportunity data - ADDED keyTopics to each internship
+const originalInternships = [
+  {
+    id: 'ui-ux-design',
+    title: 'UI/UX Design Intern',
+    category: 'Design', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('UI/UX'),
+    rating: 4.7,
+    company: 'InnovateTech Solutions',
+    keyTopics: ['UI/UX Principles', 'Figma/Adobe XD', 'User Research'],
+    description: 'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
+    responsibilities: [
+      'Create wireframes, mockups, and prototypes',
+      'Conduct user research and usability testing',
+      'Design responsive interfaces for web and mobile applications',
+      'Create visual assets and design elements',
+      'Collaborate with developers to implement designs',
+      'Participate in design thinking workshops and brainstorming sessions',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Design, HCI, or related field',
+      'Proficiency with Figma, Adobe XD, or Sketch',
+      'Understanding of user-centered design principles',
+      'Basic knowledge of HTML/CSS',
+      'Strong visual design skills and attention to detail',
+      'Ability to give and receive constructive feedback',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from senior designers',
+      'Portfolio-worthy projects',
+      'Networking opportunities with industry professionals',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'frontend-development',
+    title: 'Frontend Development Intern',
+    category: 'Development', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('Frontend'),
+    rating: 4.5,
+    company: 'WebCrafters Inc.',
+    keyTopics: ['React/Vue.js', 'HTML/CSS/JS', 'Responsive Design'],
+    description: 'Develop responsive web applications using modern frontend technologies like React, Vue.js, and TypeScript.',
+    responsibilities: [
+      'Assist in developing responsive web applications',
+      'Implement UI components using modern frontend frameworks',
+      'Work with backend APIs and databases',
+      'Participate in code reviews and team meetings',
+      'Debug and fix issues in existing applications',
+      'Collaborate with designers to implement UI/UX designs',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Computer Science or related field',
+      'Knowledge of HTML, CSS, JavaScript',
+      'Familiarity with React, Vue, or Angular',
+      'Basic understanding of REST APIs',
+      'Good problem-solving skills and attention to detail',
+      'Strong communication and teamwork abilities',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced developers',
+      'Opportunity to work on real projects',
+      'Networking opportunities with industry professionals',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'backend-development',
+    title: 'Backend Development Intern',
+    category: 'Development', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('Backend'),
+    rating: 4.6,
+    company: 'ServerSide Innovations',
+    keyTopics: ['Node.js/Django', 'Databases', 'API Development'],
+    description: 'Build scalable backend systems using Node.js, Django, or Spring Boot while working with databases and APIs.',
+    responsibilities: [
+      'Build scalable backend systems using Node.js, Django, or Spring Boot',
+      'Work with databases and APIs',
+      'Debug and fix backend issues',
+      'Write clean, maintainable, and secure code',
+      'Collaborate with frontend developers to integrate APIs',
+      'Follow best practices for security and performance',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Computer Science or related field',
+      'Knowledge of at least one backend language (Node.js, Python, Java)',
+      'Experience with databases (SQL or NoSQL)',
+      'Understanding of RESTful API development',
+      'Problem-solving skills and attention to detail',
+      'Team collaboration and communication abilities',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced engineers',
+      'Real-world project experience',
+      'Networking opportunities with tech leaders',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'hr-management',
+    title: 'HR Management Intern',
+    category: 'HR', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('HR'),
+    rating: 4.2,
+    company: 'PeopleFirst HR',
+    keyTopics: ['Recruitment', 'Onboarding', 'Employee Engagement'],
+    description: 'Assist in recruitment, onboarding, employee engagement, and performance management tasks.',
+    responsibilities: [
+      'Assist in recruitment and interview scheduling',
+      'Manage employee onboarding process',
+      'Support internal employee engagement initiatives',
+      'Maintain HR records and documentation',
+      'Coordinate training programs and events',
+      'Work with HR software and systems',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Human Resources, Business, or related field',
+      'Basic knowledge of HR practices and procedures',
+      'Strong organizational and communication skills',
+      'Familiarity with Microsoft Office Suite',
+      'Ability to handle confidential information professionally',
+      'Detail-oriented and proactive attitude',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from HR professionals',
+      'Hands-on experience in human resources',
+      'Networking opportunities within the company',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'data-analytics',
+    title: 'Data Analytics Intern',
+    category: 'Data Science', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('DataAnalytics'),
+    rating: 4.8,
+    company: 'Insightful Data Co.',
+    keyTopics: ['Data Analysis', 'SQL/Python', 'Data Visualization'],
+    description: 'Analyze real-world datasets, generate insights, and support business decision-making using tools like Python, SQL, and Tableau.',
+    responsibilities: [
+      'Collect and analyze data from various sources',
+      'Create reports and visualizations to communicate findings',
+      'Support data-driven decision making across departments',
+      'Assist in implementing and maintaining data tracking systems',
+      'Help identify trends and patterns in customer behavior',
+      'Contribute to predictive modeling and forecasting',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Statistics, Data Science, or related field',
+      'Experience with Python, R, Excel, or similar',
+      'Basic understanding of SQL and database concepts',
+      'Knowledge of data visualization techniques',
+      'Strong analytical and problem-solving skills',
+      'Attention to detail and ability to work with complex datasets',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced data analysts',
+      'Access to cutting-edge data analysis tools',
+      'Networking opportunities with industry professionals',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'java-development',
+    title: 'Java Development Intern',
+    category: 'Java', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('Java'),
+    rating: 4.4,
+    company: 'Enterprise Java Hub',
+    keyTopics: ['Java OOP', 'Spring Boot', 'Microservices'],
+    description: 'Learn enterprise-level Java development with frameworks like Spring Boot and Hibernate.',
+    responsibilities: [
+      'Work on enterprise Java applications using Spring Boot and Hibernate',
+      'Assist in building and enhancing microservices',
+      'Participate in debugging and fixing backend issues',
+      'Collaborate with cross-functional teams',
+      'Write unit tests and perform code reviews',
+      'Follow agile methodologies and sprint planning',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Computer Science or related field',
+      'Knowledge of Java and object-oriented programming',
+      'Familiarity with Spring Boot or Hibernate is a plus',
+      'Basic understanding of RESTful APIs',
+      'Strong problem-solving skills',
+      'Excellent written and verbal communication',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced Java developers',
+      'Exposure to enterprise-level application architecture',
+      'Networking opportunities with IT professionals',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'python-development',
+    title: 'Python Development Intern',
+    category: 'Python', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('Python'),
+    rating: 4.6,
+    company: 'Pythonic Solutions',
+    keyTopics: ['Python Scripting', 'Django/Flask', 'Automation'],
+    description: 'Explore scripting, automation, and backend development using Python and related libraries.',
+    responsibilities: [
+      'Develop scripts and automation tools',
+      'Build backend services using Python frameworks (Django, Flask)',
+      'Work with APIs and database integrations',
+      'Test and debug Python-based applications',
+      'Collaborate with data scientists and ML engineers',
+      'Document processes and write clean code',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Computer Science or related field',
+      'Proficiency in Python programming',
+      'Familiarity with backend frameworks (e.g., Django, Flask)',
+      'Understanding of RESTful APIs and JSON',
+      'Strong logic and algorithmic thinking',
+      'Good communication and teamwork abilities',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from senior Python developers',
+      'Real-world project exposure',
+      'Networking opportunities with engineering teams',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'digital-marketing',
+    title: 'Digital Marketing Intern',
+    category: 'Marketing', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('DigitalMarketing'),
+    rating: 4.3,
+    company: 'GrowthMarketers',
+    keyTopics: ['SEO', 'Content Marketing', 'Social Media'],
+    description: 'Gain hands-on experience in SEO, content marketing, social media strategy, and campaign analytics.',
+    responsibilities: [
+      'Assist with social media content creation and scheduling',
+      'Help develop and implement marketing campaigns',
+      'Analyze campaign performance and create reports',
+      'Conduct market research and competitor analysis',
+      'Support email marketing initiatives',
+      'Contribute to SEO and content marketing strategies',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Marketing, Communications, or related field',
+      'Understanding of digital marketing principles',
+      'Experience with social media platforms',
+      'Basic knowledge of SEO and content marketing',
+      'Analytical mindset and attention to detail',
+      'Strong written and verbal communication skills',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from marketing professionals',
+      'Hands-on experience with marketing tools and platforms',
+      'Networking opportunities with industry professionals',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'ai-ml',
+    title: 'AI & Machine Learning Intern',
+    category: 'AI/ML', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('AI/ML'),
+    rating: 4.9,
+    company: 'Cognitive AI Labs',
+    keyTopics: ['ML Models', 'Deep Learning', 'AI Algorithms'],
+    description: 'Work on machine learning models, deep learning projects, and real-world AI use cases.',
+    responsibilities: [
+      'Build and train machine learning models',
+      'Implement deep learning solutions',
+      'Work with large datasets and preprocessing',
+      'Collaborate with data science and engineering teams',
+      'Research and apply latest AI algorithms and techniques',
+      'Present findings and contribute to AI-powered products',
+    ],
+    requirements: [
+      'Currently pursuing a degree in CS, Data Science, or related field',
+      'Proficiency in Python and ML libraries (Pandas, Scikit-learn, TensorFlow)',
+      'Understanding of supervised and unsupervised learning',
+      'Experience with Jupyter Notebooks or similar environments',
+      'Strong mathematical foundation and analytical thinking',
+      'Curiosity and passion for AI and emerging technologies',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from AI researchers',
+      'Hands-on experience with AI models',
+      'Networking opportunities with top AI professionals',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'ai-with-chatgpt',
+    title: 'AI with ChatGPT Intern',
+    category: 'AI/ML', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('ChatGPT'),
+    rating: 4.8,
+    company: 'Conversational AI Co.',
+    keyTopics: ['NLP', 'Chatbot Development', 'Prompt Engineering'],
+    description: 'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
+    responsibilities: [
+      'Develop chatbots and conversational agents',
+      'Fine-tune LLMs and optimize prompts',
+      'Integrate NLP models into applications',
+      'Evaluate model performance and accuracy',
+      'Collaborate with AI engineers and product teams',
+      'Contribute to AI research and innovation',
+    ],
+    requirements: [
+      'Currently pursuing a degree in CS, AI, or related field',
+      'Understanding of NLP and LLMs',
+      'Experience with Python and ML libraries',
+      'Familiarity with Hugging Face or LangChain',
+      'Strong analytical and technical skills',
+      'Passion for AI and language models',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from NLP experts',
+      'Exposure to state-of-the-art AI',
+      'Networking with AI and chatbot specialists',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'web-development',
+    title: 'Web Development Intern',
+    category: 'Development', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('WebDev'),
+    rating: 4.7,
+    company: 'FullStack Devs',
+    keyTopics: ['Full-stack Dev', 'Frontend/Backend', 'Database Integration'],
+    description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
+    responsibilities: [
+      'Build full-stack web applications',
+      'Work with both frontend and backend technologies',
+      'Implement responsive UI/UX designs',
+      'Work with databases and cloud hosting platforms',
+      'Debug and test applications',
+      'Collaborate with designers and product managers',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Computer Science or related field',
+      'Familiarity with web development basics (HTML, CSS, JS)',
+      'Experience with frontend (React, Vue) or backend (Node, Python)',
+      'Basic understanding of Git and version control',
+      'Good problem-solving skills',
+      'Strong communication and teamwork abilities',
+    ],
+    benefits: [
+      'Competitive stipend',
+      'Flexible working hours',
+      'Remote work options',
+      'Mentorship from experienced developers',
+      'Hands-on experience with real clients',
+      'Networking opportunities with engineering teams',
+    ],
+    priceINR: 4500,
+  },
+  {
+    id: 'Csharp',
+    title: 'C-Sharp Intern',
+    category: 'C#', // Changed category
+    mode: 'Online',
+    duration: '30 days / 3 months',
+    image: placeholderImage('C#'),
+    rating: 4.5,
+    company: '.NET Innovators',
+    keyTopics: ['C# Programming', '.NET Framework', 'OOP Concepts'],
+    description: 'Learn fundamental syntax, object-oriented programming concepts, and .NET framework fundamentals using C# and related libraries.',
+    responsibilities: [
+      'Assist in developing applications using C# and the .NET framework, both desktop and web-based',
+      'Collaborate with the development team to design, develop, test, and deploy features',
+      'Write clean, well-documented, and efficient code following best practices and OOP principles',
+      'Work with databases (e.g., SQL Server) and implement data access logic using tools like Entity Framework',
+      'Participate in team workflows, including version control (Git), Agile processes, and code reviews',
+    ],
+    benefits: [
+      'Understand C# and set up a development environment',
+      'Learn C#, including syntax, variables, data types, and operators',
+      'Use control structures such as if statements, for loops, and while loops',
+      'Understand and apply object-oriented programming (OOP) concepts: classes, objects, and inheritance',
+      'Create and use methods to organize your code and make it easier to understand',
+      'Handle errors in your code and write code to manage them properly',
+      'Write and run C# programs',
+    ],
+    requirements: [
+      'Currently pursuing a degree in Computer Science or related field',
+      'Familiarity with Visual Studio',
+      'Strong logic and algorithmic thinking',
+      'Good communication and teamwork abilities',
+      'Prior experience in C# programming is appreciated',
+      'Understanding of .NET framework is appreciated',
+    ],
+    priceINR: 4500,
+  },
+];
+
+// Function to generate new topic-specific internships
+const generateTopicInternships = (originalInternship) => {
+    const newInternships = [];
+    originalInternship.keyTopics.forEach(topic => {
+        const topicSlug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, '');
+        const newId = `${originalInternship.id}-${topicSlug}`;
+
+        newInternships.push({
+            id: newId,
+            title: `${topic} Intern`,
+            category: originalInternship.category, // Inherit category from original
+            mode: originalInternship.mode,
+            // Set a shorter duration for the split courses
+            duration: '15 days / 1 month', // Updated duration for split courses
+            department: originalInternship.department,
+            description: `This specialized internship provides in-depth focus on ${topic.toLowerCase()}. You will develop advanced skills and practical experience in this specific area, building upon the foundational knowledge of ${originalInternship.title.replace(' Intern', '')}.`,
+            responsibilities: [
+                `Focus on tasks directly related to ${topic.toLowerCase()}`,
+                `Apply learned principles and techniques in ${topic.toLowerCase()} projects`,
+                `Collaborate with team members on specific ${topic.toLowerCase()} challenges`,
+                `Research and implement best practices in ${topic.toLowerCase()}`,
+            ],
+            requirements: [
+                `Strong interest and basic understanding of ${topic.toLowerCase()}`,
+                `Ability to quickly learn and adapt to new concepts in ${topic.toLowerCase()}`,
+                `Problem-solving skills relevant to ${topic.toLowerCase()}`,
+                `Good communication and teamwork abilities`,
+            ],
+            benefits: originalInternship.benefits, // Inherit all benefits
+            priceINR: originalInternship.priceINR,
+            image: originalInternship.image, // Inherit image
+            rating: originalInternship.rating, // Inherit rating
+            company: originalInternship.company, // Inherit company
+            keyTopics: [topic], // The new internship only has this one key topic
+        });
+    });
+    return newInternships;
 };
+
+// Combine original and newly generated topic-specific internships
+let allInternshipsArray = [...originalInternships];
+originalInternships.forEach(original => {
+    if (original.keyTopics && original.keyTopics.length > 0) {
+        allInternshipsArray = allInternshipsArray.concat(generateTopicInternships(original));
+    }
+});
+
+// Convert the array to an object keyed by ID for easy lookup in InternshipDetails
+const internshipsData: { [key: string]: Internship } = allInternshipsArray.reduce((acc, internship) => {
+    acc[internship.id] = internship;
+    return acc;
+}, {});
+
 
 // --- Main InternshipApplication Component ---
 const InternshipApplication = () => {
-    const { id } = useParams<{ id: string }>();
+    const { id } = useParams();
     const internshipId = id && id in internshipsData ? id : 'web-development';
     const internship = internshipsData[internshipId];
 
     // State to manage the application submission status
-    const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle'); // 'idle', 'processing', 'success', 'error'
+    const [submissionStatus, setSubmissionStatus] = useState('idle'); // 'idle', 'processing', 'success', 'error'
     // State to store and display submission messages to the user
-    const [submissionMessage, setSubmissionMessage] = useState<string>('');
+    const [submissionMessage, setSubmissionMessage] = useState('');
 
     // State to hold form data
     const [formData, setFormData] = useState({
@@ -528,7 +602,7 @@ const InternshipApplication = () => {
     });
 
     // Handle input changes for text fields
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
@@ -544,7 +618,7 @@ const InternshipApplication = () => {
     console.log('Using API Base URL:', API_BASE_URL);
 
     // Handle form submission (directly sends email notifications)
-    const handleFormSubmit = async (e: React.FormEvent) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault(); // Prevent default form submission behavior
         console.log('Attempting to submit form with data:', formData);
         setSubmissionStatus('processing');

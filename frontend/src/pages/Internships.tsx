@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
 // Mock Link and motion for self-contained example
 const Link = ({ to, children }) => <a href={to}>{children}</a>;
 const motion = {
@@ -47,7 +47,7 @@ const originalInternships = [
   {
     id: 'ui-ux-design',
     title: 'UI/UX Design Intern',
-    category: 'Paid',
+    category: 'Design', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: webDesign,
@@ -58,7 +58,7 @@ const originalInternships = [
   {
     id: 'frontend-development',
     title: 'Frontend Development Intern',
-    category: 'Paid',
+    category: 'Development', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: responsiveDesign,
@@ -69,7 +69,7 @@ const originalInternships = [
   {
     id: 'backend-development',
     title: 'Backend Development Intern',
-    category: 'Paid',
+    category: 'Development', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: backEnd,
@@ -80,7 +80,7 @@ const originalInternships = [
   {
     id: 'hr-management',
     title: 'HR Management Intern',
-    category: 'Paid',
+    category: 'HR', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: hrManager,
@@ -91,7 +91,7 @@ const originalInternships = [
   {
     id: 'data-analytics',
     title: 'Data Analytics Intern',
-    category: 'Paid',
+    category: 'Data Science', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: dataAnalytics,
@@ -102,7 +102,7 @@ const originalInternships = [
   {
     id: 'java-development',
     title: 'Java Development Intern',
-    category: 'Paid',
+    category: 'Java', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: java,
@@ -113,7 +113,7 @@ const originalInternships = [
   {
     id: 'python-development',
     title: 'Python Development Intern',
-    category: 'Paid',
+    category: 'Python', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: python,
@@ -124,7 +124,7 @@ const originalInternships = [
   {
     id: 'digital-marketing',
     title: 'Digital Marketing Intern',
-    category: 'Paid',
+    category: 'Marketing', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: contentStrategy,
@@ -135,7 +135,7 @@ const originalInternships = [
   {
     id: 'ai-ml',
     title: 'AI & Machine Learning Intern',
-    category: 'Paid',
+    category: 'AI/ML', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: aiAssistant,
@@ -146,7 +146,7 @@ const originalInternships = [
   {
     id: 'ai-with-chatgpt',
     title: 'AI with ChatGPT Intern',
-    category: 'Paid',
+    category: 'AI/ML', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: aiChatgpt,
@@ -157,7 +157,7 @@ const originalInternships = [
   {
     id: 'web-development',
     title: 'Web Development Intern',
-    category: 'Paid',
+    category: 'Development', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: webDevelopment,
@@ -168,7 +168,7 @@ const originalInternships = [
   {
     id: 'Csharp',
     title: 'C-Sharp Intern',
-    category: 'Paid',
+    category: 'C#', // Changed category
     mode: 'Online',
     duration: '30 days / 3 months',
     image: Csharp,
@@ -188,7 +188,7 @@ const generateTopicInternships = (originalInternship) => {
         newInternships.push({
             id: newId,
             title: `${topic} Intern`,
-            category: originalInternship.category,
+            category: originalInternship.category, // Inherit category from original
             mode: originalInternship.mode,
             // Set a shorter duration for the split courses
             duration: '15 days / 1 month', // Updated duration for split courses
@@ -225,8 +225,17 @@ originalInternships.forEach(original => {
     }
 });
 
-
 const Internships = () => {
+  const [selectedCategory, setSelectedCategory] = useState('All'); // State for category filter
+
+  // Get unique categories from the internships data
+  const categories = ['All', ...new Set(internships.map(internship => internship.category))];
+
+  // Filter internships based on selected category
+  const filteredInternships = selectedCategory === 'All'
+    ? internships
+    : internships.filter(internship => internship.category === selectedCategory);
+
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i) => ({
@@ -292,13 +301,29 @@ const Internships = () => {
                   <Search className="absolute left-3 text-gray-400" size={20} />
                 </div>
               </div>
+              {/* Category Filter Buttons - NEW */}
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                {categories.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-5 py-2 rounded-full font-semibold transition-all duration-300
+                      ${selectedCategory === category
+                        ? 'bg-red-600 text-white shadow-md'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                 Apply for one of our internship programs and gain valuable experience working with industry experts on real projects.
               </p>
             </div>
           </AnimatedSection>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {internships.map((internship, index) => (
+            {filteredInternships.map((internship, index) => ( // Use filteredInternships here
               <motion.div
                 key={internship.id}
                 custom={index}
