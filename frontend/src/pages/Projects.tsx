@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {  ArrowRight, MapPin,  Shield, Eye, Gamepad } from 'lucide-react';
+import { ArrowRight, MapPin, Shield, Eye, Gamepad, Search } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
 import headerBackground from '../assets/background image/project.png';
@@ -9,6 +9,7 @@ import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
 
+// Define the project data
 export const projects = [
   {
     id: 'ai-ransomware-detection',
@@ -76,6 +77,11 @@ export const projects = [
 ];
 
 const Projects: React.FC = () => {
+  // State for search term and selected category
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  // Define animation variants for project cards
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
@@ -89,9 +95,26 @@ const Projects: React.FC = () => {
     }),
   };
 
+  // Get unique categories from the projects data
+  const categories = useMemo(() => {
+    const uniqueCategories = new Set(projects.map(project => project.category));
+    return ['All', ...Array.from(uniqueCategories)];
+  }, []);
+
+  // Filter projects based on search term and selected category
+  const filteredProjects = useMemo(() => {
+    return projects.filter(project => {
+      const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            project.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            project.tech.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchTerm, selectedCategory]);
+
   return (
     <>
-     
+      {/* Page Header Component */}
       <PageHeader
         title={<span className="text-red-500">Our Projects</span>}
         subtitle={<span className="text-white">Innovative solutions delivering real business impact</span>}
@@ -109,65 +132,104 @@ const Projects: React.FC = () => {
             </div>
           </AnimatedSection>
 
+          {/* Search and Filter Section */}
+          <div className="mb-12 flex flex-col sm:flex-row items-center justify-between gap-6">
+            {/* Search Input */}
+            <div className="relative w-full sm:w-1/2 lg:w-1/3">
+              <input
+                type="text"
+                placeholder="Search projects by title, description, or tech..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            </div>
+
+            {/* Category Filters */}
+            <div className="flex flex-wrap justify-center sm:justify-end gap-3">
+              {categories.map(category => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
+                    ${selectedCategory === category
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Display Filtered Projects */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                custom={index}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-50px' }}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-60" />
-                  <div className="absolute bottom-4 left-4">
-                    <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full">
-                      {project.category}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <div className="mr-3">
-                      {project.icon}
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900">{project.title}</h3>
-                  </div>
-                  <p className="text-gray-600 mb-4">{project.shortDescription}</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tech.slice(0, 3).map((tech, i) => (
-                      <span key={i} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                        {tech}
+            {filteredProjects.length > 0 ? (
+              filteredProjects.map((project, index) => (
+                <motion.div
+                  key={project.id}
+                  custom={index}
+                  variants={cardVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: '-50px' }}
+                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200"
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-60" />
+                    <div className="absolute bottom-4 left-4">
+                      <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full">
+                        {project.category}
                       </span>
-                    ))}
-                    {project.tech.length > 3 && (
-                      <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                        +{project.tech.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <MapPin className="mr-1" size={14} />
-                      <span>{project.location.split('/')[0].trim()}</span>
                     </div>
-                    <Link
-                      to={`/projects/${project.id}`}
-                      className="text-red-600 hover:text-blue-800 font-medium flex items-center"
-                    >
-                      Details <ArrowRight className="ml-1" size={16} />
-                    </Link>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="p-6">
+                    <div className="flex items-center mb-3">
+                      <div className="mr-3">
+                        {project.icon}
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">{project.title}</h3>
+                    </div>
+                    <p className="text-gray-600 mb-4">{project.shortDescription}</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.tech.slice(0, 3).map((tech, i) => (
+                        <span key={i} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                          {tech}
+                        </span>
+                      ))}
+                      {project.tech.length > 3 && (
+                        <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                          +{project.tech.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-sm text-gray-500">
+                        <MapPin className="mr-1" size={14} />
+                        <span>{project.location.split('/')[0].trim()}</span>
+                      </div>
+                      <Link
+                        to={`/projects/${project.id}`}
+                        className="text-red-600 hover:text-blue-800 font-medium flex items-center"
+                      >
+                        Details <ArrowRight className="ml-1" size={16} />
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10">
+                <p className="text-gray-600 text-lg">No projects found matching your criteria.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

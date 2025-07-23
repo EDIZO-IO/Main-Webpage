@@ -4,22 +4,23 @@ import { Link } from 'react-router-dom';
 import { 
   Calendar, 
   MapPin, 
-  
   ArrowLeft,
   Check,
   Users,
   BarChart2,
   Cpu,
-  Clock
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
-import { projects } from './Projects';
+import { projects } from './Projects'; // Import the projects array
 
 const ProjectDetails: React.FC = () => {
   const { id } = useParams();
   const project = projects.find((p) => p.id === id);
 
+  // If project not found, display a message
   if (!project) {
     return (
       <section className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -40,13 +41,22 @@ const ProjectDetails: React.FC = () => {
     );
   }
 
-  // Set dynamic page title
+  // Set dynamic page title based on the project title
   React.useEffect(() => {
     document.title = `${project.title} | Our Projects`;
   }, [project.title]);
 
+  // Filter for related projects (excluding the current project)
+  // Logic: Find projects in the same category or sharing at least one technology
+  const relatedProjects = projects.filter(p => 
+    p.id !== project.id && // Exclude the current project
+    (p.category === project.category || // Same category
+     p.tech.some(tech => project.tech.includes(tech))) // Share at least one technology
+  ).slice(0, 3); // Limit to 3 related projects
+
   return (
     <>
+      {/* Page Header Component for Project Details */}
       <PageHeader
         title={project.title}
         subtitle={project.category}
@@ -60,6 +70,7 @@ const ProjectDetails: React.FC = () => {
             <div className="lg:w-2/3">
               <AnimatedSection>
                 <div className="mb-8">
+                  {/* Back to Projects Link */}
                   <Link 
                     to="/projects" 
                     className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6"
@@ -68,9 +79,10 @@ const ProjectDetails: React.FC = () => {
                     Back to Projects
                   </Link>
                   
+                  {/* Project Title and Short Description */}
                   <div className="flex items-center mb-6">
                     <div className="mr-4">
-                      {project.icon}
+                      {project.icon} {/* Project specific icon */}
                     </div>
                     <div>
                       <h2 className="text-3xl font-bold text-gray-900">{project.title}</h2>
@@ -78,11 +90,14 @@ const ProjectDetails: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Full Project Description */}
                   <div className="prose max-w-none text-gray-700 mb-8">
                     <p>{project.fullDescription}</p>
                   </div>
 
+                  {/* Project Highlights and Key Results Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                    {/* Project Highlights */}
                     <div className="bg-gray-50 p-6 rounded-xl">
                       <h3 className="text-xl font-semibold mb-4 flex items-center">
                         <Users className="mr-2 text-blue-600" size={20} />
@@ -98,6 +113,7 @@ const ProjectDetails: React.FC = () => {
                       </ul>
                     </div>
 
+                    {/* Key Results */}
                     <div className="bg-gray-50 p-6 rounded-xl">
                       <h3 className="text-xl font-semibold mb-4 flex items-center">
                         <BarChart2 className="mr-2 text-blue-600" size={20} />
@@ -110,12 +126,14 @@ const ProjectDetails: React.FC = () => {
               </AnimatedSection>
             </div>
 
+            {/* Project Details Sidebar */}
             <div className="lg:w-1/3">
               <AnimatedSection delay={0.2}>
                 <div className="bg-gray-50 rounded-xl p-6 sticky top-6 shadow-sm border border-gray-200">
                   <div className="mb-6">
                     <h3 className="text-xl font-semibold mb-4">Project Details</h3>
                     <div className="space-y-4">
+                      {/* Location */}
                       <div className="flex items-start">
                         <div className="mr-3 mt-1 text-gray-500">
                           <MapPin size={18} />
@@ -126,6 +144,7 @@ const ProjectDetails: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Timeline */}
                       <div className="flex items-start">
                         <div className="mr-3 mt-1 text-gray-500">
                           <Calendar size={18} />
@@ -136,6 +155,7 @@ const ProjectDetails: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Technologies */}
                       <div className="flex items-start">
                         <div className="mr-3 mt-1 text-gray-500">
                           <Cpu size={18} />
@@ -152,6 +172,7 @@ const ProjectDetails: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Challenges */}
                       <div className="flex items-start">
                         <div className="mr-3 mt-1 text-gray-500">
                           <Clock size={18} />
@@ -164,6 +185,7 @@ const ProjectDetails: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Project Gallery (Placeholder) */}
                   <div className="border-t border-gray-200 pt-6">
                     <h3 className="text-xl font-semibold mb-4">Project Gallery</h3>
                     <div className="grid grid-cols-2 gap-3">
@@ -183,35 +205,49 @@ const ProjectDetails: React.FC = () => {
               </AnimatedSection>
             </div>
           </div>
+
+          {/* Related Projects Section */}
+          {relatedProjects.length > 0 && (
+            <div className="mt-20">
+              <AnimatedSection>
+                <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Related Projects</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {relatedProjects.map((relatedProject) => (
+                    <Link 
+                      to={`/projects/${relatedProject.id}`} 
+                      key={relatedProject.id}
+                      className="block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 group"
+                    >
+                      <div className="relative h-40 overflow-hidden">
+                        <img
+                          src={relatedProject.image}
+                          alt={relatedProject.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-60" />
+                        <div className="absolute bottom-3 left-3">
+                          <span className="bg-white text-gray-900 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                            {relatedProject.category}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                          {relatedProject.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-3">{relatedProject.shortDescription}</p>
+                        <div className="flex items-center text-sm text-blue-600 group-hover:text-blue-800 font-medium">
+                          View Details <ArrowRight className="ml-1" size={16} />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </AnimatedSection>
+            </div>
+          )}
         </div>
       </section>
-
-      {/* <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <AnimatedSection>
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Have a Similar Project in Mind?</h2>
-              <p className="text-xl opacity-90 mb-8">
-                Let's discuss how we can help bring your vision to life with our expertise.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Link 
-                  to="/contact" 
-                  className="inline-block bg-white text-blue-700 hover:bg-gray-100 font-semibold py-3 px-8 rounded-lg transition duration-300 shadow-lg"
-                >
-                  Contact Our Team
-                </Link>
-                <Link 
-                  to="/projects" 
-                  className="inline-block border-2 border-white text-white hover:bg-white hover:text-blue-700 font-semibold py-3 px-8 rounded-lg transition duration-300"
-                >
-                  View All Projects
-                </Link>
-              </div>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section> */}
     </>
   );
 };
