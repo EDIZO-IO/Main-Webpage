@@ -58,525 +58,215 @@ const AnimatedSection = ({ children, delay = 0 }) => {
   );
 };
 
-// --- Internship Data (with placeholder images for demonstration) ---
+// --- Internship Data Interface ---
 interface Internship {
   title: string;
   category: string;
   mode: string;
   duration: string;
-  department: string;
+  department?: string; // Made optional as it's not in the provided data
   description: string;
-  responsibilities: string[];
-  requirements: string[];
+  whyChooseEdizo: string[]; // New field
   benefits: string[];
   priceINR: number;
   image: string;
-  rating: number; // Added rating for consistency
-  company: string; // Added company for consistency
-  keyTopics: string[]; // Added keyTopics for consistency
+  rating: number;
+  company: string;
 }
 
-// Original Internship opportunity data - ADDED keyTopics to each internship
-const originalInternships = [
-  {
+// Define the common "Why Choose EDIZO?" content
+const whyChooseEdizoContent = [
+  "100% Internship Certification",
+  "Real-Time, Hands-On Project for Each Course",
+  "Learn from Experienced Industry Mentors",
+  "Placement Guidance & Portfolio Support",
+  "Flexible Duration: 15 Days to 3 Months",
+  "Paid Internship Opportunities",
+  "Modes: Online & Offline",
+];
+
+// Define the common "Benefits" content
+const commonBenefits = [
+  "Gain In-Demand Industry Skills",
+  "Build Strong Resume with Real-Time Projects",
+  "Improve Communication & Team Collaboration",
+  "Internship Certificate Recognized by Companies",
+  "Opportunity to Work on Live Client Projects",
+  "Boost Confidence for Interviews & Job Roles",
+  "Get Exposure to Professional Tools & Platforms",
+];
+
+// Internship opportunity data - 'keyTopics', 'responsibilities', and 'requirements' removed
+const internshipsData: { [key: string]: Internship } = {
+  'ui-ux-design': {
     id: 'ui-ux-design',
-    title: 'UI/UX Design Intern',
-    category: 'Paid',
+    title: 'UI/UX Design',
+    category: 'Design',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('UI/UX'),
     rating: 4.7,
     company: 'InnovateTech Solutions',
-    keyTopics: ['UI/UX Principles', 'Figma/Adobe XD', 'User Research'],
     description: 'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
-    responsibilities: [
-      'Create wireframes, mockups, and prototypes',
-      'Conduct user research and usability testing',
-      'Design responsive interfaces for web and mobile applications',
-      'Create visual assets and design elements',
-      'Collaborate with developers to implement designs',
-      'Participate in design thinking workshops and brainstorming sessions',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Design, HCI, or related field',
-      'Proficiency with Figma, Adobe XD, or Sketch',
-      'Understanding of user-centered design principles',
-      'Basic knowledge of HTML/CSS',
-      'Strong visual design skills and attention to detail',
-      'Ability to give and receive constructive feedback',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from senior designers',
-      'Portfolio-worthy projects',
-      'Networking opportunities with industry professionals',
-    ],
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'frontend-development': {
     id: 'frontend-development',
-    title: 'Frontend Development Intern',
-    category: 'Paid',
+    title: 'Frontend Development',
+    category: 'Development',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('Frontend'),
     rating: 4.5,
     company: 'WebCrafters Inc.',
-    keyTopics: ['React/Vue.js', 'HTML/CSS/JS', 'Responsive Design'],
-    description: 'Develop responsive web applications using modern frontend technologies like React, Vue.js, and TypeScript.',
-    responsibilities: [
-      'Assist in developing responsive web applications',
-      'Implement UI components using modern frontend frameworks',
-      'Work with backend APIs and databases',
-      'Participate in code reviews and team meetings',
-      'Debug and fix issues in existing applications',
-      'Collaborate with designers to implement UI/UX designs',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Computer Science or related field',
-      'Knowledge of HTML, CSS, JavaScript',
-      'Familiarity with React, Vue, or Angular',
-      'Basic understanding of REST APIs',
-      'Good problem-solving skills and attention to detail',
-      'Strong communication and teamwork abilities',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from experienced developers',
-      'Opportunity to work on real projects',
-      'Networking opportunities with industry professionals',
-    ],
+    description: 'Gain hands-on experience in building responsive and interactive user interfaces using HTML, CSS, JavaScript, and modern frameworks like React. Learn design principles, UI/UX fundamentals, and how to turn designs into functioning web pages.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'backend-development': {
     id: 'backend-development',
-    title: 'Backend Development Intern',
-    category: 'Paid',
+    title: 'Backend Development',
+    category: 'Development',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('Backend'),
     rating: 4.6,
     company: 'ServerSide Innovations',
-    keyTopics: ['Node.js/Django', 'Databases', 'API Development'],
-    description: 'Build scalable backend systems using Node.js, Django, or Spring Boot while working with databases and APIs.',
-    responsibilities: [
-      'Build scalable backend systems using Node.js, Django, or Spring Boot',
-      'Work with databases and APIs',
-      'Debug and fix backend issues',
-      'Write clean, maintainable, and secure code',
-      'Collaborate with frontend developers to integrate APIs',
-      'Follow best practices for security and performance',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Computer Science or related field',
-      'Knowledge of at least one backend language (Node.js, Python, Java)',
-      'Experience with databases (SQL or NoSQL)',
-      'Understanding of RESTful API development',
-      'Problem-solving skills and attention to detail',
-      'Team collaboration and communication abilities',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from experienced engineers',
-      'Real-world project experience',
-      'Networking opportunities with tech leaders',
-    ],
+    description: 'Understand the logic behind web applications by working with server-side technologies like Node.js, Express, and databases such as MySQL or MongoDB. Learn how APIs, authentication, and server architecture function in real-time environments.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'hr-management': {
     id: 'hr-management',
-    title: 'HR Management Intern',
-    category: 'Paid',
+    title: 'HR Management',
+    category: 'HR',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('HR'),
     rating: 4.2,
     company: 'PeopleFirst HR',
-    keyTopics: ['Recruitment', 'Onboarding', 'Employee Engagement'],
-    description: 'Assist in recruitment, onboarding, employee engagement, and performance management tasks.',
-    responsibilities: [
-      'Assist in recruitment and interview scheduling',
-      'Manage employee onboarding process',
-      'Support internal employee engagement initiatives',
-      'Maintain HR records and documentation',
-      'Coordinate training programs and events',
-      'Work with HR software and systems',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Human Resources, Business, or related field',
-      'Basic knowledge of HR practices and procedures',
-      'Strong organizational and communication skills',
-      'Familiarity with Microsoft Office Suite',
-      'Ability to handle confidential information professionally',
-      'Detail-oriented and proactive attitude',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from HR professionals',
-      'Hands-on experience in human resources',
-      'Networking opportunities within the company',
-    ],
+    description: 'Understand core HR functions such as recruitment, payroll, training, performance evaluation, and employee engagement. Learn to use HR tools and software while building real-world management skills.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'data-analytics': {
     id: 'data-analytics',
-    title: 'Data Analytics Intern',
-    category: 'Paid',
+    title: 'Data Analytics',
+    category: 'Data Science',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('DataAnalytics'),
     rating: 4.8,
     company: 'Insightful Data Co.',
-    keyTopics: ['Data Analysis', 'SQL/Python', 'Data Visualization'],
-    description: 'Analyze real-world datasets, generate insights, and support business decision-making using tools like Python, SQL, and Tableau.',
-    responsibilities: [
-      'Collect and analyze data from various sources',
-      'Create reports and visualizations to communicate findings',
-      'Support data-driven decision making across departments',
-      'Assist in implementing and maintaining data tracking systems',
-      'Help identify trends and patterns in customer behavior',
-      'Contribute to predictive modeling and forecasting',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Statistics, Data Science, or related field',
-      'Experience with Python, R, Excel, or similar',
-      'Basic understanding of SQL and database concepts',
-      'Knowledge of data visualization techniques',
-      'Strong analytical and problem-solving skills',
-      'Attention to detail and ability to work with complex datasets',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from experienced data analysts',
-      'Access to cutting-edge data analysis tools',
-      'Networking opportunities with industry professionals',
-    ],
+    description: 'Gain proficiency in tools like Excel, Power BI, and Python for data cleaning, visualization, and reporting. Learn how to extract insights from raw data and make data-driven decisions in business contexts.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'java-development': {
     id: 'java-development',
-    title: 'Java Development Intern',
-    category: 'Paid',
+    title: 'Java Development',
+    category: 'Java',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('Java'),
     rating: 4.4,
     company: 'Enterprise Java Hub',
-    keyTopics: ['Java OOP', 'Spring Boot', 'Microservices'],
-    description: 'Learn enterprise-level Java development with frameworks like Spring Boot and Hibernate.',
-    responsibilities: [
-      'Work on enterprise Java applications using Spring Boot and Hibernate',
-      'Assist in building and enhancing microservices',
-      'Participate in debugging and fixing backend issues',
-      'Collaborate with cross-functional teams',
-      'Write unit tests and perform code reviews',
-      'Follow agile methodologies and sprint planning',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Computer Science or related field',
-      'Knowledge of Java and object-oriented programming',
-      'Familiarity with Spring Boot or Hibernate is a plus',
-      'Basic understanding of RESTful APIs',
-      'Strong problem-solving skills',
-      'Excellent written and verbal communication',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from experienced Java developers',
-      'Exposure to enterprise-level application architecture',
-      'Networking opportunities with IT professionals',
-    ],
+    description: 'Build a solid understanding of Java fundamentals, OOP concepts, and project structures. Gain experience in building desktop and web-based Java applications using tools like Eclipse or IntelliJ.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'python-development': {
     id: 'python-development',
-    title: 'Python Development Intern',
-    category: 'Paid',
+    title: 'Python Programming',
+    category: 'Python',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('Python'),
     rating: 4.6,
     company: 'Pythonic Solutions',
-    keyTopics: ['Python Scripting', 'Django/Flask', 'Automation'],
-    description: 'Explore scripting, automation, and backend development using Python and related libraries.',
-    responsibilities: [
-      'Develop scripts and automation tools',
-      'Build backend services using Python frameworks (Django, Flask)',
-      'Work with APIs and database integrations',
-      'Test and debug Python-based applications',
-      'Collaborate with data scientists and ML engineers',
-      'Document processes and write clean code',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Computer Science or related field',
-      'Proficiency in Python programming',
-      'Familiarity with backend frameworks (e.g., Django, Flask)',
-      'Understanding of RESTful APIs and JSON',
-      'Strong logic and algorithmic thinking',
-      'Good communication and teamwork abilities',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from senior Python developers',
-      'Real-world project exposure',
-      'Networking opportunities with engineering teams',
-    ],
+    description: 'Master the basics to advanced concepts in Python. Work on real-time projects involving automation, web scraping, and problem-solving. Ideal for building a strong programming foundation.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'digital-marketing': {
     id: 'digital-marketing',
-    title: 'Digital Marketing Intern',
-    category: 'Paid',
+    title: 'Digital Marketing',
+    category: 'Marketing',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('DigitalMarketing'),
     rating: 4.3,
     company: 'GrowthMarketers',
-    keyTopics: ['SEO', 'Content Marketing', 'Social Media'],
-    description: 'Gain hands-on experience in SEO, content marketing, social media strategy, and campaign analytics.',
-    responsibilities: [
-      'Assist with social media content creation and scheduling',
-      'Help develop and implement marketing campaigns',
-      'Analyze campaign performance and create reports',
-      'Conduct market research and competitor analysis',
-      'Support email marketing initiatives',
-      'Contribute to SEO and content marketing strategies',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Marketing, Communications, or related field',
-      'Understanding of digital marketing principles',
-      'Experience with social media platforms',
-      'Basic knowledge of SEO and content marketing',
-      'Analytical mindset and attention to detail',
-      'Strong written and verbal communication skills',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from marketing professionals',
-      'Hands-on experience with marketing tools and platforms',
-      'Networking opportunities with industry professionals',
-    ],
+    description: 'Explore SEO, social media strategy, content marketing, Google Ads, and analytics tools. Gain practical insights into building brand presence, driving engagement, and generating leads through digital channels.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'ai-ml': {
     id: 'ai-ml',
-    title: 'AI & Machine Learning Intern',
-    category: 'Paid',
+    title: 'AI & Machine Learning',
+    category: 'AI/ML',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('AI/ML'),
     rating: 4.9,
     company: 'Cognitive AI Labs',
-    keyTopics: ['ML Models', 'Deep Learning', 'AI Algorithms'],
-    description: 'Work on machine learning models, deep learning projects, and real-world AI use cases.',
-    responsibilities: [
-      'Build and train machine learning models',
-      'Implement deep learning solutions',
-      'Work with large datasets and preprocessing',
-      'Collaborate with data science and engineering teams',
-      'Research and apply latest AI algorithms and techniques',
-      'Present findings and contribute to AI-powered products',
-    ],
-    requirements: [
-      'Currently pursuing a degree in CS, Data Science, or related field',
-      'Proficiency in Python and ML libraries (Pandas, Scikit-learn, TensorFlow)',
-      'Understanding of supervised and unsupervised learning',
-      'Experience with Jupyter Notebooks or similar environments',
-      'Strong mathematical foundation and analytical thinking',
-      'Curiosity and passion for AI and emerging technologies',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from AI researchers',
-      'Hands-on experience with AI models',
-      'Networking opportunities with top AI professionals',
-    ],
+    description: 'Delve into the world of intelligent systems by learning machine learning algorithms, model building, and deployment using Python libraries such as Scikit-learn, TensorFlow, or PyTorch. Work on datasets to solve real-world problems.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'ai-with-chatgpt': {
     id: 'ai-with-chatgpt',
-    title: 'AI with ChatGPT Intern',
-    category: 'Paid',
+    title: 'AI with ChatGPT',
+    category: 'AI/ML',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('ChatGPT'),
     rating: 4.8,
     company: 'Conversational AI Co.',
-    keyTopics: ['NLP', 'Chatbot Development', 'Prompt Engineering'],
-    description: 'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
-    responsibilities: [
-      'Develop chatbots and conversational agents',
-      'Fine-tune LLMs and optimize prompts',
-      'Integrate NLP models into applications',
-      'Evaluate model performance and accuracy',
-      'Collaborate with AI engineers and product teams',
-      'Contribute to AI research and innovation',
-    ],
-    requirements: [
-      'Currently pursuing a degree in CS, AI, or related field',
-      'Understanding of NLP and LLMs',
-      'Experience with Python and ML libraries',
-      'Familiarity with Hugging Face or LangChain',
-      'Strong analytical and technical skills',
-      'Passion for AI and language models',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from NLP experts',
-      'Exposure to state-of-the-art AI',
-      'Networking with AI and chatbot specialists',
-    ],
+    description: 'Learn how to integrate and build applications using OpenAIs ChatGPT and LLM APIs. Understand prompt engineering, natural language processing, and AI-assisted tools to automate and enhance workflows.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
+  'web-development': {
     id: 'web-development',
-    title: 'Web Development Intern',
-    category: 'Paid',
+    title: 'Web Development',
+    category: 'Development',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('WebDev'),
     rating: 4.7,
     company: 'FullStack Devs',
-    keyTopics: ['Full-stack Dev', 'Frontend/Backend', 'Database Integration'],
-    description: 'Get practical experience building full-stack web applications using modern frameworks and tools.',
-    responsibilities: [
-      'Build full-stack web applications',
-      'Work with both frontend and backend technologies',
-      'Implement responsive UI/UX designs',
-      'Work with databases and cloud hosting platforms',
-      'Debug and test applications',
-      'Collaborate with designers and product managers',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Computer Science or related field',
-      'Familiarity with web development basics (HTML, CSS, JS)',
-      'Experience with frontend (React, Vue) or backend (Node, Python)',
-      'Basic understanding of Git and version control',
-      'Good problem-solving skills',
-      'Strong communication and teamwork abilities',
-    ],
-    benefits: [
-      'Competitive stipend',
-      'Flexible working hours',
-      'Remote work options',
-      'Mentorship from experienced developers',
-      'Hands-on experience with real clients',
-      'Networking opportunities with engineering teams',
-    ],
+    description: 'Get full-stack exposure by combining front-end and back-end skills. Build and deploy complete websites and web applications while learning Git, hosting, and project collaboration tools like GitHub.',
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-  {
-    id: 'Csharp',
-    title: 'C-Sharp Intern',
-    category: 'Paid',
+  'csharp': {
+    id: 'csharp',
+    title: 'C-Sharp',
+    category: 'C#',
     mode: 'Online',
-    duration: '30 days / 3 months',
+    duration: '15 days / 3 months',
     image: placeholderImage('C#'),
     rating: 4.5,
     company: '.NET Innovators',
-    keyTopics: ['C# Programming', '.NET Framework', 'OOP Concepts'],
     description: 'Learn fundamental syntax, object-oriented programming concepts, and .NET framework fundamentals using C# and related libraries.',
-    responsibilities: [
-      'Assist in developing applications using C# and the .NET framework, both desktop and web-based',
-      'Collaborate with the development team to design, develop, test, and deploy features',
-      'Write clean, well-documented, and efficient code following best practices and OOP principles',
-      'Work with databases (e.g., SQL Server) and implement data access logic using tools like Entity Framework',
-      'Participate in team workflows, including version control (Git), Agile processes, and code reviews',
-    ],
-    benefits: [
-      'Understand C# and set up a development environment',
-      'Learn C#, including syntax, variables, data types, and operators',
-      'Use control structures such as if statements, for loops, and while loops',
-      'Understand and apply object-oriented programming (OOP) concepts: classes, objects, and inheritance',
-      'Create and use methods to organize your code and make it easier to understand',
-      'Handle errors in your code and write code to manage them properly',
-      'Write and run C# programs',
-    ],
-    requirements: [
-      'Currently pursuing a degree in Computer Science or related field',
-      'Familiarity with Visual Studio',
-      'Strong logic and algorithmic thinking',
-      'Good communication and teamwork abilities',
-      'Prior experience in C# programming is appreciated',
-      'Understanding of .NET framework is appreciated',
-    ],
+    whyChooseEdizo: whyChooseEdizoContent,
+    benefits: commonBenefits,
     priceINR: 4500,
   },
-];
-
-// Function to generate new topic-specific internships
-const generateTopicInternships = (originalInternship) => {
-    const newInternships = [];
-    originalInternship.keyTopics.forEach(topic => {
-        const topicSlug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, '');
-        const newId = `${originalInternship.id}-${topicSlug}`;
-
-        newInternships.push({
-            id: newId,
-            title: `${topic} Intern`,
-            category: originalInternship.category,
-            mode: originalInternship.mode,
-            // Set a shorter duration for the split courses
-            duration: '15 days / 1 month',
-            department: originalInternship.department,
-            description: `This specialized internship provides in-depth focus on ${topic.toLowerCase()}. You will develop advanced skills and practical experience in this specific area, building upon the foundational knowledge of ${originalInternship.title.replace(' Intern', '')}.`,
-            responsibilities: [
-                `Focus on tasks directly related to ${topic.toLowerCase()}`,
-                `Apply learned principles and techniques in ${topic.toLowerCase()} projects`,
-                `Collaborate with team members on specific ${topic.toLowerCase()} challenges`,
-                `Research and implement best practices in ${topic.toLowerCase()}`,
-            ],
-            requirements: [
-                `Strong interest and basic understanding of ${topic.toLowerCase()}`,
-                `Ability to quickly learn and adapt to new concepts in ${topic.toLowerCase()}`,
-                `Problem-solving skills relevant to ${topic.toLowerCase()}`,
-                `Good communication and teamwork abilities`,
-            ],
-            benefits: originalInternship.benefits, // Inherit all benefits
-            priceINR: originalInternship.priceINR,
-            image: originalInternship.image, // Inherit image
-            rating: originalInternship.rating, // Inherit rating
-            company: originalInternship.company, // Inherit company
-            keyTopics: [topic], // The new internship only has this one key topic
-        });
-    });
-    return newInternships;
 };
-
-// Combine original and newly generated topic-specific internships
-let allInternshipsArray = [...originalInternships];
-originalInternships.forEach(original => {
-    if (original.keyTopics && original.keyTopics.length > 0) {
-        allInternshipsArray = allInternshipsArray.concat(generateTopicInternships(original));
-    }
-});
-
-// Convert the array to an object keyed by ID for easy lookup in InternshipDetails
-const internshipsData: { [key: string]: Internship } = allInternshipsArray.reduce((acc, internship) => {
-    acc[internship.id] = internship;
-    return acc;
-}, {});
-
 
 // --- Main InternshipDetails Component ---
 const InternshipDetails = () => {
@@ -651,36 +341,15 @@ const InternshipDetails = () => {
                       )}
                     </div>
                   </div>
-                  {/* Department Card */}
-                  <div className="bg-white p-5 rounded-lg shadow-md border border-gray-200">
-                    <div className="flex items-center">
-                      <Users className="text-red-500 mr-3" size={20} />
-                      <div>
-                        <h3 className="font-semibold text-gray-700">Department</h3>
-                        <p className="text-gray-600">{internship.department}</p>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Department Card - Removed as department is not in the new data structure */}
+                  {/* You might want to add a department field to the internship data if needed */}
                 </div>
 
-                {/* Responsibilities Section */}
+                {/* Why Choose EDIZO? Section - NEW */}
                 <div className="mb-8">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4">Responsibilities</h3>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">🎯 Why Choose EDIZO?</h3>
                   <ul className="space-y-3">
-                    {internship.responsibilities.map((item, index) => (
-                      <li key={index} className="flex items-start text-gray-700">
-                        <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Requirements Section */}
-                <div className="mb-8">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4">Requirements</h3>
-                  <ul className="space-y-3">
-                    {internship.requirements.map((item, index) => (
+                    {internship.whyChooseEdizo.map((item, index) => (
                       <li key={index} className="flex items-start text-gray-700">
                         <Check className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
                         <span>{item}</span>

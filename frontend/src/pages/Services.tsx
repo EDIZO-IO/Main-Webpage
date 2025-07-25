@@ -21,53 +21,99 @@ import videoEditingImg from '../assets/services/video editing.webp'; // Assuming
 import graphicDesignImg from '../assets/services/graphic design.webp'; // Assuming this image exists
 import appDesignImg from '../assets/services/app design.webp'; // Assuming this image exists for App Design
 
+// Define the common "Why Choose Edizo?" content for services
+const whyChooseEdizoServiceContent = [
+  "Creative, Custom-First Approach",
+  "On-Time Project Delivery",
+  "Affordable & Transparent Pricing",
+  "Friendly Support & Professional Team",
+];
 
 // Service data - Limited to 4 services as requested
 const services = [
   {
+    id: 'video-editing',
+    title: 'Video Editing',
+    description: 'We turn raw footage into polished, engaging content. Whether it’s for social media, corporate events, or promotions, our editing enhances visual appeal and storytelling.',
+    servicesInclude: [
+      'Promotional Videos & Intros',
+      'Reels, Shorts & YouTube Edits',
+      'Event Highlights & Corporate Videos',
+      'Motion Graphics & Animations',
+    ],
+    icon: Video,
+    image: videoEditingImg,
+    primaryColor: 'bg-indigo-600',
+    secondaryColor: 'text-indigo-600',
+    whyChooseEdizo: whyChooseEdizoServiceContent,
+  },
+  {
+    id: 'graphic-design',
+    title: 'Graphic Design',
+    description: 'Great design builds strong brands. Our creative team brings ideas to life with visuals that are both impactful and purpose-driven across digital and print media.',
+    servicesInclude: [
+      'Logo Design & Brand Identity',
+      'Posters, Brochures & Business Cards',
+      'Certificates, Banners & Flyers',
+      'Social Media Post & Ad Designs',
+    ],
+    icon: ImageIcon,
+    image: graphicDesignImg,
+    primaryColor: 'bg-pink-600',
+    secondaryColor: 'text-pink-600',
+    whyChooseEdizo: whyChooseEdizoServiceContent,
+  },
+  {
     id: 'web-development',
     title: 'Web Development',
-    description: 'Custom web solutions that drive business growth with responsive, performant websites and applications.',
+    description: 'We build responsive and high-performance websites tailored to your business needs — from personal portfolios to full-scale e-commerce platforms.',
+    servicesInclude: [
+      'Business & Portfolio Websites',
+      'E-Commerce & Dynamic Sites',
+      'Frontend & Backend Development',
+      'SEO-Friendly, Mobile-Optimized Design',
+    ],
     icon: Code,
-    image: webDevImg, // Using local image
+    image: webDevImg,
     primaryColor: 'bg-blue-600',
     secondaryColor: 'text-blue-600',
+    whyChooseEdizo: whyChooseEdizoServiceContent,
+  },
+  {
+    id: 'app-development',
+    title: 'App Development',
+    description: 'We create sleek, user-friendly mobile apps that combine function with form. Our development process ensures smooth performance across Android and iOS platforms.',
+    servicesInclude: [
+      'Android & iOS App Development',
+      'UI/UX Design for Apps',
+      'Service & Business-Based Applications',
+      'Development using React Native, Flutter & Native Tools',
+    ],
+    icon: Smartphone,
+    image: appDesignImg,
+    primaryColor: 'bg-green-600',
+    secondaryColor: 'text-green-600',
+    whyChooseEdizo: whyChooseEdizoServiceContent,
   },
   {
     id: 'ui-ux',
     title: 'UI/UX Design',
     description: 'User-centered design solutions that create intuitive, engaging interfaces for digital products.',
+    servicesInclude: [ // Changed from features to servicesInclude for consistency
+      'User Research',
+      'Information Architecture',
+      'Wireframing',
+      'Visual Design',
+      'Usability Testing',
+      'Interaction Design',
+      'Responsive Design',
+      'Design Systems',
+    ],
     icon: PenTool,
-    image: uiuxImg, // Using local image
+    image: uiuxImg,
     primaryColor: 'bg-red-600',
     secondaryColor: 'text-red-600',
-  },
-  {
-    id: 'video-editing',
-    title: 'Video Editing',
-    description: 'Professional video editing services to bring your creative vision to polished final products.',
-    icon: Video,
-    image: videoEditingImg, // Using local image
-    primaryColor: 'bg-indigo-600',
-    secondaryColor: 'text-indigo-600',
-  },
-  {
-    id: 'graphic-design',
-    title: 'Graphic Design',
-    description: 'Creative visual content for branding and marketing tailored to your business identity.',
-    icon: ImageIcon,
-    image: graphicDesignImg, // Using local image
-    primaryColor: 'bg-pink-600',
-    secondaryColor: 'text-pink-600',
-  },
-  {
-    id: 'app-design', // New service
-    title: 'App Design',
-    description: 'Designing intuitive and engaging mobile applications for iOS and Android platforms.',
-    icon: Smartphone, // Using Smartphone icon
-    image: appDesignImg, // Using local image
-    primaryColor: 'bg-green-600', // Example color
-    secondaryColor: 'text-green-600', // Example color
+    whyChooseEdizo: whyChooseEdizoServiceContent,
   },
 ];
 

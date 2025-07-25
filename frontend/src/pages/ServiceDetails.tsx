@@ -23,80 +23,30 @@ import videoEditingImg from '../assets/services/banner/video editing ban.webp';
 import graphicDesignImg from '../assets/services/banner/graphic design ban.webp';
 import appDesignImg from '../assets/services/banner/app design ban.webp'; // Assuming this image exists for App Design
 
+// Define the common "Why Choose Edizo?" content for services
+const whyChooseEdizoServiceContent = [
+  "Creative, Custom-First Approach",
+  "On-Time Project Delivery",
+  "Affordable & Transparent Pricing",
+  "Friendly Support & Professional Team",
+];
 
 // Service Data
 const servicesData = {
-  'web-development': {
-    title: 'Web Development',
-    subtitle: 'Custom web solutions that drive business growth',
-    description:
-      'Our web development team specializes in creating custom, scalable web applications and websites that are optimized for performance, security, and user experience. We combine cutting-edge technologies with industry best practices to deliver solutions that meet your specific business requirements.',
-    image: webDevImg, // Using local image
-    icon: Code,
-    features: [
-      'Responsive design for all devices',
-      'Performance optimization',
-      'SEO-friendly structure',
-      'Secure coding practices',
-      'CMS integration',
-      'E-commerce functionality',
-      'Custom API development',
-      'Web application development',
-    ],
-    technologies: ['React', 'Vue.js', 'Node.js', 'PHP', 'WordPress', 'MongoDB', 'MySQL'],
-    process: [
-      'Requirement Analysis',
-      'UI/UX Design',
-      'Development',
-      'Quality Assurance',
-      'Deployment',
-      'Maintenance'
-    ]
-  },
-  'ui-ux': {
-    title: 'UI/UX Design',
-    subtitle: 'User-centered design solutions for exceptional experiences',
-    description:
-      'Our UI/UX design team creates intuitive, engaging interfaces that enhance user experience and drive conversions. We follow a user-centered design process that focuses on understanding user needs and business objectives to create effective digital products.',
-    image: uiuxImg, // Using local image
-    icon: PenTool,
-    features: [
-      'User Research',
-      'Information Architecture',
-      'Wireframing',
-      'Visual Design',
-      'Usability Testing',
-      'Interaction Design',
-      'Responsive Design',
-      'Design Systems',
-    ],
-    technologies: ['Figma', 'Adobe XD', 'Sketch', 'InVision', 'Zeplin'],
-    process: [
-      'User Research',
-      'Wireframing',
-      'Prototyping',
-      'UI Design',
-      'User Testing',
-      'Implementation'
-    ]
-  },
   'video-editing': {
     title: 'Video Editing',
     subtitle: 'Professional video production and editing services',
     description:
-      'We transform raw footage into compelling visual stories that engage your audience. Our video editing services include color correction, sound design, motion graphics, and special effects to create professional-quality videos.',
-    image: videoEditingImg, // Using local image
+      'We turn raw footage into polished, engaging content. Whether it’s for social media, corporate events, or promotions, our editing enhances visual appeal and storytelling.',
+    image: videoEditingImg,
     icon: TrendingUp, // Changed icon to TrendingUp as Video was already used in Services.tsx for the icon
-    features: [
-      'Color Correction',
-      'Sound Design',
-      'Motion Graphics',
-      'Special Effects',
-      'Transitions',
-      'Text Animation',
-      'Video Compression',
-      'Format Conversion',
+    features: [ // Renamed from 'servicesInclude' to 'features' for consistency with existing structure
+      'Promotional Videos & Intros',
+      'Reels, Shorts & YouTube Edits',
+      'Event Highlights & Corporate Videos',
+      'Motion Graphics & Animations',
     ],
+    whyChooseEdizo: whyChooseEdizoServiceContent, // Added whyChooseEdizo
     technologies: ['Adobe Premiere', 'After Effects', 'Final Cut Pro', 'DaVinci Resolve'],
     process: [
       'Footage Review',
@@ -111,19 +61,16 @@ const servicesData = {
     title: 'Graphic Design',
     subtitle: 'Creative visual content for branding and marketing',
     description:
-      'Our graphic design services help businesses establish a strong visual identity through logos, branding materials, marketing collateral, and digital assets. We create designs that communicate your brand message effectively.',
-    image: graphicDesignImg, // Using local image
+      'Great design builds strong brands. Our creative team brings ideas to life with visuals that are both impactful and purpose-driven across digital and print media.',
+    image: graphicDesignImg,
     icon: PenTool, // Changed icon to PenTool as ImageIcon was already used in Services.tsx for the icon
-    features: [
-      'Logo Design',
-      'Brand Identity',
-      'Print Materials',
-      'Digital Graphics',
-      'Illustration',
-      'Typography',
-      'Photo Editing',
-      'Packaging Design',
+    features: [ // Renamed from 'servicesInclude' to 'features'
+      'Logo Design & Brand Identity',
+      'Posters, Brochures & Business Cards',
+      'Certificates, Banners & Flyers',
+      'Social Media Post & Ad Designs',
     ],
+    whyChooseEdizo: whyChooseEdizoServiceContent, // Added whyChooseEdizo
     technologies: ['Photoshop', 'Illustrator', 'InDesign', 'Canva'],
     process: [
       'Briefing',
@@ -133,23 +80,44 @@ const servicesData = {
       'Finalization'
     ]
   },
-  'app-design': { // New service
-    title: 'App Design',
+  'web-development': {
+    title: 'Web Development',
+    subtitle: 'Custom web solutions that drive business growth',
+    description:
+      'We build responsive and high-performance websites tailored to your business needs — from personal portfolios to full-scale e-commerce platforms.',
+    image: webDevImg,
+    icon: Code,
+    features: [ // Renamed from 'servicesInclude' to 'features'
+      'Business & Portfolio Websites',
+      'E-Commerce & Dynamic Sites',
+      'Frontend & Backend Development',
+      'SEO-Friendly, Mobile-Optimized Design',
+    ],
+    whyChooseEdizo: whyChooseEdizoServiceContent, // Added whyChooseEdizo
+    technologies: ['React', 'Vue.js', 'Node.js', 'PHP', 'WordPress', 'MongoDB', 'MySQL'],
+    process: [
+      'Requirement Analysis',
+      'UI/UX Design',
+      'Development',
+      'Quality Assurance',
+      'Deployment',
+      'Maintenance'
+    ]
+  },
+  'app-development': {
+    title: 'App Development',
     subtitle: 'Crafting intuitive and engaging mobile experiences',
     description:
-      'Our app design services focus on creating user-friendly and visually appealing mobile applications for both iOS and Android. We cover everything from initial concept to final UI, ensuring a seamless and delightful user journey.',
-    image: appDesignImg, // Using local image
-    icon: Smartphone, // Using Smartphone icon
-    features: [
-      'Mobile User Research',
-      'Wireframing & Prototyping',
-      'Intuitive UI Design',
-      'Cross-Platform Compatibility',
-      'Interaction Design',
-      'Usability Testing for Mobile',
-      'App Store Guidelines Adherence',
-      'Icon & Asset Creation',
+      'We create sleek, user-friendly mobile apps that combine function with form. Our development process ensures smooth performance across Android and iOS platforms.',
+    image: appDesignImg,
+    icon: Smartphone,
+    features: [ // Renamed from 'servicesInclude' to 'features'
+      'Android & iOS App Development',
+      'UI/UX Design for Apps',
+      'Service & Business-Based Applications',
+      'Development using React Native, Flutter & Native Tools',
     ],
+    whyChooseEdizo: whyChooseEdizoServiceContent, // Added whyChooseEdizo
     technologies: ['Figma', 'Adobe XD', 'Sketch', 'ProtoPie', 'Principle'],
     process: [
       'Discovery & Strategy',
@@ -158,6 +126,34 @@ const servicesData = {
       'User Testing & Iteration',
       'Handoff to Development',
       'Post-Launch Support'
+    ]
+  },
+  'ui-ux': { // Added UI/UX Design service
+    title: 'UI/UX Design',
+    subtitle: 'User-centered design solutions for exceptional experiences',
+    description:
+      'User-centered design solutions that create intuitive, engaging interfaces for digital products.',
+    image: uiuxImg,
+    icon: PenTool,
+    features: [
+      'User Research',
+      'Information Architecture',
+      'Wireframing',
+      'Visual Design',
+      'Usability Testing',
+      'Interaction Design',
+      'Responsive Design',
+      'Design Systems',
+    ],
+    whyChooseEdizo: whyChooseEdizoServiceContent,
+    technologies: ['Figma', 'Adobe XD', 'Sketch', 'InVision', 'Zeplin'],
+    process: [
+      'User Research',
+      'Wireframing',
+      'Prototyping',
+      'UI Design',
+      'User Testing',
+      'Implementation'
     ]
   },
 };
@@ -251,7 +247,7 @@ const ServiceDetails: React.FC = () => {
                 </div>
 
                 <div className="mb-12">
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-6 border-b pb-2">Key Features</h3>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-6 border-b pb-2">Services Include</h3> {/* Changed from Key Features */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {service.features.map((feature, index) => (
                       <div key={index} className="flex items-start bg-gray-50 p-4 rounded-lg">
@@ -260,6 +256,19 @@ const ServiceDetails: React.FC = () => {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* Why Choose Edizo? Section - NEW */}
+                <div className="mb-12">
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-6 border-b pb-2">💡 Why Choose Edizo?</h3>
+                  <ul className="space-y-3">
+                    {service.whyChooseEdizo.map((item, index) => (
+                      <li key={index} className="flex items-start text-gray-700">
+                        <Check className="text-green-500 mr-2 mt-1 flex-shrink-0" size={18} />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
                 <div className="mb-12">
