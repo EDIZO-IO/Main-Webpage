@@ -85,7 +85,7 @@ async function sendMail(to, subject, html) {
     to,
     subject,
     html,
-    text: html.replace(/<[^>]*>/g, ''), // basic fallback
+    text: convert(html), // Use html-to-text for better text conversion
   };
   
 
@@ -129,19 +129,22 @@ app.post('/api/send-email', limiter, async (req, res) => {
     </div>`;
 
     const adminHtml = `
- <div style="font-family: Arial, sans-serif; color: #333;">
+  <div style="font-family: Arial, sans-serif; color: #333;">
       <h2>📥 New Internship Application Received</h2>
       <p><strong>Internship Position:</strong> ${data.internshipTitle}</p>
       <ul>
         <li><strong>Name:</strong> ${data.name}</li>
         <li><strong>Email:</strong> ${data.email}</li>
         <li><strong>Phone:</strong> ${data.phone || 'N/A'}</li>
-        <li><strong>Education:</strong> ${data.education}</li>
-        <li><strong>Experience:</strong> ${data.experience}</li>
-        <li><strong>Message:</strong> ${data.message}</li>
+        <li><strong>University/College Name:</strong> ${data.university || 'N/A'}</li>
+        <li><strong>Current Year of Study:</strong> ${data.yearOfStudy || 'N/A'}</li>
+        <li><strong>Degree and Branch:</strong> ${data.education || 'N/A'}</li>
+        <li><strong>Academic Projects / Relevant Experience:</strong> ${data.academicExperience || 'N/A'}</li>
+        <li><strong>Cover Letter:</strong> ${data.message || 'N/A'}</li>
       </ul>
       <p><strong>E.D.I.Z.O. Application System</strong></p>
     </div>`;
+    
     await sendMail(applicantEmail, `Application Confirmation - ${data.internshipTitle}`, applicantHtml);
     await sendMail(adminEmail, `New Internship Application - ${data.internshipTitle}`, adminHtml);
 

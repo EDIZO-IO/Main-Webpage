@@ -213,14 +213,18 @@ const internships = [
 
 const Internships = () => {
   const [selectedCategory, setSelectedCategory] = useState('All'); // State for category filter
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
 
   // Get unique categories from the internships data
   const categories = ['All', ...new Set(internships.map(internship => internship.category))];
 
-  // Filter internships based on selected category
-  const filteredInternships = selectedCategory === 'All'
-    ? internships
-    : internships.filter(internship => internship.category === selectedCategory);
+  // Filter internships based on selected category and search term
+  const filteredInternships = internships.filter(internship => {
+    const matchesCategory = selectedCategory === 'All' || internship.category === selectedCategory;
+    const matchesSearch = internship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          internship.id.toLowerCase().includes(searchTerm.toLowerCase()); // Search by ID or title
+    return matchesCategory && matchesSearch;
+  });
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -281,8 +285,10 @@ const Internships = () => {
                 <div className="relative flex items-center w-full md:w-auto max-w-md">
                   <input
                     type="text"
-                    placeholder="Search Certificate ID..."
+                    placeholder="Search Certificate ID or Title..."
                     className="p-2 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 w-full shadow-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <Search className="absolute left-3 text-gray-400" size={20} />
                 </div>

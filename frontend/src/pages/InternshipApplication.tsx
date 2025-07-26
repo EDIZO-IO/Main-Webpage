@@ -235,7 +235,7 @@ const internshipsData: { [key: string]: Internship } = {
         image: placeholderImage('ChatGPT'),
         rating: 4.8,
         company: 'Conversational AI Co.',
-        description: 'Learn how to integrate and build applications using OpenAIs ChatGPT and LLM APIs. Understand prompt engineering, natural language processing, and AI-assisted tools to automate and enhance workflows.',
+        description: 'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
         priceINR: 4500,
@@ -270,6 +270,7 @@ const internshipsData: { [key: string]: Internship } = {
     },
 };
 
+
 // --- Main InternshipApplication Component ---
 const InternshipApplication = () => {
     const { id } = useParams();
@@ -286,8 +287,10 @@ const InternshipApplication = () => {
         name: '',
         email: '',
         phone: '',
-        education: '',
-        experience: '',
+        university: '', // New field for university/college name
+        yearOfStudy: '', // New field for current year of study
+        education: '', // Degree and Branch
+        academicExperience: '', // Changed from 'experience'
         message: '',
     });
 
@@ -341,8 +344,10 @@ const InternshipApplication = () => {
                     name: formData.name,
                     email: formData.email,
                     phone: formData.phone,
+                    university: formData.university, // New field
+                    yearOfStudy: formData.yearOfStudy, // New field
                     education: formData.education,
-                    experience: formData.experience,
+                    academicExperience: formData.academicExperience, // Updated field
                     message: formData.message,
                     internshipTitle: internship?.title || 'Internship',
                 }),
@@ -362,8 +367,10 @@ const InternshipApplication = () => {
                 name: '',
                 email: '',
                 phone: '',
+                university: '',
+                yearOfStudy: '',
                 education: '',
-                experience: '',
+                academicExperience: '',
                 message: '',
             });
         } catch (error) {
@@ -440,6 +447,42 @@ const InternshipApplication = () => {
                                             />
                                         </div>
                                         <div>
+                                            <label htmlFor="university" className="block text-sm font-medium text-gray-700 mb-1">
+                                                University/College Name *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="university"
+                                                name="university"
+                                                value={formData.university}
+                                                onChange={handleInputChange}
+                                                required
+                                                className={inputFieldClasses}
+                                                placeholder="e.g., University of XYZ"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="yearOfStudy" className="block text-sm font-medium text-gray-700 mb-1">
+                                                Current Year of Study *
+                                            </label>
+                                            <select
+                                                id="yearOfStudy"
+                                                name="yearOfStudy"
+                                                value={formData.yearOfStudy}
+                                                onChange={handleInputChange}
+                                                required
+                                                className={inputFieldClasses}
+                                            >
+                                                <option value="">Select Year</option>
+                                                <option value="1st Year">1st Year</option>
+                                                <option value="2nd Year">2nd Year</option>
+                                                <option value="3rd Year">3rd Year</option>
+                                                <option value="4th Year">4th Year</option>
+                                                <option value="Postgraduate">Postgraduate</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
                                             <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
                                                 Degree and Branch *
                                             </label>
@@ -455,17 +498,17 @@ const InternshipApplication = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-1">
-                                                Relevant Experience
+                                            <label htmlFor="academicExperience" className="block text-sm font-medium text-gray-700 mb-1">
+                                                Academic Projects / Relevant Experience
                                             </label>
                                             <textarea
-                                                id="experience"
-                                                name="experience"
-                                                value={formData.experience}
+                                                id="academicExperience"
+                                                name="academicExperience"
+                                                value={formData.academicExperience}
                                                 onChange={handleInputChange}
                                                 rows={3}
                                                 className={`${inputFieldClasses} resize-none`}
-                                                placeholder="Briefly describe your relevant experience..."
+                                                placeholder="Describe relevant academic projects, coursework, or any prior experience..."
                                             />
                                         </div>
                                         <div>
@@ -479,7 +522,7 @@ const InternshipApplication = () => {
                                                 onChange={handleInputChange}
                                                 rows={4}
                                                 className={`${inputFieldClasses} resize-none`}
-                                                placeholder="Why are you interested in this internship?"
+                                                placeholder="Why are you interested in this internship and Edizo?"
                                             />
                                         </div>
                                         <Button
