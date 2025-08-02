@@ -6,13 +6,14 @@ import cors from 'cors';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import rateLimit from 'express-rate-limiter'; // Corrected import for rate-limiter
 import { convert } from 'html-to-text';
+import mongoose from 'mongoose'; // Import Mongoose
 
-dotenv.config();
+dotenv.config(); // Load environment variables from .env file
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = 3001; // Updated from process.env.PORT
 
 // ✅ Allowed origins list
 const allowedOrigins = [
@@ -73,15 +74,15 @@ app.get('/', (req, res) => {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: 'edizocorp@gmail.com', // Updated from process.env.EMAIL_USER
+    pass: 'tmqk suos feop ahjv', // Updated from process.env.EMAIL_PASS
   },
 });
 
 // ✅ Reusable sendMail function
 async function sendMail(to, subject, html) {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: 'edizocorp@gmail.com', // Updated from process.env.EMAIL_USER
     to,
     subject,
     html,
@@ -102,7 +103,7 @@ async function sendMail(to, subject, html) {
 app.post('/api/send-email', limiter, async (req, res) => {
   const data = req.body;
   const applicantEmail = data.email;
-  const adminEmail = process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER;
+  const adminEmail = 'edizocorp@gmail.com'; // Updated from process.env.INTERNSHIP_RECIPIENT_EMAIL
 
   try {
     if (!applicantEmail || !/\S+@\S+\.\S+/.test(applicantEmail)) throw new Error('Invalid applicant email');
@@ -159,7 +160,7 @@ app.post('/api/send-email', limiter, async (req, res) => {
 app.post('/api/send-contact-email', limiter, async (req, res) => {
   const data = req.body;
   const userEmail = data.email;
-  const adminEmail = process.env.CONTACT_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER;
+  const adminEmail = 'edizocorp@gmail.com'; // Updated from process.env.CONTACT_FORM_RECIPIENT_EMAIL
 
   try {
     if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) throw new Error('Invalid contact email');
@@ -170,7 +171,7 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
       <p>
         We’ve received your message at <strong>E.D.I.Z.O.</strong>. Our team will respond shortly.
       </p>
-      <p>If urgent, contact: <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a></p>
+      <p>If urgent, contact: <a href="mailto:edizocorp@gmail.com">edizocorp@gmail.com</a></p>
       <p><strong>E.D.I.Z.O. Support Team</strong></p>
     </div>`
 
@@ -195,6 +196,136 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+// --- MongoDB Connection and Certificate API Routes ---
+
+// MongoDB Connection URI
+const MONGODB_URI = 'mongodb+srv://eoxcgarun:eoxcgarun1432@cluster0.w2ikqp1.mongodb.net/'; // Updated from process.env.MONGODB_URI
+
+// Connect to MongoDB
+mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected successfully'))
+.catch(err => console.error('MongoDB connection error:', err));
+
+// Define Certificate Schema
+const certificateSchema = new mongoose.Schema({
+    certificateId: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+    },
+    companyName: { // New field: Company Name
+        type: String,
+        required: true,
+        trim: true,
+    },
+    internName: { // Corresponds to Student Name
+        type: String,
+        required: true,
+        trim: true,
+    },
+    batchRollNo: { // New field: Batch Roll Number
+        type: String,
+        required: false, // Made optional, adjust as per your requirement
+        trim: true,
+    },
+    year: { // New field: Year (e.g., year of completion or batch year)
+        type: Number,
+        required: true,
+    },
+    programName: { // Corresponds to Internship Name
+        type: String,
+        required: true,
+        trim: true,
+    },
+    startDate: {
+        type: Date,
+        required: true,
+    },
+    endDate: {
+        type: Date,
+        required: true,
+    },
+    issueDate: {
+        type: Date,
+        default: Date.now, // Automatically set issue date if not provided
+    },
+    status: {
+        type: String,
+        enum: ['Completed', 'In Progress', 'Cancelled'], // Enforce specific values
+        default: 'Completed',
+    },
+});
+
+// Create Certificate Model from the schema
+const Certificate = mongoose.model('Certificate', certificateSchema);
+
+// API Routes for Certificates
+
+// 1. Route to ADD a new certificate (for initial data population/admin use)
+app.post('/api/certificates', async (req, res) => {
+    try {
+        const newCertificate = new Certificate(req.body);
+        await newCertificate.save();
+        res.status(201).json({ message: 'Certificate added successfully', certificate: newCertificate });
+    } catch (error) {
+        console.error('Error adding certificate:', error);
+        if (error.code === 11000) { // Duplicate key error
+            return res.status(400).json({ message: 'Certificate ID already exists.' });
+        }
+        res.status(500).json({ message: 'Failed to add certificate', error: error.message });
+    }
+});
+
+// 2. Route to GET a certificate by its ID (for verification page)
+app.get('/api/certificates/:certificateId', async (req, res) => {
+    try {
+        const { certificateId } = req.params;
+        const certificate = await Certificate.findOne({ certificateId: certificateId });
+
+        if (!certificate) {
+            return res.status(404).json({ isValid: false, message: 'Certificate not found.' });
+        }
+
+        res.status(200).json({ isValid: true, data: certificate });
+    } catch (error) {
+        console.error('Error fetching certificate:', error);
+        res.status(500).json({ message: 'Server error during verification', error: error.message });
+    }
+});
+
+// 3. Route to UPDATE a certificate by its ID
+app.put('/api/certificates/:certificateId', async (req, res) => {
+    try {
+        const { certificateId } = req.params;
+        const updates = req.body;
+
+        const updatedCertificate = await Certificate.findOneAndUpdate(
+            { certificateId: certificateId },
+            { $set: updates },
+            { new: true, runValidators: true } // Return updated doc and run schema validators
+        );
+
+        if (!updatedCertificate) {
+            return res.status(404).json({ message: 'Certificate not found.' });
+        }
+
+        res.status(200).json({ message: 'Certificate updated successfully', certificate: updatedCertificate });
+    } catch (error) {
+        console.error('Error updating certificate:', error);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Validation error', errors: error.errors });
+        }
+        res.status(500).json({ message: 'Failed to update certificate', error: error.message });
+    }
+});
+
+// --- End MongoDB Connection and Certificate API Routes ---
+
 
 // ✅ Global error handler
 app.use((err, req, res, next) => {

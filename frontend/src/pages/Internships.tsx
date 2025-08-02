@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // Import useState
+import React, { useState } from 'react';
 // Mock Link and motion for self-contained example
 const Link = ({ to, children }) => <a href={to}>{children}</a>;
 const motion = {
@@ -6,7 +6,9 @@ const motion = {
   div: ({ children, whileInView, viewport, ...props }) => <div {...props}>{children}</div>,
 };
 
-import { Clock, Wifi, Home, ArrowRight, Star, Search } from 'lucide-react'; // Added Star for ratings and Search for the input
+import { Clock, Wifi, Home, ArrowRight, Star, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
 
 // Mock PageHeader and AnimatedSection for self-contained example
 const PageHeader = ({ title, subtitle, backgroundImage }) => (
@@ -212,17 +214,16 @@ const internships = [
 ];
 
 const Internships = () => {
-  const [selectedCategory, setSelectedCategory] = useState('All'); // State for category filter
-  const [searchTerm, setSearchTerm] = useState(''); // State for search term
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
-  // Get unique categories from the internships data
   const categories = ['All', ...new Set(internships.map(internship => internship.category))];
 
-  // Filter internships based on selected category and search term
   const filteredInternships = internships.filter(internship => {
     const matchesCategory = selectedCategory === 'All' || internship.category === selectedCategory;
     const matchesSearch = internship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          internship.id.toLowerCase().includes(searchTerm.toLowerCase()); // Search by ID or title
+                          internship.id.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -280,9 +281,10 @@ const Internships = () => {
         <div className="container-custom mx-auto px-4">
           <AnimatedSection>
             <div className="text-center mb-16">
-              <div className="flex flex-col md:flex-row justify-center items-center gap-10 mb-8"> {/* Flex container for heading and search */}
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Available Internships</h2>
-                <div className="relative flex items-center w-full md:w-auto max-w-md">
+              {/* Flex container for heading, search, and verify button */}
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-800 text-left md:text-center flex-grow">Available Internships</h2>
+                <div className="relative flex items-center w-full md:w-auto max-w-md md:order-2"> {/* Search bar */}
                   <input
                     type="text"
                     placeholder="Search Certificate ID or Title..."
@@ -292,8 +294,15 @@ const Internships = () => {
                   />
                   <Search className="absolute left-3 text-gray-400" size={20} />
                 </div>
+                {/* Verify Certificate button - moved and improved UI */}
+                <button
+                  onClick={() => navigate('/verify-certificate')}
+                  className="w-full md:w-auto mt-4 md:mt-0 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+                >
+                  Verify Certificate
+                </button>
               </div>
-              {/* Category Filter Buttons - NEW */}
+              {/* Category Filter Buttons */}
               <div className="flex flex-wrap justify-center gap-3 mb-8">
                 {categories.map(category => (
                   <button
@@ -315,7 +324,7 @@ const Internships = () => {
             </div>
           </AnimatedSection>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredInternships.map((internship, index) => ( // Use filteredInternships here
+            {filteredInternships.map((internship, index) => (
               <motion.div
                 key={internship.id}
                 custom={index}
@@ -340,9 +349,7 @@ const Internships = () => {
                   </div>
                   <div className="p-4">
                     <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2">{internship.title}</h3>
-                    {/* Removed the company name line */}
 
-                    {/* Rating Section */}
                     <div className="flex items-center mb-3">
                       <div className="flex text-yellow-500 mr-2">
                         {[...Array(Math.floor(internship.rating))].map((_, i) => (
@@ -360,8 +367,6 @@ const Internships = () => {
                       </div>
                       <span className="text-gray-700 text-sm font-semibold">{internship.rating}</span>
                     </div>
-
-                    {/* Key Topics Section - REMOVED */}
 
                     <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
                       <div className="flex items-center">
