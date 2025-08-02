@@ -45,6 +45,7 @@ const services = [
     image: videoEditingImg,
     primaryColor: 'bg-indigo-600',
     secondaryColor: 'text-indigo-600',
+    gradient: 'bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100', // Updated gradient for card background
     whyChooseEdizo: whyChooseEdizoServiceContent,
   },
   {
@@ -61,6 +62,7 @@ const services = [
     image: graphicDesignImg,
     primaryColor: 'bg-pink-600',
     secondaryColor: 'text-pink-600',
+    gradient: 'bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100', // Updated gradient for card background
     whyChooseEdizo: whyChooseEdizoServiceContent,
   },
   {
@@ -77,6 +79,7 @@ const services = [
     image: webDevImg,
     primaryColor: 'bg-blue-600',
     secondaryColor: 'text-blue-600',
+    gradient: 'bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100', // Updated gradient for card background
     whyChooseEdizo: whyChooseEdizoServiceContent,
   },
   {
@@ -93,6 +96,7 @@ const services = [
     image: appDesignImg,
     primaryColor: 'bg-green-600',
     secondaryColor: 'text-green-600',
+    gradient: 'bg-gradient-to-br from-green-50 via-lime-50 to-green-100', // Updated gradient for card background
     whyChooseEdizo: whyChooseEdizoServiceContent,
   },
   {
@@ -113,6 +117,7 @@ const services = [
     image: uiuxImg,
     primaryColor: 'bg-red-600',
     secondaryColor: 'text-red-600',
+    gradient: 'bg-gradient-to-br from-red-50 via-orange-50 to-red-100', // Updated gradient for card background
     whyChooseEdizo: whyChooseEdizoServiceContent,
   },
 ];
@@ -143,7 +148,8 @@ const Services: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection>
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What We Offer</h2>
+              {/* Applied gradient to the "What We Offer" heading */}
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-gray-700 via-gray-900 to-red-600 bg-clip-text text-transparent">What We Offer</h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                 High-quality services designed to elevate your digital presence and drive business growth.
               </p>
@@ -163,7 +169,8 @@ const Services: React.FC = () => {
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: '-50px' }}
-                  className="group bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200"
+                  // Applied gradient background to the card
+                  className={`group rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 ${service.gradient}`}
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
@@ -174,7 +181,8 @@ const Services: React.FC = () => {
                         e.currentTarget.src = `https://placehold.co/600x400/CCCCCC/333333?text=${service.title.replace(/\s/g, '+')}`;
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-70" />
+                    {/* Darker gradient overlay for better text visibility on image */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70" />
                     <div className="absolute bottom-4 left-4 right-4">
                       <div className={`${service.primaryColor} w-12 h-12 rounded-lg flex items-center justify-center mb-2`}>
                         <Icon className="text-white" size={24} />
@@ -186,7 +194,7 @@ const Services: React.FC = () => {
                     <p className="text-gray-600 mb-4">{service.description}</p>
                     <Link
                       to={`/services/${service.id}`}
-                      className={`inline-flex items-center ${service.secondaryColor} font-medium hover:underline`}
+                      className={`inline-flex items-center font-medium hover:underline bg-gradient-to-r from-gray-700 to-red-600 bg-clip-text text-transparent`}
                     >
                       Learn more <ArrowRight className="ml-2 w-4 h-4" />
                     </Link>

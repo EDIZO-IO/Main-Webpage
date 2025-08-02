@@ -3,17 +3,25 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-primary: #DC2626; /* A strong, professional red */
+    --color-secondary-bg: #E5E7EB; /* Light gray for secondary backgrounds/buttons (silver-like) */
+    --color-dark-text: #1F2937; /* Dark gray for headings and strong text */
+    --color-light-text: #4B5563; /* Medium gray for general body text */
+    --color-border: #D1D5DB; /* Light gray for borders */
+  }
+
   html {
     font-family: 'Inter', system-ui, sans-serif;
     scroll-behavior: smooth;
   }
   
   body {
-    @apply bg-white text-edizo-gray-900;
+    @apply bg-white text-[var(--color-light-text)];
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold text-edizo-black;
+    @apply font-semibold text-[var(--color-dark-text)];
   }
 
   h1 {
@@ -29,7 +37,7 @@
   }
 
   p {
-    @apply text-base leading-relaxed text-edizo-gray-800;
+    @apply text-base leading-relaxed text-[var(--color-light-text)];
   }
 }
 
@@ -39,15 +47,15 @@
   }
 
   .btn-primary {
-    @apply btn bg-edizo-red text-white hover:bg-opacity-90;
+    @apply btn bg-[var(--color-primary)] text-white hover:bg-opacity-90;
   }
 
   .btn-secondary {
-    @apply btn bg-edizo-silver text-edizo-black hover:bg-opacity-90;
+    @apply btn bg-[var(--color-secondary-bg)] text-[var(--color-dark-text)] hover:bg-opacity-90;
   }
 
   .btn-outline {
-    @apply btn border-2 border-edizo-red text-edizo-red hover:bg-edizo-red hover:text-white;
+    @apply btn border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white;
   }
 
   .container-custom {
@@ -63,10 +71,10 @@
   }
 
   .input-field {
-    @apply w-full p-3 border border-edizo-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-edizo-red;
+    @apply w-full p-3 border border-[var(--color-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)];
   }
 
   .text-gradient {
-    @apply bg-gradient-to-r from-edizo-red to-edizo-black bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-dark-text)] bg-clip-text text-transparent;
   }
 }

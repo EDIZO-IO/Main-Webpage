@@ -151,12 +151,12 @@ const Button: React.FC<ButtonProps> = ({
 /**
  * ContactInfo reusable component for displaying contact details with icons.
  */
-const ContactInfo = ({ icon, title, lines }) => (
+const ContactInfo = ({ icon, title, lines, gradientClass }) => ( // Added gradientClass prop
   <motion.div
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.5, delay: 0.2 }}
-    className="flex items-start space-x-4 p-4 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-300"
+    className={`flex items-start space-x-4 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${gradientClass}`} // Applied gradientClass
   >
     <div className="bg-red-500 rounded-full p-3 flex items-center justify-center text-white flex-shrink-0">
       {icon}
@@ -295,6 +295,7 @@ const Contact = () => {
                     icon={<MapPin className="text-white" size={20} />}
                     title="Our Virtual Office"
                     lines={['Global Remote Operations']}
+                    gradientClass="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-100" // Subtle blue
                   />
                   <ContactInfo
                     icon={<Mail className="text-white" size={20} />}
@@ -305,6 +306,7 @@ const Contact = () => {
                       <a href="mailto:edizocorp@gmail.com" className="text-gray-700 hover:text-red-500 mt-2 block transition-colors duration-200">edizocorp@gmail.com</a>,
                       <span className="text-sm text-gray-600">For technical support and service requests</span>,
                     ]}
+                    gradientClass="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-100" // Subtle gray
                   />
                   <ContactInfo
                     icon={<Phone className="text-white" size={20} />}
@@ -313,6 +315,7 @@ const Contact = () => {
                       <a href="tel:+917092435729" className="text-gray-700 hover:text-red-500 transition-colors duration-200">+91 70924 35729</a>,
                       <span className="text-sm text-gray-600">Mon-Fri: 9:00 AM - 6:00 PM (IST)</span>
                     ]}
+                    gradientClass="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-100" // Subtle slate
                   />
                 </div>
 

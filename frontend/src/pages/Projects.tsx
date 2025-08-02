@@ -9,7 +9,7 @@ import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
 
-// Define the project data
+// Define the project data with added gradient properties
 export const projects = [
   {
     id: 'ai-ransomware-detection',
@@ -30,7 +30,8 @@ export const projects = [
     image: ransomware,
     icon: <Shield className="text-blue-500" size={24} />,
     challenges: 'Developing a system that could detect ransomware with minimal false positives while maintaining system performance was our biggest challenge. We solved this by implementing a two-stage detection process.',
-    results: 'Reduced ransomware infection risk by 95% for our client base, with less than 0.5% false positive rate in production environments.'
+    results: 'Reduced ransomware infection risk by 95% for our client base, with less than 0.5% false positive rate in production environments.',
+    gradient: 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50' // Blue to Purple gradient
   },
   {
     id: 'faceguard-gan',
@@ -51,7 +52,8 @@ export const projects = [
     image: faceguard,
     icon: <Eye className="text-green-500" size={24} />,
     challenges: 'Keeping pace with rapidly evolving deepfake generation techniques required us to develop an adaptive learning system that updates its detection models weekly.',
-    results: 'Achieved 99.2% accuracy in detecting state-of-the-art deepfakes during independent testing by Singapore\'s Cybersecurity Agency.'
+    results: 'Achieved 99.2% accuracy in detecting state-of-the-art deepfakes during independent testing by Singapore\'s Cybersecurity Agency.',
+    gradient: 'bg-gradient-to-br from-green-50 via-teal-50 to-cyan-50' // Green to Cyan gradient
   },
   {
     id: 'epic-nexus-platform',
@@ -66,13 +68,13 @@ export const projects = [
       'Personalized game recommendations',
       'Hardware benchmarking tools',
       'Community forums and groups',
-      'Content creator portals',
       'Integrated streaming support'
     ],
     image: Epicnexus,
     icon: <Gamepad className="text-purple-500" size={24} />,
     challenges: 'Handling real-time updates across a large user base while maintaining performance required innovative caching strategies and database optimizations.',
-    results: 'Grew to 250,000 monthly active users within 6 months of launch, with 78% user retention rate.'
+    results: 'Grew to 250,000 monthly active users within 6 months of launch, with 78% user retention rate.',
+    gradient: 'bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50' // Warm Red to Yellow gradient
   }
 ];
 
@@ -175,7 +177,8 @@ const Projects: React.FC = () => {
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: '-50px' }}
-                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200"
+                  // Applied gradient background to the card
+                  className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 ${project.gradient}`}
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
@@ -183,7 +186,8 @@ const Projects: React.FC = () => {
                       alt={project.title}
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-60" />
+                    {/* Darker gradient overlay for better text visibility on image */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70" />
                     <div className="absolute bottom-4 left-4">
                       <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full">
                         {project.category}

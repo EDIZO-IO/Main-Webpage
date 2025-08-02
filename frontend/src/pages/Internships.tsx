@@ -1,12 +1,7 @@
-import React, { useState } from 'react'; // Import useState
-// Mock Link and motion for self-contained example
-const Link = ({ to, children }) => <a href={to}>{children}</a>;
-const motion = {
-  // Modified mock to filter out framer-motion specific props
-  div: ({ children, whileInView, viewport, ...props }) => <div {...props}>{children}</div>,
-};
-
-import { Clock, Wifi, Home, ArrowRight, Star, Search } from 'lucide-react'; // Added Star for ratings and Search for the input
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Clock, Wifi, Home, ArrowRight, Star, Search } from 'lucide-react';
 
 // Mock PageHeader and AnimatedSection for self-contained example
 const PageHeader = ({ title, subtitle, backgroundImage }) => (
@@ -25,15 +20,13 @@ const PageHeader = ({ title, subtitle, backgroundImage }) => (
 const AnimatedSection = ({ children }) => <div className="animate-fade-in-up">{children}</div>;
 
 // Local image imports - These would typically be handled by a bundler
-// For this self-contained example, we'll use placeholder images or mock them if not directly available.
-// In a real project, ensure these paths are correct.
 import webDesign from '../assets/images/web-design.png';
 import responsiveDesign from '../assets/images/responsive-design.png';
 import backEnd from '../assets/images/back-end.png';
 import hrManager from '../assets/images/hr-manager.png';
 import dataAnalytics from '../assets/images/data-Analystics.png';
 import java from '../assets/images/java.png';
-import python from '../assets/images/AI with CHATGPT.png'; // Assuming this is also used for general Python
+import python from '../assets/images/AI with CHATGPT.png';
 import contentStrategy from '../assets/images/content-strategy.png';
 import aiAssistant from '../assets/images/ai-assistant.png';
 import aiChatgpt from '../assets/images/AI with CHATGPT.png';
@@ -63,7 +56,7 @@ const commonBenefits = [
   "Get Exposure to Professional Tools & Platforms",
 ];
 
-// Original Internship opportunity data - 'keyTopics', 'responsibilities', and 'requirements' removed
+// Internship opportunity data - removed gradient property from cards
 const internships = [
   {
     id: 'ui-ux-design',
@@ -212,17 +205,17 @@ const internships = [
 ];
 
 const Internships = () => {
-  const [selectedCategory, setSelectedCategory] = useState('All'); // State for category filter
-  const [searchTerm, setSearchTerm] = useState(''); // State for search term
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Get unique categories from the internships data
-  const categories = ['All', ...new Set(internships.map(internship => internship.category))];
+  const categories = ['All', ...new Set(internships.map(i => i.category))];
 
-  // Filter internships based on selected category and search term
-  const filteredInternships = internships.filter(internship => {
-    const matchesCategory = selectedCategory === 'All' || internship.category === selectedCategory;
-    const matchesSearch = internship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          internship.id.toLowerCase().includes(searchTerm.toLowerCase()); // Search by ID or title
+  const filteredInternships = internships.filter(i => {
+    const matchesCategory = selectedCategory === 'All' || i.category === selectedCategory;
+    const search = searchTerm.toLowerCase();
+    const matchesSearch =
+      i.title.toLowerCase().includes(search) ||
+      i.id.toLowerCase().includes(search);
     return matchesCategory && matchesSearch;
   });
 
@@ -280,7 +273,7 @@ const Internships = () => {
         <div className="container-custom mx-auto px-4">
           <AnimatedSection>
             <div className="text-center mb-16">
-              <div className="flex flex-col md:flex-row justify-center items-center gap-10 mb-8"> {/* Flex container for heading and search */}
+              <div className="flex flex-col md:flex-row justify-center items-center gap-10 mb-8">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Available Internships</h2>
                 <div className="relative flex items-center w-full md:w-auto max-w-md">
                   <input
@@ -290,7 +283,7 @@ const Internships = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
-                  <Search className="absolute left-3 text-gray-400" size={20} />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 </div>
               </div>
               {/* Category Filter Buttons - NEW */}
@@ -315,7 +308,7 @@ const Internships = () => {
             </div>
           </AnimatedSection>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredInternships.map((internship, index) => ( // Use filteredInternships here
+            {filteredInternships.map((internship, index) => (
               <motion.div
                 key={internship.id}
                 custom={index}
@@ -323,26 +316,32 @@ const Internships = () => {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-50px' }}
-                className="bg-white rounded-lg shadow-md overflow-hidden transform hover:scale-105 transition-all duration-300 cursor-pointer"
+                className={`
+                  group rounded-xl shadow-lg border border-gray-200
+                  overflow-hidden transition-all duration-300
+                  bg-white hover:scale-[1.035] hover:shadow-2xl hover:border-red-200 cursor-pointer
+                `}
+                whileHover={{ rotateX: 2, rotateY: 2, scale: 1.035 }}
+                style={{ perspective: 1000 }}
               >
                 <Link to={`/internships/${internship.id}`}>
-                  <div className="relative h-48 overflow-hidden rounded-t-lg">
+                  <div className="relative h-48 overflow-hidden rounded-t-xl">
                     <img
                       src={internship.image}
                       alt={internship.title}
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-black/25 rounded-t-xl" />
                     <div className="absolute top-3 right-3">
-                      <span className="bg-red-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                      <span className="bg-red-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
                         {internship.category}
                       </span>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2">{internship.title}</h3>
-                    {/* Removed the company name line */}
-
-                    {/* Rating Section */}
+                  <div className="p-5">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2 bg-gradient-to-r from-red-600 via-gray-700 to-gray-900 bg-clip-text text-transparent"> {/* Applied gradient */}
+                      {internship.title}
+                    </h3>
                     <div className="flex items-center mb-3">
                       <div className="flex text-yellow-500 mr-2">
                         {[...Array(Math.floor(internship.rating))].map((_, i) => (
@@ -361,25 +360,23 @@ const Internships = () => {
                       <span className="text-gray-700 text-sm font-semibold">{internship.rating}</span>
                     </div>
 
-                    {/* Key Topics Section - REMOVED */}
-
                     <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
                       <div className="flex items-center">
                         {internship.mode === 'Online' ? (
                           <>
                             <Wifi className="mr-1 text-red-500" size={16} />
-                            <span>Online</span>
+                            <span className="text-gray-700">Online</span> {/* Gray text */}
                           </>
                         ) : (
                           <>
                             <Home className="mr-1 text-red-500" size={16} />
-                            <span>Offline</span>
+                            <span className="text-gray-700">Offline</span> {/* Gray text */}
                           </>
                         )}
                       </div>
                       <div className="flex items-center">
                         <Clock className="mr-1 text-red-500" size={16} />
-                        <span>{internship.duration}</span>
+                        <span className="text-gray-700">{internship.duration}</span> {/* Gray text */}
                       </div>
                     </div>
 

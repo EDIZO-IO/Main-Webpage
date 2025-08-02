@@ -17,11 +17,11 @@ const Header: React.FC = () => {
   }, []);
 
   const links = [
-    { name: 'Home', path: '/' },
-    { name: 'Services', path: '/services' },
-    { name: 'Projects', path: '/projects' },
-    { name: 'Internships', path: '/internships' },
-    { name: 'Contact', path: '/contact' },
+    { name: 'HOME', path: '/' },
+    { name: 'SERVICES', path: '/services' },
+    { name: 'PROJECTS', path: '/projects' },
+    { name: 'INTERNSHIPS', path: '/internships' },
+    { name: 'CONTACTS', path: '/contact' },
   ];
 
   return (
@@ -51,7 +51,7 @@ const Header: React.FC = () => {
                     ? 'text-edizo-red after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-edizo-red'
                     : isScrolled
                     ? 'text-gray-900 hover:text-edizo-red'
-                    : 'text-white hover:text-edizo-red'
+                    : 'bg-gradient-to-r from-gray-400 to-gray-600 bg-clip-text text-transparent hover:text-edizo-red' // Applied text gradient here
                 }`
               }
             >
@@ -92,7 +92,8 @@ const Header: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3 }}
-              className="fixed top-0 right-0 h-full w-3/4 sm:w-1/2 bg-white z-30 shadow-lg flex flex-col justify-between"
+              // Applied a subtle gradient background to the mobile drawer
+              className="fixed top-0 right-0 h-full w-3/4 sm:w-1/2 bg-gradient-to-br from-white to-gray-50 z-30 shadow-lg flex flex-col justify-between"
             >
               <div className="p-6">
                 <nav className="flex flex-col gap-6 text-lg">
@@ -102,7 +103,9 @@ const Header: React.FC = () => {
                       to={link.path}
                       className={({ isActive }) =>
                         `font-semibold ${
-                          isActive ? 'text-edizo-red' : 'text-gray-900 hover:text-edizo-red'
+                          isActive
+                            ? 'text-edizo-red'
+                            : 'bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent hover:text-edizo-red' // Applied text gradient here for mobile
                         }`
                       }
                       onClick={() => setIsMenuOpen(false)}
