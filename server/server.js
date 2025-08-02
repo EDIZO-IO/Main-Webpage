@@ -6,7 +6,7 @@ import cors from 'cors';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limiter'; // Corrected import for rate-limiter
+import rateLimit from 'express-rate-limit'; // Corrected import: changed 'express-rate-limiter' to 'express-rate-limit'
 import { convert } from 'html-to-text';
 import mongoose from 'mongoose'; // Import Mongoose
 
