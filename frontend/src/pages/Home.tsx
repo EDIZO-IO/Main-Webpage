@@ -12,7 +12,8 @@ import {
   Briefcase,
   Smartphone,
   Users, // Import Users icon for Clients count
-  Briefcase as ProjectsIcon // Using Briefcase icon for projects
+  Briefcase as ProjectsIcon, // Using Briefcase icon for projects
+  UserCheck, // Import UserCheck for team members
 } from 'lucide-react';
 
 // Custom Components
@@ -232,22 +233,29 @@ const Home: React.FC = () => {
                     </p>
                   </div>
                 </AnimatedSection>
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                   <AnimatedSection delay={0.2}>
                     <motion.div variants={cardVariants} whileHover="whileHover" className="rounded-xl shadow-lg p-8 text-center bg-white border border-gray-200">
                       <Users className="text-edizo-red mx-auto mb-4" size={48} />
-                      <h3 className="font-bold text-3xl mb-2 text-gray-900">10+ Clients</h3>
+                      <h3 className="font-bold text-3xl mb-2 text-gray-900">30+ Clients</h3>
                       <p className="text-gray-600">We have successfully helped over 10 clients achieve their digital goals and grow their businesses.</p>
                     </motion.div>
                   </AnimatedSection>
                   <AnimatedSection delay={0.3}>
                     <motion.div variants={cardVariants} whileHover="whileHover" className="rounded-xl shadow-lg p-8 text-center bg-white border border-gray-200">
                       <ProjectsIcon className="text-edizo-red mx-auto mb-4" size={48} />
-                      <h3 className="font-bold text-3xl mb-2 text-gray-900">50+ Projects</h3>
+                      <h3 className="font-bold text-3xl mb-2 text-gray-900">70+ Projects</h3>
                       <p className="text-gray-600">Our team has delivered over 50 unique projects, each with a focus on innovation and quality.</p>
                     </motion.div>
                   </AnimatedSection>
                   <AnimatedSection delay={0.4}>
+                    <motion.div variants={cardVariants} whileHover="whileHover" className="rounded-xl shadow-lg p-8 text-center bg-white border border-gray-200">
+                      <UserCheck className="text-edizo-red mx-auto mb-4" size={48} />
+                      <h3 className="font-bold text-3xl mb-2 text-gray-900">10+ Team Members</h3>
+                      <p className="text-gray-600">A diverse and skilled team of over 10 professionals, dedicated to bringing your vision to life.</p>
+                    </motion.div>
+                  </AnimatedSection>
+                  <AnimatedSection delay={0.5}>
                     <motion.div variants={cardVariants} whileHover="whileHover" className="rounded-xl shadow-lg p-8 text-center bg-white border border-gray-200">
                       <Star className="text-edizo-red mx-auto mb-4" size={48} />
                       <h3 className="font-bold text-xl mb-2">Our Values</h3>
