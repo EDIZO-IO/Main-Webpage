@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -29,7 +29,7 @@ const whyChooseEdizoServiceContent = [
   "Friendly Support & Professional Team",
 ];
 
-// Service data - Limited to 4 services as requested
+// Service data
 const services = [
   {
     id: 'video-editing',
@@ -122,6 +122,65 @@ const services = [
   },
 ];
 
+// Updated component for the animated subtitle text with typing and deleting effect
+const AnimatedTypingSubtitle: React.FC<{ phrases: string[] }> = ({ phrases }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [typingSpeed, setTypingSpeed] = useState(150);
+
+  useEffect(() => {
+    const handleTyping = () => {
+      const currentPhrase = phrases[phraseIndex];
+      // Set a faster typing speed when deleting
+      const currentSpeed = isDeleting ? 75 : 150;
+
+      if (isDeleting) {
+        // Deleting character by character
+        if (displayedText.length > 0) {
+          setDisplayedText(currentPhrase.substring(0, displayedText.length - 1));
+          setTypingSpeed(currentSpeed);
+        } else {
+          // Finished deleting, switch to next phrase
+          setIsDeleting(false);
+          setPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
+          setTypingSpeed(150); // Reset typing speed
+        }
+      } else {
+        // Typing character by character
+        if (displayedText.length < currentPhrase.length) {
+          setDisplayedText(currentPhrase.substring(0, displayedText.length + 1));
+          setTypingSpeed(currentSpeed);
+        } else {
+          // Finished typing, pause and then start deleting
+          setTypingSpeed(20); // Pause before deleting
+          setTimeout(() => setIsDeleting(true), 20); // 2 second pause
+        }
+      }
+    };
+
+    const timer = setTimeout(handleTyping, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [displayedText, isDeleting, phraseIndex, phrases, typingSpeed]);
+
+  return (
+    <span className="relative text-white font-medium">
+      {displayedText}
+      <span className="absolute right-0 bottom-0 -mr-2 w-1 h-full bg-white animate-pulse-cursor" />
+      <style jsx>{`
+        .animate-pulse-cursor {
+          animation: pulse-cursor 1s infinite;
+        }
+        @keyframes pulse-cursor {
+          0% { opacity: 1; }
+          50% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+      `}</style>
+    </span>
+  );
+};
+
 const Services: React.FC = () => {
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -137,10 +196,9 @@ const Services: React.FC = () => {
 
   return (
     <>
-
       <PageHeader
         title={<span className="text-red-500">Our Services</span>}
-        subtitle={<span className="text-white">Comprehensive digital solutions tailored to your business needs</span>}
+        subtitle={<AnimatedTypingSubtitle phrases={["Comprehensive digital solutions tailored to your business needs", "Creative and custom-first approach", "Friendly support and professional team"]} />}
         backgroundImage={headerBackground}
       />
 

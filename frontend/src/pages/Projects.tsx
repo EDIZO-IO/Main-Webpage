@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, MapPin, Shield, Eye, Gamepad, Search } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
@@ -78,6 +78,66 @@ export const projects = [
   }
 ];
 
+// New component for the animated subtitle text with typing and deleting effect
+const AnimatedTypingSubtitle: React.FC<{ phrases: string[] }> = ({ phrases }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [typingSpeed, setTypingSpeed] = useState(150);
+
+  useEffect(() => {
+    const handleTyping = () => {
+      const currentPhrase = phrases[phraseIndex];
+      // Set a faster typing speed when deleting
+      const currentSpeed = isDeleting ? 75 : 150;
+
+      if (isDeleting) {
+        // Deleting character by character
+        if (displayedText.length > 0) {
+          setDisplayedText(currentPhrase.substring(0, displayedText.length - 1));
+          setTypingSpeed(currentSpeed);
+        } else {
+          // Finished deleting, switch to next phrase
+          setIsDeleting(false);
+          setPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
+          setTypingSpeed(150); // Reset typing speed
+        }
+      } else {
+        // Typing character by character
+        if (displayedText.length < currentPhrase.length) {
+          setDisplayedText(currentPhrase.substring(0, displayedText.length + 1));
+          setTypingSpeed(currentSpeed);
+        } else {
+          // Finished typing, pause and then start deleting
+          setTypingSpeed(20); // Pause before deleting
+          setTimeout(() => setIsDeleting(true), 20); // 2 second pause
+        }
+      }
+    };
+
+    const timer = setTimeout(handleTyping, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [displayedText, isDeleting, phraseIndex, phrases, typingSpeed]);
+
+  return (
+    <span className="relative text-white font-medium">
+      {displayedText}
+      <span className="absolute right-0 bottom-0 -mr-2 w-1 h-full bg-white animate-pulse-cursor" />
+      <style jsx>{`
+        .animate-pulse-cursor {
+          animation: pulse-cursor 1s infinite;
+        }
+        @keyframes pulse-cursor {
+          0% { opacity: 1; }
+          50% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+      `}</style>
+    </span>
+  );
+};
+
+
 const Projects: React.FC = () => {
   // State for search term and selected category
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -95,6 +155,13 @@ const Projects: React.FC = () => {
         ease: 'easeInOut',
       },
     }),
+  };
+  
+  // Define animation variants for project cards when they enter/exit the filter
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+    exit: { y: -20, opacity: 0 },
   };
 
   // Get unique categories from the projects data
@@ -116,10 +183,11 @@ const Projects: React.FC = () => {
 
   return (
     <>
+    
       {/* Page Header Component */}
       <PageHeader
         title={<span className="text-red-500">Our Projects</span>}
-        subtitle={<span className="text-white">Innovative solutions delivering real business impact</span>}
+        subtitle={<AnimatedTypingSubtitle phrases={["Innovative solutions delivering real business impact", "Building the future, one project at a time", "Showcasing our best work and client success"]} />}
         backgroundImage={headerBackground}
       />
 
@@ -166,74 +234,82 @@ const Projects: React.FC = () => {
             </div>
           </div>
 
-          {/* Display Filtered Projects */}
+          {/* Display Filtered Projects with AnimatePresence */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.length > 0 ? (
-              filteredProjects.map((project, index) => (
+            <AnimatePresence>
+              {filteredProjects.length > 0 ? (
+                filteredProjects.map((project) => (
+                  <motion.div
+                    key={project.id}
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    // Applied gradient background to the card
+                    className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 ${project.gradient}`}
+                  >
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                      {/* Darker gradient overlay for better text visibility on image */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70" />
+                      <div className="absolute bottom-4 left-4">
+                        <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full">
+                          {project.category}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center mb-3">
+                        <div className="mr-3">
+                          {project.icon}
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900">{project.title}</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">{project.shortDescription}</p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {project.tech.slice(0, 3).map((tech, i) => (
+                          <span key={i} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                            {tech}
+                          </span>
+                        ))}
+                        {project.tech.length > 3 && (
+                          <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                            +{project.tech.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-sm text-gray-500">
+                          <MapPin className="mr-1" size={14} />
+                          <span>{project.location.split('/')[0].trim()}</span>
+                        </div>
+                        <Link
+                          to={`/projects/${project.id}`}
+                          className="text-red-600 hover:text-blue-800 font-medium flex items-center"
+                        >
+                          Details <ArrowRight className="ml-1" size={16} />
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
                 <motion.div
-                  key={project.id}
-                  custom={index}
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: '-50px' }}
-                  // Applied gradient background to the card
-                  className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 ${project.gradient}`}
+                  key="no-projects"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                  className="col-span-full text-center py-10"
                 >
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                    />
-                    {/* Darker gradient overlay for better text visibility on image */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70" />
-                    <div className="absolute bottom-4 left-4">
-                      <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full">
-                        {project.category}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center mb-3">
-                      <div className="mr-3">
-                        {project.icon}
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900">{project.title}</h3>
-                    </div>
-                    <p className="text-gray-600 mb-4">{project.shortDescription}</p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {project.tech.slice(0, 3).map((tech, i) => (
-                        <span key={i} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                          {tech}
-                        </span>
-                      ))}
-                      {project.tech.length > 3 && (
-                        <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                          +{project.tech.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <MapPin className="mr-1" size={14} />
-                        <span>{project.location.split('/')[0].trim()}</span>
-                      </div>
-                      <Link
-                        to={`/projects/${project.id}`}
-                        className="text-red-600 hover:text-blue-800 font-medium flex items-center"
-                      >
-                        Details <ArrowRight className="ml-1" size={16} />
-                      </Link>
-                    </div>
-                  </div>
+                  <p className="text-gray-600 text-lg">No projects found matching your criteria.</p>
                 </motion.div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-10">
-                <p className="text-gray-600 text-lg">No projects found matching your criteria.</p>
-              </div>
-            )}
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </section>
