@@ -69,8 +69,8 @@ app.get('/', (req, res) => {
   res.send('✅ EDIZO Backend is running.');
 });
 
-// ✅ Nodemailer transport configuration
-const transporter = nodemailer.createTransporter({
+// ✅ Nodemailer transport configuration (FIXED)
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
