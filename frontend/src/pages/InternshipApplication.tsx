@@ -5,6 +5,8 @@ import {
     XCircle,
     Loader2,
     Send,
+    Clock,
+    IndianRupee,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -60,6 +62,35 @@ const AnimatedSection = ({ children, delay = 0 }) => {
 // Input Field styling (common class for form inputs)
 const inputFieldClasses = "w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200";
 
+// --- Course Period Pricing Configuration ---
+const coursePeriods = [
+    {
+        value: "15days",
+        label: "15 Days",
+        price: 1599,
+        description: "Quick introduction and basics"
+    },
+    {
+        value: "1month",
+        label: "1 Month", 
+        price: 2999,
+        description: "Comprehensive learning with projects",
+        popular: true
+    },
+    {
+        value: "2months",
+        label: "2 Months",
+        price: 4599,
+        description: "In-depth training with real-world projects"
+    },
+    {
+        value: "3months",
+        label: "3 Months",
+        price: 7999,
+        description: "Complete mastery with industry exposure"
+    }
+];
+
 // --- Internship Data Interface ---
 interface Internship {
     title: string;
@@ -98,7 +129,7 @@ const commonBenefits = [
   "Get Exposure to Professional Tools & Platforms",
 ];
 
-// Internship opportunity data - 'keyTopics', 'responsibilities', and 'requirements' removed
+// Internship opportunity data
 const internshipsData: { [key: string]: Internship } = {
     'ui-ux-design': {
         id: 'ui-ux-design',
@@ -270,7 +301,6 @@ const internshipsData: { [key: string]: Internship } = {
     },
 };
 
-
 // --- Main InternshipApplication Component ---
 const InternshipApplication = () => {
     const { id } = useParams();
@@ -290,6 +320,7 @@ const InternshipApplication = () => {
         university: '', // New field for university/college name
         yearOfStudy: '', // New field for current year of study
         education: '', // Degree and Branch
+        coursePeriod: '', // New field for course period
         academicExperience: '', // Changed from 'experience'
         message: '',
     });
@@ -300,11 +331,12 @@ const InternshipApplication = () => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Get selected period details
+    const getSelectedPeriodDetails = () => {
+        return coursePeriods.find(period => period.value === formData.coursePeriod);
+    };
+
     // Define the API base URL for your Render backend.
-    // This URL should point to your deployed backend service that handles email sending.
-    // It's hardcoded here for simplicity, but in a production environment,
-    // it would typically be loaded from an environment variable.
-    // Use a fallback for VITE_API_URL in case it's not defined (e.g., during local development without a .env file)
     const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'; // Default to local backend
 
     // Log the API base URL being used for debugging
@@ -317,6 +349,8 @@ const InternshipApplication = () => {
         setSubmissionStatus('processing');
         setSubmissionMessage('Sending your application and confirmation email...');
 
+        const selectedPeriod = getSelectedPeriodDetails();
+
         try {
             // ✅ Step 1: Send confirmation email to applicant
             const applicantRes = await fetch(`${API_BASE_URL}/api/send-email`, {
@@ -326,6 +360,8 @@ const InternshipApplication = () => {
                     name: formData.name,
                     email: formData.email,
                     internshipTitle: internship?.title || 'Internship',
+                    coursePeriod: selectedPeriod?.label,
+                    price: selectedPeriod?.price,
                 }),
             });
 
@@ -347,6 +383,8 @@ const InternshipApplication = () => {
                     university: formData.university, // New field
                     yearOfStudy: formData.yearOfStudy, // New field
                     education: formData.education,
+                    coursePeriod: selectedPeriod?.label,
+                    price: selectedPeriod?.price,
                     academicExperience: formData.academicExperience, // Updated field
                     message: formData.message,
                     internshipTitle: internship?.title || 'Internship',
@@ -370,6 +408,7 @@ const InternshipApplication = () => {
                 university: '',
                 yearOfStudy: '',
                 education: '',
+                coursePeriod: '',
                 academicExperience: '',
                 message: '',
             });
@@ -387,6 +426,8 @@ const InternshipApplication = () => {
             setSubmissionMessage(errorMessage);
         }
     };
+
+    const selectedPeriod = getSelectedPeriodDetails();
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col items-center py-16 px-4 font-sans">
@@ -443,7 +484,7 @@ const InternshipApplication = () => {
                                                 value={formData.phone}
                                                 onChange={handleInputChange}
                                                 className={inputFieldClasses}
-                                                placeholder="+1 (123) 456-7890"
+                                                placeholder="+91 12345 67890"
                                             />
                                         </div>
                                         <div>
@@ -497,6 +538,65 @@ const InternshipApplication = () => {
                                                 placeholder="e.g., B.Tech in Computer Science"
                                             />
                                         </div>
+
+                                        {/* Course Period Selection */}
+                                        <div>
+                                            <label htmlFor="coursePeriod" className="block text-sm font-medium text-gray-700 mb-3">
+                                                <Clock className="inline-block w-4 h-4 mr-1" />
+                                                Select Course Period *
+                                            </label>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                {coursePeriods.map((period) => (
+                                                    <div key={period.value} className="relative">
+                                                        <input
+                                                            type="radio"
+                                                            id={period.value}
+                                                            name="coursePeriod"
+                                                            value={period.value}
+                                                            onChange={handleInputChange}
+                                                            required
+                                                            className="sr-only"
+                                                        />
+                                                        <label
+                                                            htmlFor={period.value}
+                                                            className={`relative flex flex-col p-4 cursor-pointer rounded-lg border-2 transition-all duration-200 ${
+                                                                formData.coursePeriod === period.value
+                                                                    ? 'border-red-500 bg-red-50 ring-2 ring-red-200'
+                                                                    : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                                                            } ${period.popular ? 'ring-2 ring-blue-200 border-blue-400' : ''}`}
+                                                        >
+                                                            {period.popular && (
+                                                                <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                                                                    Popular
+                                                                </div>
+                                                            )}
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <span className="font-semibold text-gray-900">{period.label}</span>
+                                                                <div className="flex items-center text-green-600 font-bold">
+                                                                    <IndianRupee className="w-4 h-4" />
+                                                                    <span>{period.price.toLocaleString()}</span>
+                                                                </div>
+                                                            </div>
+                                                            <p className="text-sm text-gray-600">{period.description}</p>
+                                                        </label>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {selectedPeriod && (
+                                                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-medium text-green-800">
+                                                            Selected: {selectedPeriod.label}
+                                                        </span>
+                                                        <div className="flex items-center text-green-700 font-bold">
+                                                            <IndianRupee className="w-4 h-4 mr-1" />
+                                                            <span>{selectedPeriod.price.toLocaleString()}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
                                         <div>
                                             <label htmlFor="academicExperience" className="block text-sm font-medium text-gray-700 mb-1">
                                                 Academic Projects / Relevant Experience
@@ -538,6 +638,11 @@ const InternshipApplication = () => {
                                                 <Send className="mr-2" size={18} />
                                             )}
                                             Submit Application
+                                            {selectedPeriod && (
+                                                <span className="ml-2 text-sm">
+                                                    (₹{selectedPeriod.price.toLocaleString()})
+                                                </span>
+                                            )}
                                         </Button>
                                     </form>
                                     {submissionStatus === 'processing' && (

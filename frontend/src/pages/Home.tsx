@@ -156,69 +156,99 @@ const Home: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Hero Section with Video Background */}
-            <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-              {/* Background video */}
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover z-0"
-              >
-                <source src="/assets/videos/hero.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+{/* Hero Section with Video Background */}
+<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+  {/* Background video */}
+  <video
+    autoPlay
+    loop
+    muted
+    playsInline
+    className="absolute inset-0 w-full h-full object-cover z-0"
+  >
+    <source src="/assets/videos/hero.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
 
-              {/* Enhanced gradient overlay for a more dynamic look */}
-              <div className="absolute inset-0 bg-gradient-to-br from-red-600/30 via-transparent to-black/70 z-0" />
+  {/* Professional gradient overlay */}
+  <div className="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/70 z-0" />
+  
+  {/* Additional overlay for text contrast */}
+  <div className="absolute inset-0 bg-black/25 z-0" />
 
-              {/* Hero Content */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 1 }}
-                className="container-custom relative z-10 text-white text-center"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center justify-center">
-                  <div className="w-full">
-                    <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-4 bg-gradient-to-r from-white via-[#E5E7EB] to-[#DC2626] bg-clip-text text-transparent">
-                      Welcome to <span className="text-red-600">EDIZO</span>
-                    </h1>
-                    {/* The new animated typing text component */}
-                    <h2 className="text-xl md:text-2xl font-semibold mb-6 max-w-lg mx-auto h-12">
-                      <AnimatedTypingText phrases={['Creative Services', 'Real-World Learning', 'All in One Place']} />
-                    </h2>
-                    {/* Animated paragraph section */}
-                    <AnimatedSection delay={1.4}>
-                      <p className="text-lg md:text-xl text-white mb-8 max-w-xl mx-auto">
-                        Get premium <span className="text-red-600 font-bold">video editing</span>,
-                        <span className="text-red-600 font-bold"> graphic design</span>, and
-                        <span className="text-red-600 font-bold"> web development services</span>.<br />
-                        Launch your career with our exclusive<span className="text-red-600 font-bold"> internship programs.</span>
-                      </p>
-                    </AnimatedSection>
-                    <div className="flex flex-wrap justify-center gap-4">
-                      <Button variant="primary" size="lg" to="/services">
-                        Explore Services
-                      </Button>
-                      <Button variant="outline" size="lg" to="/contact">
-                        Get in Touch
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+  {/* Hero Content */}
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.4, duration: 1 }}
+    className="container-custom relative z-10 text-white text-center"
+  >
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center justify-center">
+      <div className="w-full">
+        {/* Professional main heading */}
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-4 drop-shadow-2xl">
+          <span className="text-slate-100 font-bold">Welcome to</span>{" "}
+          <span className="bg-gradient-to-r from-red-800 via-red-600 to-red-500 bg-clip-text text-transparent">
+            EDIZO
+          </span>
+        </h1>
 
-                {/* Scroll down icon */}
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                  className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white hidden md:block"
-                >
-                  <ChevronDown className="w-10 h-10" />
-                </motion.div>
-              </motion.div>
-            </section>
+        {/* Professional subheading */}
+        <h2 className="text-xl md:text-2xl font-semibold mb-6 max-w-lg mx-auto h-12">
+          <div className="text-slate-200 drop-shadow-lg font-medium">
+            <AnimatedTypingText phrases={['Creative Services', 'Real-World Learning', 'All in One Place']} />
+          </div>
+        </h2>
+
+        {/* Professional paragraph with corporate colors */}
+        <AnimatedSection delay={1.4}>
+          <p className="text-lg md:text-2xl mb-8 max-w-xl mx-auto leading-relaxed drop-shadow-lg">
+            <span className="text-slate-100 font-semibold">Get premium</span>{" "}
+            <span className="text-red-600 font-semibold">video editing</span>,{" "}
+            <span className="text-red-600 font-semibold">graphic design</span>,{" "}
+            <span className="text-slate-100 font-semibold">and</span>{" "}
+            <span className="text-red-600 font-semibold">web development services</span>.<br />
+            <span className="text-slate-200 font-medium">Launch your career with our exclusive</span>{" "}
+            <span className="text-red-600 font-semibold">internship programs</span>.
+          </p>
+        </AnimatedSection>
+
+        {/* Professional button styling */}
+        <div className="flex flex-wrap justify-center gap-4">
+          <Button 
+            variant="primary" 
+            size="lg" 
+            to="/services"
+            className="bg-red-600 hover:bg-red-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 border-0"
+          >
+            Explore Services
+          </Button>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            to="/contact"
+            className="border-2 border-slate-300 text-slate-100 hover:bg-slate-100 hover:text-slate-900 shadow-lg transition-all duration-300"
+          >
+            Get in Touch
+          </Button>
+        </div>
+      </div>
+    </div>
+
+    {/* Professional scroll indicator */}
+    <motion.div
+      animate={{ y: [0, 12, 0] }}
+      transition={{ repeat: Infinity, duration: 2 }}
+      className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white hidden md:block"
+    >
+      <div className="bg-slate-100/20 rounded-full p-3 backdrop-blur-sm border border-slate-400/30">
+        <ChevronDown className="w-6 h-6 text-slate-200" />
+      </div>
+    </motion.div>
+  </motion.div>
+</section>
+
+
 
             {/* About Us Section with updated content */}
             <section id="about" className="py-20 md:py-32">
@@ -236,28 +266,28 @@ const Home: React.FC = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                   <AnimatedSection delay={0.2}>
                     <motion.div variants={cardVariants} whileHover="whileHover" className="rounded-xl shadow-lg p-8 text-center bg-white border border-gray-200">
-                      <Users className="text-edizo-red mx-auto mb-4" size={48} />
+                      <Users className="text-edizo-red mx-auto mb-4" size={32} />
                       <h3 className="font-bold text-3xl mb-2 text-gray-900">30+ Clients</h3>
-                      <p className="text-gray-600">We have successfully helped over 10 clients achieve their digital goals and grow their businesses.</p>
+                      <p className="text-gray-600">We have successfully helped over 30 clients achieve their digital goals and grow their businesses.</p>
                     </motion.div>
                   </AnimatedSection>
                   <AnimatedSection delay={0.3}>
                     <motion.div variants={cardVariants} whileHover="whileHover" className="rounded-xl shadow-lg p-8 text-center bg-white border border-gray-200">
-                      <ProjectsIcon className="text-edizo-red mx-auto mb-4" size={48} />
+                      <ProjectsIcon className="text-edizo-red mx-auto mb-4" size={32} />
                       <h3 className="font-bold text-3xl mb-2 text-gray-900">70+ Projects</h3>
-                      <p className="text-gray-600">Our team has delivered over 50 unique projects, each with a focus on innovation and quality.</p>
+                      <p className="text-gray-600">Our team has delivered over 70 unique projects, each with a focus on innovation and quality.</p>
                     </motion.div>
                   </AnimatedSection>
                   <AnimatedSection delay={0.4}>
                     <motion.div variants={cardVariants} whileHover="whileHover" className="rounded-xl shadow-lg p-8 text-center bg-white border border-gray-200">
-                      <UserCheck className="text-edizo-red mx-auto mb-4" size={48} />
-                      <h3 className="font-bold text-3xl mb-2 text-gray-900">10+ Team Members</h3>
+                      <UserCheck className="text-edizo-red mx-auto mb-4" size={34} />
+                      <h3 className="font-bold text-2xl mb-2 text-gray-900">10+ Team Members</h3>
                       <p className="text-gray-600">A diverse and skilled team of over 10 professionals, dedicated to bringing your vision to life.</p>
                     </motion.div>
                   </AnimatedSection>
                   <AnimatedSection delay={0.5}>
                     <motion.div variants={cardVariants} whileHover="whileHover" className="rounded-xl shadow-lg p-8 text-center bg-white border border-gray-200">
-                      <Star className="text-edizo-red mx-auto mb-4" size={48} />
+                      <Star className="text-edizo-red mx-auto mb-4" size={29} />
                       <h3 className="font-bold text-xl mb-2">Our Values</h3>
                       <p className="text-gray-600">Creativity, integrity, collaboration, and a relentless pursuit of excellence in everything we do.</p>
                     </motion.div>

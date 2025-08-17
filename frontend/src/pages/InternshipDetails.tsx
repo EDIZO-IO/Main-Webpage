@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Calendar,
   Users,
@@ -294,7 +294,9 @@ const InternshipDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-16 px-4 font-sans">
+    // Updated the top padding from py-16 to pt-32 to push the content down
+    // and prevent it from overlapping with a fixed header.
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center pt-32 px-4 font-sans">
       <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-12">
         <span className="text-red-600">{internship.title}</span> Details
       </h1>

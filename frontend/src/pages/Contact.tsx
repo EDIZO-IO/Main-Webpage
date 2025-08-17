@@ -301,9 +301,9 @@ const Contact = () => {
                     icon={<Mail className="text-white" size={20} />}
                     title="Email Support"
                     lines={[
-                      <a href="mailto:e.d.i.z.o.pvt.ltd@gmail.com" className="text-gray-700 hover:text-red-500 transition-colors duration-200">e.d.i.z.o.pvt.ltd@gmail.com</a>,
+                      <a href="mailto:e.d.i.z.o.pvt.ltd@gmail.com" className="text-gray-700 hover:text-red-500 transition-colors duration-200">edizoofficial@gmail.com</a>,
                       <span className="text-sm text-gray-600">For general inquiries and partnerships</span>,
-                      <a href="mailto:edizocorp@gmail.com" className="text-gray-700 hover:text-red-500 mt-2 block transition-colors duration-200">edizocorp@gmail.com</a>,
+                      <a href="mailto:edizocorp@gmail.com" className="text-gray-700 hover:text-red-500 mt-2 block transition-colors duration-200">edizoteam@gmail.com</a>,
                       <span className="text-sm text-gray-600">For technical support and service requests</span>,
                     ]}
                     gradientClass="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-100" // Subtle gray
@@ -312,8 +312,8 @@ const Contact = () => {
                     icon={<Phone className="text-white" size={20} />}
                     title="Call Us"
                     lines={[
-                      <a href="tel:+917092435729" className="text-gray-700 hover:text-red-500 transition-colors duration-200">+91 70924 35729</a>,
-                      <span className="text-sm text-gray-600">Mon-Fri: 9:00 AM - 6:00 PM (IST)</span>
+                      <a href="tel:+917092435729" className="text-gray-700 hover:text-red-500 transition-colors duration-200">+91 9876543210</a>,
+                      <span className="text-sm text-gray-600">Mon-Sat: 9:00 AM - 6:00 PM (IST)</span>
                     ]}
                     gradientClass="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-100" // Subtle slate
                   />
@@ -426,7 +426,7 @@ const Contact = () => {
                         value={formData.phone}
                         onChange={handleInputChange}
                         className={inputFieldClasses}
-                        placeholder="Optional: +1 (123) 456-7890"
+                        placeholder="your mobile number"
                       />
                     </motion.div>
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.25 }}>
