@@ -20,6 +20,7 @@ import InternshipApplication from './pages/InternshipApplication';
 // NEW: Import the CertificateVerification page
 import CertificateVerification from './pages/CertificateVerification';
 import UpcomingEvents from './pages/UpcomingEvents';
+import ReviewPage from './pages/ReviewPage';
 
 
 
@@ -46,6 +47,7 @@ const App: React.FC = () => {
           {/* NEW: Add route for Certificate Verification */}
           <Route path="verify-certificate" element={<CertificateVerification />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/reviews" element={<ReviewPage />} />
         </Route>
       </Routes>
     </AnimatePresence>

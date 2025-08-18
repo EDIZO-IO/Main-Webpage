@@ -1,26 +1,24 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/Home.jsx
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-  ChevronDown,
+  Users,
+  Briefcase as ProjectsIcon,
+  UserCheck,
   Star,
   ArrowRight,
   PenTool,
+  Code,
+  Smartphone,
   Video,
   ImageIcon,
-  Code,
-  Briefcase,
-  Smartphone,
-  Users, // Import Users icon for Clients count
-  Briefcase as ProjectsIcon, // Using Briefcase icon for projects
-  UserCheck, // Import UserCheck for team members
-  Calendar // NEW: Import Calendar icon for Upcoming Events
+  Calendar,
+  MessageCircle,
+  Target,
+  Zap,
+  Shield,
 } from 'lucide-react';
-
-// Custom Components
-import Button from '../components/common/Button';
-
-
 
 // Project Images
 import faceguard from '../assets/project/face-Guard.png';
@@ -28,651 +26,375 @@ import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
 
 // Internship Images
-import webDesign from '../assets/images/web-design.png';
-import responsiveDesign from '../assets/images/responsive-design.png';
-import backEnd from '../assets/images/back-end.png';
-import hrManager from '../assets/images/hr-manager.png';
-import dataAnalytics from '../assets/images/data-Analystics.png';
-import java from '../assets/images/java.png';
-import python from '../assets/images/AI with CHATGPT.png';
-import contentStrategy from '../assets/images/content-strategy.png';
-import aiAssistant from '../assets/images/ai-assistant.png';
-import aiChatgpt from '../assets/images/AI with CHATGPT.png';
 import webDevelopment from '../assets/images/web-development.png';
-import Csharp from '../assets/images/c-sharp.png';
+import responsiveDesign from '../assets/images/responsive-design.png';
+import contentStrategy from '../assets/images/content-strategy.png';
 
-// Placeholder for AnimatedSection component
+// Animated Section Component
 const AnimatedSection = ({ children, delay = 0.1 }) => {
-  const variants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay } },
-  };
-
   return (
     <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.5 }}
-      variants={variants}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6, delay }}
     >
       {children}
     </motion.div>
   );
 };
 
-
-// Custom component for animated typing text
-const AnimatedTypingText: React.FC<{ phrases: string[] }> = ({ phrases }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [typingSpeed, setTypingSpeed] = useState(150);
-
-  useEffect(() => {
-    const handleTyping = () => {
-      const currentPhrase = phrases[phraseIndex];
-      const currentLength = displayedText.length;
-      const fullLength = currentPhrase.length;
-
-      // Handle typing
-      if (!isDeleting) {
-        if (currentLength < fullLength) {
-          setDisplayedText(currentPhrase.substring(0, currentLength + 1));
-          setTypingSpeed(100 + Math.random() * 50);
-        } else {
-          // Pause at the end of the phrase, then start deleting
-          setTimeout(() => setIsDeleting(true), 1500);
-        }
-      }
-      // Handle deleting
-      else {
-        if (currentLength > 0) {
-          setDisplayedText(currentPhrase.substring(0, currentLength - 1));
-          setTypingSpeed(50);
-        } else {
-          // Done deleting, move to the next phrase
-          setIsDeleting(false);
-          setPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
-          setTypingSpeed(150);
-        }
-      }
-    };
-
-    const typingTimer = setTimeout(handleTyping, typingSpeed);
-    return () => clearTimeout(typingTimer);
-  }, [displayedText, isDeleting, phraseIndex, typingSpeed, phrases]);
-
-  return <span className="text-yellow-400 font-extrabold">{displayedText}</span>;
-};
-
-// Data for the animated stats section
-const stats = [
-  { value: 10, label: 'Clients', icon: Users },
-  { value: 20, label: 'Projects', icon: ProjectsIcon },
-  { value: 25, label: 'Team Members', icon: UserCheck },
+// Testimonials Preview
+const testimonials = [
+  {
+    name: "Sarah Kim",
+    role: "Marketing Director, TechNova",
+    rating: 5,
+    content: "Edizo transformed our brand presence. Delivered beyond expectations — on time and under budget.",
+  },
+  {
+    name: "James Patel",
+    role: "Founder, Nexora",
+    rating: 5,
+    content: "Game-changer! Their user-centric approach made our app a success.",
+  },
+  {
+    name: "Lena Wu",
+    role: "CEO, VisionLabs",
+    rating: 4.9,
+    content: "Professional, fast, and results-driven. Highly recommend!",
+  },
 ];
 
-// Data for Services
+// Services
 const services = [
-  { icon: PenTool, title: 'UI/UX Design', description: 'Crafting intuitive and engaging user interfaces.' },
-  { icon: Video, title: 'Video Editing', description: 'Professional editing to bring your story to life.' },
-  { icon: ImageIcon, title: 'Graphic Design', description: 'Visually stunning designs for a strong brand identity.' },
-  { icon: Code, title: 'Web Development', description: 'Building fast, responsive, and robust websites.' },
-  { icon: Smartphone, title: 'App Development', description: 'Creating seamless and innovative mobile experiences.' },
+  { icon: PenTool, title: "UI/UX Design", desc: "Human-centered design that users love and clients rate 5 stars." },
+  { icon: Code, title: "Web Development", desc: "Fast, scalable websites built with React, Next.js, and modern stacks." },
+  { icon: Smartphone, title: "App Development", desc: "Cross-platform mobile apps with React Native & Flutter." },
+  { icon: Video, title: "Video Production", desc: "Engaging visuals for social media, ads, and brand storytelling." },
+  { icon: ImageIcon, title: "Graphic Design", desc: "Brand-aligned visuals that elevate your identity." },
+  { icon: Target, title: "Digital Marketing", desc: "Data-driven campaigns that deliver real ROI." },
+];
+
+// Projects
+const projects = [
+  { img: faceguard, title: "FaceGuard UI/UX", category: "Design" },
+  { img: ransomware, title: "Ransomware Awareness", category: "Web" },
+  { img: Epicnexus, title: "Epic Nexus App", category: "App" },
+];
+
+// Internships
+const internships = [
+  { img: webDevelopment, title: "Web Development Intern", link: "/internships/web-dev" },
+  { img: responsiveDesign, title: "UI/UX Design Intern", link: "/internships/ui-ux" },
+  { img: contentStrategy, title: "Graphic Design Intern", link: "/internships/graphic-design" },
 ];
 
 const Home = () => {
-  const [loading, setLoading] = useState(false); // Set to false to remove the loader
-
-  const variants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
-
   return (
     <div className="bg-white">
-      <AnimatePresence>
-        {loading ? (
-          <motion.div
-            key="loader"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 flex items-center justify-center bg-white z-50"
-          >
-            <div className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-          </motion.div>
-        ) : (
-          <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-{/* Hero Section with Live Website Preview */}
-<section className="bg-gray-900 text-white py-20 md:py-32 relative overflow-hidden">
-  <div className="absolute inset-0 z-0 overflow-hidden">
-    <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-      <source src="/assets/videos/hero.mp4" type="video/mp4" />
-    </video>
-    <div className="absolute inset-0 bg-black opacity-50"></div>
-  </div>
-  
-  <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between">
-    <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
-      <motion.h1
-        className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight bg-gradient-to-r from-red-400 to-yellow-400 bg-clip-text text-transparent"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        Transforming Ideas Into <br />
-        <AnimatedTypingText phrases={['Digital Reality.', 'Visual Masterpieces.', 'Business Growth.']} />
-      </motion.h1>
-      <motion.p
-        className="text-lg md:text-xl font-light mb-6 text-white"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      >
-        Edizo delivers exceptional digital solutions with a 100% client satisfaction rate across 50+ successful projects.
-      </motion.p>
-      <motion.div
-        className="flex flex-col sm:flex-row justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-      >
-        <Link
-          to="/services"
-          className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold shadow-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 text-center"
-        >
-          Explore Services
-        </Link>
-        {/* <Link
-          to="/portfolio"
-          className="px-6 py-3 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105 text-center"
-        >
-          View Portfolio
-        </Link> */}
-      </motion.div>
-    </div>
-    <div className="md:w-1/2 flex justify-center">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.6 }}
-        className="relative w-full max-w-md"
-      >
-        <div className="absolute -inset-4 bg-gradient-to-r from-red-500 to-yellow-500 rounded-2xl blur-md opacity-75"></div>
-        <div className="relative bg-white/10 backdrop-blur-sm rounded-xl p-1 border border-white/20 overflow-hidden">
-          {/* Website Preview Frame */}
-          <div className="relative h-80 w-full bg-white">
-            <div className="absolute inset-0 overflow-hidden">
-              <iframe 
-                src="https://edizo.in" 
-                className="w-full h-full border-0"
-                title="Edizo Website Preview"
-                loading="lazy"
-              />
+      {/* ====== HERO SECTION ====== */}
+      <section className="relative text-white overflow-hidden min-h-screen flex items-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-gray-900 to-black z-0"></div>
+        <div className="container mx-auto px-6 lg:px-12 relative z-10 py-20 text-center">
+          <p className="uppercase tracking-widest text-sm md:text-base text-red-300 font-semibold mb-4">
+            Trusted by 50+ Global Clients
+          </p>
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight bg-gradient-to-r from-red-400 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
+            Digital Excellence, Backed by Reviews
+          </h1>
+          <p className="text-lg md:text-xl font-light mb-10 text-gray-200 max-w-2xl mx-auto">
+            We craft digital experiences that <strong>clients love</strong>. Rated <strong>5.0/5</strong> by 50+ satisfied partners.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link
+              to="/services"
+              className="px-8 py-3.5 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            >
+              Explore Services
+            </Link>
+            <Link
+              to="/contact"
+              className="px-8 py-3.5 border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 hover:scale-105"
+            >
+              Get Free Consultation
+            </Link>
+          </div>
+
+          <div className="mt-16 flex flex-wrap justify-center gap-8 text-white/80">
+            <div className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+              <span className="text-sm font-medium">5.0 Rating • 50+ Reviews</span>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/30 to-transparent"></div>
-            <div className="absolute top-2 left-2 flex space-x-1">
-              <span className="w-3 h-3 rounded-full bg-red-500"></span>
-              <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
-              <span className="w-3 h-3 rounded-full bg-green-500"></span>
+            <div className="hidden sm:block w-px h-6 bg-white/30"></div>
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              <span className="text-sm font-medium">50+ Happy Clients</span>
             </div>
           </div>
         </div>
-      </motion.div>
-    </div>
-  </div>  
-</section>
+      </section>
 
-{/* Updated Stats Section with Real Metrics */}
-<section className="bg-white py-12 md:py-20">
-  <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      <motion.div
-        className="p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-sm border border-gray-100"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        viewport={{ once: true }}
-      >
-        <Users className="mx-auto text-red-600 mb-2 w-10 h-10" />
-        <h3 className="text-3xl font-bold text-gray-900">50+</h3>
-        <p className="text-gray-500">Satisfied Clients</p>
-      </motion.div>
-      <motion.div
-        className="p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-sm border border-gray-100"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        viewport={{ once: true }}
-      >
-        <ProjectsIcon className="mx-auto text-red-600 mb-2 w-10 h-10" />
-        <h3 className="text-3xl font-bold text-gray-900">75+</h3>
-        <p className="text-gray-500">Projects Completed</p>
-      </motion.div>
-      <motion.div
-        className="p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-sm border border-gray-100"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        viewport={{ once: true }}
-      >
-        <UserCheck className="mx-auto text-red-600 mb-2 w-10 h-10" />
-        <h3 className="text-3xl font-bold text-gray-900">30+</h3>
-        <p className="text-gray-500">Expert Team Members</p>
-      </motion.div>
-      <motion.div
-        className="p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-sm border border-gray-100"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        viewport={{ once: true }}
-      >
-        <Star className="mx-auto text-red-600 mb-2 w-10 h-10" />
-        <h3 className="text-3xl font-bold text-gray-900">100%</h3>
-        <p className="text-gray-500">Client Satisfaction</p>
-      </motion.div>
-    </div>
-  </div>
-</section>
-
-{/* Simplified Services Section */}
-<section className="py-20 bg-gray-50">
-  <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="text-center max-w-3xl mx-auto mb-16">
-      <motion.h2
-        className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        viewport={{ once: true }}
-      >
-        Our Digital Services
-      </motion.h2>
-      <motion.p
-        className="text-lg text-gray-600"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        viewport={{ once: true }}
-      >
-        Professional solutions tailored to your business requirements
-      </motion.p>
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {[
-        {
-          icon: PenTool,
-          title: "UI/UX Design",
-          description: "Create intuitive user experiences with our human-centered design approach that increases engagement and conversions"
-        },
-        {
-          icon: Code,
-          title: "Web Development",
-          description: "Build high-performance websites with modern technologies like React, Next.js and headless CMS solutions"
-        },
-        {
-          icon: Smartphone,
-          title: "App Development",
-          description: "Develop cross-platform mobile applications with React Native and Flutter for seamless user experiences"
-        },
-        {
-          icon: Video,
-          title: "Video Production",
-          description: "Professional video editing and motion graphics for commercials, social media and corporate communications"
-        },
-        {
-          icon: ImageIcon,
-          title: "Graphic Design",
-          description: "Visually compelling designs that strengthen brand identity across all marketing channels"
-        },
-        {
-          icon: Briefcase,
-          title: "Digital Marketing",
-          description: "Data-driven strategies to enhance your online presence and drive measurable business growth"
-        }
-      ].map((service, index) => (
-        <motion.div
-          key={index}
-          className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
-          viewport={{ once: true }}
-        >
-          <div className="p-8">
-            <div className="flex items-center mb-5">
-              <div className="p-3 bg-red-100 rounded-lg text-red-600 mr-4">
-                <service.icon size={24} />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900">{service.title}</h3>
+      {/* ====== UP NEXT: UPCOMING EVENTS (Moved Up & Enhanced) ====== */}
+      <section className="py-20 bg-white relative">
+        <div className="container mx-auto px-6 text-center max-w-4xl mx-auto">
+          <AnimatedSection>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 rounded-full font-semibold text-lg mb-6 shadow-sm border border-purple-200">
+              <Calendar className="w-5 h-5 text-purple-600" />
+              Upcoming Events
             </div>
-            <p className="text-gray-600 mb-6">{service.description}</p>
+
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Join Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Free Webinars & Workshops</span>
+            </h2>
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              Learn from industry experts, boost your skills, and stay ahead of the curve — all for free.
+            </p>
+
+            {/* Highlighted CTA */}
             <Link
-              to={`/services/${service.title.toLowerCase().replace(' ', '-')}`}
-              className="text-red-600 font-medium flex items-center hover:text-red-700"
+              to="/events"
+              className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 ease-in-out transform"
             >
-              Learn more <ArrowRight size={16} className="ml-1" />
+              🚀 View All Events & Register
+              <Calendar size={20} />
+            </Link>
+
+            {/* Trust Note */}
+            <p className="text-sm text-gray-500 mt-6">
+              1000+ professionals attended in the last 6 months
+            </p>
+          </AnimatedSection>
+        </div>
+
+        {/* Decorative Accent */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+      </section>
+
+      {/* ====== STATS SECTION ====== */}
+      <section className="bg-gray-50 py-20">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { icon: Users, value: "50+", label: "Happy Clients" },
+              { icon: ProjectsIcon, value: "75+", label: "Projects Delivered" },
+              { icon: UserCheck, value: "30+", label: "Experts" },
+              { icon: Star, value: "5.0", label: "Client Rating" },
+            ].map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div
+                  key={i}
+                  className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Icon className="w-10 h-10 mx-auto text-red-600" />
+                  <h3 className="text-4xl font-bold text-gray-900 mt-3">{stat.value}</h3>
+                  <p className="text-gray-500 mt-1">{stat.label}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ====== SERVICES ====== */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <AnimatedSection>
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Services</h2>
+            <p className="text-lg text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+              Expert solutions loved by clients across industries.
+            </p>
+          </AnimatedSection>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((s, i) => (
+              <AnimatedSection key={i} delay={0.1 * i}>
+                <motion.div
+                  className="bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-red-100 rounded-lg text-red-600 mr-4">
+                      <s.icon size={24} />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">{s.title}</h3>
+                  </div>
+                  <p className="text-gray-600 mb-4">{s.desc}</p>
+                  <Link
+                    to={`/services/${s.title.toLowerCase().replace(' ', '-')}`}
+                    className="text-red-600 font-medium flex items-center hover:text-red-700"
+                  >
+                    Learn more <ArrowRight size={16} className="ml-1" />
+                  </Link>
+                </motion.div>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ====== CLIENT REVIEWS (Preview) ====== */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <AnimatedSection>
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">What Clients Say</h2>
+            <p className="text-lg text-center text-gray-600 mb-12">
+              Real feedback from real clients — because your trust matters most.
+            </p>
+          </AnimatedSection>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((t, i) => (
+              <AnimatedSection key={i} delay={0.2 + i * 0.1}>
+                <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                  <div className="flex items-center mb-4">
+                    {[...Array(5)].map((_, idx) => (
+                      <Star
+                        key={idx}
+                        size={16}
+                        className={idx < t.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
+                      />
+                    ))}
+                    <span className="ml-2 text-sm text-gray-600 font-medium">{t.rating}</span>
+                  </div>
+                  <p className="text-gray-700 italic mb-4">"{t.content}"</p>
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">
+                      {t.name[0]}
+                    </div>
+                    <div className="ml-3">
+                      <h4 className="font-semibold text-gray-900">{t.name}</h4>
+                      <p className="text-sm text-gray-500">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              </AnimatedSection>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link
+              to="/reviews"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-full font-semibold hover:bg-gray-900 transition"
+            >
+              Read All Reviews <MessageCircle size={18} />
             </Link>
           </div>
-        </motion.div>
-      ))}
-    </div>
-  </div>
-</section>
+        </div>
+      </section>
 
-
-            {/* NEW: Upcoming Events Section */}
-            <section className="py-20 bg-gray-100 text-center">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <AnimatedSection delay={0.1}>
-                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Upcoming Events</h2>
-                  <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                    Join us for our upcoming workshops, webinars, and more!
-                  </p>
-                  <Link
-                    to="/events"
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3 font-semibold text-lg text-white bg-red-600 rounded-full shadow-lg hover:bg-red-700 transform hover:scale-105 transition-all duration-300 ease-in-out"
-                  >
-                    View All Events
-                    <Calendar size={20} />
-                  </Link>
-                </AnimatedSection>
-              </div>
-            </section>
-
-            {/* Internship Section */}
-            <section className="py-20 bg-gray-50 text-center">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <AnimatedSection delay={0.1}>
-                  <div className="max-w-2xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Internships</h2>
-                    <p className="text-lg text-gray-600 mb-8">
-                      We're looking for passionate individuals to join our team. Explore our internship programs and kickstart your career.
-                    </p>
-                    <motion.div
-                      className="inline-block"
-                      initial={{ scale: 1 }}
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                      <Link
-                        to="/internships"
-                        className="inline-flex items-center justify-center gap-2 px-8 py-3 font-semibold text-lg text-white bg-gray-800 rounded-full shadow-lg hover:bg-gray-900 transform hover:scale-105 transition-all duration-300 ease-in-out"
-                      >
-                        Explore Internships
-                        <Briefcase size={20} />
-                      </Link>
-                    </motion.div>
+      {/* ====== PROJECTS SHOWCASE ====== */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <AnimatedSection>
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
+            <p className="text-lg text-center text-gray-600 mb-12">
+              See how we’ve helped clients succeed with award-worthy digital solutions.
+            </p>
+          </AnimatedSection>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {projects.map((p, i) => (
+              <AnimatedSection key={i} delay={0.2 + i * 0.1}>
+                <motion.div
+                  className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
+                  whileHover={{ y: -8 }}
+                >
+                  <img src={p.img} alt={p.title} className="w-full h-48 object-cover" />
+                  <div className="p-6">
+                    <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">{p.category}</span>
+                    <h3 className="text-xl font-bold text-gray-900 mt-2">{p.title}</h3>
                   </div>
-                </AnimatedSection>
-              </div>
-            </section>
+                </motion.div>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Why Choose Edizo Section */}
-            <section className="py-20 bg-white">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <AnimatedSection delay={0.1}>
-                  <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Why Choose Us?</h2>
-                </AnimatedSection>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left mt-8">
-                  <AnimatedSection delay={0.2}>
-                    <motion.div
-                      className="bg-red-50 p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <h3 className="text-xl font-bold text-red-600 mb-2">Creative & Custom Solutions</h3>
-                      <p className="text-gray-600">We don't believe in one-size-fits-all. Our services are tailored to your unique vision, ensuring your project stands out.</p>
-                    </motion.div>
-                  </AnimatedSection>
-                  <AnimatedSection delay={0.3}>
-                    <motion.div
-                      className="bg-blue-50 p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <h3 className="text-xl font-bold text-blue-600 mb-2">Affordable & Transparent Pricing</h3>
-                      <p className="text-gray-600">Quality work doesn’t have to break the bank. We offer competitive and transparent pricing with no hidden fees.</p>
-                    </motion.div>
-                  </AnimatedSection>
-                  <AnimatedSection delay={0.4}>
-                    <motion.div
-                      className="bg-green-50 p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <h3 className="text-xl font-bold text-green-600 mb-2">Professional & Dedicated Team</h3>
-                      <p className="text-gray-600">Our team is passionate about what they do. We are committed to delivering high-quality results on time, every time.</p>
-                    </motion.div>
-                  </AnimatedSection>
+      {/* ====== WHY CHOOSE US ====== */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <AnimatedSection>
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Why Choose Edizo?</h2>
+            <p className="text-lg text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+              We combine creativity, technology, and client satisfaction to deliver unmatched results.
+            </p>
+          </AnimatedSection>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: Zap, title: "Fast Delivery", desc: "We respect your timeline and deliver on schedule — every time." },
+              { icon: Shield, title: "100% Satisfaction", desc: "Your happiness is our priority. We revise until you're thrilled." },
+              { icon: Target, title: "Results-Driven", desc: "We don’t just build — we optimize for growth, conversions, and impact." },
+            ].map((item, i) => (
+              <AnimatedSection key={i} delay={0.2 + i * 0.1}>
+                <div className="text-center p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                  <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <item.icon size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                  <p className="text-gray-600">{item.desc}</p>
                 </div>
-              </div>
-            </section>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Section for Internship Cards */}
-            <section className="bg-gray-50 py-20">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <AnimatedSection delay={0.1}>
-                  <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">Internships</h2>
-                </AnimatedSection>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {/* Internship Card 1 */}
-                  <AnimatedSection delay={0.2}>
-                    <motion.div
-                      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 transform hover:scale-105 transition-all duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
+      {/* ====== INTERNSHIPS ====== */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <AnimatedSection>
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Internships</h2>
+            <p className="text-lg text-center text-gray-600 mb-12">
+              Launch your career with hands-on experience at a top-rated digital agency.
+            </p>
+          </AnimatedSection>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {internships.map((item, i) => (
+              <AnimatedSection key={i} delay={0.2 + i * 0.1}>
+                <motion.div
+                  className="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <img src={item.img} alt={item.title} className="w-full h-38 object-cover" />
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+                    <Link
+                      to={item.link}
+                      className="text-red-600 font-medium flex items-center hover:text-red-700"
                     >
-                      <div className="flex justify-center mb-4">
-                        <img src={webDevelopment} alt="Web Development" className="rounded-full w-24 h-24 object-cover" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">Web Development Intern</h3>
-                      <p className="text-gray-600 text-center text-sm mb-4">Gain hands-on experience in frontend and backend development with our expert team.</p>
-                      <div className="flex justify-center">
-                        <Link to="/internships/web-dev" className="inline-block px-6 py-2 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors">
-                          Learn More
-                        </Link>
-                      </div>
-                    </motion.div>
-                  </AnimatedSection>
-                  {/* Internship Card 2 */}
-                  <AnimatedSection delay={0.3}>
-                    <motion.div
-                      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 transform hover:scale-105 transition-all duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <div className="flex justify-center mb-4">
-                        <img src={responsiveDesign} alt="UI/UX Design" className="rounded-full w-24 h-24 object-cover" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">UI/UX Design Intern</h3>
-                      <p className="text-gray-600 text-center text-sm mb-4">Learn to create intuitive user interfaces and experiences that delight users.</p>
-                      <div className="flex justify-center">
-                        <Link to="/internships/ui-ux" className="inline-block px-6 py-2 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors">
-                          Learn More
-                        </Link>
-                      </div>
-                    </motion.div>
-                  </AnimatedSection>
-                  {/* Internship Card 3 */}
-                  <AnimatedSection delay={0.4}>
-                    <motion.div
-                      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 transform hover:scale-105 transition-all duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <div className="flex justify-center mb-4">
-                        <img src={contentStrategy} alt="Graphic Design" className="rounded-full w-24 h-24 object-cover" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">Graphic Design Intern</h3>
-                      <p className="text-gray-600 text-center text-sm mb-4">Develop your creative skills and contribute to stunning visual campaigns.</p>
-                      <div className="flex justify-center">
-                        <Link to="/internships/graphic-design" className="inline-block px-6 py-2 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors">
-                          Learn More
-                        </Link>
-                      </div>
-                    </motion.div>
-                  </AnimatedSection>
-                </div>
-              </div>
-            </section>
+                      Learn More <ArrowRight size={16} className="ml-1" />
+                    </Link>
+                  </div>
+                </motion.div>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Project showcase section (start) */}
-            <section className="bg-gray-100 py-20">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <AnimatedSection delay={0.1}>
-                  <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Recent Projects</h2>
-                  <p className="text-lg text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-                    Take a look at some of the amazing projects we've completed for our clients.
-                  </p>
-                </AnimatedSection>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {/* Project Card 1 */}
-                  <AnimatedSection delay={0.2}>
-                    <motion.div
-                      className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <img src={faceguard} alt="FaceGuard" className="w-full h-48 object-cover" />
-                      <div className="p-6">
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">FaceGuard UI/UX</h3>
-                        <p className="text-gray-600 text-sm">A modern and intuitive design for a security application.</p>
-                      </div>
-                    </motion.div>
-                  </AnimatedSection>
-                  {/* Project Card 2 */}
-                  <AnimatedSection delay={0.3}>
-                    <motion.div
-                      className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <img src={ransomware} alt="Ransomware project" className="w-full h-48 object-cover" />
-                      <div className="p-6">
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Ransomware Website</h3>
-                        <p className="text-gray-600 text-sm">A comprehensive website for a cybersecurity awareness project.</p>
-                      </div>
-                    </motion.div>
-                  </AnimatedSection>
-                  {/* Project Card 3 */}
-                  <AnimatedSection delay={0.4}>
-                    <motion.div
-                      className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <img src={Epicnexus} alt="Epic Nexus" className="w-full h-48 object-cover" />
-                      <div className="p-6">
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Epic Nexus App</h3>
-                        <p className="text-gray-600 text-sm">Developing a full-stack application for modern-day business needs.</p>
-                      </div>
-                    </motion.div>
-                  </AnimatedSection>
-                </div>
-              </div>
-            </section>
-
-            {/* Why Join Us Section (Text-based with icons) */}
-            <section className="bg-white py-20">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <AnimatedSection delay={0.1}>
-                  <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">Why Choose Edizo?</h2>
-                </AnimatedSection>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {/* Card 1 */}
-                  <AnimatedSection delay={0.2}>
-                    <motion.div
-                      className="bg-gray-100 rounded-xl p-8 flex flex-col items-center text-center shadow-md hover:shadow-lg transition-shadow duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <div className="p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4 bg-red-100 text-red-600">
-                        <PenTool size={32} />
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">Innovative Designs</h3>
-                      <p className="text-gray-600 text-sm">We provide cutting-edge designs that are both functional and aesthetically pleasing.</p>
-                    </motion.div>
-                  </AnimatedSection>
-                  {/* Card 2 */}
-                  <AnimatedSection delay={0.3}>
-                    <motion.div
-                      className="bg-gray-100 rounded-xl p-8 flex flex-col items-center text-center shadow-md hover:shadow-lg transition-shadow duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <div className="p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4 bg-red-100 text-red-600">
-                        <Code size={32} />
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">Expert Development</h3>
-                      <p className="text-gray-600 text-sm">Our development team builds robust and scalable solutions that meet your needs.</p>
-                    </motion.div>
-                  </AnimatedSection>
-                  {/* Card 3 */}
-                  <AnimatedSection delay={0.4}>
-                    <motion.div
-                      className="bg-gray-100 rounded-xl p-8 flex flex-col items-center text-center shadow-md hover:shadow-lg transition-shadow duration-300"
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.5 }}
-                      variants={variants}
-                    >
-                      <div className="p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4 bg-red-100 text-red-600">
-                        <Briefcase size={32} />
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">Portfolio Building</h3>
-                      <p className="text-gray-600 text-sm">Explore exciting internships tailored to your skills and aspirations. Get hands-on experience and build your professional portfolio from day one.</p>
-                    </motion.div>
-                  </AnimatedSection>
-                </div>
-              </div>
-            </section>
-
-            {/* Call to Action Section (Contact) */}
-            <section className="py-20 text-center bg-gradient-to-r from-red-600 to-purple-800 text-white">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <AnimatedSection delay={0.1}>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Start Your Project?</h2>
-                  <p className="text-lg mb-8 max-w-2xl mx-auto">
-                    Let's build something amazing together. Contact us today for a free consultation.
-                  </p>
-                  <Link
-                    to="/contact"
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3 font-semibold text-lg text-gray-900 bg-yellow-400 rounded-full shadow-lg hover:bg-yellow-500 transform hover:scale-105 transition-all duration-300 ease-in-out"
-                  >
-                    Contact Us
-                    <ArrowRight size={20} />
-                  </Link>
-                </AnimatedSection>
-              </div>
-            </section>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ====== FINAL CTA ====== */}
+      <section className="py-20 bg-gray-900 text-white text-center">
+        <div className="container mx-auto px-6">
+          <AnimatedSection>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Be Our Next Success Story?</h2>
+            <p className="text-lg mb-8 max-w-2xl mx-auto">
+              Join 50+ clients who trust us with their digital transformation.
+            </p>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 hover:scale-105 transition-all"
+            >
+              Contact Us <ArrowRight size={20} />
+            </Link>
+          </AnimatedSection>
+        </div>
+      </section>
     </div>
   );
 };
+
 export default Home;
