@@ -71,9 +71,9 @@ const services = [
   { icon: PenTool, title: "UI/UX Design", desc: "Human-centered design that users love and clients rate 5 stars." },
   { icon: Code, title: "Web Development", desc: "Fast, scalable websites built with React, Next.js, and modern stacks." },
   { icon: Smartphone, title: "App Development", desc: "Cross-platform mobile apps with React Native & Flutter." },
-  { icon: Video, title: "Video Production", desc: "Engaging visuals for social media, ads, and brand storytelling." },
+  { icon: Video, title: "Video Editing", desc: "Engaging visuals for social media, ads, and brand storytelling." },
   { icon: ImageIcon, title: "Graphic Design", desc: "Brand-aligned visuals that elevate your identity." },
-  { icon: Target, title: "Digital Marketing", desc: "Data-driven campaigns that deliver real ROI." },
+  // { icon: Target, title: "Digital Marketing", desc: "Data-driven campaigns that deliver real ROI." },
 ];
 
 // Projects
