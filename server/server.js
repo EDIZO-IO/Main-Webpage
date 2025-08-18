@@ -113,14 +113,14 @@ app.post('/api/send-email', limiter, async (req, res) => {
     const applicantHtml = `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #dc2626; margin-bottom: 10px;">E.D.I.Z.O.</h1>
+          <h1 style="color: #dc2626; margin-bottom: 10px;">EDIZO</h1>
           <p style="color: #666; font-style: italic;">Empowering Digital Innovators</p>
         </div>
         
         <h2 style="color: #333; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Application Received – Thank You, ${data.name}!</h2>
         
         <p style="line-height: 1.6;">
-          Thank you for applying for the <strong>${data.internshipTitle}</strong> internship at <strong>E.D.I.Z.O.</strong>.
+          Thank you for applying for the <strong>${data.internshipTitle}</strong> internship at <strong>EDIZO</strong>.
           We appreciate your interest and the time you invested in your application.
         </p>
         
@@ -145,7 +145,7 @@ app.post('/api/send-email', limiter, async (req, res) => {
           <p style="text-align: center; margin: 15px 0;">
             <a href="https://chat.whatsapp.com/LhhLFD6pbil3NFImE30UIQ" 
                style="background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-              📱 Join E.D.I.Z.O. WhatsApp Group
+              📱 Join EDIZO WhatsApp Group
             </a>
           </p>
         </div>
@@ -153,7 +153,7 @@ app.post('/api/send-email', limiter, async (req, res) => {
         <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
           <p style="margin: 0; color: #666;">
             Best regards,<br />
-            <strong>The E.D.I.Z.O. Talent Team</strong><br />
+            <strong>The EDIZO Team</strong><br />
             <em>Building Tomorrow's Digital Leaders</em>
           </p>
           <p style="font-size: 12px; color: #999; margin-top: 15px;">
@@ -166,7 +166,7 @@ app.post('/api/send-email', limiter, async (req, res) => {
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 30px; background-color: #dc2626; color: white; padding: 20px; border-radius: 6px;">
           <h1 style="margin: 0; font-size: 24px;">📥 NEW INTERNSHIP APPLICATION</h1>
-          <p style="margin: 5px 0 0 0; opacity: 0.9;">E.D.I.Z.O. Application System</p>
+          <p style="margin: 5px 0 0 0; opacity: 0.9;">EDIZO Application System</p>
         </div>
         
         <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
@@ -266,10 +266,10 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
       <div style="font-family: Arial, sans-serif; color: #333;">
         <h2>Thank You for Reaching Out, ${data.name}!</h2>
         <p>
-          We've received your message at <strong>E.D.I.Z.O.</strong>. Our team will respond shortly.
+          We've received your message at <strong>EDIZO</strong>. Our team will respond shortly.
         </p>
         <p>If urgent, contact: <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a></p>
-        <p><strong>E.D.I.Z.O. Support Team</strong></p>
+        <p><strong>EDIZO Support Team</strong></p>
       </div>`;
 
     const adminHtml = `
@@ -282,7 +282,7 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
           <li><strong>Subject:</strong> ${data.subject || 'N/A'}</li>
           <li><strong>Message:</strong> ${data.message}</li>
         </ul>
-        <p>Submitted via the contact form on E.D.I.Z.O. website.</p>
+        <p>Submitted via the contact form on EDIZO website.</p>
       </div>`;
       
     await sendMail(userEmail, `We've received your message`, userHtml);

@@ -19,6 +19,9 @@ import NotFound from './pages/NotFound';
 import InternshipApplication from './pages/InternshipApplication';
 // NEW: Import the CertificateVerification page
 import CertificateVerification from './pages/CertificateVerification';
+import UpcomingEvents from './pages/UpcomingEvents';
+
+
 
 
 const App: React.FC = () => {
@@ -37,6 +40,8 @@ const App: React.FC = () => {
           <Route path="projects" element={<Projects />} />
           <Route path="projects/:id" element={<ProjectDetails />} />
           <Route path="contact" element={<Contact />} />
+          
+          <Route path="/events" element={<UpcomingEvents />} />
           {/* <Route path="support" element={<Support />} /> */}
           {/* NEW: Add route for Certificate Verification */}
           <Route path="verify-certificate" element={<CertificateVerification />} />

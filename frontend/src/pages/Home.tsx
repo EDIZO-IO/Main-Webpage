@@ -172,8 +172,6 @@ const Home: React.FC = () => {
 
   {/* Professional gradient overlay */}
   <div className="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/70 z-0" />
-  
-  {/* Additional overlay for text contrast */}
   <div className="absolute inset-0 bg-black/25 z-0" />
 
   {/* Hero Content */}
@@ -200,7 +198,7 @@ const Home: React.FC = () => {
           </div>
         </h2>
 
-        {/* Professional paragraph with corporate colors */}
+        {/* Professional paragraph */}
         <AnimatedSection delay={1.4}>
           <p className="text-lg md:text-2xl mb-8 max-w-xl mx-auto leading-relaxed drop-shadow-lg">
             <span className="text-slate-100 font-semibold">Get premium</span>{" "}
@@ -213,24 +211,50 @@ const Home: React.FC = () => {
           </p>
         </AnimatedSection>
 
-        {/* Professional button styling */}
+        {/* Button group with 3D Upcoming Events */}
         <div className="flex flex-wrap justify-center gap-4">
-          <Button 
-            variant="primary" 
-            size="lg" 
+          <Button
+            variant="primary"
+            size="lg"
             to="/services"
             className="bg-red-600 hover:bg-red-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 border-0"
           >
             Explore Services
           </Button>
-          <Button 
-            variant="outline" 
-            size="lg" 
+          <Button
+            variant="outline"
+            size="lg"
             to="/contact"
             className="border-2 border-slate-300 text-slate-100 hover:bg-slate-100 hover:text-slate-900 shadow-lg transition-all duration-300"
           >
             Get in Touch
           </Button>
+          {/* 3D Elevated Button */}
+          <Link
+            to="/events"
+            className="group relative inline-flex items-center gap-3 px-8 py-4
+              bg-gradient-to-b from-yellow-400 to-yellow-600
+              text-gray-900 font-bold rounded-xl
+              shadow-lg hover:shadow-xl
+              transform hover:-translate-y-2 hover:rotate-1
+              transition-all duration-300 ease-out"
+            style={{
+              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            <motion.div
+              whileHover={{ scale: 1.2, rotate: 360 }}
+              transition={{ duration: 0.5 }}
+              className="text-xl"
+            >
+              🎯
+            </motion.div>
+            <span>Upcoming Events</span>
+            {/* 3D shadow effect */}
+            <div className="absolute inset-0 bg-yellow-600/50 rounded-xl
+              translate-y-2 -z-10 group-hover:translate-y-3
+              transition-transform duration-300"></div>
+          </Link>
         </div>
       </div>
     </div>

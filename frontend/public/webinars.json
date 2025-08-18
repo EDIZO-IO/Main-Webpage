@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "title": "Introduction to Generative AI",
+    "date": "2025-10-15",
+    "status": "Coming Soon",
+    "location": "Online",
+    "description": "A comprehensive overview of generative models like LLMs and diffusion models.",
+    "registrationLink": "https://forms.gle/your-form-link-1"
+  },
+  {
+    "id": 2,
+    "title": "React Hooks Deep Dive",
+    "date": "2025-11-05",
+    "status": "Coming Soon",
+    "location": "Online",
+    "description": "Learn advanced patterns and best practices for using React Hooks."
+  },
+  {
+    "id": 3,
+    "title": "Building Scalable APIs with Node.js",
+    "date": "2025-11-20",
+    "status": "Coming Soon",
+    "location": "Online",
+    "description": "Explore microservices architecture and efficient API design with Node.js.",
+    "registrationLink": "https://forms.gle/your-form-link-2"
+  }
+]
