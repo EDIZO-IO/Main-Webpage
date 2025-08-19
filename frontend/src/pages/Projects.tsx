@@ -9,7 +9,7 @@ import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
 
-// Define the project data with added gradient properties
+// --- Project Data ---
 export const projects = [
   {
     id: 'ai-ransomware-detection',
@@ -31,7 +31,7 @@ export const projects = [
     icon: <Shield className="text-blue-500" size={24} />,
     challenges: 'Developing a system that could detect ransomware with minimal false positives while maintaining system performance was our biggest challenge. We solved this by implementing a two-stage detection process.',
     results: 'Reduced ransomware infection risk by 95% for our client base, with less than 0.5% false positive rate in production environments.',
-    gradient: 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50' // Blue to Purple gradient
+    gradient: 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
   },
   {
     id: 'faceguard-gan',
@@ -53,7 +53,7 @@ export const projects = [
     icon: <Eye className="text-green-500" size={24} />,
     challenges: 'Keeping pace with rapidly evolving deepfake generation techniques required us to develop an adaptive learning system that updates its detection models weekly.',
     results: 'Achieved 99.2% accuracy in detecting state-of-the-art deepfakes during independent testing by Singapore\'s Cybersecurity Agency.',
-    gradient: 'bg-gradient-to-br from-green-50 via-teal-50 to-cyan-50' // Green to Cyan gradient
+    gradient: 'bg-gradient-to-br from-green-50 via-teal-50 to-cyan-50'
   },
   {
     id: 'epic-nexus-platform',
@@ -74,127 +74,130 @@ export const projects = [
     icon: <Gamepad className="text-purple-500" size={24} />,
     challenges: 'Handling real-time updates across a large user base while maintaining performance required innovative caching strategies and database optimizations.',
     results: 'Grew to 250,000 monthly active users within 6 months of launch, with 78% user retention rate.',
-    gradient: 'bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50' // Warm Red to Yellow gradient
+    gradient: 'bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50'
   }
 ];
 
-// New component for the animated subtitle text with typing and deleting effect
-const AnimatedTypingSubtitle: React.FC<{ phrases: string[] }> = ({ phrases }) => {
+// --- Typing Animation Component ---
+const AnimatedTypingSubtitle = ({ phrases }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [typingSpeed, setTypingSpeed] = useState(150);
 
   useEffect(() => {
-    const handleTyping = () => {
-      const currentPhrase = phrases[phraseIndex];
-      // Set a faster typing speed when deleting
-      const currentSpeed = isDeleting ? 75 : 150;
-
-      if (isDeleting) {
-        // Deleting character by character
-        if (displayedText.length > 0) {
-          setDisplayedText(currentPhrase.substring(0, displayedText.length - 1));
-          setTypingSpeed(currentSpeed);
-        } else {
-          // Finished deleting, switch to next phrase
-          setIsDeleting(false);
-          setPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
-          setTypingSpeed(150); // Reset typing speed
-        }
-      } else {
-        // Typing character by character
+    const currentPhrase = phrases[phraseIndex];
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
         if (displayedText.length < currentPhrase.length) {
           setDisplayedText(currentPhrase.substring(0, displayedText.length + 1));
-          setTypingSpeed(currentSpeed);
+          setTypingSpeed(100 + Math.random() * 50);
         } else {
-          // Finished typing, pause and then start deleting
-          setTypingSpeed(20); // Pause before deleting
-          setTimeout(() => setIsDeleting(true), 20); // 2 second pause
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        if (displayedText.length > 0) {
+          setDisplayedText(currentPhrase.substring(0, displayedText.length - 1));
+          setTypingSpeed(50);
+        } else {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % phrases.length);
+          setTypingSpeed(150);
         }
       }
-    };
+    }, typingSpeed);
 
-    const timer = setTimeout(handleTyping, typingSpeed);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timeout);
   }, [displayedText, isDeleting, phraseIndex, phrases, typingSpeed]);
 
   return (
     <span className="relative text-white font-medium">
       {displayedText}
-      <span className="absolute right-0 bottom-0 -mr-2 w-1 h-full bg-white animate-pulse-cursor" />
-      <style jsx>{`
-        .animate-pulse-cursor {
-          animation: pulse-cursor 1s infinite;
-        }
-        @keyframes pulse-cursor {
-          0% { opacity: 1; }
-          50% { opacity: 0; }
-          100% { opacity: 1; }
-        }
-      `}</style>
+      <span className="absolute right-0 bottom-0 -mr-2 w-1 h-4 bg-white animate-pulse" />
     </span>
   );
 };
 
+// --- Main Projects Component ---
+const Projects = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
-const Projects: React.FC = () => {
-  // State for search term and selected category
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-
-  // Define animation variants for project cards
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-        ease: 'easeInOut',
-      },
-    }),
-  };
-  
-  // Define animation variants for project cards when they enter/exit the filter
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 },
-    exit: { y: -20, opacity: 0 },
-  };
-
-  // Get unique categories from the projects data
+  // Extract unique categories
   const categories = useMemo(() => {
-    const uniqueCategories = new Set(projects.map(project => project.category));
-    return ['All', ...Array.from(uniqueCategories)];
+    const unique = new Set(projects.map(p => p.category));
+    return ['All', ...Array.from(unique)];
   }, []);
 
-  // Filter projects based on search term and selected category
+  // Filter projects
   const filteredProjects = useMemo(() => {
     return projects.filter(project => {
       const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             project.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            project.tech.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()));
+                            project.tech.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
   }, [searchTerm, selectedCategory]);
 
+  // Add JSON-LD structured data for SEO
+  useEffect(() => {
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Edizo Projects Portfolio',
+      description: 'A curated list of featured projects by Edizo in cybersecurity, AI, and web development.',
+      url: 'https://www.edizo.in/projects',
+      numberOfItems: projects.length,
+      itemListElement: projects.map((project, index) => ({
+        '@type': 'CreativeWork',
+        position: index + 1,
+        name: project.title,
+        description: project.shortDescription,
+        category: project.category,
+        datePublished: project.timeline,
+        creator: {
+          '@type': 'Organization',
+          name: 'Edizo'
+        },
+        thumbnailUrl: project.image,
+        url: `https://www.edizo.in/projects/${project.id}`
+      }))
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'projects-schema';
+    script.innerHTML = JSON.stringify(schema);
+    document.head.appendChild(script);
+
+    return () => {
+      const existing = document.getElementById('projects-schema');
+      if (existing) document.head.removeChild(existing);
+    };
+  }, []);
+
   return (
     <>
-    
-      {/* Page Header Component */}
+      {/* JSON-LD added via useEffect */}
       <PageHeader
         title={<span className="text-red-500">Our Projects</span>}
-        subtitle={<AnimatedTypingSubtitle phrases={["Innovative solutions delivering real business impact", "Building the future, one project at a time", "Showcasing our best work and client success"]} />}
+        subtitle={
+          <AnimatedTypingSubtitle
+            phrases={[
+              "Innovative solutions delivering real business impact",
+              "Building the future, one project at a time",
+              "Showcasing our best work and client success"
+            ]}
+          />
+        }
         backgroundImage={headerBackground}
       />
 
-      <section className="section bg-gray-50 py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-gray-50 py-16 md:py-20 px-4">
+        <div className="container mx-auto max-w-7xl">
           <AnimatedSection>
-            <div className="text-center mb-16">
+            <div className="text-center mb-12 md:mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Projects</h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                 From cybersecurity to gaming platforms, we build solutions that solve real problems with cutting-edge technology.
@@ -202,29 +205,30 @@ const Projects: React.FC = () => {
             </div>
           </AnimatedSection>
 
-          {/* Search and Filter Section */}
-          <div className="mb-12 flex flex-col sm:flex-row items-center justify-between gap-6">
-            {/* Search Input */}
-            <div className="relative w-full sm:w-1/2 lg:w-1/3">
+          {/* Search & Filter */}
+          <div className="flex flex-col sm:flex-row gap-6 items-center justify-between mb-10 md:mb-12">
+            {/* Search */}
+            <div className="relative w-full sm:w-2/3 lg:w-1/2">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
               <input
                 type="text"
-                placeholder="Search projects by title, description, or tech..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Search by title, tech, or description..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Search projects"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             </div>
 
-            {/* Category Filters */}
-            <div className="flex flex-wrap justify-center sm:justify-end gap-3">
-              {categories.map(category => (
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-2 justify-center">
+              {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
                     ${selectedCategory === category
-                      ? 'bg-blue-600 text-white shadow-md'
+                      ? 'bg-red-600 text-white shadow-md'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                 >
@@ -234,64 +238,74 @@ const Projects: React.FC = () => {
             </div>
           </div>
 
-          {/* Display Filtered Projects with AnimatePresence */}
+          {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {filteredProjects.length > 0 ? (
-                filteredProjects.map((project) => (
+                filteredProjects.map((project, i) => (
                   <motion.div
                     key={project.id}
-                    variants={itemVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    // Applied gradient background to the card
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    transition={{ duration: 0.3 }}
                     className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 ${project.gradient}`}
                   >
                     <div className="relative h-48 overflow-hidden">
                       <img
                         src={project.image}
                         alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                        loading="lazy"
                       />
-                      {/* Darker gradient overlay for better text visibility on image */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70" />
-                      <div className="absolute bottom-4 left-4">
-                        <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      <div className="absolute bottom-3 left-3">
+                        <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
                           {project.category}
                         </span>
                       </div>
                     </div>
+
                     <div className="p-6">
                       <div className="flex items-center mb-3">
-                        <div className="mr-3">
-                          {project.icon}
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900">{project.title}</h3>
+                        <div className="mr-3">{project.icon}</div>
+                        <h3 className="text-xl font-bold text-gray-900 truncate" title={project.title}>
+                          {project.title}
+                        </h3>
                       </div>
-                      <p className="text-gray-600 mb-4">{project.shortDescription}</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
+
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {project.shortDescription}
+                      </p>
+
+                      <div className="flex flex-wrap gap-1 mb-4">
                         {project.tech.slice(0, 3).map((tech, i) => (
-                          <span key={i} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                          <span
+                            key={i}
+                            className="bg-white text-gray-800 text-xs px-2 py-1 rounded border border-gray-200 shadow-sm"
+                          >
                             {tech}
                           </span>
                         ))}
                         {project.tech.length > 3 && (
-                          <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                            +{project.tech.length - 3} more
-                          </span>
+                          <span className="text-xs text-gray-500">+{project.tech.length - 3} more</span>
                         )}
                       </div>
+
                       <div className="flex items-center justify-between">
                         <div className="flex items-center text-sm text-gray-500">
                           <MapPin className="mr-1" size={14} />
-                          <span>{project.location.split('/')[0].trim()}</span>
+                          <span>{project.location.split(',')[0].trim()}</span>
                         </div>
                         <Link
                           to={`/projects/${project.id}`}
-                          className="text-red-600 hover:text-blue-800 font-medium flex items-center"
+                          className="text-red-600 hover:text-red-700 font-medium flex items-center group"
                         >
-                          Details <ArrowRight className="ml-1" size={16} />
+                          Details
+                          <ArrowRight
+                            size={16}
+                            className="ml-1 transition-transform group-hover:translate-x-1"
+                          />
                         </Link>
                       </div>
                     </div>
@@ -299,14 +313,22 @@ const Projects: React.FC = () => {
                 ))
               ) : (
                 <motion.div
-                  key="no-projects"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                  className="col-span-full text-center py-10"
+                  key="no-results"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="col-span-full text-center py-12"
                 >
-                  <p className="text-gray-600 text-lg">No projects found matching your criteria.</p>
+                  <p className="text-gray-500 text-lg">No projects match your search.</p>
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSelectedCategory('All');
+                    }}
+                    className="mt-4 text-red-600 hover:underline"
+                  >
+                    Clear filters
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>

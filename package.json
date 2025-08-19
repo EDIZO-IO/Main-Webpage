@@ -45,8 +45,10 @@
     "html-to-text": "^9.0.5",
     "lucide-react": "^0.511.0",
     "nodemailer": "^7.0.4",
+    "react": "^19.1.1",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.1",
+    "router": "^2.2.0",
     "tailwind-scrollbar": "^4.0.2"
   }
 }

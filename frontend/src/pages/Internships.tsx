@@ -63,10 +63,10 @@ const internships = [
     title: 'UI/UX Design',
     category: 'Design',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: webDesign,
     rating: 4.7,
-    company: 'InnovateTech Solutions',
+   
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -75,10 +75,10 @@ const internships = [
     title: 'Frontend Development',
     category: 'Development',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: responsiveDesign,
     rating: 4.5,
-    company: 'WebCrafters Inc.',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -87,10 +87,10 @@ const internships = [
     title: 'Backend Development',
     category: 'Development',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: backEnd,
     rating: 4.6,
-    company: 'ServerSide Innovations',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -99,10 +99,10 @@ const internships = [
     title: 'HR Management',
     category: 'HR',
     mode: 'Online',
-    duration: '15 days / 3 months',
+   
     image: hrManager,
     rating: 4.2,
-    company: 'PeopleFirst HR',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -111,10 +111,10 @@ const internships = [
     title: 'Data Analytics',
     category: 'Data Science',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: dataAnalytics,
     rating: 4.8,
-    company: 'Insightful Data Co.',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -123,10 +123,10 @@ const internships = [
     title: 'Java Development',
     category: 'Java',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: java,
     rating: 4.4,
-    company: 'Enterprise Java Hub',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -135,10 +135,10 @@ const internships = [
     title: 'Python Programming',
     category: 'Python',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: python,
     rating: 4.6,
-    company: 'Pythonic Solutions',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -147,10 +147,10 @@ const internships = [
     title: 'Digital Marketing',
     category: 'Marketing',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: contentStrategy,
     rating: 4.3,
-    company: 'GrowthMarketers',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -159,10 +159,10 @@ const internships = [
     title: 'AI & Machine Learning',
     category: 'AI/ML',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: aiAssistant,
     rating: 4.9,
-    company: 'Cognitive AI Labs',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -171,10 +171,10 @@ const internships = [
     title: 'AI with ChatGPT',
     category: 'AI/ML',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: aiChatgpt,
     rating: 4.8,
-    company: 'Conversational AI Co.',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -183,10 +183,10 @@ const internships = [
     title: 'Web Development',
     category: 'Development',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: webDevelopment,
     rating: 4.7,
-    company: 'FullStack Devs',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -195,10 +195,10 @@ const internships = [
     title: 'C-Sharp',
     category: 'C#',
     mode: 'Online',
-    duration: '15 days / 3 months',
+    
     image: Csharp,
     rating: 4.5,
-    company: '.NET Innovators',
+    
     whyChooseEdizo: whyChooseEdizoContent,
     benefits: commonBenefits,
   },
@@ -374,10 +374,7 @@ const Internships = () => {
                           </>
                         )}
                       </div>
-                      <div className="flex items-center">
-                        <Clock className="mr-1 text-red-500" size={16} />
-                        <span className="text-gray-700">{internship.duration}</span> {/* Gray text */}
-                      </div>
+                     
                     </div>
 
                     <div className="border-t border-gray-200 pt-3">

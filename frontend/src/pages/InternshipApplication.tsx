@@ -136,168 +136,168 @@ const internshipsData: { [key: string]: Internship } = {
         title: 'UI/UX Design',
         category: 'Design',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('UI/UX'),
         rating: 4.7,
-        company: 'InnovateTech Solutions',
+       
         description: 'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+        
     },
     'frontend-development': {
         id: 'frontend-development',
         title: 'Frontend Development',
         category: 'Development',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('Frontend'),
         rating: 4.5,
-        company: 'WebCrafters Inc.',
+        
         description: 'Gain hands-on experience in building responsive and interactive user interfaces using HTML, CSS, JavaScript, and modern frameworks like React. Learn design principles, UI/UX fundamentals, and how to turn designs into functioning web pages.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+        
     },
     'backend-development': {
         id: 'backend-development',
         title: 'Backend Development',
         category: 'Development',
         mode: 'Online',
-        duration: '15 days / 3 months',
+       
         image: placeholderImage('Backend'),
         rating: 4.6,
-        company: 'ServerSide Innovations',
+        
         description: 'Understand the logic behind web applications by working with server-side technologies like Node.js, Express, and databases such as MySQL or MongoDB. Learn how APIs, authentication, and server architecture function in real-time environments.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+        
     },
     'hr-management': {
         id: 'hr-management',
         title: 'HR Management',
         category: 'HR',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('HR'),
         rating: 4.2,
-        company: 'PeopleFirst HR',
+        
         description: 'Understand core HR functions such as recruitment, payroll, training, performance evaluation, and employee engagement. Learn to use HR tools and software while building real-world management skills.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+       
     },
     'data-analytics': {
         id: 'data-analytics',
         title: 'Data Analytics',
         category: 'Data Science',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('DataAnalytics'),
         rating: 4.8,
-        company: 'Insightful Data Co.',
+        
         description: 'Gain proficiency in tools like Excel, Power BI, and Python for data cleaning, visualization, and reporting. Learn how to extract insights from raw data and make data-driven decisions in business contexts.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+       
     },
     'java-development': {
         id: 'java-development',
         title: 'Java Development',
         category: 'Java',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('Java'),
         rating: 4.4,
-        company: 'Enterprise Java Hub',
+        
         description: 'Build a solid understanding of Java fundamentals, OOP concepts, and project structures. Gain experience in building desktop and web-based Java applications using tools like Eclipse or IntelliJ.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+       
     },
     'python-development': {
         id: 'python-development',
         title: 'Python Programming',
         category: 'Python',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('Python'),
         rating: 4.6,
-        company: 'Pythonic Solutions',
+        
         description: 'Master the basics to advanced concepts in Python. Work on real-time projects involving automation, web scraping, and problem-solving. Ideal for building a strong programming foundation.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+        
     },
     'digital-marketing': {
         id: 'digital-marketing',
         title: 'Digital Marketing',
         category: 'Marketing',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('DigitalMarketing'),
         rating: 4.3,
-        company: 'GrowthMarketers',
+        
         description: 'Explore SEO, social media strategy, content marketing, Google Ads, and analytics tools. Gain practical insights into building brand presence, driving engagement, and generating leads through digital channels.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+        
     },
     'ai-ml': {
         id: 'ai-ml',
         title: 'AI & Machine Learning',
         category: 'AI/ML',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('AI/ML'),
         rating: 4.9,
-        company: 'Cognitive AI Labs',
+        
         description: 'Delve into the world of intelligent systems by learning machine learning algorithms, model building, and deployment using Python libraries such as Scikit-learn, TensorFlow, or PyTorch. Work on datasets to solve real-world problems.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+       
     },
     'ai-with-chatgpt': {
         id: 'ai-with-chatgpt',
         title: 'AI with ChatGPT',
         category: 'AI/ML',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('ChatGPT'),
         rating: 4.8,
-        company: 'Conversational AI Co.',
+        
         description: 'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+        
     },
     'web-development': {
         id: 'web-development',
         title: 'Web Development',
         category: 'Development',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('WebDev'),
         rating: 4.7,
-        company: 'FullStack Devs',
+        
         description: 'Get full-stack exposure by combining front-end and back-end skills. Build and deploy complete websites and web applications while learning Git, hosting, and project collaboration tools like GitHub.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+        
     },
     'csharp': {
         id: 'csharp',
         title: 'C-Sharp',
         category: 'C#',
         mode: 'Online',
-        duration: '15 days / 3 months',
+        
         image: placeholderImage('C#'),
         rating: 4.5,
-        company: '.NET Innovators',
+        
         description: 'Learn fundamental syntax, object-oriented programming concepts, and .NET framework fundamentals using C# and related libraries.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        priceINR: 4500,
+        
     },
 };
 

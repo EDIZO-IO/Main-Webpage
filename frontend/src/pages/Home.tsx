@@ -285,43 +285,38 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ====== PROJECTS SHOWCASE ====== */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <AnimatedSection>
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
-            <p className="text-lg text-center text-gray-600 mb-12">
-              See how we’ve helped clients succeed with award-worthy digital solutions.
-            </p>
-          </AnimatedSection>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {projects.map((p, i) => (
-              <AnimatedSection key={i} delay={0.2 + i * 0.1}>
-                <Link to={p.link} className="block">
-                  <motion.div
-                    className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-                    whileHover={{ y: -8 }}
-                    tabIndex="0"
-                  >
-                    <img
-                      src={p.img}
-                      alt={p.title}
-                      className="w-full h-48 object-cover"
-                      loading="lazy"
-                    />
-                    <div className="p-6">
-                      <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">
-                        {p.category}
-                      </span>
-                      <h3 className="text-xl font-bold text-gray-900 mt-2">{p.title}</h3>
-                    </div>
-                  </motion.div>
-                </Link>
-              </AnimatedSection>
-            ))}
+  {/* ====== PROJECTS SHOWCASE ====== */}
+<section className="py-20 bg-white">
+  <div className="container mx-auto px-6">
+    <AnimatedSection>
+      <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
+      <p className="text-lg text-center text-gray-600 mb-12">
+        See how we’ve helped clients succeed with award-worthy digital solutions.
+      </p>
+    </AnimatedSection>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {projects.map((p, i) => (
+        <AnimatedSection key={i} delay={0.2 + i * 0.1}>
+          <div className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
+            <img
+              src={p.img}
+              alt={p.title}
+              className="w-full h-48 object-cover"
+              loading="lazy"
+            />
+            <div className="p-6">
+              <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">
+                {p.category}
+              </span>
+              <h3 className="text-xl font-bold text-gray-900 mt-2">{p.title}</h3>
+            </div>
           </div>
-        </div>
-      </section>
+        </AnimatedSection>
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* ====== WHY CHOOSE US ====== */}
       <section className="py-20 bg-gray-50">
