@@ -347,43 +347,38 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ====== INTERNSHIPS ====== */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <AnimatedSection>
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Internships</h2>
-            <p className="text-lg text-center text-gray-600 mb-12">
-              Launch your career with hands-on experience at a top-rated digital agency.
-            </p>
-          </AnimatedSection>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {internships.map((item, i) => (
-              <AnimatedSection key={i} delay={0.2 + i * 0.1}>
-                <Link to={item.link} className="block">
-                  <motion.div
-                    className="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-                    whileHover={{ scale: 1.02 }}
-                    tabIndex="0"
-                  >
-                    <img
-                      src={item.img}
-                      alt={item.title}
-                      className="w-full h-48 object-cover"
-                      loading="lazy"
-                    />
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                      <span className="text-red-600 font-medium inline-flex items-center hover:underline">
-                        Learn More <ArrowRight size={16} className="ml-1" />
-                      </span>
-                    </div>
-                  </motion.div>
-                </Link>
-              </AnimatedSection>
-            ))}
+{/* ====== INTERNSHIPS ====== */}
+<section className="py-20 bg-white">
+  <div className="container mx-auto px-6">
+    <AnimatedSection>
+      <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Internships</h2>
+      <p className="text-lg text-center text-gray-600 mb-12">
+        Launch your career with hands-on experience at a top-rated digital agency.
+      </p>
+    </AnimatedSection>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {internships.map((item, i) => (
+        <AnimatedSection key={i} delay={0.2 + i * 0.1}>
+          <div className="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
+            <img
+              src={item.img}
+              alt={item.title}
+              className="w-full h-48 object-cover"
+              loading="lazy"
+            />
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+              <p className="text-gray-600 text-sm">
+                Gain real-world experience, work on live projects, and learn from industry experts.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </AnimatedSection>
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* ====== FINAL CTA ====== */}
       <section className="py-20 bg-gray-900 text-white text-center">
