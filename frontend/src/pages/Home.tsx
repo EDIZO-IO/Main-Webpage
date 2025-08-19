@@ -31,38 +31,36 @@ import responsiveDesign from '../assets/images/responsive-design.png';
 import contentStrategy from '../assets/images/content-strategy.png';
 
 // Animated Section Component
-const AnimatedSection = ({ children, delay = 0.1 }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.6, delay }}
-    >
-      {children}
-    </motion.div>
-  );
-};
+const AnimatedSection = ({ children, delay = 0.1 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, amount: 0.3 }}
+    transition={{ duration: 0.6, delay }}
+  >
+    {children}
+  </motion.div>
+);
 
-// Testimonials Preview
+// Testimonials
 const testimonials = [
   {
     name: "Sarah Kim",
     role: "Marketing Director, TechNova",
     rating: 5,
-    content: "Edizo transformed our brand presence. Delivered beyond expectations — on time and under budget.",
+    content: "Edizo transformed our brand presence. They delivered beyond expectations — on time, under budget, and with stunning results.",
   },
   {
     name: "James Patel",
     role: "Founder, Nexora",
     rating: 5,
-    content: "Game-changer! Their user-centric approach made our app a success.",
+    content: "A true game-changer! Their user-centric approach made our app intuitive, fast, and loved by users from day one.",
   },
   {
     name: "Lena Wu",
     role: "CEO, VisionLabs",
-    rating: 4.9,
-    content: "Professional, fast, and results-driven. Highly recommend!",
+    rating: 5,
+    content: "Professional, responsive, and deeply creative. Edizo helped us scale our digital footprint with measurable impact.",
   },
 ];
 
@@ -73,21 +71,20 @@ const services = [
   { icon: Smartphone, title: "App Development", desc: "Cross-platform mobile apps with React Native & Flutter." },
   { icon: Video, title: "Video Editing", desc: "Engaging visuals for social media, ads, and brand storytelling." },
   { icon: ImageIcon, title: "Graphic Design", desc: "Brand-aligned visuals that elevate your identity." },
-  // { icon: Target, title: "Digital Marketing", desc: "Data-driven campaigns that deliver real ROI." },
 ];
 
 // Projects
 const projects = [
-  { img: faceguard, title: "FaceGuard UI/UX", category: "Design" },
-  { img: ransomware, title: "Ransomware Awareness", category: "Web" },
-  { img: Epicnexus, title: "Epic Nexus App", category: "App" },
+  { img: faceguard, title: "FaceGuard UI/UX", category: "Design", link: "/projects/faceguard" },
+  { img: ransomware, title: "Ransomware Awareness", category: "Web", link: "/projects/ransomware" },
+  { img: Epicnexus, title: "Epic Nexus App", category: "App", link: "/projects/epic-nexus" },
 ];
 
 // Internships
 const internships = [
   { img: webDevelopment, title: "Web Development Intern", link: "/internships/web-dev" },
   { img: responsiveDesign, title: "UI/UX Design Intern", link: "/internships/ui-ux" },
-  { img: contentStrategy, title: "Graphic Design Intern", link: "/internships/graphic-design" },
+  { img: contentStrategy, title: "Content & Strategy Intern", link: "/internships/content-strategy" },
 ];
 
 const Home = () => {
@@ -97,7 +94,10 @@ const Home = () => {
       <section className="relative text-white overflow-hidden min-h-screen flex items-center">
         <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-gray-900 to-black z-0"></div>
         <div className="container mx-auto px-6 lg:px-12 relative z-10 py-20 text-center">
-          <p className="uppercase tracking-widest text-sm md:text-base text-red-300 font-semibold mb-4">
+          <p
+            className="uppercase tracking-widest text-sm md:text-base text-red-300 font-semibold mb-4"
+            aria-label="Trusted by over 50 global clients"
+          >
             Trusted by 50+ Global Clients
           </p>
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight bg-gradient-to-r from-red-400 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
@@ -109,13 +109,13 @@ const Home = () => {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               to="/services"
-              className="px-8 py-3.5 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className="px-8 py-3.5 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             >
               Explore Services
             </Link>
             <Link
               to="/contact"
-              className="px-8 py-3.5 border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 hover:scale-105"
+              className="px-8 py-3.5 border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
             >
               Get Free Consultation
             </Link>
@@ -135,11 +135,10 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ====== UP NEXT: UPCOMING EVENTS (Moved Up & Enhanced) ====== */}
-      <section className="py-20 bg-white relative">
+      {/* ====== UPCOMING EVENTS (Enhanced) ====== */}
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50 relative">
         <div className="container mx-auto px-6 text-center max-w-4xl mx-auto">
           <AnimatedSection>
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 rounded-full font-semibold text-lg mb-6 shadow-sm border border-purple-200">
               <Calendar className="w-5 h-5 text-purple-600" />
               Upcoming Events
@@ -152,23 +151,19 @@ const Home = () => {
               Learn from industry experts, boost your skills, and stay ahead of the curve — all for free.
             </p>
 
-            {/* Highlighted CTA */}
             <Link
               to="/events"
-              className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 ease-in-out transform"
+              className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 ease-in-out transform focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               🚀 View All Events & Register
               <Calendar size={20} />
             </Link>
 
-            {/* Trust Note */}
             <p className="text-sm text-gray-500 mt-6">
-              1000+ professionals attended in the last 6 months
+              1,000+ professionals attended in the last 6 months
             </p>
           </AnimatedSection>
         </div>
-
-        {/* Decorative Accent */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
       </section>
 
@@ -186,7 +181,7 @@ const Home = () => {
               return (
                 <motion.div
                   key={i}
-                  className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg"
+                  className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
@@ -217,6 +212,8 @@ const Home = () => {
                 <motion.div
                   className="bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                   whileHover={{ scale: 1.02 }}
+                  tabIndex="0"
+                  aria-label={`${s.title}: ${s.desc}`}
                 >
                   <div className="flex items-center mb-4">
                     <div className="p-3 bg-red-100 rounded-lg text-red-600 mr-4">
@@ -226,10 +223,11 @@ const Home = () => {
                   </div>
                   <p className="text-gray-600 mb-4">{s.desc}</p>
                   <Link
-                    to={`/services/${s.title.toLowerCase().replace(' ', '-')}`}
-                    className="text-red-600 font-medium flex items-center hover:text-red-700"
+                    to={`/services/${s.title.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="text-red-600 font-medium flex items-center hover:text-red-700 group"
                   >
-                    Learn more <ArrowRight size={16} className="ml-1" />
+                    Learn more
+                    <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </motion.div>
               </AnimatedSection>
@@ -238,7 +236,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ====== CLIENT REVIEWS (Preview) ====== */}
+      {/* ====== CLIENT REVIEWS ====== */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-6">
           <AnimatedSection>
@@ -250,18 +248,19 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((t, i) => (
               <AnimatedSection key={i} delay={0.2 + i * 0.1}>
-                <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
                   <div className="flex items-center mb-4">
                     {[...Array(5)].map((_, idx) => (
                       <Star
                         key={idx}
                         size={16}
-                        className={idx < t.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
+                        className={idx < Math.round(t.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
+                        aria-hidden="true"
                       />
                     ))}
-                    <span className="ml-2 text-sm text-gray-600 font-medium">{t.rating}</span>
+                    <span className="ml-2 text-sm text-gray-600 font-medium">{t.rating}/5</span>
                   </div>
-                  <p className="text-gray-700 italic mb-4">"{t.content}"</p>
+                  <blockquote className="text-gray-700 italic mb-4">"{t.content}"</blockquote>
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">
                       {t.name[0]}
@@ -278,7 +277,7 @@ const Home = () => {
           <div className="text-center mt-10">
             <Link
               to="/reviews"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-full font-semibold hover:bg-gray-900 transition"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-full font-semibold hover:bg-gray-900 transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-700"
             >
               Read All Reviews <MessageCircle size={18} />
             </Link>
@@ -298,16 +297,26 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {projects.map((p, i) => (
               <AnimatedSection key={i} delay={0.2 + i * 0.1}>
-                <motion.div
-                  className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
-                  whileHover={{ y: -8 }}
-                >
-                  <img src={p.img} alt={p.title} className="w-full h-48 object-cover" />
-                  <div className="p-6">
-                    <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">{p.category}</span>
-                    <h3 className="text-xl font-bold text-gray-900 mt-2">{p.title}</h3>
-                  </div>
-                </motion.div>
+                <Link to={p.link} className="block">
+                  <motion.div
+                    className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+                    whileHover={{ y: -8 }}
+                    tabIndex="0"
+                  >
+                    <img
+                      src={p.img}
+                      alt={p.title}
+                      className="w-full h-48 object-cover"
+                      loading="lazy"
+                    />
+                    <div className="p-6">
+                      <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">
+                        {p.category}
+                      </span>
+                      <h3 className="text-xl font-bold text-gray-900 mt-2">{p.title}</h3>
+                    </div>
+                  </motion.div>
+                </Link>
               </AnimatedSection>
             ))}
           </div>
@@ -330,7 +339,7 @@ const Home = () => {
               { icon: Target, title: "Results-Driven", desc: "We don’t just build — we optimize for growth, conversions, and impact." },
             ].map((item, i) => (
               <AnimatedSection key={i} delay={0.2 + i * 0.1}>
-                <div className="text-center p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                <div className="text-center p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300">
                   <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <item.icon size={32} />
                   </div>
@@ -355,21 +364,26 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {internships.map((item, i) => (
               <AnimatedSection key={i} delay={0.2 + i * 0.1}>
-                <motion.div
-                  className="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <img src={item.img} alt={item.title} className="w-full h-38 object-cover" />
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                    <Link
-                      to={item.link}
-                      className="text-red-600 font-medium flex items-center hover:text-red-700"
-                    >
-                      Learn More <ArrowRight size={16} className="ml-1" />
-                    </Link>
-                  </div>
-                </motion.div>
+                <Link to={item.link} className="block">
+                  <motion.div
+                    className="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+                    whileHover={{ scale: 1.02 }}
+                    tabIndex="0"
+                  >
+                    <img
+                      src={item.img}
+                      alt={item.title}
+                      className="w-full h-48 object-cover"
+                      loading="lazy"
+                    />
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+                      <span className="text-red-600 font-medium inline-flex items-center hover:underline">
+                        Learn More <ArrowRight size={16} className="ml-1" />
+                      </span>
+                    </div>
+                  </motion.div>
+                </Link>
               </AnimatedSection>
             ))}
           </div>
@@ -381,12 +395,12 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <AnimatedSection>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Be Our Next Success Story?</h2>
-            <p className="text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-300">
               Join 50+ clients who trust us with their digital transformation.
             </p>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 hover:scale-105 transition-all"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               Contact Us <ArrowRight size={20} />
             </Link>

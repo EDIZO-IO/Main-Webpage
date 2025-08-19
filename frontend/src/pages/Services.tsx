@@ -9,6 +9,7 @@ import {
   Code,
   ArrowRight,
   Smartphone,
+  Star, // ✅ Moved Star import to top
 } from 'lucide-react';
 
 import PageHeader from '../components/common/PageHeader';
@@ -298,7 +299,7 @@ const Services = () => {
               <AnimatedSection key={i} delay={0.1 + i * 0.1}>
                 <div className="text-center p-6">
                   <div className="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Star className="w-6 h-6 fill-current" />
+                    <Star className="w-6 h-6 fill-current" /> {/* ✅ Correct use with fill */}
                   </div>
                   <h3 className="font-bold text-gray-900 mb-2 text-lg">{item}</h3>
                 </div>
@@ -312,6 +313,3 @@ const Services = () => {
 };
 
 export default Services;
-
-// Add Star icon import at the top if not already imported
-import { Star } from 'lucide-react';

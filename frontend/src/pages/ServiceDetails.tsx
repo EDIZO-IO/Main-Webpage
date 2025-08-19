@@ -1,6 +1,6 @@
 // src/pages/ServiceDetails.tsx
 import React, { useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Code,
   TrendingUp,
@@ -18,16 +18,17 @@ import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
 import Button from '../components/common/Button';
 
-// Import images
+// Import service banner images
 import webDevImg from '../assets/services/banner/website design ban.webp';
 import uiuxImg from '../assets/services/banner/graphic design ban.webp';
 import videoEditingImg from '../assets/services/banner/video editing ban.webp';
 import graphicDesignImg from '../assets/services/banner/graphic design ban.webp';
 import appDesignImg from '../assets/services/banner/app design ban.webp';
 
-const fallbackImage = 'https://placehold.co/1200x400/DEE2E6/495057?text=Service+Unavailable';
+// Fallback image
+const fallbackImage = 'https://placehold.co/1200x400/DEE2E6/495057?text=Service+Details';
 
-// Shared content
+// Shared Why Choose Edizo content
 const whyChooseEdizoServiceContent = [
   'Creative, Custom-First Approach',
   'On-Time Project Delivery',
@@ -35,7 +36,7 @@ const whyChooseEdizoServiceContent = [
   'Friendly Support & Professional Team',
 ];
 
-// Define TypeScript interface
+// Define Service interface
 interface Service {
   title: string;
   subtitle: string;
@@ -162,8 +163,9 @@ const servicesData: Record<string, Service> = {
   },
 };
 
-const ServiceDetails: React.FC = () => {
+const ServiceDetails = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const service = id ? servicesData[id] : null;
 
   // Generate related services
@@ -171,7 +173,6 @@ const ServiceDetails: React.FC = () => {
     if (!id) return [];
     return Object.entries(servicesData)
       .filter(([key]) => key !== id)
-      .sort(() => 0.5 - Math.random())
       .slice(0, 3);
   }, [id]);
 
@@ -182,21 +183,102 @@ const ServiceDetails: React.FC = () => {
     }
   }, [service]);
 
+  // Add JSON-LD structured data for SEO
+  useEffect(() => {
+    if (!service || !id) return;
+
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      serviceName: service.title,
+      description: service.description,
+      provider: {
+        '@type': 'Organization',
+        name: 'Edizo',
+        url: 'https://www.edizo.in',
+        logo: 'https://www.edizo.in/logo.png',
+        contactPoint: {
+          '@type': 'ContactPoint',
+          telephone: '+91-9876543210',
+          contactType: 'Customer Service',
+          areaServed: 'Worldwide',
+          availableLanguage: 'English',
+        },
+      },
+      offers: {
+        '@type': 'Offer',
+        price: 'variable',
+        priceCurrency: 'INR',
+        availability: 'https://schema.org/InStock',
+        url: `https://www.edizo.in/services/${id}`,
+      },
+      areaServed: 'Worldwide',
+      audience: {
+        '@type': 'Audience',
+        audienceType: 'Startups, SMEs, Entrepreneurs, Designers, Developers',
+      },
+      serviceOutput: service.features,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Technologies Used',
+        itemListElement: service.technologies.map((tech) => ({
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: tech,
+          },
+        })),
+      },
+      review: {
+        '@type': 'Review',
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: '5.0',
+          bestRating: '5.0',
+        },
+        author: {
+          '@type': 'Person',
+          name: 'Edizo Client',
+        },
+        reviewBody: 'Delivered on time and exceeded expectations. Highly recommend!',
+      },
+    };
+
+    const scriptId = 'service-schema';
+    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+    if (!script) {
+      script = document.createElement('script');
+      script.id = scriptId;
+      script.type = 'application/ld+json';
+      script.setAttribute('data-testid', 'json-ld');
+      document.head.appendChild(script);
+    }
+
+    script.innerHTML = JSON.stringify(schema);
+
+    return () => {
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, [service, id]);
+
   if (!id || !service) {
     return (
-      <section className="min-h-screen flex items-center justify-center bg-gray-50">
+      <section className="min-h-screen flex items-center justify-center bg-gray-50 py-10">
         <div className="text-center p-8 bg-white rounded-xl shadow-md max-w-md mx-auto">
           <h2 className="text-3xl font-bold mb-4 text-gray-800">Service Not Found</h2>
           <p className="text-lg text-gray-600 mb-6">
             The service you're looking for doesn't exist.
           </p>
-          <Link
-            to="/services"
-            className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
+          <button
+            onClick={() => navigate('/services')}
+            className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all focus:outline-none focus:ring-2 focus:ring-red-500"
           >
-            <ChevronLeft className="mr-2" size={18} />
+            <ChevronLeft size={18} className="mr-2" />
             Back to Services
-          </Link>
+          </button>
         </div>
       </section>
     );
@@ -206,6 +288,7 @@ const ServiceDetails: React.FC = () => {
 
   return (
     <>
+      {/* Page Header */}
       <PageHeader
         title={service.title}
         subtitle={service.subtitle}
@@ -213,6 +296,7 @@ const ServiceDetails: React.FC = () => {
         className="bg-gradient-to-r from-gray-900 to-blue-900"
       />
 
+      {/* Main Content */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-12">
@@ -221,9 +305,9 @@ const ServiceDetails: React.FC = () => {
               <AnimatedSection>
                 <Link
                   to="/services"
-                  className="inline-flex items-center text-red-600 hover:text-red-700 mb-6 transition-colors"
+                  className="inline-flex items-center text-red-600 hover:text-red-700 mb-6 transition-colors group"
                 >
-                  <ChevronLeft size={18} className="mr-1" />
+                  <ChevronLeft size={18} className="mr-1 group-hover:-translate-x-1 transition-transform" />
                   <span className="font-medium">Back to Services</span>
                 </Link>
 
@@ -241,7 +325,7 @@ const ServiceDetails: React.FC = () => {
                     {service.features.map((feature, index) => (
                       <div
                         key={index}
-                        className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100"
+                        className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100 hover:shadow-sm transition-shadow"
                       >
                         <Check className="text-green-500 mt-1 mr-3 flex-shrink-0" size={18} />
                         <span className="text-gray-700">{feature}</span>
@@ -278,7 +362,7 @@ const ServiceDetails: React.FC = () => {
                           <div className="absolute left-4 w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-sm z-10">
                             {index + 1}
                           </div>
-                          <div className="ml-16 bg-gray-50 p-5 rounded-xl">
+                          <div className="ml-16 bg-gray-50 p-5 rounded-xl hover:shadow transition-shadow">
                             <h4 className="text-xl font-semibold text-gray-900">{step}</h4>
                             <p className="text-gray-600 mt-1">Step {index + 1} of your journey with us.</p>
                           </div>
@@ -297,7 +381,7 @@ const ServiceDetails: React.FC = () => {
                     {service.technologies.map((tech, index) => (
                       <span
                         key={index}
-                        className="px-4 py-2 bg-blue-50 text-blue-800 rounded-full text-sm font-medium"
+                        className="px-4 py-2 bg-blue-50 text-blue-800 rounded-full text-sm font-medium border border-blue-200"
                       >
                         {tech}
                       </span>
@@ -349,9 +433,9 @@ const ServiceDetails: React.FC = () => {
                         <li key={key}>
                           <Link
                             to={`/services/${key}`}
-                            className="flex items-center text-gray-700 hover:text-red-600 hover:bg-red-50 p-2 rounded transition-all"
+                            className="flex items-center text-gray-700 hover:text-red-600 hover:bg-red-50 p-2 rounded transition-all group"
                           >
-                            <ArrowRight className="mr-2 opacity-0 group-hover:opacity-100 text-red-600" size={16} />
+                            <ArrowRight className="mr-2 opacity-0 group-hover:opacity-100 text-red-600 group-hover:translate-x-1 transition-all" size={16} />
                             <span>{rel.title}</span>
                           </Link>
                         </li>

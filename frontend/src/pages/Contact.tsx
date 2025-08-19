@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import {
   Mail, Phone, MapPin, Send, CheckCircle, Loader2,
-  Facebook, Twitter, Linkedin, Instagram, Youtube // Import social media icons
+  Facebook, Twitter, Linkedin, Instagram, Youtube
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-// import { Link } from 'react-router-dom'; // Link is not used in the provided snippet, so commenting out.
+import { useEffect } from 'react';
 
-// --- Reusable Components (Enhanced) ---
+// --- Reusable Components ---
 
-/**
- * PageHeader component for consistent page titles with background images.
- */
 const PageHeader = ({ title, subtitle, backgroundImage }) => (
-  <div className="relative h-72 md:h-80 bg-cover bg-center text-white flex items-center justify-center rounded-b-xl shadow-lg overflow-hidden" style={{ backgroundImage: `url(${backgroundImage})` }}>
-    <div className="absolute inset-0 bg-black opacity-60 rounded-b-xl"></div> {/* Darker overlay */}
+  <div
+    className="relative h-72 md:h-80 bg-cover bg-center text-white flex items-center justify-center rounded-b-xl shadow-lg overflow-hidden"
+    style={{ backgroundImage: `url(${backgroundImage})` }}
+  >
+    <div className="absolute inset-0 bg-black opacity-60 rounded-b-xl"></div>
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -26,30 +26,22 @@ const PageHeader = ({ title, subtitle, backgroundImage }) => (
   </div>
 );
 
-/**
- * AnimatedSection component for fade-in and slide-up animations.
- */
 const AnimatedSection = ({ children, delay = 0 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 40 }} // Start slightly lower and invisible
-    animate={{ opacity: 1, y: 0 }}   // Animate to full opacity and original position
-    transition={{ duration: 0.7, delay, ease: "easeOut" }} // Smooth transition
-    className="rounded-lg" // Consistent rounding
+    initial={{ opacity: 0, y: 40 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.7, delay, ease: "easeOut" }}
+    className="rounded-lg"
   >
     {children}
   </motion.div>
 );
 
-/**
- * ButtonProps interface for the Button component.
- * Describes the props accepted by the Button component.
- */
 interface ButtonProps {
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  to?: string; // For react-router-dom Link
-  href?: string; // For external links
+  href?: string;
   className?: string;
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
@@ -59,16 +51,10 @@ interface ButtonProps {
   iconRight?: React.ReactNode;
 }
 
-/**
- * Button component with primary, outline, and default variants.
- * Supports disabled states, internal routing (Link), and external links (a tag).
- * Includes improved animations and styling.
- */
 const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'primary',
   size = 'md',
-  to,
   href,
   className = '',
   onClick,
@@ -78,7 +64,6 @@ const Button: React.FC<ButtonProps> = ({
   iconLeft,
   iconRight,
 }) => {
-  // Size classes for padding and font size
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-6 py-2.5 text-base',
@@ -86,15 +71,13 @@ const Button: React.FC<ButtonProps> = ({
     xl: 'px-10 py-4 text-xl',
   };
 
-  // Variant classes for background, text, hover, and focus styles
   const variantClasses = {
-    primary: 'bg-red-600 text-white hover:bg-red-700 focus:ring-2 ring-offset-2 ring-red-600', // edizo-red changed to red-600
-    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-2 ring-offset-2 ring-gray-300', // edizo-black changed to gray-900
-    outline: 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white focus:ring-2 ring-offset-2 ring-red-600', // edizo-red changed to red-600
-    ghost: 'text-red-600 hover:text-red-700 focus:ring-2 ring-offset-2 ring-red-600', // edizo-red changed to red-600
+    primary: 'bg-red-600 text-white hover:bg-red-700 focus:ring-2 ring-offset-2 ring-red-600',
+    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-2 ring-offset-2 ring-gray-300',
+    outline: 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white focus:ring-2 ring-offset-2 ring-red-600',
+    ghost: 'text-red-600 hover:text-red-700 focus:ring-2 ring-offset-2 ring-red-600',
   };
 
-  // Combined CSS classes for the button
   const combinedClasses = `
     ${variantClasses[variant]}
     ${sizeClasses[size]}
@@ -102,21 +85,8 @@ const Button: React.FC<ButtonProps> = ({
     ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
     ${className}
     rounded-md font-medium transition-all duration-300 ease-in-out flex items-center justify-center gap-2
-  `;
+  `.trim();
 
-  // Render as Link component if 'to' prop is provided (for internal routing)
-  // Re-adding Link import if needed for the original context, otherwise it's fine to keep it commented if not used.
-  // if (to) {
-  //   return (
-  //     <Link to={to} className={combinedClasses}>
-  //       {iconLeft && <span>{iconLeft}</span>}
-  //       {children}
-  //       {iconRight && <span>{iconRight}</span>}
-  //     </Link>
-  //   );
-  // }
-
-  // Render as an anchor tag if 'href' prop is provided (for external links)
   if (href) {
     return (
       <a
@@ -132,7 +102,6 @@ const Button: React.FC<ButtonProps> = ({
     );
   }
 
-  // Default render as a button
   return (
     <button
       type={type}
@@ -147,16 +116,12 @@ const Button: React.FC<ButtonProps> = ({
   );
 };
 
-
-/**
- * ContactInfo reusable component for displaying contact details with icons.
- */
-const ContactInfo = ({ icon, title, lines, gradientClass }) => ( // Added gradientClass prop
+const ContactInfo = ({ icon, title, lines, gradientClass }) => (
   <motion.div
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.5, delay: 0.2 }}
-    className={`flex items-start space-x-4 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${gradientClass}`} // Applied gradientClass
+    className={`flex items-start space-x-4 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${gradientClass}`}
   >
     <div className="bg-red-500 rounded-full p-3 flex items-center justify-center text-white flex-shrink-0">
       {icon}
@@ -172,9 +137,6 @@ const ContactInfo = ({ icon, title, lines, gradientClass }) => ( // Added gradie
   </motion.div>
 );
 
-/**
- * Main Contact component for displaying contact information and a form.
- */
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -187,17 +149,15 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // IMPORTANT: Replace this with the actual URL of your running backend server.
-  // This placeholder will not work for actual submissions.
-  // Ensure your backend is deployed and accessible at this URL.
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://main-webpage-l85m.onrender.com'; // Default to Render project URL
+  // ✅ Fixed: No trailing spaces in URL
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://main-webpage-l85m.onrender.com';
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setFormError(null);
@@ -205,69 +165,82 @@ const Contact = () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/send-contact-email`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
-      // Try to parse as JSON first, but handle if it's not JSON
       let result;
       try {
         result = await res.json();
-      } catch (jsonError) {
-        // If parsing as JSON fails, read as text to see the raw response
+      } catch {
         const textResult = await res.text();
-        console.error('❌ Failed to parse response as JSON. Raw response:', textResult);
-        throw new Error(`Received unexpected response from server. It might not be JSON. Raw response: ${textResult.substring(0, 100)}...`);
+        throw new Error(`Invalid JSON response: ${textResult.substring(0, 100)}...`);
       }
 
-      if (!res.ok) {
-        // If response is not OK (e.g., 4xx, 5xx status), throw an error with the message from the server
-        throw new Error(result?.message || `Server error: ${res.statusText}`);
-      }
+      if (!res.ok) throw new Error(result.message || `Error: ${res.statusText}`);
 
-      console.log('✅ Contact form submitted successfully:', result);
       setFormSubmitted(true);
-      // Reset form data after successful submission
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-      });
-    } catch (error: any) {
-      console.error('❌ Error submitting form:', error);
-      // Provide a more descriptive error message to the user
-      let userErrorMessage = 'Failed to send message. Please try again later.';
-      if (error.message.includes("Unexpected token '<'")) {
-        userErrorMessage = "It looks like the server returned an HTML error page instead of a JSON response. Please check your API URL and server status.";
-      } else if (error.message.includes("Failed to parse response as JSON")) {
-        userErrorMessage = "The server sent an unexpected response. Please check your API URL and server logs.";
-      } else if (error.message.includes("Failed to fetch")) {
-        userErrorMessage = "Could not connect to the server. Please check your internet connection and verify the API URL.";
-      }
-      setFormError(userErrorMessage);
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    } catch (error) {
+      console.error('❌ Error:', error);
+      setFormError(
+        error.message.includes("Failed to fetch")
+          ? "Unable to connect to server. Please check your internet or try later."
+          : "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // Common input field styling
-  const inputFieldClasses = "input-field border border-gray-300 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-sm hover:border-red-400";
+  const inputFieldClasses = "border border-gray-300 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-sm hover:border-red-400";
 
-  // Map social platform names to Lucide icons
-  const socialIcons = {
-    Facebook: Facebook,
-    Twitter: Twitter,
-    LinkedIn: Linkedin,
-    Instagram: Instagram,
-    Youtube: Youtube,
-  };
+  const socialIcons = { Facebook, Twitter, Linkedin, Instagram, Youtube };
+
+  // ✅ Add JSON-LD structured data
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "name": "Contact Edizo",
+      "url": "https://www.edizo.in/contact",
+      "description": "Get in touch with Edizo for inquiries about UI/UX, web & app development, and digital design services.",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Edizo",
+        "url": "https://www.edizo.in",
+        "logo": "https://www.edizo.in/logo.png",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+919876543210",
+          "email": "contact@edizo.in",
+          "contactType": "Customer Support",
+          "areaServed": "Worldwide",
+          "availableLanguage": "English"
+        },
+        "sameAs": [
+          "https://www.facebook.com/profile.php?id=61576742758066",
+          "https://x.com/EdizoPvtLtd",
+          "https://www.linkedin.com/in/edizo-pvt-ltd-149748367/",
+          "https://www.instagram.com/e.d.i.z.o._official/",
+          "https://www.youtube.com/@team-edizo"
+        ]
+      }
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.innerHTML = JSON.stringify(schema);
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   return (
     <>
+      {/* JSON-LD added above */}
       <PageHeader
         title={<span className="text-white">Contact Us</span>}
         subtitle={<span className="text-gray-200">Get in touch with our team for any inquiries or assistance</span>}
@@ -286,7 +259,7 @@ const Contact = () => {
           </AnimatedSection>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Contact Information Section */}
+            {/* Contact Info */}
             <AnimatedSection delay={0.1}>
               <div className="bg-gray-100 p-8 rounded-xl h-full shadow-lg">
                 <h3 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Our Details</h3>
@@ -295,38 +268,37 @@ const Contact = () => {
                     icon={<MapPin className="text-white" size={20} />}
                     title="Our Virtual Office"
                     lines={['Global Remote Operations']}
-                    gradientClass="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-100" // Subtle blue
+                    gradientClass="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-100"
                   />
                   <ContactInfo
                     icon={<Mail className="text-white" size={20} />}
                     title="Email Support"
                     lines={[
-                      <a href="mailto:e.d.i.z.o.pvt.ltd@gmail.com" className="text-gray-700 hover:text-red-500 transition-colors duration-200">edizoofficial@gmail.com</a>,
-                      <span className="text-sm text-gray-600">For general inquiries and partnerships</span>,
-                      <a href="mailto:edizocorp@gmail.com" className="text-gray-700 hover:text-red-500 mt-2 block transition-colors duration-200">edizoteam@gmail.com</a>,
-                      <span className="text-sm text-gray-600">For technical support and service requests</span>,
+                      <a href="mailto:edizoofficial@gmail.com" className="text-gray-700 hover:text-red-500 transition-colors">edizoofficial@gmail.com</a>,
+                      <span className="text-sm text-gray-600">General inquiries & partnerships</span>,
+                      <a href="mailto:edizoteam@gmail.com" className="text-gray-700 hover:text-red-500 block mt-2 transition-colors">edizoteam@gmail.com</a>,
+                      <span className="text-sm text-gray-600">Technical support & service requests</span>,
                     ]}
-                    gradientClass="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-100" // Subtle gray
+                    gradientClass="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-100"
                   />
                   <ContactInfo
                     icon={<Phone className="text-white" size={20} />}
                     title="Call Us"
                     lines={[
-                      <a href="tel:+917092435729" className="text-gray-700 hover:text-red-500 transition-colors duration-200">+91 9876543210</a>,
+                      <a href="tel:+919876543210" className="text-gray-700 hover:text-red-500 transition-colors">+91 9876543210</a>,
                       <span className="text-sm text-gray-600">Mon-Sat: 9:00 AM - 6:00 PM (IST)</span>
                     ]}
-                    gradientClass="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-100" // Subtle slate
+                    gradientClass="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-100"
                   />
                 </div>
 
                 <div className="mt-10">
                   <h4 className="font-bold text-xl mb-4 text-gray-900 border-b pb-2">Connect With Us</h4>
                   <div className="flex space-x-4 justify-center md:justify-start">
-                    {/* Social media icons with actual URLs */}
                     {[
                       { platform: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61576742758066' },
                       { platform: 'Twitter', url: 'https://x.com/EdizoPvtLtd' },
-                      { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/' },
+                      { platform: 'Linkedin', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/' },
                       { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/' },
                       { platform: 'Youtube', url: 'https://www.youtube.com/@team-edizo' }
                     ].map((social, i) => {
@@ -341,7 +313,7 @@ const Contact = () => {
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.3, delay: 0.1 * i + 0.3 }}
-                          className="bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white transition-colors duration-300 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-md hover:shadow-lg"
+                          className="bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white transition-colors duration-300 w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg"
                         >
                           {IconComponent && <IconComponent size={24} />}
                         </motion.a>
@@ -352,7 +324,7 @@ const Contact = () => {
               </div>
             </AnimatedSection>
 
-            {/* Send Message Form Section */}
+            {/* Contact Form */}
             <AnimatedSection delay={0.2}>
               <div className="bg-white p-8 rounded-xl shadow-xl lg:col-span-2">
                 <h3 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Send Us a Message</h3>
@@ -360,13 +332,13 @@ const Contact = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    transition={{ duration: 0.6 }}
                     className="text-center py-12 px-4"
                   >
                     <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
-                    <h4 className="text-2xl font-bold mb-3">Thank You For Your Message!</h4>
-                    <p className="text-gray-700 text-lg mb-8 leading-relaxed">
-                      We've successfully received your inquiry and appreciate you reaching out. Our team will review your message and get back to you as soon as possible, typically within 24-48 business hours.
+                    <h4 className="text-2xl font-bold mb-3">Thank You!</h4>
+                    <p className="text-gray-700 text-lg mb-8">
+                      We've received your message and will get back to you within 24-48 hours.
                     </p>
                     <Button variant="outline" onClick={() => setFormSubmitted(false)}>
                       Send Another Message
@@ -378,7 +350,6 @@ const Contact = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
                         className="text-red-600 text-center bg-red-100 p-3 rounded-md border border-red-200"
                       >
                         {formError}
@@ -386,9 +357,9 @@ const Contact = () => {
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+                      <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                          Your Name <span className="text-red-500">*</span>
+                          Name <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -400,10 +371,10 @@ const Contact = () => {
                           className={inputFieldClasses}
                           placeholder="Full Name"
                         />
-                      </motion.div>
-                      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
+                      </div>
+                      <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                          Email Address <span className="text-red-500">*</span>
+                          Email <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="email"
@@ -415,10 +386,11 @@ const Contact = () => {
                           className={inputFieldClasses}
                           placeholder="your.email@example.com"
                         />
-                      </motion.div>
+                      </div>
                     </div>
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+
+                    <div>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                       <input
                         type="tel"
                         id="phone"
@@ -426,11 +398,14 @@ const Contact = () => {
                         value={formData.phone}
                         onChange={handleInputChange}
                         className={inputFieldClasses}
-                        placeholder="your mobile number"
+                        placeholder="e.g., +91 98765 43210"
                       />
-                    </motion.div>
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.25 }}>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">Subject <span className="text-red-500">*</span></label>
+                    </div>
+
+                    <div>
+                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                        Subject <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         id="subject"
@@ -439,11 +414,14 @@ const Contact = () => {
                         onChange={handleInputChange}
                         required
                         className={inputFieldClasses}
-                        placeholder="e.g., Inquiry about services, Support request"
+                        placeholder="How can we help?"
                       />
-                    </motion.div>
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Your Message <span className="text-red-500">*</span></label>
+                    </div>
+
+                    <div>
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                        Message <span className="text-red-500">*</span>
+                      </label>
                       <textarea
                         id="message"
                         name="message"
@@ -452,17 +430,12 @@ const Contact = () => {
                         onChange={handleInputChange}
                         required
                         className={`${inputFieldClasses} resize-y`}
-                        placeholder="Write your detailed message here..."
+                        placeholder="Tell us about your project or question..."
                       />
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                      className="text-right mt-6"
-                    >
-                      {/* Using the new, enhanced Button component */}
-                      <Button type="submit" disabled={loading} size="lg" className="py-3 px-8 rounded-xl">
+                    </div>
+
+                    <div className="text-right mt-6">
+                      <Button type="submit" disabled={loading} size="lg">
                         {loading ? (
                           <>
                             Sending... <Loader2 className="ml-3 w-5 h-5 animate-spin" />
@@ -473,7 +446,7 @@ const Contact = () => {
                           </>
                         )}
                       </Button>
-                    </motion.div>
+                    </div>
                   </form>
                 )}
               </div>
