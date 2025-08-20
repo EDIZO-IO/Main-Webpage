@@ -236,7 +236,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ====== CLIENT REVIEWS ====== */}
+      {/* ====== CLIENT REVIEWS ======
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-6">
           <AnimatedSection>
@@ -283,7 +283,7 @@ const Home = () => {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
   {/* ====== PROJECTS SHOWCASE ====== */}
 <section className="py-20 bg-white">
