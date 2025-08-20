@@ -33,59 +33,53 @@ const LazyImage = ({ src, alt, className = "" }) => (
   <img src={src} alt={alt} loading="lazy" className={className} />
 );
 
-// Enhanced Animated Section with Stagger & Scroll
-const AnimatedSection = ({ children, delay = 0, threshold = 0.2 }) => (
+// Animated Section with Scroll Trigger
+const AnimatedSection = ({ children, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 60 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "0px 0px -100px 0px", amount: threshold }}
+    viewport={{ once: true, margin: "-100px" }}
     transition={{ duration: 0.7, delay, ease: "easeOut" }}
   >
     {children}
   </motion.div>
 );
 
-// Floating Header Effect (Optional: subtle parallax on hero)
-const useScrollAnimation = () => {
+// Parallax Scroll Hook
+const useParallax = (speed = 0.2) => {
   const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 300], [0, -30]);
-  const scale = useTransform(scrollY, [0, 400], [1, 0.95]);
-  return { y, scale };
+  return useTransform(scrollY, [0, 1000], [0, scrollY.current * speed]);
 };
 
 // Stat Card
 const StatCard = ({ icon: Icon, value, label }) => (
-  <motion.div
-    className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 text-center"
-    initial={{ opacity: 0, scale: 0.9 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    whileHover={{ scale: 1.03 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.4 }}
-  >
-    <Icon className="w-10 h-10 mx-auto text-red-600" aria-hidden="true" />
-    <h3 className="text-4xl font-bold text-gray-900 mt-3">{value}</h3>
-    <p className="text-gray-500 mt-1">{label}</p>
-  </motion.div>
+  <AnimatedSection>
+    <motion.div
+      className="p-6 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 text-center"
+      whileHover={{ y: -10, scale: 1.02 }}
+    >
+      <Icon className="w-10 h-10 mx-auto text-red-600" aria-hidden="true" />
+      <h3 className="text-4xl font-bold text-gray-900 mt-3">{value}</h3>
+      <p className="text-gray-500 mt-1">{label}</p>
+    </motion.div>
+  </AnimatedSection>
 );
 
 // Service Card
 const ServiceCard = ({ icon: Icon, title, desc, link }) => (
-  <AnimatedSection threshold={0.3}>
+  <AnimatedSection>
     <motion.div
-      className="bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
-      whileHover={{ scale: 1.02 }}
+      className="bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+      whileHover={{ y: -8, scale: 1.03 }}
+      whileTap={{ scale: 0.98 }}
       tabIndex="0"
       role="article"
-      aria-labelledby={`service-title-${title}`}
     >
       <div className="flex items-center mb-4">
         <div className="p-3 bg-red-100 rounded-lg text-red-600 mr-4">
           <Icon size={24} aria-hidden="true" />
         </div>
-        <h3 id={`service-title-${title}`} className="text-xl font-bold text-gray-900">
-          {title}
-        </h3>
+        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
       </div>
       <p className="text-gray-600 mb-4">{desc}</p>
       <Link
@@ -95,7 +89,7 @@ const ServiceCard = ({ icon: Icon, title, desc, link }) => (
         Learn more
         <ArrowRight
           size={16}
-          className="ml-1 group-hover:translate-x-1 transition-transform duration-300"
+          className="ml-1 group-hover:translate-x-1 transition-transform"
           aria-hidden="true"
         />
       </Link>
@@ -105,8 +99,11 @@ const ServiceCard = ({ icon: Icon, title, desc, link }) => (
 
 // Portfolio Card (Projects & Internships)
 const PortfolioCard = ({ img, title, category, link, isInternship = false }) => (
-  <AnimatedSection threshold={0.3}>
-    <div className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 relative">
+  <AnimatedSection>
+    <motion.div
+      className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 relative"
+      whileHover={{ y: -10, scale: 1.02 }}
+    >
       <LazyImage src={img} alt={title} className="w-full h-48 object-cover" />
       <div className="p-6">
         {!isInternship && (
@@ -121,65 +118,51 @@ const PortfolioCard = ({ img, title, category, link, isInternship = false }) => 
           </p>
         )}
       </div>
-      <Link
-        to={link}
-        className="absolute inset-0 z-10"
-        aria-label={`View details of ${title}`}
-      />
-    </div>
+      <Link to={link} className="absolute inset-0 z-10" aria-label={`View ${title}`} />
+    </motion.div>
   </AnimatedSection>
 );
 
 // Testimonial Card
 const TestimonialCard = ({ name, role, rating, content }) => (
-  <AnimatedSection threshold={0.4}>
-    <div
-      className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
-      itemScope
-      itemType="http://schema.org/Review"
+  <AnimatedSection>
+    <motion.div
+      className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+      whileHover={{ y: -5 }}
     >
       <div className="flex items-center mb-4">
-        {[...Array(5)].map((_, idx) => (
+        {[...Array(5)].map((_, i) => (
           <Star
-            key={idx}
+            key={i}
             size={16}
-            className={
-              idx < Math.round(rating)
-                ? 'text-yellow-400 fill-yellow-400'
-                : 'text-gray-300'
-            }
+            className={i < Math.round(rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
             aria-hidden="true"
           />
         ))}
-        <span className="ml-2 text-sm text-gray-600 font-medium">{rating}/5</span>
+        <span className="ml-2 text-sm text-gray-600">{rating}/5</span>
       </div>
-      <blockquote className="text-gray-700 italic mb-4" itemProp="reviewBody">
-        "{content}"
-      </blockquote>
+      <blockquote className="text-gray-700 italic mb-4">"{content}"</blockquote>
       <div className="flex items-center">
-        <div className="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-bold" aria-hidden="true">
+        <div className="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">
           {name[0]}
         </div>
         <div className="ml-3">
-          <h4 className="font-semibold text-gray-900" itemProp="author" itemScope itemType="http://schema.org/Person">
-            <span itemProp="name">{name}</span>
-          </h4>
-          <p className="text-sm text-gray-500" itemProp="jobTitle">{role}</p>
+          <h4 className="font-semibold text-gray-900">{name}</h4>
+          <p className="text-sm text-gray-500">{role}</p>
         </div>
       </div>
-    </div>
+    </motion.div>
   </AnimatedSection>
 );
 
 // CTA Button
 const CTAButton = ({ to, children, variant = "primary", icon: Icon }) => {
-  const baseClasses =
-    "inline-flex items-center gap-2 px-8 py-3 font-semibold rounded-full shadow-lg hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2";
+  const base = "inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 min-h-12";
 
   const variants = {
-    primary: `${baseClasses} bg-red-600 text-white hover:bg-red-700 focus:ring-red-500`,
-    secondary: `${baseClasses} border-2 border-white text-white bg-transparent hover:bg-white hover:text-gray-900 focus:ring-white`,
-    event: `${baseClasses} from-purple-600 to-pink-600 bg-gradient-to-r text-white hover:shadow-xl focus:ring-purple-500`,
+    primary: `${base} bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600 transform hover:scale-105 focus:ring-red-500`,
+    secondary: `${base} border-2 border-white text-white bg-transparent hover:bg-white hover:text-gray-900 transform hover:scale-105 focus:ring-white`,
+    event: `${base} from-purple-600 to-pink-600 bg-gradient-to-r text-white hover:shadow-xl hover:scale-105 focus:ring-purple-500`,
   };
 
   return (
@@ -190,37 +173,81 @@ const CTAButton = ({ to, children, variant = "primary", icon: Icon }) => {
   );
 };
 
-// Hero Section with Subtle Scroll Parallax
+// Hero Section
 const Hero = () => {
-  const { y, scale } = useScrollAnimation();
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 800], [0, -50]);
+  const scale = useTransform(scrollY, [0, 600], [1, 0.95]);
 
   return (
-    <section className="relative text-white overflow-hidden min-h-screen flex items-center" aria-labelledby="hero-title">
-      <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-gray-900 to-black z-0"></div>
+    <section
+      className="relative text-white overflow-hidden min-h-screen flex items-center"
+      aria-labelledby="hero-title"
+    >
+      {/* Animated Gradient Background */}
       <motion.div
-        className="container mx-auto px-6 lg:px-12 relative z-10 py-20 text-center"
-        style={{ y, scale }}
+        className="absolute inset-0 bg-gradient-to-br from-red-900 via-gray-900 to-black z-0"
+        style={{ scale }}
+      />
+
+      {/* Floating Particles */}
+      <div className="absolute inset-0 z-10 overflow-hidden">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{
+              y: [0, 100, 0],
+              opacity: [0.2, 0.6, 0.2],
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 6 + i * 2,
+              delay: i * 1.5,
+              ease: "easeInOut",
+            }}
+            className="absolute w-1 h-1 bg-yellow-300 rounded-full"
+            style={{
+              left: `${20 + (i * 15) % 80}%`,
+              top: `${10 + i * 15}%`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Hero Content */}
+      <motion.div
+        className="container mx-auto px-6 lg:px-12 relative z-20 py-20 text-center"
+        style={{ y }}
       >
-        <AnimatedSection delay={0.1}>
-          <p className="uppercase tracking-widest text-sm md:text-base text-red-300 font-semibold mb-4">
+        {/* Trust Badge */}
+        <AnimatedSection delay={0.2}>
+          <div className="inline-flex items-center gap-2 px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm md:text-base text-red-200 font-semibold border border-white/30 mb-6">
+            <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
             Trusted by 50+ Global Clients
-          </p>
+          </div>
         </AnimatedSection>
 
-        <AnimatedSection delay={0.2}>
-          <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight bg-gradient-to-r from-red-400 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
-            Digital Excellence, Backed by Reviews
+        {/* Headline */}
+        <AnimatedSection delay={0.3}>
+          <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-red-400 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
+              Digital Excellence,
+            </span>
+            <br />
+            <span className="text-white">Backed by Reviews</span>
           </h1>
         </AnimatedSection>
 
-        <AnimatedSection delay={0.3}>
+        {/* Subtitle */}
+        <AnimatedSection delay={0.4}>
           <p className="text-lg md:text-xl font-light mb-10 text-gray-200 max-w-2xl mx-auto">
             We craft digital experiences that <strong>clients love</strong>. Rated <strong>5.0/5</strong> by 50+ satisfied partners.
           </p>
         </AnimatedSection>
 
-        <AnimatedSection delay={0.4}>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+        {/* CTA Buttons */}
+        <AnimatedSection delay={0.5}>
+          <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-xs sm:max-w-md mx-auto">
             <CTAButton to="/services" variant="primary">
               Explore Services
             </CTAButton>
@@ -230,16 +257,22 @@ const Hero = () => {
           </div>
         </AnimatedSection>
 
-        <AnimatedSection delay={0.5}>
-          <div className="mt-16 flex flex-wrap justify-center gap-8 text-white/80">
+        {/* Stats */}
+        <AnimatedSection delay={0.6}>
+          <div className="mt-12 flex flex-wrap justify-center gap-8 text-white/80 text-sm md:text-base">
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm font-medium">5.0 Rating • 50+ Reviews</span>
+              <span>5.0 Rating • 50+ Reviews</span>
             </div>
             <div className="hidden sm:block w-px h-6 bg-white/30"></div>
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5" />
-              <span className="text-sm font-medium">50+ Happy Clients</span>
+              <span>50+ Happy Clients</span>
+            </div>
+            <div className="hidden sm:block w-px h-6 bg-white/30"></div>
+            <div className="flex items-center gap-2">
+              <ProjectsIcon className="w-5 h-5" />
+              <span>75+ Projects Delivered</span>
             </div>
           </div>
         </AnimatedSection>
@@ -248,6 +281,8 @@ const Hero = () => {
   );
 };
 
+
+
 // Main Home Component
 const Home = () => {
   return (
@@ -255,7 +290,7 @@ const Home = () => {
       <Hero />
 
       {/* UPCOMING EVENTS */}
-      <section className="py-20 bg-gradient-to-b from-white to-gray-50" aria-labelledby="events-title">
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="container mx-auto px-6 text-center max-w-4xl">
           <AnimatedSection>
             <div className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 rounded-full font-semibold text-lg mb-6 shadow-sm border border-purple-200">
@@ -277,14 +312,14 @@ const Home = () => {
       {/* STATS */}
       <section className="bg-gray-50 py-20">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { icon: Users, value: "50+", label: "Happy Clients" },
               { icon: ProjectsIcon, value: "75+", label: "Projects" },
               { icon: UserCheck, value: "30+", label: "Experts" },
-              { icon: Star, value: "5.0", label: "Rating" },
+              { icon: Star, value: "5.0", label: "Client Rating" },
             ].map((stat, i) => (
-              <StatCard key={i} {...stat} delay={i * 0.1} />
+              <StatCard key={i} {...stat} delay={i * 0.15} />
             ))}
           </div>
         </div>
@@ -304,8 +339,8 @@ const Home = () => {
               { icon: Smartphone, title: "App Development", desc: "Cross-platform apps with React Native & Flutter.", link: "/services/app-development" },
               { icon: Video, title: "Video Editing", desc: "Engaging visuals for brand storytelling.", link: "/services/video-editing" },
               { icon: ImageIcon, title: "Graphic Design", desc: "Brand-aligned visuals that elevate identity.", link: "/services/graphic-design" },
-            ].map((s) => (
-              <ServiceCard key={s.title} {...s} />
+            ].map((service) => (
+              <ServiceCard key={service.title} {...service} />
             ))}
           </div>
         </div>
@@ -359,7 +394,7 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <AnimatedSection>
             <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Why Choose Edizo?</h2>
-            <p className="text-lg text-center text-gray-600 mb-12">Unmatched results through creativity & tech.</p>
+            <p className="text-lg text-center text-gray-600 mb-12">We deliver unmatched results.</p>
           </AnimatedSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -404,9 +439,11 @@ const Home = () => {
       <section className="py-20 bg-gray-900 text-white text-center">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <h2 className="text-3xl text-yellow-400 font-bold mb-4">Ready to Be Our Next Success Story?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
+              Ready to Be Our Next Success Story?
+            </h2>
             <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-300">
-              Join 50+ clients who trust us.
+              Join 50+ clients who trust us with their digital transformation.
             </p>
             <CTAButton to="/contact" variant="primary" icon={ArrowRight}>
               Contact Us
@@ -414,6 +451,8 @@ const Home = () => {
           </AnimatedSection>
         </div>
       </section>
+
+    
     </div>
   );
 };
