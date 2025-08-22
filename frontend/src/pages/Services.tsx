@@ -2,16 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  PenTool,
-  Video,
-  ImageIcon,
-  Code,
-  ArrowRight,
-  Smartphone,
-  Star,
-  Check,
-} from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 
 import PageHeader from '../components/common/PageHeader';
 import headerBackground from '../assets/background image/service.png';
@@ -23,10 +14,12 @@ import videoEditingImg from '../assets/services/video editing.webp';
 import graphicDesignImg from '../assets/services/graphic design.webp';
 import appDesignImg from '../assets/services/app design.webp';
 
-// Fallback placeholder generator
-const getFallbackImage = (title) => {
-  return `https://placehold.co/600x400/DEE2E6/495057?text=${encodeURIComponent(title)}`;
-};
+// LazyImage Component
+const LazyImage = ({ src, alt, className = "" }) => (
+  <img src={src} alt={alt} loading="lazy" className={className} onError={(e) => {
+    e.target.src = `https://placehold.co/600x400/DEE2E6/495057?text=${encodeURIComponent(alt)}`;
+  }} />
+);
 
 // Why Choose Edizo - Common for all services
 const whyChooseEdizoServiceContent = [
@@ -48,7 +41,6 @@ const services = [
       'Event Highlights & Corporate Videos',
       'Motion Graphics & Animations',
     ],
-    icon: Video,
     image: videoEditingImg,
     primaryColor: 'bg-indigo-600',
     secondaryColor: 'text-indigo-600',
@@ -65,7 +57,6 @@ const services = [
       'Certificates, Banners & Flyers',
       'Social Media Post & Ad Designs',
     ],
-    icon: ImageIcon,
     image: graphicDesignImg,
     primaryColor: 'bg-pink-600',
     secondaryColor: 'text-pink-600',
@@ -82,7 +73,6 @@ const services = [
       'Frontend & Backend Development',
       'SEO-Friendly, Mobile-Optimized Design',
     ],
-    icon: Code,
     image: webDevImg,
     primaryColor: 'bg-blue-600',
     secondaryColor: 'text-blue-600',
@@ -99,7 +89,6 @@ const services = [
       'Service & Business-Based Applications',
       'Development using React Native, Flutter & Native Tools',
     ],
-    icon: Smartphone,
     image: appDesignImg,
     primaryColor: 'bg-green-600',
     secondaryColor: 'text-green-600',
@@ -120,7 +109,6 @@ const services = [
       'Responsive Design',
       'Design Systems',
     ],
-    icon: PenTool,
     image: uiuxImg,
     primaryColor: 'bg-red-600',
     secondaryColor: 'text-red-600',
@@ -215,46 +203,38 @@ const Services = () => {
 
           {/* Services Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-            {services.map((service, index) => {
-              const Icon = service.icon;
-              return (
-                <AnimatedSection key={service.id} delay={0.1 * index}>
-                  <motion.div
-                    className="group rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-200 bg-white hover:-translate-y-3"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    {/* Image & Icon */}
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={service.image}
-                        alt={service.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        onError={(e) => (e.target.src = getFallbackImage(service.title))}
-                      />
-                      <div className={`absolute inset-0 ${service.accent} opacity-30`}></div>
-                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-md">
-                        <Icon className={`${service.primaryColor} w-6 h-6`} />
-                      </div>
-                    </div>
+            {services.map((service, index) => (
+              <AnimatedSection key={service.id} delay={0.1 * index}>
+                <motion.div
+                  className="group rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-200 bg-white hover:-translate-y-3"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  {/* Image */}
+                  <div className="relative h-48 overflow-hidden">
+                    <LazyImage
+                      src={service.image}
+                      alt={service.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  </div>
 
-                    {/* Content */}
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
-                      <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
-                        {service.description}
-                      </p>
-                      <Link
-                        to={`/services/${service.id}`}
-                        className="inline-flex items-center font-semibold text-red-600 hover:text-red-700 group/link"
-                      >
-                        Learn more
-                        <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/link:translate-x-1" />
-                      </Link>
-                    </div>
-                  </motion.div>
-                </AnimatedSection>
-              );
-            })}
+                  {/* Content */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
+                      {service.description}
+                    </p>
+                    <Link
+                      to={`/services/${service.id}`}
+                      className="inline-flex items-center font-semibold text-red-600 hover:text-red-700 group/link"
+                    >
+                      Learn more
+                      <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/link:translate-x-1" />
+                    </Link>
+                  </div>
+                </motion.div>
+              </AnimatedSection>
+            ))}
           </div>
 
           {/* CTA Button */}
@@ -289,15 +269,13 @@ const Services = () => {
                   <div className="flex-shrink-0 w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center mt-0.5">
                     <Check className="w-4 h-4" />
                   </div>
-                  <p className="text-gray-800 font-medium leading-tight">{item}</p>
+                  <p className="text-gray-800 font-medium leading-tail">{item}</p>
                 </div>
               </AnimatedSection>
             ))}
           </div>
         </div>
       </section>
-
-    
     </>
   );
 };

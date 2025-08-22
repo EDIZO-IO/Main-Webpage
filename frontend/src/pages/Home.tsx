@@ -8,12 +8,6 @@ import {
   UserCheck,
   Star,
   ArrowRight,
-  PenTool,
-  Code,
-  Smartphone,
-  Video,
-  ImageIcon,
-  Calendar,
   MessageCircle,
   Target,
   Zap,
@@ -24,9 +18,13 @@ import {
 import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
-import webDevelopment from '../assets/images/web-development.png';
-import responsiveDesign from '../assets/images/responsive-design.png';
-import contentStrategy from '../assets/images/content-strategy.png';
+
+// Service Images (consistent with Services page)
+import webDevelopment from '../assets/services/website design.webp';
+import uiuxImg from '../assets/services/uiux.webp';
+import appDesignImg from '../assets/services/app design.webp';
+import videoEditingImg from '../assets/services/video editing.webp';
+import graphicDesignImg from '../assets/services/graphic design.webp';
 
 // Lazy Load Images
 const LazyImage = ({ src, alt, className = "" }) => (
@@ -52,47 +50,49 @@ const useParallax = (speed = 0.2) => {
 };
 
 // Stat Card
-const StatCard = ({ icon: Icon, value, label }) => (
+const StatCard = ({ value, label }) => (
   <AnimatedSection>
     <motion.div
       className="p-6 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 text-center"
       whileHover={{ y: -10, scale: 1.02 }}
     >
-      <Icon className="w-10 h-10 mx-auto text-red-600" aria-hidden="true" />
-      <h3 className="text-4xl font-bold text-gray-900 mt-3">{value}</h3>
+      <h3 className="text-4xl font-bold text-red-600 mt-3">{value}</h3>
       <p className="text-gray-500 mt-1">{label}</p>
     </motion.div>
   </AnimatedSection>
 );
 
-// Service Card
-const ServiceCard = ({ icon: Icon, title, desc, link }) => (
+// Service Card (Image-Based, No Icons)
+const ServiceCard = ({ img, title, desc, link }) => (
   <AnimatedSection>
     <motion.div
-      className="bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
-      whileHover={{ y: -8, scale: 1.03 }}
+      className="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+      whileHover={{ y: -8, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       tabIndex="0"
       role="article"
     >
-      <div className="flex items-center mb-4">
-        <div className="p-3 bg-red-100 rounded-lg text-red-600 mr-4">
-          <Icon size={24} aria-hidden="true" />
-        </div>
-        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+      {/* Image */}
+      <div className="relative h-48 overflow-hidden">
+        <LazyImage src={img} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
       </div>
-      <p className="text-gray-600 mb-4">{desc}</p>
-      <Link
-        to={link}
-        className="text-red-600 font-medium flex items-center hover:text-red-700 group"
-      >
-        Learn more
-        <ArrowRight
-          size={16}
-          className="ml-1 group-hover:translate-x-1 transition-transform"
-          aria-hidden="true"
-        />
-      </Link>
+
+      {/* Content */}
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+        <p className="text-gray-600 mb-4 mt-2">{desc}</p>
+        <Link
+          to={link}
+          className="text-red-600 font-medium flex items-center hover:text-red-700 group"
+        >
+          Learn more
+          <ArrowRight
+            size={16}
+            className="ml-1 group-hover:translate-x-1 transition-transform"
+            aria-hidden="true"
+          />
+        </Link>
+      </div>
     </motion.div>
   </AnimatedSection>
 );
@@ -281,8 +281,6 @@ const Hero = () => {
   );
 };
 
-
-
 // Main Home Component
 const Home = () => {
   return (
@@ -294,14 +292,22 @@ const Home = () => {
         <div className="container mx-auto px-6 text-center max-w-4xl">
           <AnimatedSection>
             <div className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 rounded-full font-semibold text-lg mb-6 shadow-sm border border-purple-200">
-              <Calendar className="w-5 h-5 text-purple-600" />
+              <span className="w-5 h-5">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </span>
               Upcoming Events
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
               Join Our <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">Free Webinars & Workshops</span>
             </h2>
             <p className="text-lg text-gray-600 mb-8">Learn from industry experts — all for free.</p>
-            <CTAButton to="/events" variant="event" icon={Calendar}>
+            <CTAButton to="/events" variant="event" icon={() => (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            )}>
               🚀 View All Events & Register
             </CTAButton>
             <p className="text-sm text-gray-500 mt-6">1,000+ professionals attended</p>
@@ -314,10 +320,10 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { icon: Users, value: "50+", label: "Happy Clients" },
-              { icon: ProjectsIcon, value: "75+", label: "Projects" },
-              { icon: UserCheck, value: "30+", label: "Experts" },
-              { icon: Star, value: "5.0", label: "Client Rating" },
+              { value: "50+", label: "Happy Clients" },
+              { value: "75+", label: "Projects" },
+              { value: "30+", label: "Experts" },
+              { value: "5.0", label: "Client Rating" },
             ].map((stat, i) => (
               <StatCard key={i} {...stat} delay={i * 0.15} />
             ))}
@@ -334,11 +340,11 @@ const Home = () => {
           </AnimatedSection>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: PenTool, title: "UI/UX Design", desc: "Human-centered design that users love.", link: "/services/ui-ux-design" },
-              { icon: Code, title: "Web Development", desc: "Fast, scalable websites with React & Next.js.", link: "/services/web-development" },
-              { icon: Smartphone, title: "App Development", desc: "Cross-platform apps with React Native & Flutter.", link: "/services/app-development" },
-              { icon: Video, title: "Video Editing", desc: "Engaging visuals for brand storytelling.", link: "/services/video-editing" },
-              { icon: ImageIcon, title: "Graphic Design", desc: "Brand-aligned visuals that elevate identity.", link: "/services/graphic-design" },
+              { img: webDevelopment, title: "Web Development", desc: "Fast, scalable websites with React & Next.js.", link: "/services/web-development" },
+              { img: uiuxImg, title: "UI/UX Design", desc: "Human-centered design that users love.", link: "/services/ui-ux" },
+              { img: appDesignImg, title: "App Development", desc: "Cross-platform apps with React Native & Flutter.", link: "/services/app-development" },
+              { img: videoEditingImg, title: "Video Editing", desc: "Engaging visuals for brand storytelling.", link: "/services/video-editing" },
+              { img: graphicDesignImg, title: "Graphic Design", desc: "Brand-aligned visuals that elevate identity.", link: "/services/graphic-design" },
             ].map((service) => (
               <ServiceCard key={service.title} {...service} />
             ))}
@@ -401,8 +407,8 @@ const Home = () => {
               { icon: Zap, title: "Fast Delivery", desc: "On schedule — every time." },
               { icon: Shield, title: "100% Satisfaction", desc: "We revise until you're thrilled." },
               { icon: Target, title: "Results-Driven", desc: "Optimized for growth & impact." },
-            ].map((item) => (
-              <AnimatedSection key={item.title} delay={0.2}>
+            ].map((item, i) => (
+              <AnimatedSection key={item.title} delay={0.2 * i}>
                 <div className="text-center p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300">
                   <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <item.icon size={32} />
@@ -426,8 +432,8 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { img: webDevelopment, title: "Web Development Intern", link: "/internships/web-dev" },
-              { img: responsiveDesign, title: "UI/UX Design Intern", link: "/internships/ui-ux" },
-              { img: contentStrategy, title: "Content & Strategy Intern", link: "/internships/content-strategy" },
+              { img: uiuxImg, title: "UI/UX Design Intern", link: "/internships/ui-ux" },
+              { img: graphicDesignImg, title: "Content & Strategy Intern", link: "/internships/content-strategy" },
             ].map((item) => (
               <PortfolioCard key={item.title} {...item} isInternship />
             ))}
@@ -451,8 +457,6 @@ const Home = () => {
           </AnimatedSection>
         </div>
       </section>
-
-    
     </div>
   );
 };
