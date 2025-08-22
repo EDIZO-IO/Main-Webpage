@@ -26,6 +26,11 @@ import appDesignImg from '../assets/services/app design.webp';
 import videoEditingImg from '../assets/services/video editing.webp';
 import graphicDesignImg from '../assets/services/graphic design.webp';
 
+// internship
+import uiux from '../assets/images/web-design.png';
+import webdevelop from '../assets/images/web-development.png';
+import aiml from '../assets/images/ai-assistant.png';
+
 // Lazy Load Images
 const LazyImage = ({ src, alt, className = "" }) => (
   <img src={src} alt={alt} loading="lazy" className={className} />
@@ -341,7 +346,7 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { img: webDevelopment, title: "Web Development", desc: "Fast, scalable websites with React & Next.js.", link: "/services/web-development" },
-              { img: uiuxImg, title: "UI/UX Design", desc: "Human-centered design that users love.", link: "/services/ui-ux" },
+              { img: uiuxImg, title: "UI/UX Design", desc: "Human-centered design that users love.", link: "/services/ui-ux-design" },
               { img: appDesignImg, title: "App Development", desc: "Cross-platform apps with React Native & Flutter.", link: "/services/app-development" },
               { img: videoEditingImg, title: "Video Editing", desc: "Engaging visuals for brand storytelling.", link: "/services/video-editing" },
               { img: graphicDesignImg, title: "Graphic Design", desc: "Brand-aligned visuals that elevate identity.", link: "/services/graphic-design" },
@@ -376,24 +381,24 @@ const Home = () => {
         </div>
       </section>
 
-      {/* PROJECTS */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <AnimatedSection>
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
-            <p className="text-lg text-center text-gray-600 mb-12">Award-worthy digital solutions.</p>
-          </AnimatedSection>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { img: faceguard, title: "FaceGuard UI/UX", category: "Design", link: "/projects/faceguard" },
-              { img: ransomware, title: "Ransomware Awareness", category: "Web", link: "/projects/ransomware" },
-              { img: Epicnexus, title: "Epic Nexus App", category: "App", link: "/projects/epic-nexus" },
-            ].map((p) => (
-              <PortfolioCard key={p.title} {...p} />
-            ))}
-          </div>
-        </div>
-      </section>
+{/* PROJECTS */}
+<section className="py-20 bg-white">
+  <div className="container mx-auto px-6">
+    <AnimatedSection>
+      <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
+      <p className="text-lg text-center text-gray-600 mb-12">Award-worthy digital solutions.</p>
+    </AnimatedSection>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {[
+        { img: faceguard, title: "FaceGuard UI/UX" },
+        { img: ransomware, title: "Ransomware Awareness" },
+        { img: Epicnexus, title: "Epic Nexus App" },
+      ].map((p) => (
+        <PortfolioCard key={p.title} {...p} />
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* WHY CHOOSE US */}
       <section className="py-20 bg-gray-50">
@@ -431,9 +436,9 @@ const Home = () => {
           </AnimatedSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { img: webDevelopment, title: "Web Development Intern", link: "/internships/web-dev" },
-              { img: uiuxImg, title: "UI/UX Design Intern", link: "/internships/ui-ux" },
-              { img: graphicDesignImg, title: "Content & Strategy Intern", link: "/internships/content-strategy" },
+              { img: webdevelop, title: "Web Development ", link: "/internships/web-development" },
+              { img: uiux, title: "UI/UX Design Intern", link: "/internships/ui-ux-design" },
+              { img: aiml, title: "AI & Machine Learning", link: "/internships/ai-ml" },
             ].map((item) => (
               <PortfolioCard key={item.title} {...item} isInternship />
             ))}
