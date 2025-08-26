@@ -240,7 +240,7 @@ const Hero = () => {
         {/* Subtitle */}
         <AnimatedSection delay={0.4}>
           <p className="text-lg md:text-xl font-light mb-10 text-gray-200 max-w-2xl mx-auto">
-            We craft digital experiences that <strong>clients love</strong>. Rated <strong>5.0/5</strong> by 50+ satisfied partners.
+            We craft digital experiences that <strong>clients love</strong>. Rated <strong>5.0/5</strong> by 10+ satisfied partners.
           </p>
         </AnimatedSection>
 
