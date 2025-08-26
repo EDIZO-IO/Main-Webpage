@@ -224,13 +224,7 @@ const Hero = () => {
         className="container mx-auto px-6 lg:px-12 relative z-20 py-20 text-center"
         style={{ y }}
       >
-        {/* Trust Badge */}
-        <AnimatedSection delay={0.2}>
-          <div className="inline-flex items-center gap-2 px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm md:text-base text-red-200 font-semibold border border-white/30 mb-6">
-            <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-            Trusted by 50+ Global Clients
-          </div>
-        </AnimatedSection>
+
 
         {/* Headline */}
         <AnimatedSection delay={0.3}>
@@ -267,17 +261,17 @@ const Hero = () => {
           <div className="mt-12 flex flex-wrap justify-center gap-8 text-white/80 text-sm md:text-base">
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-              <span>5.0 Rating • 50+ Reviews</span>
+              <span>5.0 Rating • 10+ Reviews</span>
             </div>
             <div className="hidden sm:block w-px h-6 bg-white/30"></div>
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5" />
-              <span>50+ Happy Clients</span>
+              <span>10+ Happy Clients</span>
             </div>
             <div className="hidden sm:block w-px h-6 bg-white/30"></div>
             <div className="flex items-center gap-2">
               <ProjectsIcon className="w-5 h-5" />
-              <span>75+ Projects Delivered</span>
+              <span>25+ Projects Delivered</span>
             </div>
           </div>
         </AnimatedSection>
@@ -325,9 +319,9 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { value: "50+", label: "Happy Clients" },
-              { value: "75+", label: "Projects" },
-              { value: "30+", label: "Experts" },
+              { value: "10+", label: "Happy Clients" },
+              { value: "25+", label: "Projects" },
+              { value: "10+", label: "Experts" },
               { value: "5.0", label: "Client Rating" },
             ].map((stat, i) => (
               <StatCard key={i} {...stat} delay={i * 0.15} />
