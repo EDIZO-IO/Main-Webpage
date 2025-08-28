@@ -34,7 +34,7 @@ const services = [
   {
     id: 'video-editing',
     title: 'Video Editing',
-    description: 'We turn raw footage into polished, engaging content. Whether it’s for social media, corporate events, or promotions, our editing enhances visual appeal and storytelling.',
+    description: 'We turn raw footage into polished, engaging content. Whether its for social media, corporate events, or promotions, our editing enhances visual appeal and storytelling.',
     servicesInclude: [
       'Promotional Videos & Intros',
       'Reels, Shorts & YouTube Edits',
@@ -206,11 +206,11 @@ const Services = () => {
             {services.map((service, index) => (
               <AnimatedSection key={service.id} delay={0.1 * index}>
                 <motion.div
-                  className="group rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-200 bg-white hover:-translate-y-3"
+                  className="group rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-200 bg-white hover:-translate-y-3 h-full flex flex-col"
                   whileHover={{ scale: 1.02 }}
                 >
                   {/* Image */}
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-48 overflow-hidden flex-shrink-0">
                     <LazyImage
                       src={service.image}
                       alt={service.title}
@@ -219,18 +219,20 @@ const Services = () => {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6">
+                  <div className="p-6 flex flex-col flex-grow">
                     <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
+                    <p className="text-gray-600 text-sm leading-relaxed mb-4 flex-grow">
                       {service.description}
                     </p>
-                    <Link
-                      to={`/services/${service.id}`}
-                      className="inline-flex items-center font-semibold text-red-600 hover:text-red-700 group/link"
-                    >
-                      Learn more
-                      <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/link:translate-x-1" />
-                    </Link>
+                    <div className="mt-auto">
+                      <Link
+                        to={`/services/${service.id}`}
+                        className="inline-flex items-center font-semibold text-red-600 hover:text-red-700 group/link"
+                      >
+                        Learn more
+                        <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/link:translate-x-1" />
+                      </Link>
+                    </div>
                   </div>
                 </motion.div>
               </AnimatedSection>
@@ -258,7 +260,7 @@ const Services = () => {
               Why Choose Edizo?
             </h2>
             <p className="text-lg text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-              We don’t just deliver services — we build partnerships that grow your business.
+              We don't just deliver services — we build partnerships that grow your business.
             </p>
           </AnimatedSection>
 
