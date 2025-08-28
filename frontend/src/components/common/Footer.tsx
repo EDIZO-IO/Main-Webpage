@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
                 <Facebook size={20} />
               </a>
               <a
-                href="https://x.com/EdizoPvtLtd"
+                href="https://x.com/edizo_official"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Follow us on Twitter (X)"
