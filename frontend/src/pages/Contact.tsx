@@ -299,8 +299,8 @@ const Contact = () => {
                       { platform: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61576742758066' },
                       { platform: 'Twitter', url: 'https://x.com/EdizoPvtLtd' },
                       { platform: 'Linkedin', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/' },
-                      { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/' },
-                      { platform: 'Youtube', url: 'https://www.youtube.com/@team-edizo' }
+                      { platform: 'Instagram', url: 'https://www.instagram.com/edizo_official?igsh=dXc1MnFucGY4MHo4' },
+                      { platform: 'Youtube', url: 'https://www.youtube.com/@edizo_official' }
                     ].map((social, i) => {
                       const IconComponent = socialIcons[social.platform];
                       return (

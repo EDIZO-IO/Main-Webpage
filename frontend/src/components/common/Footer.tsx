@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
                 <Twitter size={20} />
               </a>
               <a
-                href="https://www.instagram.com/e.d.i.z.o._official/"
+                href="https://www.instagram.com/edizo_official?igsh=dXc1MnFucGY4MHo4"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Follow us on Instagram"
@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
                 <Linkedin size={20} />
               </a>
               <a
-                href="https://www.youtube.com/@team-edizo"
+                href="https://www.youtube.com/@edizo_official"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Subscribe to us on YouTube"
