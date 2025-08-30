@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -224,57 +223,36 @@ const Hero = () => {
         className="container mx-auto px-6 lg:px-12 relative z-20 py-20 text-center"
         style={{ y }}
       >
-
-
-        {/* Headline */}
-        <AnimatedSection delay={0.3}>
-          <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-red-400 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
-              Digital Excellence,
-            </span>
-            <br />
-            <span className="text-white">Backed by Reviews</span>
-          </h1>
-        </AnimatedSection>
-
-        {/* Subtitle */}
-        <AnimatedSection delay={0.4}>
-          <p className="text-lg md:text-xl font-light mb-10 text-gray-200 max-w-2xl mx-auto">
-            We craft digital experiences that <strong>clients love</strong>. Rated <strong>5.0/5</strong> by 10+ satisfied partners.
-          </p>
-        </AnimatedSection>
-
-        {/* CTA Buttons */}
-        <AnimatedSection delay={0.5}>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-xs sm:max-w-md mx-auto">
-            <CTAButton to="/services" variant="primary">
-              Explore Services
-            </CTAButton>
-            <CTAButton to="/contact" variant="secondary">
-              Get Free Consultation
-            </CTAButton>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center justify-center">
+          <div className="w-full">
+            <AnimatedSection delay={0.3}>
+              <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+                <span className="text-white">Welcome to </span> <span className="text-red-600">EDIZO</span>
+              </h1>
+            </AnimatedSection>
+            <AnimatedSection delay={0.4}>
+              <p className="text-lg md:text-xl font-light mb-8 text-white max-w-lg mx-auto">
+                Creative Services & Real-World Learning — All in One Place
+              </p>
+              <p className="text-lg md:text-xl font-light mb-8 text-white max-w-xl mx-auto">
+                Get premium <span className="text-red-600 font-bold">video editing</span>,
+                <span className="text-red-600 font-bold"> graphic design</span>, and
+                <span className="text-red-600 font-bold"> web development services</span>.<br />
+                Launch your career with our exclusive <span className="text-red-600 font-bold">internship programs.</span>
+              </p>
+            </AnimatedSection>
+            <AnimatedSection delay={0.5}>
+              <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-xs sm:max-w-md mx-auto">
+                <CTAButton to="/services" variant="primary">
+                  Explore Services
+                </CTAButton>
+                <CTAButton to="/contact" variant="secondary">
+                  Get in Touch
+                </CTAButton>
+              </div>
+            </AnimatedSection>
           </div>
-        </AnimatedSection>
-
-        {/* Stats */}
-        <AnimatedSection delay={0.6}>
-          <div className="mt-12 flex flex-wrap justify-center gap-8 text-white/80 text-sm md:text-base">
-            <div className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-              <span>5.0 Rating • 10+ Reviews</span>
-            </div>
-            <div className="hidden sm:block w-px h-6 bg-white/30"></div>
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              <span>10+ Happy Clients</span>
-            </div>
-            <div className="hidden sm:block w-px h-6 bg-white/30"></div>
-            <div className="flex items-center gap-2">
-              <ProjectsIcon className="w-5 h-5" />
-              <span>25+ Projects Delivered</span>
-            </div>
-          </div>
-        </AnimatedSection>
+        </div>
       </motion.div>
     </section>
   );
@@ -351,48 +329,24 @@ const Home = () => {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      {/* <section className="py-20 bg-gray-50">
+      {/* PROJECTS */}
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">What Clients Say</h2>
-            <p className="text-lg text-center text-gray-600 mb-12">Real feedback from real clients.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
+            <p className="text-lg text-center text-gray-600 mb-12">Award-worthy digital solutions.</p>
           </AnimatedSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { name: "Sarah Kim", role: "Marketing Director", rating: 5, content: "Edizo transformed our brand presence — on time, under budget, stunning results." },
-              { name: "James Patel", role: "Founder", rating: 5, content: "A game-changer! Their app is loved by users from day one." },
-              { name: "Lena Wu", role: "CEO", rating: 5, content: "Professional, creative, and deeply impactful." },
-            ].map((t) => (
-              <TestimonialCard key={t.name} {...t} />
+              { img: faceguard, title: "FaceGuard UI/UX" },
+              { img: ransomware, title: "Ransomware Awareness" },
+              { img: Epicnexus, title: "Epic Nexus App" },
+            ].map((p) => (
+              <PortfolioCard key={p.title} {...p} />
             ))}
           </div>
-          <div className="text-center mt-10">
-            <CTAButton to="/reviews" variant="primary" icon={MessageCircle}>
-              Read All Reviews
-            </CTAButton>
-          </div>
         </div>
-      </section> */}
-
-{/* PROJECTS */}
-<section className="py-20 bg-white">
-  <div className="container mx-auto px-6">
-    <AnimatedSection>
-      <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
-      <p className="text-lg text-center text-gray-600 mb-12">Award-worthy digital solutions.</p>
-    </AnimatedSection>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {[
-        { img: faceguard, title: "FaceGuard UI/UX" },
-        { img: ransomware, title: "Ransomware Awareness" },
-        { img: Epicnexus, title: "Epic Nexus App" },
-      ].map((p) => (
-        <PortfolioCard key={p.title} {...p} />
-      ))}
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* WHY CHOOSE US */}
       <section className="py-20 bg-gray-50">

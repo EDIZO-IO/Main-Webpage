@@ -1,5 +1,3 @@
-// src/components/Header.tsx
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, X, Home, Briefcase, Code, Users, Phone } from 'lucide-react';
@@ -79,8 +77,8 @@ const Header: React.FC = () => {
                   isActive
                     ? 'text-edizo-red font-semibold after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-edizo-red'
                     : isScrolled
-                    ? 'text-gray-900 hover:text-edizo-red'
-                    : 'text-white hover:text-gray-200'
+                    ? 'text-gray-800 hover:text-edizo-red'
+                    : 'text-white hover:text-gray-300'
                 }`
               }
             >
@@ -97,9 +95,9 @@ const Header: React.FC = () => {
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
         >
           {isMenuOpen ? (
-            <X className={`w-7 h-7 ${isScrolled ? 'text-gray-900' : 'text-white'}`} />
+            <X className={`w-7 h-7 ${isScrolled ? 'text-gray-800' : 'text-white'}`} />
           ) : (
-            <Menu className={`w-7 h-7 ${isScrolled ? 'text-gray-900' : 'text-white'}`} />
+            <Menu className={`w-7 h-7 ${isScrolled ? 'text-gray-800' : 'text-white'}`} />
           )}
         </button>
       </div>
@@ -133,7 +131,7 @@ const Header: React.FC = () => {
               <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-white">
                 <Link
                   to="/"
-                  className="font-bold text-xl text-gray-900"
+                  className="font-bold text-xl text-gray-800"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Edizo
@@ -143,7 +141,7 @@ const Header: React.FC = () => {
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                   aria-label="Close mobile menu"
                 >
-                  <X className="w-6 h-6 text-gray-700" />
+                  <X className="w-6 h-6 text-gray-800" />
                 </button>
               </div>
 
@@ -162,7 +160,7 @@ const Header: React.FC = () => {
                         >
                           <link.icon
                             className={`w-5 h-5 ${
-                              isActive ? 'text-edizo-red' : 'text-gray-600 group-hover:text-red-600'
+                              isActive ? 'text-edizo-red' : 'text-gray-600 group-hover:text-edizo-red'
                             }`}
                           />
                           <span

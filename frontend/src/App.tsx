@@ -1,11 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
-// Layout
 import MainLayout from './layouts/MainLayout';
-
-// Pages
 import Home from './pages/Home';
 import Services from './pages/Services';
 import ServiceDetails from './pages/ServiceDetails';
@@ -14,19 +11,19 @@ import InternshipDetails from './pages/InternshipDetails';
 import Projects from './pages/Projects';
 import ProjectDetails from './pages/ProjectDetails';
 import Contact from './pages/Contact';
-// import Support from './pages/Support'; // Optional
 import NotFound from './pages/NotFound';
 import InternshipApplication from './pages/InternshipApplication';
-// NEW: Import the CertificateVerification page
 import CertificateVerification from './pages/CertificateVerification';
 import UpcomingEvents from './pages/UpcomingEvents';
 import ReviewPage from './pages/ReviewPage';
 
-
-
+import Preloader from './components/Preloader';
 
 const App: React.FC = () => {
   const location = useLocation();
+  const [loading, setLoading] = useState(true);
+
+  if (loading) return <Preloader onLoaded={() => setLoading(false)} duration={5000} />;
 
   return (
     <AnimatePresence mode="wait">
@@ -41,13 +38,10 @@ const App: React.FC = () => {
           <Route path="projects" element={<Projects />} />
           <Route path="projects/:id" element={<ProjectDetails />} />
           <Route path="contact" element={<Contact />} />
-          
           <Route path="/events" element={<UpcomingEvents />} />
-          {/* <Route path="support" element={<Support />} /> */}
-          {/* NEW: Add route for Certificate Verification */}
           <Route path="verify-certificate" element={<CertificateVerification />} />
-          <Route path="*" element={<NotFound />} />
           <Route path="/reviews" element={<ReviewPage />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </AnimatePresence>
