@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import {
-  Mail, Phone, MapPin, Send, CheckCircle, Loader2,
-  Facebook, Twitter, Linkedin, Instagram, Youtube
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { Mail, Phone, MapPin, Send, CheckCircle, Loader2,
+  Facebook, Twitter, Linkedin, Instagram, Youtube } from 'lucide-react';
 import { useEffect } from 'react';
 
 // --- Reusable Components ---
 
-const PageHeader = ({ title, subtitle, backgroundImage }) => (
-  <div
+const PageHeader = ({ title, subtitle, backgroundImage, backgroundStyle }) => (
+  <motion.div
     className="relative h-72 md:h-80 bg-cover bg-center text-white flex items-center justify-center rounded-b-xl shadow-lg overflow-hidden"
-    style={{ backgroundImage: `url(${backgroundImage})` }}
+    style={{ backgroundImage: `url(${backgroundImage})`, ...backgroundStyle }}
   >
     <div className="absolute inset-0 bg-black opacity-60 rounded-b-xl"></div>
     <motion.div
@@ -23,7 +22,7 @@ const PageHeader = ({ title, subtitle, backgroundImage }) => (
       <h1 className="text-4xl md:text-5xl font-extrabold mb-2 drop-shadow-md">{title}</h1>
       <p className="text-lg md:text-xl text-gray-200 mt-2">{subtitle}</p>
     </motion.div>
-  </div>
+  </motion.div>
 );
 
 const AnimatedSection = ({ children, delay = 0 }) => (
@@ -72,7 +71,7 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const variantClasses = {
-    primary: 'bg-red-600 text-white hover:bg-red-700 focus:ring-2 ring-offset-2 ring-red-600',
+    primary: 'bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600 focus:ring-2 ring-offset-2 ring-red-500 shadow-md hover:shadow-xl',
     secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-2 ring-offset-2 ring-gray-300',
     outline: 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white focus:ring-2 ring-offset-2 ring-red-600',
     ghost: 'text-red-600 hover:text-red-700 focus:ring-2 ring-offset-2 ring-red-600',
@@ -123,7 +122,7 @@ const ContactInfo = ({ icon, title, lines, gradientClass }) => (
     transition={{ duration: 0.5, delay: 0.2 }}
     className={`flex items-start space-x-4 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${gradientClass}`}
   >
-    <div className="bg-red-500 rounded-full p-3 flex items-center justify-center text-white flex-shrink-0">
+    <div className="bg-red-600 rounded-full p-3 flex items-center justify-center text-white flex-shrink-0">
       {icon}
     </div>
     <div>
@@ -149,7 +148,6 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // ✅ Fixed: No trailing spaces in URL
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://main-webpage-l85m.onrender.com';
 
   const handleInputChange = (e) => {
@@ -193,11 +191,11 @@ const Contact = () => {
     }
   };
 
-  const inputFieldClasses = "border border-gray-300 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-sm hover:border-red-400";
+  const inputFieldClasses = "border border-gray-300 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-sm hover:border-red-400 bg-white";
 
   const socialIcons = { Facebook, Twitter, Linkedin, Instagram, Youtube };
 
-  // ✅ Add JSON-LD structured data
+  // Add JSON-LD structured data
   useEffect(() => {
     const schema = {
       "@context": "https://schema.org",
@@ -238,21 +236,24 @@ const Contact = () => {
     };
   }, []);
 
+  const { scrollY } = useScroll();
+  const backgroundY = useTransform(scrollY, [0, 500], [0, 100]);
+
   return (
     <>
-      {/* JSON-LD added above */}
       <PageHeader
         title={<span className="text-white">Contact Us</span>}
         subtitle={<span className="text-gray-200">Get in touch with our team for any inquiries or assistance</span>}
         backgroundImage="https://images.pexels.com/photos/7413915/pexels-photo-7413915.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+        backgroundStyle={{ y: backgroundY }}
       />
 
-      <section className="section bg-gray-50 py-16 px-4">
+      <section className="section bg-gradient-to-b from-gray-50 to-white py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <AnimatedSection>
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">We'd Love to Hear From You</h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-gray-900">We'd Love to Hear From You</h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
                 Whether you have a question about our services, need a consultation, or just want to say hello, our dedicated team is here to assist you every step of the way.
               </p>
             </div>
@@ -261,39 +262,39 @@ const Contact = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Contact Info */}
             <AnimatedSection delay={0.1}>
-              <div className="bg-gray-100 p-8 rounded-xl h-full shadow-lg">
-                <h3 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Our Details</h3>
+              <div className="bg-gradient-to-b from-gray-100 to-gray-50 p-8 rounded-xl h-full shadow-lg">
+                <h3 className="text-2xl font-extrabold mb-6 text-gray-900 border-b pb-4">Our Details</h3>
                 <div className="space-y-6">
                   <ContactInfo
                     icon={<MapPin className="text-white" size={20} />}
                     title="Our Virtual Office"
                     lines={['Global Remote Operations']}
-                    gradientClass="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-100"
+                    gradientClass="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-100 hover:bg-blue-100/50"
                   />
                   <ContactInfo
                     icon={<Mail className="text-white" size={20} />}
                     title="Email Support"
                     lines={[
-                      <a href="mailto:edizoofficial@gmail.com" className="text-gray-700 hover:text-red-500 transition-colors">edizoofficial@gmail.com</a>,
+                      <a href="mailto:edizoofficial@gmail.com" className="text-gray-700 hover:text-red-600 transition-colors">edizoofficial@gmail.com</a>,
                       <span className="text-sm text-gray-600">General inquiries & partnerships</span>,
-                      <a href="mailto:edizoteam@gmail.com" className="text-gray-700 hover:text-red-500 block mt-2 transition-colors">edizoteam@gmail.com</a>,
+                      <a href="mailto:edizoteam@gmail.com" className="text-gray-700 hover:text-red-600 block mt-2 transition-colors">edizoteam@gmail.com</a>,
                       <span className="text-sm text-gray-600">Technical support & service requests</span>,
                     ]}
-                    gradientClass="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-100"
+                    gradientClass="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-100 hover:bg-gray-100/50"
                   />
                   <ContactInfo
                     icon={<Phone className="text-white" size={20} />}
                     title="Call Us"
                     lines={[
-                      <a href="tel:+919876543210" className="text-gray-700 hover:text-red-500 transition-colors">+91 9876543210</a>,
+                      <a href="tel:+919876543210" className="text-gray-700 hover:text-red-600 transition-colors">+91 9876543210</a>,
                       <span className="text-sm text-gray-600">Mon-Sat: 9:00 AM - 6:00 PM (IST)</span>
                     ]}
-                    gradientClass="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-100"
+                    gradientClass="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-100 hover:bg-slate-100/50"
                   />
                 </div>
 
                 <div className="mt-10">
-                  <h4 className="font-bold text-xl mb-4 text-gray-900 border-b pb-2">Connect With Us</h4>
+                  <h4 className="font-extrabold text-xl mb-4 text-gray-900 border-b pb-2">Connect With Us</h4>
                   <div className="flex space-x-4 justify-center md:justify-start">
                     {[
                       { platform: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61576742758066' },
@@ -313,7 +314,8 @@ const Contact = () => {
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.3, delay: 0.1 * i + 0.3 }}
-                          className="bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white transition-colors duration-300 w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg"
+                          className="bg-gray-200 text-gray-700 hover:bg-gradient-to-r from-red-500 to-orange-500 hover:text-white transition-all duration-300 w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-xl"
+                          whileHover={{ scale: 1.1, rotate: 5 }}
                         >
                           {IconComponent && <IconComponent size={24} />}
                         </motion.a>
@@ -327,20 +329,20 @@ const Contact = () => {
             {/* Contact Form */}
             <AnimatedSection delay={0.2}>
               <div className="bg-white p-8 rounded-xl shadow-xl lg:col-span-2">
-                <h3 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Send Us a Message</h3>
+                <h3 className="text-2xl font-extrabold mb-6 text-gray-900 border-b pb-4">Send Us a Message</h3>
                 {formSubmitted ? (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="text-center py-12 px-4"
+                    className="text-center py-12 px-4 bg-gradient-to-b from-green-50 to-green-100 rounded-lg"
                   >
-                    <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
-                    <h4 className="text-2xl font-bold mb-3">Thank You!</h4>
-                    <p className="text-gray-700 text-lg mb-8">
+                    <CheckCircle className="w-20 h-20 text-green-600 mx-auto mb-6" />
+                    <h4 className="text-2xl font-extrabold mb-3 text-gray-900">Thank You!</h4>
+                    <p className="text-gray-700 text-lg mb-8 font-light">
                       We've received your message and will get back to you within 24-48 hours.
                     </p>
-                    <Button variant="outline" onClick={() => setFormSubmitted(false)}>
+                    <Button variant="outline" onClick={() => setFormSubmitted(false)} size="lg">
                       Send Another Message
                     </Button>
                   </motion.div>
@@ -350,7 +352,7 @@ const Contact = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-red-600 text-center bg-red-100 p-3 rounded-md border border-red-200"
+                        className="text-red-600 text-center bg-red-50 p-3 rounded-md border border-red-200 shadow-sm"
                       >
                         {formError}
                       </motion.p>
@@ -359,7 +361,7 @@ const Contact = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                          Name <span className="text-red-500">*</span>
+                          Name <span className="text-red-600">*</span>
                         </label>
                         <input
                           type="text"
@@ -374,7 +376,7 @@ const Contact = () => {
                       </div>
                       <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                          Email <span className="text-red-500">*</span>
+                          Email <span className="text-red-600">*</span>
                         </label>
                         <input
                           type="email"
@@ -404,7 +406,7 @@ const Contact = () => {
 
                     <div>
                       <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                        Subject <span className="text-red-500">*</span>
+                        Subject <span className="text-red-600">*</span>
                       </label>
                       <input
                         type="text"
@@ -420,7 +422,7 @@ const Contact = () => {
 
                     <div>
                       <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                        Message <span className="text-red-500">*</span>
+                        Message <span className="text-red-600">*</span>
                       </label>
                       <textarea
                         id="message"

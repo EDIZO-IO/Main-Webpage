@@ -402,7 +402,7 @@ const Home = () => {
               Ready to Be Our Next Success Story?
             </h2>
             <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-300">
-              Join 50+ clients who trust us with their digital transformation.
+              Join 10+ clients who trust us with their digital transformation.
             </p>
             <CTAButton to="/contact" variant="primary" icon={ArrowRight}>
               Contact Us
