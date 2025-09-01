@@ -3,32 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Clock, Wifi, Home, ArrowRight, Star, Search } from 'lucide-react';
 
-// Mock PageHeader and AnimatedSection for self-contained example
-const PageHeader = ({ title, subtitle, backgroundImage, backgroundStyle }) => (
-  <motion.div
-    className="relative bg-cover bg-center py-20 text-white text-center rounded-lg shadow-lg"
-    style={{ backgroundImage: `url(${backgroundImage})`, ...backgroundStyle }}
-  >
-    <div className="absolute inset-0 bg-black opacity-50 rounded-lg"></div>
-    <div className="relative z-10 p-4">
-      <h1 className="text-4xl md:text-5xl font-extrabold mb-4">{title}</h1>
-      <p className="text-lg md:text-xl max-w-3xl mx-auto">{subtitle}</p>
-    </div>
-  </motion.div>
-);
-
-const AnimatedSection = ({ children, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-100px" }}
-    transition={{ duration: 0.6, delay, type: 'spring', stiffness: 120, damping: 15 }}
-  >
-    {children}
-  </motion.div>
-);
-
-// Local image imports
+// === Local Image Imports ===
 import webDesign from '../assets/images/web-design.png';
 import responsiveDesign from '../assets/images/responsive-design.png';
 import backEnd from '../assets/images/back-end.png';
@@ -41,31 +16,38 @@ import aiAssistant from '../assets/images/ai-assistant.png';
 import aiChatgpt from '../assets/images/AI with CHATGPT.png';
 import webDevelopment from '../assets/images/web-development.png';
 import Csharp from '../assets/images/c-sharp.png';
-import header from '../assets/background image/internship.png';
+import headerImg from '../assets/background image/internship.png';
 
-// Define the common "Why Choose EDIZO?" content
-const whyChooseEdizoContent = [
-  "100% Internship Certification",
-  "Real-Time, Hands-On Project for Each Course",
-  "Learn from Experienced Industry Mentors",
-  "Placement Guidance & Portfolio Support",
-  "Flexible Duration: 15 Days to 3 Months",
-  "Paid Internship Opportunities",
-  "Modes: Online & Offline",
-];
+// === Mock Components (for self-contained example) ===
+const PageHeader = ({ title, subtitle, backgroundImage, style }) => (
+  <motion.div
+    className="relative bg-cover bg-center py-24 text-white text-center rounded-2xl shadow-2xl overflow-hidden"
+    style={{ backgroundImage: `url(${backgroundImage})`, ...style }}
+  >
+    <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 to-red-900/60"></div>
+    <div className="relative z-10 px-6">
+      {title}
+      {subtitle && (
+        <p className="text-lg md:text-xl max-w-3xl mx-auto text-gray-100 mt-4 font-light">
+          {subtitle}
+        </p>
+      )}
+    </div>
+  </motion.div>
+);
 
-// Define the common "Benefits" content
-const commonBenefits = [
-  "Gain In-Demand Industry Skills",
-  "Build Strong Resume with Real-Time Projects",
-  "Improve Communication & Team Collaboration",
-  "Internship Certificate Recognized by Companies",
-  "Opportunity to Work on Live Client Projects",
-  "Boost Confidence for Interviews & Job Roles",
-  "Get Exposure to Professional Tools & Platforms",
-];
+const AnimatedSection = ({ children, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: '-100px' }}
+    transition={{ duration: 0.6, delay, type: 'spring', stiffness: 100, damping: 20 }}
+  >
+    {children}
+  </motion.div>
+);
 
-// Internship opportunity data
+// === Internship Data ===
 const internships = [
   {
     id: 'ui-ux-design',
@@ -74,8 +56,7 @@ const internships = [
     mode: 'Online',
     image: webDesign,
     rating: 4.7,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
+    isTrending: true,
   },
   {
     id: 'frontend-development',
@@ -84,8 +65,6 @@ const internships = [
     mode: 'Online',
     image: responsiveDesign,
     rating: 4.5,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
   },
   {
     id: 'backend-development',
@@ -94,8 +73,7 @@ const internships = [
     mode: 'Online',
     image: backEnd,
     rating: 4.6,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
+    
   },
   {
     id: 'hr-management',
@@ -104,8 +82,6 @@ const internships = [
     mode: 'Online',
     image: hrManager,
     rating: 4.2,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
   },
   {
     id: 'data-analytics',
@@ -114,8 +90,7 @@ const internships = [
     mode: 'Online',
     image: dataAnalytics,
     rating: 4.8,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
+    isTrending: true,
   },
   {
     id: 'java-development',
@@ -124,8 +99,6 @@ const internships = [
     mode: 'Online',
     image: java,
     rating: 4.4,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
   },
   {
     id: 'python-development',
@@ -134,8 +107,7 @@ const internships = [
     mode: 'Online',
     image: python,
     rating: 4.6,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
+    isTrending: true,
   },
   {
     id: 'digital-marketing',
@@ -144,8 +116,6 @@ const internships = [
     mode: 'Online',
     image: contentStrategy,
     rating: 4.3,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
   },
   {
     id: 'ai-ml',
@@ -154,8 +124,7 @@ const internships = [
     mode: 'Online',
     image: aiAssistant,
     rating: 4.9,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
+    isTrending: true,
   },
   {
     id: 'ai-with-chatgpt',
@@ -164,8 +133,7 @@ const internships = [
     mode: 'Online',
     image: aiChatgpt,
     rating: 4.8,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
+    isTrending: true,
   },
   {
     id: 'web-development',
@@ -174,8 +142,6 @@ const internships = [
     mode: 'Online',
     image: webDevelopment,
     rating: 4.7,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
   },
   {
     id: 'csharp',
@@ -184,11 +150,10 @@ const internships = [
     mode: 'Online',
     image: Csharp,
     rating: 4.5,
-    whyChooseEdizo: whyChooseEdizoContent,
-    benefits: commonBenefits,
   },
 ];
 
+// === Main Component ===
 const Internships = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -196,13 +161,11 @@ const Internships = () => {
   const backgroundY = useTransform(scrollY, [0, 500], [0, 100]);
 
   const categories = ['All', ...new Set(internships.map(i => i.category))];
-
+  const trendingInternships = internships.filter(i => i.isTrending);
   const filteredInternships = internships.filter(i => {
     const matchesCategory = selectedCategory === 'All' || i.category === selectedCategory;
     const search = searchTerm.toLowerCase();
-    const matchesSearch =
-      i.title.toLowerCase().includes(search) ||
-      i.id.toLowerCase().includes(search);
+    const matchesSearch = i.title.toLowerCase().includes(search) || i.id.toLowerCase().includes(search);
     return matchesCategory && matchesSearch;
   });
 
@@ -211,101 +174,120 @@ const Internships = () => {
     visible: (i) => ({
       opacity: 1,
       y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-        type: 'spring',
-        stiffness: 120,
-        damping: 15,
-      },
+      transition: { delay: i * 0.08, duration: 0.4, type: 'spring', stiffness: 100, damping: 18 },
     }),
   };
 
   return (
-    <>
-      {/* Tailwind CSS CDN */}
-      <script src="https://cdn.tailwindcss.com"></script>
-      {/* Inter Font */}
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-      <style>
-        {`
-        body {
-          font-family: 'Inter', sans-serif;
-        }
-        .container-custom {
-          max-width: 1200px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-        `}
-      </style>
-
+    <div className="min-h-screen bg-gray-50">
+      {/* === Hero Header === */}
       <PageHeader
         title={
-          <motion.span
+          <motion.h1
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500"
+            transition={{ duration: 0.8 }}
+            className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-orange-500 to-yellow-500"
           >
             Internship Opportunities
-          </motion.span>
+          </motion.h1>
         }
-        subtitle={
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-            className="text-white"
-          >
-            Jumpstart your career with real-world experience in a dynamic, innovative environment.
-          </motion.span>
-        }
-        backgroundImage={header}
-        backgroundStyle={{ y: backgroundY }}
+        subtitle="Jumpstart your career with real-world experience in a dynamic, innovative environment."
+        backgroundImage={headerImg}
+        style={{ y: backgroundY }}
       />
 
-      <section className="section bg-gradient-to-b from-gray-50 to-white py-16">
-        <div className="container-custom mx-auto px-4">
+      {/* === Trending Internships (Smaller Cards) === */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
           <AnimatedSection>
-            <div className="text-center mb-16">
-              <div className="flex flex-col md:flex-row justify-center items-center gap-10 mb-8">
-                <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900">Available Internships</h2>
-                <div className="relative flex items-center w-full md:w-auto max-w-md">
-                  <input
-                    type="text"
-                    placeholder="Search Internship Title..."
-                    className="p-3 pl-10 rounded-full border border-red-600/20 focus:outline-none focus:ring-2 focus:ring-red-500 w-full shadow-sm bg-white"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ boxShadow: '0 0 10px rgba(255, 0, 0, 0.1)' }}
-                  />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-red-600" size={20} />
-                </div>
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-gray-800 flex items-center justify-center gap-3">
+                🔥 Trending Right Now
+              </h2>
+              <p className="text-gray-600 mt-2">Our most popular programs loved by students</p>
+            </div>
+          </AnimatedSection>
+
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+            {trendingInternships.map((internship, index) => (
+              <motion.div
+                key={internship.id}
+                custom={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                whileHover={{ y: -4 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05, duration: 0.3 }}
+                className="group w-48 sm:w-52 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 cursor-pointer"
+              >
+                <Link to={`/internships/${internship.id}`}>
+                  <div className="relative h-28 overflow-hidden rounded-t-xl">
+                    <img
+                      src={internship.image}
+                      alt={internship.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30"></div>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 h-10">
+                      {internship.title}
+                    </h3>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex text-yellow-500 text-xs">
+                        {'★'.repeat(Math.floor(internship.rating))}
+                        {'☆'.repeat(5 - Math.floor(internship.rating))}
+                      </div>
+                      <span className="text-xs text-red-600 font-medium">{internship.rating}</span>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* === All Internships === */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <AnimatedSection>
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-800 mb-4">Available Internships</h2>
+              <div className="max-w-md mx-auto relative mb-6">
+                <input
+                  type="text"
+                  placeholder="Search internships..."
+                  className="w-full p-3 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white shadow-sm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               </div>
-              {/* Category Filter Buttons */}
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
-                {categories.map(category => (
+              <div className="flex flex-wrap justify-center gap-2 mb-8">
+                {categories.map((category) => (
                   <motion.button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-5 py-2 rounded-full font-semibold transition-all duration-300 ${
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
                       selectedCategory === category
-                        ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md'
-                        : 'bg-gray-200 text-gray-700 hover:bg-red-100'
+                        ? 'bg-red-500 text-white shadow'
+                        : 'bg-white text-gray-700 hover:bg-red-50 border border-gray-200'
                     }`}
                     whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     {category}
                   </motion.button>
                 ))}
               </div>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto font-medium">
+              <p className="text-gray-600 max-w-2xl mx-auto">
                 Apply for one of our internship programs and gain valuable experience working with industry experts on real projects.
               </p>
             </div>
           </AnimatedSection>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredInternships.map((internship, index) => (
               <motion.div
@@ -314,70 +296,47 @@ const Internships = () => {
                 variants={cardVariants}
                 initial="hidden"
                 whileInView="visible"
+                whileHover="hover"
                 viewport={{ once: true, margin: '-50px' }}
-                className="group rounded-xl shadow-lg border border-red-600/20 bg-white hover:shadow-2xl hover:border-red-200 transition-all duration-300 cursor-pointer"
-                whileHover={{ rotateX: 2, rotateY: 2, scale: 1.035 }}
-                style={{ perspective: 1000, boxShadow: '0 0 15px rgba(255, 0, 0, 0.1)' }}
+                className="group bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden"
               >
                 <Link to={`/internships/${internship.id}`}>
-                  <div className="relative h-48 overflow-hidden rounded-t-xl">
+                  <div className="relative h-40 overflow-hidden">
                     <img
                       src={internship.image}
                       alt={internship.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-red-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-xl" />
-                    <div className="absolute top-3 right-3">
-                      <span className="bg-red-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
-                        {internship.category}
-                      </span>
-                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-semibold">
+                      {internship.category}
+                    </span>
                   </div>
                   <div className="p-5">
-                    <h3 className="text-xl font-extrabold text-gray-900 mb-1 line-clamp-2 bg-gradient-to-r from-red-600 via-gray-700 to-gray-900 bg-clip-text text-transparent">
+                    <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
                       {internship.title}
                     </h3>
-                    <div className="flex items-center mb-3">
+                    <div className="flex items-center mb-2">
                       <div className="flex text-yellow-500 mr-2">
-                        {[...Array(Math.floor(internship.rating))].map((_, i) => (
-                          <Star key={i} size={16} fill="currentColor" stroke="none" />
-                        ))}
-                        {internship.rating % 1 !== 0 && (
-                          <Star size={16} fill="url(#half-star)" stroke="none" />
-                        )}
-                        <svg width="0" height="0" className="absolute">
-                          <linearGradient id="half-star">
-                            <stop offset="50%" stopColor="#facc15" />
-                            <stop offset="50%" stopColor="#d1d5db" />
-                          </linearGradient>
-                        </svg>
-                      </div>
-                      <span className="text-gray-700 text-sm font-semibold">{internship.rating}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
-                      <div className="flex items-center">
-                        {internship.mode === 'Online' ? (
-                          <>
-                            <Wifi className="mr-1 text-red-600" size={16} />
-                            <span className="text-gray-700">Online</span>
-                          </>
-                        ) : (
-                          <>
-                            <Home className="mr-1 text-red-600" size={16} />
-                            <span className="text-gray-700">Offline</span>
-                          </>
+                        {[...Array(5)].map((_, i) =>
+                          i < Math.floor(internship.rating) ? (
+                            <Star key={i} size={16} fill="currentColor" stroke="none" />
+                          ) : (
+                            <Star key={i} size={16} fill="none" stroke="currentColor" />
+                          )
                         )}
                       </div>
+                      <span className="text-gray-600 text-sm font-medium">{internship.rating}</span>
                     </div>
-                    <motion.div
-                      className="border-t border-gray-200 pt-3"
-                      whileHover={{ x: 5 }}
-                      transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                      <span className="text-red-600 font-semibold hover:underline flex items-center justify-between">
-                        Explore More <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    <div className="flex items-center text-sm text-gray-500 mb-3">
+                      <Wifi className="mr-1 text-red-500" size={14} />
+                      <span>{internship.mode}</span>
+                    </div>
+                    <div className="border-t pt-3">
+                      <span className="text-red-600 text-sm font-semibold flex items-center hover:underline group-hover:gap-1 transition-all">
+                        Explore More <ArrowRight className="w-3.5 h-3.5 ml-1 opacity-0 group-hover:opacity-100 transition-all" />
                       </span>
-                    </motion.div>
+                    </div>
                   </div>
                 </Link>
               </motion.div>
@@ -385,7 +344,7 @@ const Internships = () => {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 

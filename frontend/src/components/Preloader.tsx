@@ -8,7 +8,7 @@ interface Props {
   duration?: number; // optional override (ms)
 }
 
-const Preloader: React.FC<Props> = ({ onLoaded, duration = 3000 }) => {
+const Preloader: React.FC<Props> = ({ onLoaded, duration = 2500 }) => {
   useEffect(() => {
     const t = setTimeout(onLoaded, duration); // hide after duration
     return () => clearTimeout(t);

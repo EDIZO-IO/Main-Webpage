@@ -23,7 +23,7 @@ const App: React.FC = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
-  if (loading) return <Preloader onLoaded={() => setLoading(false)} duration={5000} />;
+  if (loading) return <Preloader onLoaded={() => setLoading(false)} duration={2100} />;
 
   return (
     <AnimatePresence mode="wait">

@@ -18,36 +18,44 @@ import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
 
-// Service Images (consistent with Services page)
+// Service Images
 import webDevelopment from '../assets/services/website design.webp';
 import uiuxImg from '../assets/services/uiux.webp';
 import appDesignImg from '../assets/services/app design.webp';
 import videoEditingImg from '../assets/services/video editing.webp';
 import graphicDesignImg from '../assets/services/graphic design.webp';
 
-// internship
+// Internship Images
 import uiux from '../assets/images/web-design.png';
 import webdevelop from '../assets/images/web-development.png';
 import aiml from '../assets/images/ai-assistant.png';
 
 // Lazy Load Images
 const LazyImage = ({ src, alt, className = "" }) => (
-  <img src={src} alt={alt} loading="lazy" className={className} />
+  <img
+    src={src}
+    alt={alt}
+    loading="lazy"
+    className={className}
+    onError={(e) => {
+      e.target.src = `https://placehold.co/400x250/D1D5DB/4B5563?text=${encodeURIComponent(alt)}`;
+    }}
+  />
 );
 
-// Animated Section with Scroll Trigger
+// Animated Section
 const AnimatedSection = ({ children, delay = 0 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 60 }}
+    initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-100px" }}
-    transition={{ duration: 0.7, delay, ease: "easeOut" }}
+    transition={{ duration: 0.6, delay, ease: "easeOut" }}
   >
     {children}
   </motion.div>
 );
 
-// Parallax Scroll Hook
+// Parallax Hook
 const useParallax = (speed = 0.2) => {
   const { scrollY } = useScroll();
   return useTransform(scrollY, [0, 1000], [0, scrollY.current * speed]);
@@ -57,44 +65,39 @@ const useParallax = (speed = 0.2) => {
 const StatCard = ({ value, label }) => (
   <AnimatedSection>
     <motion.div
-      className="p-6 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 text-center"
-      whileHover={{ y: -10, scale: 1.02 }}
+      className="p-5 bg-white rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow duration-300"
+      whileHover={{ y: -4 }}
     >
-      <h3 className="text-4xl font-bold text-red-600 mt-3">{value}</h3>
-      <p className="text-gray-500 mt-1">{label}</p>
+      <h3 className="text-3xl font-bold text-red-600">{value}</h3>
+      <p className="text-gray-600 text-sm mt-1">{label}</p>
     </motion.div>
   </AnimatedSection>
 );
 
-// Service Card (Image-Based, No Icons)
+// Service Card
 const ServiceCard = ({ img, title, desc, link }) => (
   <AnimatedSection>
     <motion.div
-      className="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-      whileHover={{ y: -8, scale: 1.02 }}
+      className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
+      whileHover={{ y: -6 }}
       whileTap={{ scale: 0.98 }}
-      tabIndex="0"
-      role="article"
     >
-      {/* Image */}
-      <div className="relative h-48 overflow-hidden">
-        <LazyImage src={img} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+      <div className="relative h-40 overflow-hidden">
+        <LazyImage
+          src={img}
+          alt={title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
       </div>
-
-      {/* Content */}
-      <div className="p-6">
-        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
-        <p className="text-gray-600 mb-4 mt-2">{desc}</p>
+      <div className="p-5">
+        <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+        <p className="text-gray-600 text-sm mt-2 mb-4 leading-relaxed">{desc}</p>
         <Link
           to={link}
-          className="text-red-600 font-medium flex items-center hover:text-red-700 group"
+          className="text-red-600 font-medium text-sm flex items-center hover:underline"
         >
           Learn more
-          <ArrowRight
-            size={16}
-            className="ml-1 group-hover:translate-x-1 transition-transform"
-            aria-hidden="true"
-          />
+          <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>
     </motion.div>
@@ -105,20 +108,22 @@ const ServiceCard = ({ img, title, desc, link }) => (
 const PortfolioCard = ({ img, title, category, link, isInternship = false }) => (
   <AnimatedSection>
     <motion.div
-      className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 relative"
-      whileHover={{ y: -10, scale: 1.02 }}
+      className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
+      whileHover={{ y: -6 }}
     >
-      <LazyImage src={img} alt={title} className="w-full h-48 object-cover" />
-      <div className="p-6">
-        {!isInternship && (
-          <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">
+      <div className="relative h-40 overflow-hidden">
+        <LazyImage src={img} alt={title} className="w-full h-full object-cover" />
+        {category && (
+          <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2.5 py-1 rounded-full font-semibold">
             {category}
           </span>
         )}
-        <h3 className="text-xl font-bold text-gray-900 mt-2">{title}</h3>
+      </div>
+      <div className="p-5">
+        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
         {isInternship && (
-          <p className="text-gray-600 text-sm mt-2">
-            Gain real-world experience, work on live projects, and learn from industry experts.
+          <p className="text-gray-600 text-sm mt-1">
+            Gain real-world experience on live projects.
           </p>
         )}
       </div>
@@ -127,32 +132,28 @@ const PortfolioCard = ({ img, title, category, link, isInternship = false }) => 
   </AnimatedSection>
 );
 
-// Testimonial Card
+// Testimonial Card (Optional – not used yet)
 const TestimonialCard = ({ name, role, rating, content }) => (
   <AnimatedSection>
-    <motion.div
-      className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
-      whileHover={{ y: -5 }}
-    >
-      <div className="flex items-center mb-4">
+    <motion.div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-center mb-3">
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
             size={16}
             className={i < Math.round(rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
-            aria-hidden="true"
           />
         ))}
-        <span className="ml-2 text-sm text-gray-600">{rating}/5</span>
+        <span className="ml-2 text-sm text-gray-500">{rating}</span>
       </div>
-      <blockquote className="text-gray-700 italic mb-4">"{content}"</blockquote>
+      <p className="text-gray-700 text-sm italic mb-4">"{content}"</p>
       <div className="flex items-center">
-        <div className="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">
+        <div className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
           {name[0]}
         </div>
         <div className="ml-3">
-          <h4 className="font-semibold text-gray-900">{name}</h4>
-          <p className="text-sm text-gray-500">{role}</p>
+          <h4 className="text-sm font-semibold text-gray-800">{name}</h4>
+          <p className="text-xs text-gray-500">{role}</p>
         </div>
       </div>
     </motion.div>
@@ -161,12 +162,12 @@ const TestimonialCard = ({ name, role, rating, content }) => (
 
 // CTA Button
 const CTAButton = ({ to, children, variant = "primary", icon: Icon }) => {
-  const base = "inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 min-h-12";
+  const base = "inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 min-h-12";
 
   const variants = {
-    primary: `${base} bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600 transform hover:scale-105 focus:ring-red-500`,
-    secondary: `${base} border-2 border-white text-white bg-transparent hover:bg-white hover:text-gray-900 transform hover:scale-105 focus:ring-white`,
-    event: `${base} from-purple-600 to-pink-600 bg-gradient-to-r text-white hover:shadow-xl hover:scale-105 focus:ring-purple-500`,
+    primary: `${base} bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600 hover:shadow-md focus:ring-red-500`,
+    secondary: `${base} bg-white text-gray-800 hover:bg-gray-50 border border-gray-300 focus:ring-gray-400`,
+    event: `${base} bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 hover:shadow-md focus:ring-purple-500`,
   };
 
   return (
@@ -179,79 +180,74 @@ const CTAButton = ({ to, children, variant = "primary", icon: Icon }) => {
 
 // Hero Section
 const Hero = () => {
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 800], [0, -50]);
-  const scale = useTransform(scrollY, [0, 600], [1, 0.95]);
+  const y = useParallax(0.3);
 
   return (
-    <section
-      className="relative text-white overflow-hidden min-h-screen flex items-center"
-      aria-labelledby="hero-title"
-    >
-      {/* Animated Gradient Background */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-red-900 via-gray-900 to-black z-0"
-        style={{ scale }}
-      />
+    <section className="relative text-white min-h-screen flex items-center" aria-labelledby="hero-title">
+      {/* Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-gray-900 to-black z-0" />
 
-      {/* Floating Particles */}
-      <div className="absolute inset-0 z-10 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
+      {/* Floating Particles (Subtle) */}
+      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+        {[...Array(4)].map((_, i) => (
           <motion.div
             key={i}
             animate={{
-              y: [0, 100, 0],
-              opacity: [0.2, 0.6, 0.2],
+              y: [0, 20, 0],
+              opacity: [0.3, 0.6, 0.3],
             }}
             transition={{
               repeat: Infinity,
-              duration: 6 + i * 2,
-              delay: i * 1.5,
+              duration: 5 + i * 2,
+              delay: i * 1,
               ease: "easeInOut",
             }}
             className="absolute w-1 h-1 bg-yellow-300 rounded-full"
             style={{
-              left: `${20 + (i * 15) % 80}%`,
-              top: `${10 + i * 15}%`,
+              left: `${20 + (i * 20) % 80}%`,
+              top: `${20 + i * 15}%`,
             }}
           />
         ))}
       </div>
 
-      {/* Hero Content */}
+      {/* Content */}
       <motion.div
         className="container mx-auto px-6 lg:px-12 relative z-20 py-20 text-center"
         style={{ y }}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center justify-center">
-          <div className="w-full">
-            <AnimatedSection delay={0.3}>
-              <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
-                <span className="text-white">Welcome to </span> <span className="text-red-600">EDIZO</span>
-              </h1>
-            </AnimatedSection>
-            <AnimatedSection delay={0.4}>
-              <p className="text-lg md:text-xl font-light mb-8 text-white max-w-lg mx-auto">
-                Creative Services & Real-World Learning — All in One Place
-              </p>
-              <p className="text-lg md:text-xl font-light mb-8 text-white max-w-xl mx-auto">
-                Get premium <span className="text-red-600 font-bold">video editing</span>,
-                <span className="text-red-600 font-bold"> graphic design</span>, and
-                <span className="text-red-600 font-bold"> web development services</span>.<br />
-                Launch your career with our exclusive <span className="text-red-600 font-bold">internship programs.</span>
-              </p>
-            </AnimatedSection>
-            <AnimatedSection delay={0.5}>
-              <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-xs sm:max-w-md mx-auto">
-                <CTAButton to="/services" variant="primary">
-                  Explore Services
-                </CTAButton>
-                <CTAButton to="/contact" variant="secondary">
-                  Get in Touch
-                </CTAButton>
-              </div>
-            </AnimatedSection>
-          </div>
+        <div className="max-w-4xl mx-auto">
+          <AnimatedSection delay={0.2}>
+            <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+             <span className="text-white">Welcome to</span> <span className="text-red-500">EDIZO</span>
+            </h1>
+          </AnimatedSection>
+
+          <AnimatedSection delay={0.3}>
+            <p className="text-lg md:text-xl font-light mb-8 text-white max-w-lg mx-auto">
+              Creative Services & Real-World Learning — All in One Place
+            </p>
+            <p className="text-lg md:text-xl font-light mb-8 text-white max-w-xl mx-auto">
+              Get premium{' '}
+              <span className="text-red-500 font-bold">video editing</span>,
+              <span className="text-red-500 font-bold"> graphic design</span>, and{' '}
+              <span className="text-red-500 font-bold">web development services</span>.
+              <br />
+              Launch your career with our exclusive{' '}
+              <span className="text-red-500 font-bold">internship programs</span>.
+            </p>
+          </AnimatedSection>
+
+          <AnimatedSection delay={0.4}>
+            <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-xs sm:max-w-md mx-auto">
+              <CTAButton to="/services" variant="primary">
+                Explore Services
+              </CTAButton>
+              <CTAButton to="/contact" variant="secondary">
+                Get in Touch
+              </CTAButton>
+            </div>
+          </AnimatedSection>
         </div>
       </motion.div>
     </section>
@@ -265,57 +261,51 @@ const Home = () => {
       <Hero />
 
       {/* UPCOMING EVENTS */}
-      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
-        <div className="container mx-auto px-6 text-center max-w-4xl">
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6 text-center max-w-3xl">
           <AnimatedSection>
-            <div className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 rounded-full font-semibold text-lg mb-6 shadow-sm border border-purple-200">
-              <span className="w-5 h-5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </span>
+            <div className="inline-flex items-center gap-2 px-5 py-2 bg-purple-50 text-purple-700 rounded-full font-medium text-sm mb-5 border border-purple-100">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
               Upcoming Events
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Join Our <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">Free Webinars & Workshops</span>
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-5">
+              Join Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Free Webinars</span>
             </h2>
-            <p className="text-lg text-gray-600 mb-8">Learn from industry experts — all for free.</p>
-            <CTAButton to="/events" variant="event" icon={() => (
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            )}>
-              🚀 View All Events & Register
+            <p className="text-gray-600 mb-6">Learn from industry experts — no cost, no risk.</p>
+            <CTAButton to="/events" variant="event">
+              🚀 View Events & Register
             </CTAButton>
-            <p className="text-sm text-gray-500 mt-6">1,000+ professionals attended</p>
+            <p className="text-sm text-gray-500 mt-4">1,000+ professionals attended</p>
           </AnimatedSection>
         </div>
       </section>
 
       {/* STATS */}
-      <section className="bg-gray-50 py-20">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { value: "10+", label: "Happy Clients" },
               { value: "25+", label: "Projects" },
               { value: "10+", label: "Experts" },
               { value: "5.0", label: "Client Rating" },
             ].map((stat, i) => (
-              <StatCard key={i} {...stat} delay={i * 0.15} />
+              <StatCard key={i} {...stat} delay={i * 0.1} />
             ))}
           </div>
         </div>
       </section>
 
       {/* SERVICES */}
-      <section className="py-20 bg-white">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Services</h2>
-            <p className="text-lg text-center text-gray-600 mb-12">Expert solutions loved by clients.</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-4">Our Services</h2>
+            <p className="text-gray-600 text-center mb-10">Expert solutions loved by clients.</p>
           </AnimatedSection>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {[
               { img: webDevelopment, title: "Web Development", desc: "Fast, scalable websites with React & Next.js.", link: "/services/web-development" },
               { img: uiuxImg, title: "UI/UX Design", desc: "Human-centered design that users love.", link: "/services/ui-ux-design" },
@@ -330,17 +320,17 @@ const Home = () => {
       </section>
 
       {/* PROJECTS */}
-      <section className="py-20 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
-            <p className="text-lg text-center text-gray-600 mb-12">Award-worthy digital solutions.</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
+            <p className="text-gray-600 text-center mb-10">Award-worthy digital solutions.</p>
           </AnimatedSection>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { img: faceguard, title: "FaceGuard UI/UX" },
-              { img: ransomware, title: "Ransomware Awareness" },
-              { img: Epicnexus, title: "Epic Nexus App" },
+              { img: faceguard, title: "FaceGuard UI/UX", category: "UI/UX" },
+              { img: ransomware, title: "Ransomware Awareness", category: "Security" },
+              { img: Epicnexus, title: "Epic Nexus App", category: "App" },
             ].map((p) => (
               <PortfolioCard key={p.title} {...p} />
             ))}
@@ -349,25 +339,25 @@ const Home = () => {
       </section>
 
       {/* WHY CHOOSE US */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Why Choose Edizo?</h2>
-            <p className="text-lg text-center text-gray-600 mb-12">We deliver unmatched results.</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-4">Why Choose Edizo?</h2>
+            <p className="text-gray-600 text-center mb-10">We deliver unmatched results.</p>
           </AnimatedSection>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { icon: Zap, title: "Fast Delivery", desc: "On schedule — every time." },
               { icon: Shield, title: "100% Satisfaction", desc: "We revise until you're thrilled." },
               { icon: Target, title: "Results-Driven", desc: "Optimized for growth & impact." },
             ].map((item, i) => (
-              <AnimatedSection key={item.title} delay={0.2 * i}>
-                <div className="text-center p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300">
-                  <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <item.icon size={32} />
+              <AnimatedSection key={item.title} delay={0.1 * i}>
+                <div className="text-center p-5 bg-gray-50 rounded-lg hover:bg-white border border-transparent hover:border-gray-200 transition-all duration-300">
+                  <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <item.icon size={20} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
-                  <p className="text-gray-600">{item.desc}</p>
+                  <h3 className="text-base font-semibold text-gray-800">{item.title}</h3>
+                  <p className="text-gray-600 text-sm mt-1">{item.desc}</p>
                 </div>
               </AnimatedSection>
             ))}
@@ -376,15 +366,15 @@ const Home = () => {
       </section>
 
       {/* INTERNSHIPS */}
-      <section className="py-20 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">Internships</h2>
-            <p className="text-lg text-center text-gray-600 mb-12">Launch your career with hands-on experience.</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-4">Internships</h2>
+            <p className="text-gray-600 text-center mb-10">Launch your career with hands-on experience.</p>
           </AnimatedSection>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { img: webdevelop, title: "Web Development ", link: "/internships/web-development" },
+              { img: webdevelop, title: "Web Development", link: "/internships/web-development" },
               { img: uiux, title: "UI/UX Design Intern", link: "/internships/ui-ux-design" },
               { img: aiml, title: "AI & Machine Learning", link: "/internships/ai-ml" },
             ].map((item) => (
@@ -395,13 +385,13 @@ const Home = () => {
       </section>
 
       {/* FINAL CTA */}
-      <section className="py-20 bg-gray-900 text-white text-center">
+      <section className="py-16 bg-gray-900 text-white text-center">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
               Ready to Be Our Next Success Story?
             </h2>
-            <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-300">
+            <p className="text-gray-300 mb-6 max-w-lg mx-auto text-sm md:text-base">
               Join 10+ clients who trust us with their digital transformation.
             </p>
             <CTAButton to="/contact" variant="primary" icon={ArrowRight}>

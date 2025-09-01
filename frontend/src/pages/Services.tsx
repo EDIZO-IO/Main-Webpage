@@ -165,10 +165,10 @@ const AnimatedTypingSubtitle = ({ phrases }) => {
 // Animated Section Wrapper
 const AnimatedSection = ({ children, delay = 0 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 30 }}
+    initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-100px" }}
-    transition={{ duration: 0.6, delay, type: 'spring', stiffness: 120, damping: 15 }}
+    transition={{ duration: 0.6, delay, type: 'spring', stiffness: 100, damping: 15 }}
   >
     {children}
   </motion.div>
@@ -202,58 +202,56 @@ const Services = () => {
           />
         }
         backgroundImage={headerBackground}
-        backgroundStyle={{ y: backgroundY }} // Parallax effect
+        backgroundStyle={{ y: backgroundY }}
       />
 
       {/* What We Offer */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection>
-            <div className="text-center mb-16 max-w-4xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
+            <div className="text-center mb-12 max-w-3xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 What We Offer
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed font-medium">
+              <p className="text-lg text-gray-600 leading-relaxed">
                 High-quality services designed to elevate your digital presence and drive business growth.
               </p>
             </div>
           </AnimatedSection>
 
           {/* Services Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {services.map((service, index) => (
               <AnimatedSection key={service.id} delay={0.1 * index}>
                 <motion.div
-                  className="group rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-red-600/20 bg-white hover:-translate-y-3 h-full flex flex-col"
-                  whileHover={{ scale: 1.03, rotateX: 2, rotateY: 2 }}
-                  transition={{ duration: 0.3 }}
-                  style={{ boxShadow: '0 0 15px rgba(255, 0, 0, 0.1)' }}
+                  className="group rounded-xl overflow-hidden shadow-sm border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 h-full flex flex-col"
+                  whileHover={{ y: -6, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 >
                   {/* Image */}
-                  <div className="relative h-48 overflow-hidden flex-shrink-0">
+                  <div className="relative h-36 md:h-40 overflow-hidden">
                     <LazyImage
                       src={service.image}
                       alt={service.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity ${service.accent}`} />
+                    <div className={`absolute inset-0 bg-gradient-to-t ${service.accent} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
                   </div>
 
                   {/* Content */}
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-2xl font-extrabold text-gray-900 mb-3">{service.title}</h3>
-                    <p className="text-gray-600 text-base leading-relaxed mb-4 flex-grow font-light">
+                  <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">{service.title}</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed flex-grow">
                       {service.description}
                     </p>
-                    <div className="mt-auto">
-                      <Link
-                        to={`/services/${service.id}`}
-                        className={`inline-flex items-center font-semibold ${service.secondaryColor} hover:${service.secondaryColor.replace('text-', 'text-').replace('-600', '-700')} group/link`}
-                      >
-                        Learn more
-                        <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/link:translate-x-1" />
-                      </Link>
-                    </div>
+                    <Link
+                      to={`/services/${service.id}`}
+                      className={`inline-flex items-center mt-4 text-sm font-medium ${service.secondaryColor} hover:underline`}
+                    >
+                      Learn more
+                      <ArrowRight className="ml-1.5 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
                   </div>
                 </motion.div>
               </AnimatedSection>
@@ -261,15 +259,14 @@ const Services = () => {
           </div>
 
           {/* CTA Button */}
-          <div className="text-center mt-16">
-            <motion.div whileHover={{ scale: 1.05, rotate: 1 }} transition={{ type: 'spring', stiffness: 300 }}>
+          <div className="text-center mt-14">
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-lg rounded-full shadow-lg hover:from-red-600 hover:to-orange-600 hover:shadow-xl transition-all duration-300"
-                style={{ boxShadow: '0 0 15px rgba(255, 0, 0, 0.3)' }}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold text-base rounded-full shadow-md hover:from-red-600 hover:to-orange-600 hover:shadow-lg transition-all duration-300"
               >
                 Need a Custom Solution? Get Free Consultation
-                <ArrowRight size={24} />
+                <ArrowRight size={20} />
               </Link>
             </motion.div>
           </div>
@@ -277,32 +274,34 @@ const Services = () => {
       </section>
 
       {/* Why Choose Edizo */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">
               Why Choose Edizo?
             </h2>
-            <p className="text-lg text-center text-gray-600 mb-12 max-w-2xl mx-auto font-medium">
+            <p className="text-lg text-center text-gray-600 mb-10 max-w-2xl mx-auto">
               We don't just deliver services — we build partnerships that grow your business.
             </p>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {whyChooseEdizoServiceContent.map((item, i) => (
               <AnimatedSection key={i} delay={0.1 + i * 0.1}>
                 <motion.div
-                  className="flex items-start space-x-3 p-5 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl hover:bg-red-100 transition-all duration-300"
-                  whileHover={{ scale: 1.05 }}
+                  className="flex items-start space-x-3 p-4 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group"
+                  whileHover={{ y: -2 }}
                 >
                   <motion.div
-                    className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center mt-0.5"
+                    className="flex-shrink-0 w-7 h-7 bg-red-100 text-red-600 rounded-full flex items-center justify-center mt-0.5"
                     animate={{ rotate: 360 }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                   >
                     <CheckCircle className="w-4 h-4" />
                   </motion.div>
-                  <p className="text-gray-800 font-semibold text-base leading-relaxed">{item}</p>
+                  <p className="text-gray-700 text-sm font-medium leading-relaxed group-hover:text-gray-900 transition-colors">
+                    {item}
+                  </p>
                 </motion.div>
               </AnimatedSection>
             ))}
