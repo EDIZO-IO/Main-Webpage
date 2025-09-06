@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Wifi,
@@ -9,13 +9,49 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import internshipsData from './internships.json';
+
+// Define the Internship interface
+interface Internship {
+  id: string;
+  title: string;
+  category: string;
+  mode: 'Online' | 'Offline';
+  rating: number;
+  description: string;
+  isTrending?: boolean;
+  syllabus: {
+    [key: string]: string[];
+  };
+  whyChooseEdizo: string[];
+  benefits: string[];
+  // Add any other properties your internship data might have
+}
+
+// Mock data - replace with your actual import if needed
+// import internshipsData from './internships.json';
+const internshipsData: Record<string, Internship> = {
+  // Your internship data would go here
+  // This is just a placeholder for type safety
+};
 
 // Reusable Button Component
-const Button = ({ children, onClick, variant = 'default', className = '' }) => {
-  const variants = {
+interface ButtonProps {
+  children: React.ReactNode;
+  onClick: () => void;
+  variant?: 'primary' | 'outline' | 'default';
+  className?: string;
+}
+
+const Button: React.FC<ButtonProps> = ({ 
+  children, 
+  onClick, 
+  variant = 'default', 
+  className = '' 
+}) => {
+  const variants: Record<string, string> = {
     primary: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
     outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-400',
+    default: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
   };
 
   return (
@@ -29,7 +65,12 @@ const Button = ({ children, onClick, variant = 'default', className = '' }) => {
 };
 
 // Animated Section
-const AnimatedSection = ({ children, delay = 0 }) => (
+interface AnimatedSectionProps {
+  children: React.ReactNode;
+  delay?: number;
+}
+
+const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -39,20 +80,30 @@ const AnimatedSection = ({ children, delay = 0 }) => (
   </motion.div>
 );
 
-const InternshipDetails = () => {
-  const { id } = useParams();
+const InternshipDetails: React.FC = () => {
+  const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
-  const [activePeriod, setActivePeriod] = useState('15-days');
-  const [internship, setInternship] = useState(null);
+  const [activePeriod, setActivePeriod] = useState<string>('15-days');
+  const [internship, setInternship] = useState<Internship | null>(null);
 
   useEffect(() => {
+    if (!id) {
+      setInternship(null);
+      return;
+    }
+    
     const selectedInternship = internshipsData[id];
     if (selectedInternship) {
       setInternship(selectedInternship);
+      // Set default active period to first available period
+      const periods = Object.keys(selectedInternship.syllabus);
+      if (periods.length > 0 && !selectedInternship.syllabus[activePeriod]) {
+        setActivePeriod(periods[0]);
+      }
     } else {
       setInternship(null);
     }
-  }, [id]);
+  }, [id, activePeriod]);
 
   if (!internship) {
     return (
@@ -71,7 +122,7 @@ const InternshipDetails = () => {
   }
 
   const syllabusPeriods = Object.keys(internship.syllabus);
-  const currentSyllabus = internship.syllabus[activePeriod];
+  const currentSyllabus = internship.syllabus[activePeriod] || [];
 
   return (
     <div className="min-h-screen bg-gray-50 pt-28 pb-16 px-4 md:px-6 lg:px-8">
@@ -164,7 +215,7 @@ const InternshipDetails = () => {
                 ))}
               </div>
 
-              {currentSyllabus ? (
+              {currentSyllabus.length > 0 ? (
                 <ul className="bg-white p-6 rounded-xl shadow-sm space-y-3">
                   {currentSyllabus.map((topic, index) => (
                     <li key={index} className="flex items-start text-gray-700 text-sm">

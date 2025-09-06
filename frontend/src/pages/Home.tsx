@@ -30,21 +30,61 @@ import uiux from '../assets/images/web-design.png';
 import webdevelop from '../assets/images/web-development.png';
 import aiml from '../assets/images/ai-assistant.png';
 
+// Type definitions
+interface LazyImageProps {
+  src: string;
+  alt: string;
+  className?: string;
+}
+
+interface AnimatedSectionProps {
+  children: React.ReactNode;
+  delay?: number;
+}
+
+interface StatCardProps {
+  value: string;
+  label: string;
+}
+
+interface ServiceCardProps {
+  img: string;
+  title: string;
+  desc: string;
+  link: string;
+}
+
+interface PortfolioCardProps {
+  img: string;
+  title: string;
+  category?: string;
+  link: string;
+  isInternship?: boolean;
+}
+
+interface CTAButtonProps {
+  to: string;
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'event';
+  icon?: React.ComponentType<{ size: number }>;
+}
+
 // Lazy Load Images
-const LazyImage = ({ src, alt, className = "" }) => (
+const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className = "" }) => (
   <img
     src={src}
     alt={alt}
     loading="lazy"
     className={className}
     onError={(e) => {
-      e.target.src = `https://placehold.co/400x250/D1D5DB/4B5563?text=${encodeURIComponent(alt)}`;
+      const target = e.target as HTMLImageElement;
+      target.src = `https://placehold.co/400x250/D1D5DB/4B5563?text=${encodeURIComponent(alt)}`;
     }}
   />
 );
 
 // Animated Section
-const AnimatedSection = ({ children, delay = 0 }) => (
+const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -58,11 +98,11 @@ const AnimatedSection = ({ children, delay = 0 }) => (
 // Parallax Hook
 const useParallax = (speed = 0.2) => {
   const { scrollY } = useScroll();
-  return useTransform(scrollY, [0, 1000], [0, scrollY.current * speed]);
+  return useTransform(scrollY, [0, 1000], [0, scrollY.get() * speed]);
 };
 
 // Stat Card
-const StatCard = ({ value, label }) => (
+const StatCard: React.FC<StatCardProps> = ({ value, label }) => (
   <AnimatedSection>
     <motion.div
       className="p-5 bg-white rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow duration-300"
@@ -75,10 +115,10 @@ const StatCard = ({ value, label }) => (
 );
 
 // Service Card
-const ServiceCard = ({ img, title, desc, link }) => (
+const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link }) => (
   <AnimatedSection>
     <motion.div
-      className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
+      className="service-card"
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -105,10 +145,10 @@ const ServiceCard = ({ img, title, desc, link }) => (
 );
 
 // Portfolio Card (Projects & Internships)
-const PortfolioCard = ({ img, title, category, link, isInternship = false }) => (
+const PortfolioCard: React.FC<PortfolioCardProps> = ({ img, title, category, link, isInternship = false }) => (
   <AnimatedSection>
     <motion.div
-      className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
+      className="project-card"
       whileHover={{ y: -6 }}
     >
       <div className="relative h-40 overflow-hidden">
@@ -132,36 +172,8 @@ const PortfolioCard = ({ img, title, category, link, isInternship = false }) => 
   </AnimatedSection>
 );
 
-// Testimonial Card (Optional – not used yet)
-const TestimonialCard = ({ name, role, rating, content }) => (
-  <AnimatedSection>
-    <motion.div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-      <div className="flex items-center mb-3">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            size={16}
-            className={i < Math.round(rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
-          />
-        ))}
-        <span className="ml-2 text-sm text-gray-500">{rating}</span>
-      </div>
-      <p className="text-gray-700 text-sm italic mb-4">"{content}"</p>
-      <div className="flex items-center">
-        <div className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-          {name[0]}
-        </div>
-        <div className="ml-3">
-          <h4 className="text-sm font-semibold text-gray-800">{name}</h4>
-          <p className="text-xs text-gray-500">{role}</p>
-        </div>
-      </div>
-    </motion.div>
-  </AnimatedSection>
-);
-
 // CTA Button
-const CTAButton = ({ to, children, variant = "primary", icon: Icon }) => {
+const CTAButton: React.FC<CTAButtonProps> = ({ to, children, variant = "primary", icon: Icon }) => {
   const base = "inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 min-h-12";
 
   const variants = {
@@ -179,7 +191,7 @@ const CTAButton = ({ to, children, variant = "primary", icon: Icon }) => {
 };
 
 // Hero Section
-const Hero = () => {
+const Hero: React.FC = () => {
   const y = useParallax(0.3);
 
   return (
@@ -255,7 +267,7 @@ const Hero = () => {
 };
 
 // Main Home Component
-const Home = () => {
+const Home: React.FC = () => {
   return (
     <div className="bg-white" id="home" role="main">
       <Hero />

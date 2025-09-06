@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     CheckCircle,
@@ -11,12 +11,22 @@ import {
 import { motion } from 'framer-motion';
 
 // --- Placeholder image URLs (to resolve compilation errors) ---
-const placeholderImage = (text) => `https://placehold.co/150x150/E0E0E0/666666?text=${encodeURIComponent(text)}`;
+const placeholderImage = (text: string) => `https://placehold.co/150x150/E0E0E0/666666?text=${encodeURIComponent(text)}`;
 
 // --- Reusable Components (Simplified for this example) ---
 
 // Button component for consistent styling and behavior
-const Button = ({
+interface ButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'outline' | 'default';
+  fullWidth?: boolean;
+  className?: string;
+  disabled?: boolean;
+}
+
+const Button: React.FC<ButtonProps> = ({ 
     children,
     onClick,
     type = 'button',
@@ -26,7 +36,7 @@ const Button = ({
     disabled = false
 }) => {
     const baseClasses = "px-6 py-3 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
-    const variants = {
+    const variants: Record<string, string> = {
         primary: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
         outline: "border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-400",
         default: "bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400",
@@ -47,23 +57,34 @@ const Button = ({
 };
 
 // AnimatedSection component for smooth entrance animations
-const AnimatedSection = ({ children, delay = 0 }) => {
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay }}
-        >
-            {children}
-        </motion.div>
-    );
-};
+interface AnimatedSectionProps {
+  children: React.ReactNode;
+  delay?: number;
+}
+
+const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6, delay }}
+  >
+    {children}
+  </motion.div>
+);
 
 // Input Field styling (common class for form inputs)
 const inputFieldClasses = "w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200";
 
 // --- Course Period Pricing Configuration ---
-const coursePeriods = [
+interface CoursePeriod {
+  value: string;
+  label: string;
+  price: number;
+  description: string;
+  popular?: boolean;
+}
+
+const coursePeriods: CoursePeriod[] = [
     {
         value: "15days",
         label: "15 Days",
@@ -71,8 +92,8 @@ const coursePeriods = [
         description: "Quick introduction and basics"
     },
     {
-        value: "1month",
-        label: "1 Month", 
+        value: "1month", 
+        label: "1 Month",
         price: 2999,
         description: "Comprehensive learning with projects",
         popular: true
@@ -93,18 +114,19 @@ const coursePeriods = [
 
 // --- Internship Data Interface ---
 interface Internship {
+    id: string;
     title: string;
     category: string;
     mode: string;
-    duration: string;
-    department?: string; // Made optional
+    duration?: string;
+    department?: string;
     description: string;
-    whyChooseEdizo: string[]; // New field
+    whyChooseEdizo: string[];
     benefits: string[];
-    priceINR: number;
+    priceINR?: number;
     image: string;
     rating: number;
-    company: string;
+    company?: string;
 }
 
 // Define the common "Why Choose EDIZO?" content
@@ -130,222 +152,198 @@ const commonBenefits = [
 ];
 
 // Internship opportunity data
-const internshipsData: { [key: string]: Internship } = {
+const internshipsData: Record<string, Internship> = {
     'ui-ux-design': {
         id: 'ui-ux-design',
         title: 'UI/UX Design',
         category: 'Design',
         mode: 'Online',
-        
         image: placeholderImage('UI/UX'),
         rating: 4.7,
-       
         description: 'Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        
     },
     'frontend-development': {
         id: 'frontend-development',
         title: 'Frontend Development',
         category: 'Development',
         mode: 'Online',
-        
         image: placeholderImage('Frontend'),
         rating: 4.5,
-        
         description: 'Gain hands-on experience in building responsive and interactive user interfaces using HTML, CSS, JavaScript, and modern frameworks like React. Learn design principles, UI/UX fundamentals, and how to turn designs into functioning web pages.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        
     },
     'backend-development': {
         id: 'backend-development',
         title: 'Backend Development',
         category: 'Development',
         mode: 'Online',
-       
         image: placeholderImage('Backend'),
         rating: 4.6,
-        
         description: 'Understand the logic behind web applications by working with server-side technologies like Node.js, Express, and databases such as MySQL or MongoDB. Learn how APIs, authentication, and server architecture function in real-time environments.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        
     },
     'hr-management': {
         id: 'hr-management',
         title: 'HR Management',
         category: 'HR',
         mode: 'Online',
-        
         image: placeholderImage('HR'),
         rating: 4.2,
-        
         description: 'Understand core HR functions such as recruitment, payroll, training, performance evaluation, and employee engagement. Learn to use HR tools and software while building real-world management skills.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-       
     },
     'data-analytics': {
         id: 'data-analytics',
         title: 'Data Analytics',
         category: 'Data Science',
         mode: 'Online',
-        
         image: placeholderImage('DataAnalytics'),
         rating: 4.8,
-        
         description: 'Gain proficiency in tools like Excel, Power BI, and Python for data cleaning, visualization, and reporting. Learn how to extract insights from raw data and make data-driven decisions in business contexts.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-       
     },
     'java-development': {
         id: 'java-development',
         title: 'Java Development',
         category: 'Java',
         mode: 'Online',
-        
         image: placeholderImage('Java'),
         rating: 4.4,
-        
         description: 'Build a solid understanding of Java fundamentals, OOP concepts, and project structures. Gain experience in building desktop and web-based Java applications using tools like Eclipse or IntelliJ.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-       
     },
     'python-development': {
         id: 'python-development',
         title: 'Python Programming',
         category: 'Python',
         mode: 'Online',
-        
         image: placeholderImage('Python'),
         rating: 4.6,
-        
         description: 'Master the basics to advanced concepts in Python. Work on real-time projects involving automation, web scraping, and problem-solving. Ideal for building a strong programming foundation.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        
     },
     'digital-marketing': {
         id: 'digital-marketing',
         title: 'Digital Marketing',
         category: 'Marketing',
         mode: 'Online',
-        
         image: placeholderImage('DigitalMarketing'),
         rating: 4.3,
-        
         description: 'Explore SEO, social media strategy, content marketing, Google Ads, and analytics tools. Gain practical insights into building brand presence, driving engagement, and generating leads through digital channels.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        
     },
     'ai-ml': {
         id: 'ai-ml',
         title: 'AI & Machine Learning',
         category: 'AI/ML',
         mode: 'Online',
-        
         image: placeholderImage('AI/ML'),
         rating: 4.9,
-        
         description: 'Delve into the world of intelligent systems by learning machine learning algorithms, model building, and deployment using Python libraries such as Scikit-learn, TensorFlow, or PyTorch. Work on datasets to solve real-world problems.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-       
     },
     'ai-with-chatgpt': {
         id: 'ai-with-chatgpt',
         title: 'AI with ChatGPT',
         category: 'AI/ML',
         mode: 'Online',
-        
         image: placeholderImage('ChatGPT'),
         rating: 4.8,
-        
         description: 'Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        
     },
     'web-development': {
         id: 'web-development',
         title: 'Web Development',
         category: 'Development',
         mode: 'Online',
-        
         image: placeholderImage('WebDev'),
         rating: 4.7,
-        
         description: 'Get full-stack exposure by combining front-end and back-end skills. Build and deploy complete websites and web applications while learning Git, hosting, and project collaboration tools like GitHub.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        
     },
     'csharp': {
         id: 'csharp',
         title: 'C-Sharp',
         category: 'C#',
         mode: 'Online',
-        
         image: placeholderImage('C#'),
         rating: 4.5,
-        
         description: 'Learn fundamental syntax, object-oriented programming concepts, and .NET framework fundamentals using C# and related libraries.',
         whyChooseEdizo: whyChooseEdizoContent,
         benefits: commonBenefits,
-        
     },
 };
 
 // --- Main InternshipApplication Component ---
-const InternshipApplication = () => {
-    const { id } = useParams();
+const InternshipApplication: React.FC = () => {
+    const { id } = useParams<{ id?: string }>();
     const internshipId = id && id in internshipsData ? id : 'web-development';
     const internship = internshipsData[internshipId];
 
     // State to manage the application submission status
-    const [submissionStatus, setSubmissionStatus] = useState('idle'); // 'idle', 'processing', 'success', 'error'
+    const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
     // State to store and display submission messages to the user
-    const [submissionMessage, setSubmissionMessage] = useState('');
+    const [submissionMessage, setSubmissionMessage] = useState<string>('');
 
     // State to hold form data
-    const [formData, setFormData] = useState({
+    interface FormData {
+        name: string;
+        email: string;
+        phone: string;
+        university: string;
+        yearOfStudy: string;
+        education: string;
+        coursePeriod: string;
+        academicExperience: string;
+        message: string;
+    }
+
+    const [formData, setFormData] = useState<FormData>({
         name: '',
         email: '',
         phone: '',
-        university: '', // New field for university/college name
-        yearOfStudy: '', // New field for current year of study
-        education: '', // Degree and Branch
-        coursePeriod: '', // New field for course period
-        academicExperience: '', // Changed from 'experience'
+        university: '',
+        yearOfStudy: '',
+        education: '',
+        coursePeriod: '',
+        academicExperience: '',
         message: '',
     });
 
     // Handle input changes for text fields
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     // Get selected period details
-    const getSelectedPeriodDetails = () => {
+    const getSelectedPeriodDetails = (): CoursePeriod | undefined => {
         return coursePeriods.find(period => period.value === formData.coursePeriod);
     };
 
     // Define the API base URL for your Render backend.
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'; // Default to local backend
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
     // Log the API base URL being used for debugging
     console.log('Using API Base URL:', API_BASE_URL);
 
     // Handle form submission (directly sends email notifications)
-    const handleFormSubmit = async (e) => {
-        e.preventDefault(); // Prevent default form submission behavior
-        console.log('Attempting to submit form with data:', formData);
+    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        console.log('Attempting to submit form with ', formData);
         setSubmissionStatus('processing');
         setSubmissionMessage('Sending your application and confirmation email...');
 
@@ -380,12 +378,12 @@ const InternshipApplication = () => {
                     name: formData.name,
                     email: formData.email,
                     phone: formData.phone,
-                    university: formData.university, // New field
-                    yearOfStudy: formData.yearOfStudy, // New field
+                    university: formData.university,
+                    yearOfStudy: formData.yearOfStudy,
                     education: formData.education,
                     coursePeriod: selectedPeriod?.label,
                     price: selectedPeriod?.price,
-                    academicExperience: formData.academicExperience, // Updated field
+                    academicExperience: formData.academicExperience,
                     message: formData.message,
                     internshipTitle: internship?.title || 'Internship',
                 }),
@@ -672,7 +670,7 @@ const InternshipApplication = () => {
                                                 <XCircle className="inline-block mr-2 text-red-600" size={24} />
                                                 <p className="font-medium">Application Submission Failed!</p>
                                                 <p className="text-sm mt-2">
-                                                    {submissionMessage} {/* Display specific error message */}
+                                                    {submissionMessage}
                                                 </p>
                                             </>
                                         )}

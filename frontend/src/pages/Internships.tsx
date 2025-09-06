@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Clock, Wifi, Home, ArrowRight, Star, Search } from 'lucide-react';
+import { Wifi, ArrowRight, Star, Search } from 'lucide-react';
 
 // === Local Image Imports ===
 import webDesign from '../assets/images/web-design.png';
@@ -18,11 +18,42 @@ import webDevelopment from '../assets/images/web-development.png';
 import Csharp from '../assets/images/c-sharp.png';
 import headerImg from '../assets/background image/internship.png';
 
+// === Define TypeScript interfaces ===
+interface PageHeaderProps {
+  title: React.ReactNode;
+  subtitle?: string;
+  backgroundImage: string;
+  style?: React.CSSProperties & { y?: number };
+}
+
+interface AnimatedSectionProps {
+  children: React.ReactNode;
+  delay?: number;
+}
+
+interface Internship {
+  id: string;
+  title: string;
+  category: string;
+  mode: 'Online' | 'Offline';
+  image: string;
+  rating: number;
+  isTrending?: boolean;
+}
+
 // === Mock Components (for self-contained example) ===
-const PageHeader = ({ title, subtitle, backgroundImage, style }) => (
+const PageHeader: React.FC<PageHeaderProps> = ({ 
+  title, 
+  subtitle, 
+  backgroundImage, 
+  style = {} 
+}) => (
   <motion.div
     className="relative bg-cover bg-center py-24 text-white text-center rounded-2xl shadow-2xl overflow-hidden"
-    style={{ backgroundImage: `url(${backgroundImage})`, ...style }}
+    style={{ 
+      backgroundImage: `url(${backgroundImage})`,
+      ...(style as React.CSSProperties)
+    }}
   >
     <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 to-red-900/60"></div>
     <div className="relative z-10 px-6">
@@ -36,7 +67,7 @@ const PageHeader = ({ title, subtitle, backgroundImage, style }) => (
   </motion.div>
 );
 
-const AnimatedSection = ({ children, delay = 0 }) => (
+const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -48,7 +79,7 @@ const AnimatedSection = ({ children, delay = 0 }) => (
 );
 
 // === Internship Data ===
-const internships = [
+const internships: Internship[] = [
   {
     id: 'ui-ux-design',
     title: 'UI/UX Design',
@@ -73,7 +104,6 @@ const internships = [
     mode: 'Online',
     image: backEnd,
     rating: 4.6,
-    
   },
   {
     id: 'hr-management',
@@ -154,9 +184,9 @@ const internships = [
 ];
 
 // === Main Component ===
-const Internships = () => {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
+const Internships: React.FC = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const { scrollY } = useScroll();
   const backgroundY = useTransform(scrollY, [0, 500], [0, 100]);
 
@@ -171,7 +201,7 @@ const Internships = () => {
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: (i) => ({
+    visible: (i: number) => ({
       opacity: 1,
       y: 0,
       transition: { delay: i * 0.08, duration: 0.4, type: 'spring', stiffness: 100, damping: 18 },
@@ -194,7 +224,7 @@ const Internships = () => {
         }
         subtitle="Jumpstart your career with real-world experience in a dynamic, innovative environment."
         backgroundImage={headerImg}
-        style={{ y: backgroundY }}
+        style={{ y: backgroundY.get() }}
       />
 
       {/* === Trending Internships (Smaller Cards) === */}

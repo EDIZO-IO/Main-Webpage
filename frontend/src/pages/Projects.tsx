@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, MapPin, Shield, Eye, Gamepad, Search } from 'lucide-react';
@@ -8,9 +8,27 @@ import headerBackground from '../assets/background image/project.png';
 import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
+import recapImage from '../assets/project/redcap.png'; // You'll need to add this image
 
 // --- Project Data ---
-export const projects = [
+export interface Project {
+  id: string;
+  title: string;
+  category: string;
+  location: string;
+  timeline: string;
+  shortDescription: string;
+  fullDescription: string;
+  tech: string[];
+  features: string[];
+  image: string;
+  icon: JSX.Element;
+  challenges: string;
+  results: string;
+  gradient: string;
+}
+
+export const projects: Project[] = [
   {
     id: 'ai-ransomware-detection',
     title: 'AI-Based Ransomware Detection System',
@@ -75,11 +93,37 @@ export const projects = [
     challenges: 'Handling real-time updates across a large user base while maintaining performance required innovative caching strategies and database optimizations.',
     results: 'Grew to 250,000 monthly active users within 6 months of launch, with 78% user retention rate.',
     gradient: 'bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50'
+  },
+  {
+    id: 'redcap-logistics-platform',
+    title: 'RedCap Logistics Platform',
+    category: 'Full-Stack Development',
+    location: 'Remote / Mumbai, India',
+    timeline: 'Q4 2024',
+    shortDescription: 'End-to-end logistics platform with web and mobile applications',
+    fullDescription: 'RedCap is a comprehensive logistics platform connecting customers with transport providers for on-demand delivery services. The platform includes a React web application for customers and businesses, an Express.js backend with MySQL database, and a Flutter mobile app for drivers. The system handles booking, real-time tracking, payment processing, and analytics.',
+    tech: ['React', 'Express.js', 'MySQL', 'Flutter', 'Socket.io', 'Google Maps API'],
+    features: [
+      'Real-time vehicle tracking with GPS',
+      'Automated booking and dispatch system',
+      'Multi-platform support (Web & Mobile)',
+      'Secure payment gateway integration',
+      'Analytics dashboard for business customers'
+    ],
+    image: recapImage,
+    icon: <MapPin className="text-red-500" size={24} />,
+    challenges: 'Synchronizing real-time data across web and mobile platforms while maintaining performance under high load was our main challenge. We implemented WebSocket connections and optimized database queries.',
+    results: 'Reduced booking time by 70% and improved driver utilization by 45%. The platform now handles over 5,000 daily transactions.',
+    gradient: 'bg-gradient-to-br from-orange-50 via-red-50 to-pink-50'
   }
 ];
 
 // --- Typing Animation Component ---
-const AnimatedTypingSubtitle = ({ phrases }) => {
+interface AnimatedTypingSubtitleProps {
+  phrases: string[];
+}
+
+const AnimatedTypingSubtitle: React.FC<AnimatedTypingSubtitleProps> = ({ phrases }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -119,7 +163,7 @@ const AnimatedTypingSubtitle = ({ phrases }) => {
 };
 
 // --- Main Projects Component ---
-const Projects = () => {
+const Projects: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -181,16 +225,8 @@ const Projects = () => {
     <>
       {/* JSON-LD added via useEffect */}
       <PageHeader
-        title={<span className="text-red-500">Our Projects</span>}
-        subtitle={
-          <AnimatedTypingSubtitle
-            phrases={[
-              "Innovative solutions delivering real business impact",
-              "Building the future, one project at a time",
-              "Showcasing our best work and client success"
-            ]}
-          />
-        }
+        title="Our Projects"
+        subtitle="Innovative solutions delivering real business impact"
         backgroundImage={headerBackground}
       />
 
@@ -242,7 +278,7 @@ const Projects = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence mode="wait">
               {filteredProjects.length > 0 ? (
-                filteredProjects.map((project, i) => (
+                filteredProjects.map((project) => (
                   <motion.div
                     key={project.id}
                     initial={{ opacity: 0, y: 30 }}

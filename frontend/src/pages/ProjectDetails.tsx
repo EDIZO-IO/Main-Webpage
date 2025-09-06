@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   Calendar,
@@ -10,10 +10,13 @@ import {
   Cpu,
   Clock,
   ArrowRight,
+  Globe,
+  Smartphone,
+  Database,
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
-import { projects } from './Projects'; // Import the projects array
+import { projects } from './Projects';
 
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -102,7 +105,9 @@ const ProjectDetails = () => {
         title={project.title}
         subtitle={project.category}
         backgroundImage={project.image}
-        className="bg-gradient-to-r from-blue-800 to-purple-900"
+        style={{ 
+          background: 'linear-gradient(to right, #1e40af, #7c3aed)'
+        }}
       />
 
       <section className="py-16 bg-white">
@@ -129,6 +134,28 @@ const ProjectDetails = () => {
 
                 <div className="prose max-w-none text-gray-700 mb-8 leading-relaxed">
                   <p>{project.fullDescription}</p>
+                  
+                  {/* Add specific details for RedCap project */}
+                  {project.id === 'redcap-logistics-platform' && (
+                    <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                      <h3 className="font-bold text-blue-800 mb-2">Project Website</h3>
+                      <p className="mb-3">Visit the live project: <a href="https://recapweb.netlify.app/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://recapweb.netlify.app/</a></p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div className="flex items-center">
+                          <Globe className="mr-2 text-blue-600" size={20} />
+                          <span>Web Application (React)</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Smartphone className="mr-2 text-green-600" size={20} />
+                          <span>Mobile App (Flutter)</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Database className="mr-2 text-red-600" size={20} />
+                          <span>MySQL Database</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Highlights & Results */}
@@ -224,6 +251,21 @@ const ProjectDetails = () => {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Add Live Demo Button for RedCap Project */}
+                  {project.id === 'redcap-logistics-platform' && (
+                    <div className="border-t border-gray-200 pt-6 mt-6">
+                      <a 
+                        href="https://recapweb.netlify.app/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-full inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all focus:outline-none focus:ring-2 focus:ring-green-500"
+                      >
+                        <Globe className="mr-2" size={18} />
+                        Visit Live Website
+                      </a>
+                    </div>
+                  )}
                 </div>
               </AnimatedSection>
             </div>

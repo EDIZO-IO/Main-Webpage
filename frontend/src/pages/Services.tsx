@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, CheckCircle } from 'lucide-react';
@@ -13,15 +13,39 @@ import videoEditingImg from '../assets/services/video editing.webp';
 import graphicDesignImg from '../assets/services/graphic design.webp';
 import appDesignImg from '../assets/services/app design.webp';
 
+// --- Define TypeScript Interfaces ---
+interface LazyImageProps {
+  src: string;
+  alt: string;
+  className?: string;
+}
+
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  servicesInclude: string[];
+  image: string;
+  primaryColor: string;
+  secondaryColor: string;
+  gradient: string;
+  accent: string;
+}
+
+interface AnimatedTypingSubtitleProps {
+  phrases: string[];
+}
+
 // LazyImage Component
-const LazyImage = ({ src, alt, className = "" }) => (
+const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className = "" }) => (
   <img
     src={src}
     alt={alt}
     loading="lazy"
     className={className}
     onError={(e) => {
-      e.target.src = `https://placehold.co/600x400/DEE2E6/495057?text=${encodeURIComponent(alt)}`;
+      const target = e.target as HTMLImageElement;
+      target.src = `https://placehold.co/600x400/DEE2E6/495057?text=${encodeURIComponent(alt)}`;
     }}
   />
 );
@@ -35,7 +59,7 @@ const whyChooseEdizoServiceContent = [
 ];
 
 // Service data
-const services = [
+const services: Service[] = [
   {
     id: 'video-editing',
     title: 'Video Editing',
@@ -123,7 +147,7 @@ const services = [
 ];
 
 // Typing Animation for Subtitle
-const AnimatedTypingSubtitle = ({ phrases }) => {
+const AnimatedTypingSubtitle: React.FC<AnimatedTypingSubtitleProps> = ({ phrases }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -163,7 +187,12 @@ const AnimatedTypingSubtitle = ({ phrases }) => {
 };
 
 // Animated Section Wrapper
-const AnimatedSection = ({ children, delay = 0 }) => (
+interface AnimatedSectionProps {
+  children: React.ReactNode;
+  delay?: number;
+}
+
+const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -174,7 +203,7 @@ const AnimatedSection = ({ children, delay = 0 }) => (
   </motion.div>
 );
 
-const Services = () => {
+const Services: React.FC = () => {
   const { scrollY } = useScroll();
   const backgroundY = useTransform(scrollY, [0, 500], [0, 100]);
 
@@ -182,27 +211,10 @@ const Services = () => {
     <>
       {/* Hero Section */}
       <PageHeader
-        title={
-          <motion.span
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500"
-          >
-            Our Services
-          </motion.span>
-        }
-        subtitle={
-          <AnimatedTypingSubtitle
-            phrases={[
-              'Comprehensive digital solutions tailored to your business needs',
-              'Creative and custom-first approach',
-              'Friendly support and professional team',
-            ]}
-          />
-        }
+        title="Our Services"
+        subtitle="Comprehensive digital solutions tailored to your business needs"
         backgroundImage={headerBackground}
-        backgroundStyle={{ y: backgroundY }}
+        style={{ y: backgroundY.get() }}
       />
 
       {/* What We Offer */}
