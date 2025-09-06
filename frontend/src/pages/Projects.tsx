@@ -98,11 +98,11 @@ export const projects: Project[] = [
     id: 'redcap-logistics-platform',
     title: 'RedCap Logistics Platform',
     category: 'Full-Stack Development',
-    location: 'Remote / Mumbai, India',
+    location: 'Namakkal, India',
     timeline: 'Q4 2024',
     shortDescription: 'End-to-end logistics platform with web and mobile applications',
     fullDescription: 'RedCap is a comprehensive logistics platform connecting customers with transport providers for on-demand delivery services. The platform includes a React web application for customers and businesses, an Express.js backend with MySQL database, and a Flutter mobile app for drivers. The system handles booking, real-time tracking, payment processing, and analytics.',
-    tech: ['React', 'Express.js', 'MySQL', 'Flutter', 'Socket.io', 'Google Maps API'],
+    tech: ['React', 'Express.js', 'MySQL', 'Flutter'],
     features: [
       'Real-time vehicle tracking with GPS',
       'Automated booking and dispatch system',
