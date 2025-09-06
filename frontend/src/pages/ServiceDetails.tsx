@@ -1,6 +1,6 @@
-// src/pages/ServiceDetails.tsx
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Code,
   TrendingUp,
@@ -12,11 +12,45 @@ import {
   ChevronLeft,
   Smartphone,
   Star,
+  Palette,
+  Video,
+  ExternalLink,
 } from 'lucide-react';
 
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
 import Button from '../components/common/Button';
+import { projects } from './Projects'; // Import projects array
+
+// Define interfaces locally (move to Projects.tsx and export if possible)
+interface Project {
+  id: string;
+  title: string;
+  image: string;
+  shortDescription: string;
+  category: string;
+  tech: string[];
+}
+
+interface GraphicsDesignProject {
+  id: string;
+  title: string;
+  image: string;
+  description: string;
+  type: string;
+  tools: string[];
+  viewLink: string;
+}
+
+interface VideoEditingProject {
+  id: string;
+  title: string;
+  thumbnail: string;
+  description: string;
+  type: string;
+  tools: string[];
+  videoLink: string;
+}
 
 // Import service banner images
 import webDevImg from '../assets/services/banner/website design ban.webp';
@@ -163,10 +197,194 @@ const servicesData: Record<string, Service> = {
   },
 };
 
+// Related Projects Component
+const RelatedProjects: React.FC<{
+  serviceId: string;
+  graphicsProjects: GraphicsDesignProject[];
+  videoProjects: VideoEditingProject[];
+  developmentProjects: Project[];
+}> = ({ serviceId, graphicsProjects, videoProjects, developmentProjects }) => {
+  let relatedProjects: (GraphicsDesignProject | VideoEditingProject | Project)[] = [];
+  let projectType: 'graphics' | 'video' | 'development' = 'development';
+
+  if (serviceId === 'graphic-design') {
+    relatedProjects = graphicsProjects.slice(0, 3); // Show up to 3 graphics projects
+    projectType = 'graphics';
+  } else if (serviceId === 'video-editing') {
+    relatedProjects = videoProjects.slice(0, 3); // Show up to 3 video projects
+    projectType = 'video';
+  } else {
+    // Map service IDs to project categories
+    const categoryMap: Record<string, string> = {
+      'web-development': 'Web Development',
+      'app-development': 'Full-Stack Development',
+      'ui-ux': 'Computer Vision & AI',
+    };
+    const targetCategory = categoryMap[serviceId];
+    relatedProjects = developmentProjects.filter((project) => project.category === targetCategory).slice(0, 3);
+  }
+
+  if (relatedProjects.length === 0) return null;
+
+  // Helper function to get image source
+  const getImageSrc = (project: GraphicsDesignProject | VideoEditingProject | Project): string => {
+    if ('image' in project) return project.image; // GraphicsDesignProject or Project
+    if ('thumbnail' in project) return project.thumbnail; // VideoEditingProject
+    return ''; // Fallback (should not occur given the interfaces)
+  };
+
+  return (
+    <AnimatedSection>
+      <div>
+        <h3 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+          <Award className="text-red-600 mr-2" size={24} />
+          Related Projects
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {relatedProjects.map((project) => (
+            <div key={project.id} className="group relative">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="relative overflow-hidden rounded-2xl shadow-lg border border-gray-100 bg-gradient-to-br from-red-50 via-orange-50 to-pink-50 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl"
+              >
+                <div className="relative aspect-video overflow-hidden">
+                  <img
+                    src={getImageSrc(project)}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-center justify-center"
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      whileHover={{ scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center"
+                    >
+                      {projectType === 'graphics' ? (
+                        <Palette className="text-red-600" size={28} />
+                      ) : projectType === 'video' ? (
+                        <Video className="text-red-600" size={28} />
+                      ) : (
+                        <Star className="text-red-600" size={28} />
+                      )}
+                    </motion.div>
+                  </motion.div>
+                  <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                    {projectType === 'graphics'
+                      ? (project as GraphicsDesignProject).type.toUpperCase()
+                      : projectType === 'video'
+                      ? (project as VideoEditingProject).type.toUpperCase()
+                      : (project as Project).category}
+                  </div>
+                  {projectType !== 'development' && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute bottom-4 right-4 bg-white text-red-600 text-sm font-semibold px-4 py-2 rounded-full shadow-md hover:bg-red-100 transition-colors"
+                    >
+                      <a
+                        href={'viewLink' in project ? project.viewLink : (project as VideoEditingProject).videoLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center"
+                      >
+                        {projectType === 'graphics' ? 'View Design' : 'Watch Video'}
+                        <ExternalLink size={16} className="ml-2" />
+                      </a>
+                    </motion.div>
+                  )}
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center mb-4">
+                    {projectType === 'graphics' ? (
+                      <Palette className="text-red-500 mr-3" size={24} />
+                    ) : projectType === 'video' ? (
+                      <Video className="text-red-500 mr-3" size={24} />
+                    ) : (
+                      <Star className="text-red-500 mr-3" size={24} />
+                    )}
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-red-600 transition-colors truncate" title={project.title}>
+                      {project.title}
+                    </h3>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    {'description' in project ? project.description : project.shortDescription}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {('tools' in project ? project.tools : project.tech).slice(0, 3).map((tool: string, i: number) => (
+                      <span
+                        key={i}
+                        className="bg-red-100 text-red-800 text-xs font-medium px-3 py-1 rounded-full"
+                      >
+                        {tool}
+                      </span>
+                    ))}
+                    {('tools' in project ? project.tools : project.tech).length > 3 && (
+                      <span className="text-xs text-gray-500">+{('tools' in project ? project.tools : project.tech).length - 3} more</span>
+                    )}
+                  </div>
+                  {projectType === 'development' && (
+                    <Link
+                      to={`/projects/${project.id}`}
+                      className="text-red-600 hover:text-red-700 font-medium flex items-center group"
+                    >
+                      View Project
+                      <ArrowRight size={16} className="ml-1 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AnimatedSection>
+  );
+};
+
 const ServiceDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const service = id ? servicesData[id] : null;
+  const [graphicsProjects, setGraphicsProjects] = useState<GraphicsDesignProject[]>([]);
+  const [videoProjects, setVideoProjects] = useState<VideoEditingProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load JSON data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const graphicsResponse = await fetch('/data/graphics-design.json');
+        if (!graphicsResponse.ok) throw new Error('Failed to load graphics design data');
+        const graphicsData = await graphicsResponse.json();
+        setGraphicsProjects(graphicsData);
+
+        const videoResponse = await fetch('/data/video-editing.json');
+        if (!videoResponse.ok) throw new Error('Failed to load video editing data');
+        const videoData = await videoResponse.json();
+        setVideoProjects(videoData);
+
+        setLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Generate related services
   const relatedServices = useMemo(() => {
@@ -284,6 +502,34 @@ const ServiceDetails = () => {
     );
   }
 
+  if (loading) {
+    return (
+      <section className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+          <p className="mt-4 text-gray-600">Loading projects...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center p-8 bg-white rounded-xl shadow-md max-w-md mx-auto">
+          <h2 className="text-3xl font-bold mb-4 text-red-600">Error Loading Projects</h2>
+          <p className="text-lg text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
+          >
+            Retry
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   const Icon = service.icon;
 
   return (
@@ -293,7 +539,6 @@ const ServiceDetails = () => {
         title={service.title}
         subtitle={service.subtitle}
         backgroundImage={service.image || fallbackImage}
-        className="bg-gradient-to-r from-gray-900 to-blue-900"
       />
 
       {/* Main Content */}
@@ -388,6 +633,14 @@ const ServiceDetails = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* Related Projects Section */}
+                <RelatedProjects
+                  serviceId={id}
+                  graphicsProjects={graphicsProjects}
+                  videoProjects={videoProjects}
+                  developmentProjects={projects}
+                />
               </AnimatedSection>
             </div>
 

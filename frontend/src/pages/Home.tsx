@@ -11,6 +11,8 @@ import {
   Target,
   Zap,
   Shield,
+  Palette,
+  Video,
 } from 'lucide-react';
 
 // Import Assets
@@ -52,6 +54,7 @@ interface ServiceCardProps {
   title: string;
   desc: string;
   link: string;
+  isGraphicsOrVideo?: boolean; // Added to differentiate graphics/video cards
 }
 
 interface PortfolioCardProps {
@@ -115,10 +118,12 @@ const StatCard: React.FC<StatCardProps> = ({ value, label }) => (
 );
 
 // Service Card
-const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link }) => (
+const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link, isGraphicsOrVideo = false }) => (
   <AnimatedSection>
     <motion.div
-      className="service-card"
+      className={`relative rounded-2xl shadow-lg border border-gray-100 overflow-hidden ${
+        isGraphicsOrVideo ? 'bg-gradient-to-br from-red-50 via-orange-50 to-pink-50' : 'bg-white'
+      } transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl group`}
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -126,19 +131,52 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link }) => 
         <LazyImage
           src={img}
           alt={title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
+        {isGraphicsOrVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileHover={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 bg-black/60 flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              whileHover={{ scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center"
+            >
+              {title === 'Graphic Design' ? (
+                <Palette className="text-red-600" size={28} />
+              ) : (
+                <Video className="text-red-600" size={28} />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+        {isGraphicsOrVideo && (
+          <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+            {title === 'Graphic Design' ? 'BRANDING' : 'VIDEO'}
+          </div>
+        )}
       </div>
-      <div className="p-5">
-        <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+      <div className="p-6">
+        <h3 className="text-xl font-semibold text-gray-800 group-hover:text-red-600 transition-colors">
+          {title}
+        </h3>
         <p className="text-gray-600 text-sm mt-2 mb-4 leading-relaxed">{desc}</p>
-        <Link
-          to={link}
-          className="text-red-600 font-medium text-sm flex items-center hover:underline"
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          Learn more
-          <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
-        </Link>
+          <Link
+            to={link}
+            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-full font-medium text-sm hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-md"
+          >
+            Learn More
+            <ArrowRight className="ml-2 w-4 h-4" />
+          </Link>
+        </motion.div>
       </div>
     </motion.div>
   </AnimatedSection>
@@ -148,11 +186,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link }) => 
 const PortfolioCard: React.FC<PortfolioCardProps> = ({ img, title, category, link, isInternship = false }) => (
   <AnimatedSection>
     <motion.div
-      className="project-card"
+      className="relative rounded-xl shadow-md border border-gray-100 overflow-hidden bg-white transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl"
       whileHover={{ y: -6 }}
     >
       <div className="relative h-40 overflow-hidden">
-        <LazyImage src={img} alt={title} className="w-full h-full object-cover" />
+        <LazyImage src={img} alt={title} className="w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
         {category && (
           <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2.5 py-1 rounded-full font-semibold">
             {category}
@@ -166,8 +204,8 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ img, title, category, lin
             Gain real-world experience on live projects.
           </p>
         )}
+        <Link to={link} className="absolute inset-0 z-10" aria-label={`View ${title}`} />
       </div>
-      <Link to={link} className="absolute inset-0 z-10" aria-label={`View ${title}`} />
     </motion.div>
   </AnimatedSection>
 );
@@ -231,7 +269,7 @@ const Hero: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <AnimatedSection delay={0.2}>
             <h1 id="hero-title" className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
-             <span className="text-white">Welcome to</span> <span className="text-red-500">EDIZO</span>
+              <span className="text-white">Welcome to</span> <span className="text-red-500">EDIZO</span>
             </h1>
           </AnimatedSection>
 
@@ -304,7 +342,7 @@ const Home: React.FC = () => {
               { value: "10+", label: "Experts" },
               { value: "5.0", label: "Client Rating" },
             ].map((stat, i) => (
-              <StatCard key={i} {...stat} delay={i * 0.1} />
+              <StatCard key={i} value={stat.value} label={stat.label} />
             ))}
           </div>
         </div>
@@ -319,11 +357,38 @@ const Home: React.FC = () => {
           </AnimatedSection>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {[
-              { img: webDevelopment, title: "Web Development", desc: "Fast, scalable websites with React & Next.js.", link: "/services/web-development" },
-              { img: uiuxImg, title: "UI/UX Design", desc: "Human-centered design that users love.", link: "/services/ui-ux" },
-              { img: appDesignImg, title: "App Development", desc: "Cross-platform apps with React Native & Flutter.", link: "/services/app-development" },
-              { img: videoEditingImg, title: "Video Editing", desc: "Engaging visuals for brand storytelling.", link: "/services/video-editing" },
-              { img: graphicDesignImg, title: "Graphic Design", desc: "Brand-aligned visuals that elevate identity.", link: "/services/graphic-design" },
+              { 
+                img: webDevelopment, 
+                title: "Web Development", 
+                desc: "Fast, scalable websites with React & Next.js.", 
+                link: "/services/web-development" 
+              },
+              { 
+                img: uiuxImg, 
+                title: "UI/UX Design", 
+                desc: "Human-centered design that users love.", 
+                link: "/services/ui-ux" 
+              },
+              { 
+                img: appDesignImg, 
+                title: "App Development", 
+                desc: "Cross-platform apps with React Native & Flutter.", 
+                link: "/services/app-development" 
+              },
+              { 
+                img: videoEditingImg, 
+                title: "Video Editing", 
+                desc: "Engaging visuals for brand storytelling.", 
+                link: "/services/video-editing",
+                isGraphicsOrVideo: true 
+              },
+              { 
+                img: graphicDesignImg, 
+                title: "Graphic Design", 
+                desc: "Brand-aligned visuals that elevate identity.", 
+                link: "/services/graphic-design",
+                isGraphicsOrVideo: true 
+              },
             ].map((service) => (
               <ServiceCard key={service.title} {...service} />
             ))}
@@ -340,12 +405,17 @@ const Home: React.FC = () => {
           </AnimatedSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { img: faceguard, title: "FaceGuard UI/UX", category: "UI/UX" },
-              { img: ransomware, title: "Ransomware Awareness", category: "Security" },
-              { img: Epicnexus, title: "Epic Nexus App", category: "App" },
+              { img: faceguard, title: "FaceGuard UI/UX", category: "UI/UX", link: "/projects/faceguard-gan" },
+              { img: ransomware, title: "Ransomware Awareness", category: "Security", link: "/projects/ai-ransomware-detection" },
+              { img: Epicnexus, title: "Epic Nexus App", category: "App", link: "/projects/epic-nexus-platform" },
             ].map((p) => (
               <PortfolioCard key={p.title} {...p} />
             ))}
+          </div>
+          <div className="text-center mt-8">
+            <CTAButton to="/projects" variant="primary" icon={ArrowRight}>
+              View All Projects
+            </CTAButton>
           </div>
         </div>
       </section>
