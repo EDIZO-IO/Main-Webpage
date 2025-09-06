@@ -3,9 +3,8 @@
     "title": "UI/UX Design",
     "category": "Design",
     "mode": "Online",
-   
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=UI%2FUX",
+    "image": "/assets/images/web-design.png",
     "rating": 4.7,
     "description": "Work alongside our design team to create beautiful, intuitive user interfaces and improve user experiences.",
     "whyChooseEdizo": [
@@ -73,9 +72,8 @@
     "title": "Frontend Development",
     "category": "Development",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=Frontend",
+    "image": "/assets/images/responsive-design.png",
     "rating": 4.5,
     "description": "Gain hands-on experience in building responsive and interactive user interfaces using HTML, CSS, JavaScript, and modern frameworks like React.",
     "whyChooseEdizo": [
@@ -143,9 +141,8 @@
     "title": "Backend Development",
     "category": "Development",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=Backend",
+    "image": "/assets/images/back-end.png",
     "rating": 4.6,
     "description": "Understand server-side technologies like Node.js, Express, and databases such as MySQL or MongoDB.",
     "whyChooseEdizo": [
@@ -213,9 +210,8 @@
     "title": "HR Management",
     "category": "HR",
     "mode": "Online",
-   
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=HR",
+    "image": "/assets/images/hr-manager.png",
     "rating": 4.2,
     "description": "Understand core HR functions such as recruitment, payroll, training, performance evaluation, and employee engagement.",
     "whyChooseEdizo": [
@@ -283,9 +279,8 @@
     "title": "Data Analytics",
     "category": "Data Science",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=DataAnalytics",
+    "image": "/assets/images/data-analytics.png",
     "rating": 4.8,
     "description": "Gain proficiency in tools like Excel, Power BI, and Python for data cleaning, visualization, and reporting.",
     "whyChooseEdizo": [
@@ -353,9 +348,8 @@
     "title": "Java Development",
     "category": "Java",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=Java",
+    "image": "/assets/images/java.png",
     "rating": 4.4,
     "description": "Build a solid understanding of Java fundamentals, OOP concepts, and project structures using Eclipse or IntelliJ.",
     "whyChooseEdizo": [
@@ -423,9 +417,8 @@
     "title": "Python Programming",
     "category": "Python",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=Python",
+    "image": "/assets/images/python.png",
     "rating": 4.6,
     "description": "Master Python from basics to advanced concepts with real-time projects involving automation, web scraping, and problem-solving.",
     "whyChooseEdizo": [
@@ -493,9 +486,8 @@
     "title": "Digital Marketing",
     "category": "Marketing",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=DigitalMarketing",
+    "image": "/assets/images/content-strategy.png",
     "rating": 4.3,
     "description": "Explore SEO, social media strategy, content marketing, Google Ads, and analytics tools for building brand presence.",
     "whyChooseEdizo": [
@@ -563,9 +555,8 @@
     "title": "AI & Machine Learning",
     "category": "AI/ML",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=AI%2FML",
+    "image": "/assets/images/ai-assistant.png",
     "rating": 4.9,
     "description": "Delve into intelligent systems by learning machine learning algorithms, model building, and deployment using Python libraries.",
     "whyChooseEdizo": [
@@ -633,9 +624,8 @@
     "title": "AI with ChatGPT",
     "category": "AI/ML",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=ChatGPT",
+    "image": "/assets/images/ai-with-chatgpt.png",
     "rating": 4.8,
     "description": "Explore natural language processing, chatbot development, and prompt engineering using GPT-based models.",
     "whyChooseEdizo": [
@@ -703,9 +693,8 @@
     "title": "Web Development",
     "category": "Development",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=WebDev",
+    "image": "/assets/images/web-development.png",
     "rating": 4.7,
     "description": "Get full-stack exposure by combining front-end and back-end skills. Build and deploy complete websites and web applications.",
     "whyChooseEdizo": [
@@ -773,9 +762,8 @@
     "title": "C-Sharp",
     "category": "C#",
     "mode": "Online",
-    
     "company": "EDIZO",
-    "image": "https://placehold.co/150x150/E0E0E0/666666?text=C%23",
+    "image": "/assets/images/c-sharp.png",
     "rating": 4.5,
     "description": "Learn fundamental syntax, object-oriented programming concepts, and .NET framework fundamentals using C# and related libraries.",
     "whyChooseEdizo": [
