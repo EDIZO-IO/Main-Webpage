@@ -8,7 +8,6 @@ import {
   Eye, 
   Gamepad, 
   Search,
-  Image as ImageIcon,
   Video,
   Palette,
   ExternalLink,
@@ -22,6 +21,13 @@ import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
 import recapImage from '../assets/project/redcap.png';
+import placeholderImage from '../assets/placeholder.png'; // Fallback image
+// Local images for the profile section scroll view
+import edizoLogo from '../assets/project/scrollImages/A2A.png';
+import recapLogo from '../assets/project/scrollImages/C-G 3D.png';
+import cybersecurityPoster from '../assets/project/scrollImages/E2D.png';
+import webBanner from '../assets/project/scrollImages/cse.png';
+import brandingKit from '../assets/project/scrollImages/edizo.png';
 
 // --- Project Data ---
 export interface Project {
@@ -40,6 +46,72 @@ export interface Project {
   results: string;
   gradient: string;
 }
+
+// --- Graphics Project Data (for Graphics Tab) ---
+interface GraphicsProject {
+  id: string;
+  title: string;
+  category: string;
+  client: string;
+  year: string;
+  description: string;
+  image: string;
+  type: string;
+  dimensions: string;
+  tools: string[];
+  viewLink: string;
+}
+
+// --- Gallery Image Data (for AutoScrollingGallery) ---
+interface GalleryImage {
+  id: string;
+  title: string; // Name or project title
+  role: string;  // Role or short description (e.g., "Lead Designer")
+  image: string; // Profile or project image
+  viewLink: string; // Link to profile or project details
+}
+
+// Data for profile section scroll view using local images
+const galleryImagesData: GalleryImage[] = [
+  {
+    id: 'edizo-logo',
+    title: 'John Doe',
+    role: 'Lead Designer',
+    image: edizoLogo,
+    viewLink: 'https://drive.google.com/file/d/10iw7mezzjb5u-Q2jAF7yTtAxhLZXIh57/view',
+  },
+  {
+    id: 'recap-logo',
+    title: 'Jane Smith',
+    role: 'UI/UX Specialist',
+    image: recapLogo,
+    viewLink: 'https://drive.google.com/file/d/2bCdEfGhIjKlMnOpQrStUvWxYz789012/view',
+  },
+  {
+    id: 'cybersecurity-poster',
+    title: 'Mike Johnson',
+    role: 'Graphic Artist',
+    image: cybersecurityPoster,
+    viewLink: 'https://drive.google.com/file/d/3cDeFgHiJkLmNoPqRsTuVwXyZ1234567/view',
+  },
+  {
+    id: 'web-banner',
+    title: 'Sarah Lee',
+    role: 'Creative Director',
+    image: webBanner,
+    viewLink: 'https://drive.google.com/file/d/4dEfGhIjKlMnOpQrStUvWxYz7890123/view',
+  },
+  {
+    id: 'branding-kit',
+    title: 'Alex Brown',
+    role: 'Branding Expert',
+    image: brandingKit,
+    viewLink: 'https://drive.google.com/file/d/5eFgHiJkLmNoPqRsTuVwXyZ12345678/view',
+  },
+];
+
+// Duplicate for seamless infinite scrolling
+const duplicatedGalleryImages = [...galleryImagesData, ...galleryImagesData];
 
 export const projects: Project[] = [
   {
@@ -131,35 +203,65 @@ export const projects: Project[] = [
   }
 ];
 
-// --- Types for JSON data ---
-interface GraphicsDesignProject {
-  id: string;
-  title: string;
-  category: string;
-  client: string;
-  year: string;
-  description: string;
-  image: string;
-  type: 'logo' | 'poster' | 'banner' | 'brochure' | 'branding';
-  dimensions: string;
-  tools: string[];
-  viewLink: string;
-}
+// --- Auto-Scrolling Image Gallery Component ---
+const AutoScrollingGallery: React.FC = () => {
+  const [isPaused, setIsPaused] = useState(false);
 
-interface VideoEditingProject {
-  id: string;
-  title: string;
-  category: string;
-  client: string;
-  year: string;
-  description: string;
-  thumbnail: string;
-  duration: string;
-  resolution: string;
-  tools: string[];
-  videoLink: string;
-  type: 'promotional' | 'tutorial' | 'event' | 'social';
-}
+  return (
+    <div
+      className="relative w-full overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 py-8"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div className="flex items-center mb-6 px-4">
+        <Palette className="text-red-500 mr-2" size={24} />
+        <h3 className="text-2xl font-bold text-gray-800">Our Creative Team</h3>
+      </div>
+      <div className="flex overflow-hidden">
+        <motion.div
+          animate={{ x: isPaused ? "0%" : "-50%" }}
+          transition={{
+            duration: 20,
+            ease: "linear",
+            repeat: Infinity,
+            repeatType: "loop",
+          }}
+          className="flex flex-nowrap"
+        >
+          {duplicatedGalleryImages.map((image, index) => (
+            <div
+              key={`${image.id}-${index}`}
+              className="flex-shrink-0 w-72 mx-3 transform transition-all duration-300 hover:scale-105"
+            >
+              <div className="relative overflow-hidden rounded-2xl shadow-lg bg-white p-4 h-80">
+                <img
+                  src={image.image}
+                  alt={image.title}
+                  className="w-full h-48 object-cover rounded-xl"
+                  loading="lazy"
+                  onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
+                />
+                <div className="mt-4 text-center">
+                  <h4 className="text-lg font-semibold text-gray-900">{image.title}</h4>
+                  <p className="text-sm text-gray-600">{image.role}</p>
+                  <a
+                    href={image.viewLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-red-600 hover:text-red-700 font-medium flex items-center justify-center gap-1"
+                  >
+                    View Profile
+                    <ExternalLink size={16} />
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
 
 // --- Typing Animation Component ---
 interface AnimatedTypingSubtitleProps {
@@ -205,243 +307,43 @@ const AnimatedTypingSubtitle: React.FC<AnimatedTypingSubtitleProps> = ({ phrases
   );
 };
 
-// --- Image Gallery View ---
-const ImageGalleryView: React.FC<{ projects: GraphicsDesignProject[] }> = ({ projects }) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {projects.map((project) => (
-        <motion.div
-          key={project.id}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
-          className="group relative"
-        >
-          <div className="relative overflow-hidden rounded-2xl shadow-lg border border-gray-100 bg-white transform transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
-            <div className="relative aspect-video overflow-hidden">
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                loading="lazy"
-              />
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-center justify-center"
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  whileHover={{ scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center"
-                >
-                  <ImageIcon className="text-red-600" size={32} />
-                </motion.div>
-              </motion.div>
-              <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                {project.type.toUpperCase()}
-              </div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="absolute bottom-4 right-4 bg-white text-red-600 text-sm font-semibold px-4 py-2 rounded-full shadow-md hover:bg-red-100 transition-colors"
-              >
-                <a
-                  href={project.viewLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center"
-                >
-                  View Design
-                  <ExternalLink size={16} className="ml-2" />
-                </a>
-              </motion.div>
-            </div>
-            
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <Palette className="text-red-500 mr-3" size={24} />
-                <h3 className="text-xl font-bold text-gray-900 group-hover:text-red-600 transition-colors truncate" title={project.title}>
-                  {project.title}
-                </h3>
-              </div>
-              
-              <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                {project.description}
-              </p>
-              
-              <div className="flex flex-wrap gap-2 mb-4">
-                {project.tools.map((tool, i) => (
-                  <span
-                    key={i}
-                    className="bg-red-100 text-red-800 text-xs font-medium px-3 py-1 rounded-full"
-                  >
-                    {tool}
-                  </span>
-                ))}
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center text-xs text-gray-500">
-                  <span>{project.client}</span>
-                  <span className="mx-2">•</span>
-                  <span>{project.year}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
-};
-
-// --- Video Gallery View ---
-const VideoGalleryView: React.FC<{ projects: VideoEditingProject[] }> = ({ projects }) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {projects.map((project) => (
-        <motion.div
-          key={project.id}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
-          className="group relative"
-        >
-          <div className="relative overflow-hidden rounded-2xl shadow-lg border border-gray-100 bg-white transform transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
-            <div className="relative aspect-video overflow-hidden">
-              <img
-                src={project.thumbnail}
-                alt={project.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                loading="lazy"
-              />
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-black/60 flex items-center justify-center"
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  whileHover={{ scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center"
-                >
-                  <Video className="text-red-600" size={32} />
-                </motion.div>
-              </motion.div>
-              <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                {project.type.toUpperCase()}
-              </div>
-              <div className="absolute top-4 right-4 bg-black/70 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                {project.duration}
-              </div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="absolute bottom-4 right-4 bg-white text-red-600 text-sm font-semibold px-4 py-2 rounded-full shadow-md hover:bg-red-100 transition-colors"
-              >
-                <a
-                  href={project.videoLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center"
-                >
-                  Watch Video
-                  <ExternalLink size={16} className="ml-2" />
-                </a>
-              </motion.div>
-            </div>
-            
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <Video className="text-red-500 mr-3" size={24} />
-                <h3 className="text-xl font-bold text-gray-900 group-hover:text-red-600 transition-colors truncate" title={project.title}>
-                  {project.title}
-                </h3>
-              </div>
-              
-              <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                {project.description}
-              </p>
-              
-              <div className="flex flex-wrap gap-2 mb-4">
-                {project.tools.map((tool, i) => (
-                  <span
-                    key={i}
-                    className="bg-red-100 text-red-800 text-xs font-medium px-3 py-1 rounded-full"
-                  >
-                    {tool}
-                  </span>
-                ))}
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center text-xs text-gray-500">
-                  <span>{project.client}</span>
-                  <span className="mx-2">•</span>
-                  <span>{project.resolution}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
-};
-
 // --- Main Projects Component ---
 const Projects: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeTab, setActiveTab] = useState<'development' | 'graphics' | 'video'>('development');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [graphicsProjects, setGraphicsProjects] = useState<GraphicsDesignProject[]>([]);
-  const [videoProjects, setVideoProjects] = useState<VideoEditingProject[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [graphicsProjects, setGraphicsProjects] = useState<GraphicsProject[]>([]);
 
-  // Extract unique categories for development projects
-  const categories = ['All', ...new Set(projects.map(p => p.category))];
+  // Extract unique categories for development and graphics projects
+  const devCategories = ['All', ...new Set(projects.map(p => p.category))];
+  const graphicsCategories = ['All', ...new Set(graphicsProjects.map(p => p.category))];
 
-  // Load JSON data
+  // Fetch graphics projects for the graphics tab
   useEffect(() => {
-    const loadData = async () => {
+    const fetchGraphicsProjects = async () => {
       try {
         setLoading(true);
-        
-        // Load graphics design projects
-        const graphicsResponse = await fetch('/data/graphics-design.json');
-        if (!graphicsResponse.ok) throw new Error('Failed to load graphics design data');
-        const graphicsData = await graphicsResponse.json();
-        setGraphicsProjects(graphicsData);
-        
-        // Load video editing projects
-        const videoResponse = await fetch('/data/video-editing.json');
-        if (!videoResponse.ok) throw new Error('Failed to load video editing data');
-        const videoData = await videoResponse.json();
-        setVideoProjects(videoData);
-        
+        const response = await fetch('/data/graphics-design.json');
+        if (!response.ok) {
+          throw new Error('Failed to fetch graphics design projects');
+        }
+        const data: GraphicsProject[] = await response.json();
+        setGraphicsProjects(data);
         setLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError('Error loading graphics design projects');
         setLoading(false);
       }
     };
-    
-    loadData();
+
+    fetchGraphicsProjects();
   }, []);
 
-  // Filter development projects
-  const filteredProjects = projects.filter(project => {
+  // Filter projects
+  const filteredDevProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           project.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           project.tech.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -449,19 +351,13 @@ const Projects: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  // Filter graphics design projects
-  const filteredGraphicsProjects = graphicsProjects.filter(project => 
-    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.client.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Filter video editing projects
-  const filteredVideoProjects = videoProjects.filter(project => 
-    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.client.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredGraphicsProjects = graphicsProjects.filter(project => {
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          project.tools.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   // Add JSON-LD structured data for SEO
   useEffect(() => {
@@ -469,9 +365,9 @@ const Projects: React.FC = () => {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
       name: 'Edizo Projects Portfolio',
-      description: 'A curated list of featured projects by Edizo in cybersecurity, AI, web development, graphics design, and video editing.',
+      description: 'A curated list of featured projects by Edizo in cybersecurity, AI, web development, and graphics design.',
       url: 'https://www.edizo.in/projects',
-      numberOfItems: projects.length + graphicsProjects.length + videoProjects.length,
+      numberOfItems: projects.length + graphicsProjects.length,
       itemListElement: [
         ...projects.map((project, index) => ({
           '@type': 'CreativeWork',
@@ -480,40 +376,20 @@ const Projects: React.FC = () => {
           description: project.shortDescription,
           category: project.category,
           datePublished: project.timeline,
-          creator: {
-            '@type': 'Organization',
-            name: 'Edizo'
-          },
+          creator: { '@type': 'Organization', name: 'Edizo' },
           thumbnailUrl: project.image,
           url: `https://www.edizo.in/projects/${project.id}`
         })),
         ...graphicsProjects.map((project, index) => ({
           '@type': 'CreativeWork',
-          position: index + 1 + projects.length,
+          position: projects.length + index + 1,
           name: project.title,
           description: project.description,
-          category: 'Graphics Design',
+          category: project.category,
           datePublished: project.year,
-          creator: {
-            '@type': 'Organization',
-            name: 'Edizo'
-          },
+          creator: { '@type': 'Organization', name: 'Edizo' },
           thumbnailUrl: project.image,
           url: project.viewLink
-        })),
-        ...videoProjects.map((project, index) => ({
-          '@type': 'CreativeWork',
-          position: index + 1 + projects.length + graphicsProjects.length,
-          name: project.title,
-          description: project.description,
-          category: 'Video Editing',
-          datePublished: project.year,
-          creator: {
-            '@type': 'Organization',
-            name: 'Edizo'
-          },
-          thumbnailUrl: project.thumbnail,
-          url: project.videoLink
         }))
       ]
     };
@@ -528,20 +404,9 @@ const Projects: React.FC = () => {
       const existing = document.getElementById('projects-schema');
       if (existing) document.head.removeChild(existing);
     };
-  }, [projects, graphicsProjects, videoProjects]);
+  }, [graphicsProjects]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-          <p className="mt-4 text-gray-600">Loading projects...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
+  if (error && activeTab !== 'graphics') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8 bg-white rounded-xl shadow-md max-w-md mx-auto">
@@ -565,6 +430,9 @@ const Projects: React.FC = () => {
         subtitle={<AnimatedTypingSubtitle phrases={['Innovative Solutions', 'Creative Designs', 'Impactful Videos']} />}
         backgroundImage={headerBackground}
       />
+
+      {/* Auto-scrolling Profile Section */}
+      <AutoScrollingGallery />
 
       <section className="bg-gray-50 py-16 md:py-20 px-4">
         <div className="container mx-auto max-w-7xl">
@@ -664,10 +532,10 @@ const Projects: React.FC = () => {
             </div>
           </div>
 
-          {/* Category Filter for Development Projects */}
-          {activeTab === 'development' && (
+          {/* Category Filter */}
+          {(activeTab === 'development' || activeTab === 'graphics') && (
             <div className="flex flex-wrap justify-center gap-2 mb-10">
-              {categories.map((category) => (
+              {(activeTab === 'development' ? devCategories : graphicsCategories).map((category) => (
                 <motion.button
                   key={category}
                   whileHover={{ scale: 1.05 }}
@@ -687,10 +555,10 @@ const Projects: React.FC = () => {
 
           {/* Projects Content */}
           <div className="space-y-8">
-            {activeTab === 'development' ? (
+            {activeTab === 'development' && (
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ${viewMode === 'list' ? 'md:grid-cols-1' : ''}`}>
-                {filteredProjects.length > 0 ? (
-                  filteredProjects.map((project) => (
+                {filteredDevProjects.length > 0 ? (
+                  filteredDevProjects.map((project) => (
                     <motion.div
                       key={project.id}
                       initial={{ opacity: 0, y: 30 }}
@@ -707,6 +575,7 @@ const Projects: React.FC = () => {
                               alt={project.title}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
+                              onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
                             />
                           </div>
                           <div className="p-6 md:w-2/3">
@@ -716,11 +585,9 @@ const Projects: React.FC = () => {
                                 {project.title}
                               </h3>
                             </div>
-                            
                             <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                               {project.shortDescription}
                             </p>
-                            
                             <div className="flex flex-wrap gap-1 mb-4">
                               {project.tech.slice(0, 3).map((tech, i) => (
                                 <span
@@ -734,7 +601,6 @@ const Projects: React.FC = () => {
                                 <span className="text-xs text-gray-500">+{project.tech.length - 3} more</span>
                               )}
                             </div>
-                            
                             <div className="flex items-center justify-between">
                               <div className="flex items-center text-sm text-gray-500">
                                 <MapPin className="mr-1" size={14} />
@@ -761,6 +627,7 @@ const Projects: React.FC = () => {
                               alt={project.title}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
+                              onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute bottom-3 left-3">
@@ -769,7 +636,6 @@ const Projects: React.FC = () => {
                               </span>
                             </div>
                           </div>
-                          
                           <div className="p-6">
                             <div className="flex items-center mb-3">
                               <div className="mr-3">{project.icon}</div>
@@ -777,11 +643,9 @@ const Projects: React.FC = () => {
                                 {project.title}
                               </h3>
                             </div>
-                            
                             <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                               {project.shortDescription}
                             </p>
-                            
                             <div className="flex flex-wrap gap-1 mb-4">
                               {project.tech.slice(0, 3).map((tech, i) => (
                                 <span
@@ -795,7 +659,6 @@ const Projects: React.FC = () => {
                                 <span className="text-xs text-gray-500">+{project.tech.length - 3} more</span>
                               )}
                             </div>
-                            
                             <div className="flex items-center justify-between">
                               <div className="flex items-center text-sm text-gray-500">
                                 <MapPin className="mr-1" size={14} />
@@ -838,10 +701,178 @@ const Projects: React.FC = () => {
                   </motion.div>
                 )}
               </div>
-            ) : activeTab === 'graphics' ? (
-              <ImageGalleryView projects={filteredGraphicsProjects} />
-            ) : (
-              <VideoGalleryView projects={filteredVideoProjects} />
+            )}
+
+            {activeTab === 'graphics' && (
+              <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ${viewMode === 'list' ? 'md:grid-cols-1' : ''}`}>
+                {loading ? (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-gray-600">Loading graphics design projects...</p>
+                  </div>
+                ) : error ? (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-red-600">{error}</p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="mt-4 text-red-600 hover:underline font-semibold"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : filteredGraphicsProjects.length > 0 ? (
+                  filteredGraphicsProjects.map((project) => (
+                    <motion.div
+                      key={project.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -30 }}
+                      transition={{ duration: 0.3 }}
+                      className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 bg-gradient-to-br from-blue-50 to-cyan-50 ${viewMode === 'list' ? 'md:flex' : ''}`}
+                    >
+                      {viewMode === 'list' ? (
+                        <div className="md:flex">
+                          <div className="md:w-1/3 h-48 md:h-auto overflow-hidden">
+                            <img
+                              src={project.image}
+                              alt={project.title}
+                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                              loading="lazy"
+                              onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
+                            />
+                          </div>
+                          <div className="p-6 md:w-2/3">
+                            <div className="flex items-center mb-3">
+                              <Palette className="text-blue-500 mr-3" size={24} />
+                              <h3 className="text-xl font-bold text-gray-900 truncate" title={project.title}>
+                                {project.title}
+                              </h3>
+                            </div>
+                            <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                              {project.description}
+                            </p>
+                            <div className="flex flex-wrap gap-1 mb-4">
+                              {project.tools.slice(0, 3).map((tool, i) => (
+                                <span
+                                  key={i}
+                                  className="bg-white text-gray-800 text-xs px-2 py-1 rounded border border-gray-200 shadow-sm"
+                                >
+                                  {tool}
+                                </span>
+                              ))}
+                              {project.tools.length > 3 && (
+                                <span className="text-xs text-gray-500">+{project.tools.length - 3} more</span>
+                              )}
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center text-sm text-gray-500">
+                                <span>{project.year}</span>
+                              </div>
+                              <a
+                                href={project.viewLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-red-600 hover:text-red-700 font-medium flex items-center group"
+                              >
+                                View Design
+                                <ExternalLink
+                                  size={16}
+                                  className="ml-1 transition-transform group-hover:translate-x-1"
+                                />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="relative h-48 overflow-hidden">
+                            <img
+                              src={project.image}
+                              alt={project.title}
+                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                              loading="lazy"
+                              onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                            <div className="absolute bottom-3 left-3">
+                              <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                                {project.category}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-6">
+                            <div className="flex items-center mb-3">
+                              <Palette className="text-blue-500 mr-3" size={24} />
+                              <h3 className="text-xl font-bold text-gray-900 truncate" title={project.title}>
+                                {project.title}
+                              </h3>
+                            </div>
+                            <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                              {project.description}
+                            </p>
+                            <div className="flex flex-wrap gap-1 mb-4">
+                              {project.tools.slice(0, 3).map((tool, i) => (
+                                <span
+                                  key={i}
+                                  className="bg-white text-gray-800 text-xs px-2 py-1 rounded border border-gray-200 shadow-sm"
+                                >
+                                  {tool}
+                                </span>
+                              ))}
+                              {project.tools.length > 3 && (
+                                <span className="text-xs text-gray-500">+{project.tools.length - 3} more</span>
+                              )}
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center text-sm text-gray-500">
+                                <span>{project.year}</span>
+                              </div>
+                              <a
+                                href={project.viewLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-red-600 hover:text-red-700 font-medium flex items-center group"
+                              >
+                                View Design
+                                <ExternalLink
+                                  size={16}
+                                  className="ml-1 transition-transform group-hover:translate-x-1"
+                                />
+                              </a>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  ))
+                ) : (
+                  <motion.div
+                    key="no-results"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="col-span-full text-center py-12"
+                  >
+                    <p className="text-gray-500 text-lg">No graphics projects match your search.</p>
+                    <button
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSelectedCategory('All');
+                      }}
+                      className="mt-4 text-red-600 hover:underline font-semibold"
+                    >
+                      Clear filters
+                    </button>
+                  </motion.div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'video' && (
+              <div className="text-center py-16">
+                <Video className="text-gray-400 mx-auto mb-4" size={64} />
+                <h3 className="text-2xl font-bold text-gray-700 mb-2">Video Editing Projects</h3>
+                <p className="text-gray-500">This section is currently under development. Please check back soon!</p>
+              </div>
             )}
           </div>
         </div>

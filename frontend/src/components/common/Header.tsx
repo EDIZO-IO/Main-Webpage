@@ -1,39 +1,71 @@
-// Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Briefcase, Code, Users, Phone } from 'lucide-react';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Menu,
+  X,
+  Home,
+  Briefcase,
+  Code,
+  Users,
+  Phone,
+  User,
+  LogOut,
+  ChevronDown,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Logo from './Logo'; // Make sure your Logo handles isScrolled
+import Logo from './Logo';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const mobileNavRef = useRef(null);
+  const profileRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Detect scroll to apply background and dark text
+  // Check auth state
+  const [user, setUser] = useState<{ name: string } | null>(null);
+
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    const stored = localStorage.getItem('isAuthenticated');
+    if (stored === 'true') {
+      // Mock user — replace with real user data from context/API later
+      setUser({ name: 'User' });
+    } else {
+      setUser(null);
+    }
+  }, [location.pathname]); // Recheck on route change
 
-    handleScroll(); // Set initial state
+  // Close profile dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (isProfileOpen && profileRef.current && !profileRef.current.contains(e.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isProfileOpen]);
+
+  // Scroll effect
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close menu on Escape
+  // Close mobile menu on Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isMenuOpen) {
-        setIsMenuOpen(false);
-      }
+      if (e.key === 'Escape' && isMenuOpen) setIsMenuOpen(false);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMenuOpen]);
 
-  // Close menu on outside click
+  // Close mobile menu on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (isMenuOpen && mobileNavRef.current && !mobileNavRef.current.contains(e.target)) {
@@ -43,6 +75,13 @@ const Header = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMenuOpen]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    setUser(null);
+    setIsProfileOpen(false);
+    navigate('/login');
+  };
 
   const navLinks = [
     { name: 'HOME', path: '/', icon: Home },
@@ -71,7 +110,7 @@ const Header = () => {
           <Logo isScrolled={isScrolled} />
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation — ALWAYS VISIBLE */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => {
             const isActive = location.pathname === link.path;
@@ -105,6 +144,47 @@ const Header = () => {
           })}
         </nav>
 
+        {/* Desktop Profile Button — Only if logged in */}
+        {user && (
+          <div className="hidden md:block relative" ref={profileRef}>
+            <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+              aria-haspopup="true"
+              aria-expanded={isProfileOpen}
+              aria-label="User profile"
+            >
+              <div className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center font-medium text-sm">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <ChevronDown size={16} className={`text-gray-600 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+              {isProfileOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
+                >
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-800">{user.name}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut size={16} />
+                    <span>Logout</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
         {/* Mobile Menu Button */}
         <button
           className="md:hidden z-30 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-lg p-2 transition-colors"
@@ -124,7 +204,6 @@ const Header = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <>
-            {/* Backdrop Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.6 }}
@@ -134,7 +213,6 @@ const Header = () => {
               aria-hidden="true"
             />
 
-            {/* Slide-in Drawer */}
             <motion.div
               ref={mobileNavRef}
               initial={{ x: '100%' }}
@@ -145,7 +223,6 @@ const Header = () => {
               role="navigation"
               aria-label="Mobile navigation"
             >
-              {/* Header Bar */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-white">
                 <Link
                   to="/"
@@ -163,7 +240,6 @@ const Header = () => {
                 </button>
               </div>
 
-              {/* Nav Links */}
               <nav className="flex-1 p-6 bg-gray-50">
                 <ul className="space-y-1">
                   {navLinks.map((link) => {
@@ -188,10 +264,33 @@ const Header = () => {
                       </li>
                     );
                   })}
+
+                  {/* Mobile Auth Section */}
+                  {user && (
+                    <li className="pt-4 mt-4 border-t border-gray-200">
+                      <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl">
+                        <div className="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center font-medium">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-800">Hello, {user.name}</p>
+                          <button
+                            onClick={() => {
+                              handleLogout();
+                              setIsMenuOpen(false);
+                            }}
+                            className="mt-1 flex items-center gap-1 text-red-600 text-sm"
+                          >
+                            <LogOut size={14} />
+                            Logout
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  )}
                 </ul>
               </nav>
 
-              {/* Footer */}
               <div className="p-5 border-t border-gray-200 bg-white text-center">
                 <p className="text-sm text-gray-500">
                   © {new Date().getFullYear()} Edizo. All rights reserved.
