@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Menu,
@@ -8,7 +8,6 @@ import {
   Code,
   Users,
   Phone,
-  User,
   LogOut,
   ChevronDown,
 } from 'lucide-react';
@@ -19,8 +18,8 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const mobileNavRef = useRef(null);
-  const profileRef = useRef(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -39,8 +38,8 @@ const Header = () => {
 
   // Close profile dropdown on outside click
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (isProfileOpen && profileRef.current && !profileRef.current.contains(e.target)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (isProfileOpen && profileRef.current && !profileRef.current.contains(e.target as Node)) {
         setIsProfileOpen(false);
       }
     };
@@ -58,7 +57,7 @@ const Header = () => {
 
   // Close mobile menu on Escape
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isMenuOpen) setIsMenuOpen(false);
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -67,8 +66,8 @@ const Header = () => {
 
   // Close mobile menu on outside click
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (isMenuOpen && mobileNavRef.current && !mobileNavRef.current.contains(e.target)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (isMenuOpen && mobileNavRef.current && !mobileNavRef.current.contains(e.target as Node)) {
         setIsMenuOpen(false);
       }
     };
@@ -91,114 +90,164 @@ const Header = () => {
     { name: 'CONTACT', path: '/contact', icon: Phone },
   ];
 
+  // Optimized navigation handler with useCallback to prevent recreation on every render
+  const handleNavigation = useCallback((path: string) => {
+    // Close menus immediately
+    setIsMenuOpen(false);
+    setIsProfileOpen(false);
+    
+    // Only navigate if we're not already on that path
+    if (location.pathname !== path) {
+      // Use setTimeout to ensure state updates complete before navigation
+      setTimeout(() => {
+        navigate(path);
+      }, 0);
+    }
+  }, [navigate, location.pathname]);
+
+  // Handle link clicks for desktop navigation
+  const handleLinkClick = useCallback((path: string) => {
+    handleNavigation(path);
+  }, [handleNavigation]);
+
   return (
-    <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-lg'
-          : 'bg-transparent'
-      }`}
-      style={{ backdropFilter: isScrolled ? 'blur(8px)' : 'none' }}
-      role="banner"
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8 h-16">
-        {/* Logo */}
-        <Link to="/" className="z-20 flex items-center" aria-label="Edizo Home">
-          <Logo isScrolled={isScrolled} />
-        </Link>
-
-        {/* Desktop Navigation — ALWAYS VISIBLE */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => {
-            const isActive = location.pathname === link.path;
-            return (
-              <NavLink
-                key={link.name}
-                to={link.path}
-                className={({ isActive: isRouteActive }) =>
-                  `relative font-medium tracking-wide transition-all duration-200 ${
-                    isRouteActive
-                      ? 'text-red-600 font-semibold'
-                      : isScrolled
-                      ? 'text-gray-800 hover:text-red-600'
-                      : 'text-gray-400 hover:text-gray-600'
-                  }`
-                }
-                aria-current={location.pathname === link.path ? 'page' : undefined}
-              >
-                {link.name}
-                {location.pathname === link.path && (
-                  <motion.div
-                    layoutId="underline"
-                    className="absolute -bottom-1 left-0 w-full h-0.5 bg-red-600"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                )}
-              </NavLink>
-            );
-          })}
-        </nav>
-
-        {/* Desktop Profile Button — Only if logged in */}
-        {user && (
-          <div className="hidden md:block relative" ref={profileRef}>
-            <button
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-              aria-haspopup="true"
-              aria-expanded={isProfileOpen}
-              aria-label="User profile"
+    <>
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className={`fixed w-full z-50 transition-all duration-300 ${
+          isScrolled
+            ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100/50'
+            : 'bg-transparent'
+        }`}
+        style={{ backdropFilter: isScrolled ? 'blur(8px)' : 'none' }}
+        role="banner"
+      >
+        {/* Curved Container */}
+        <div className="container mx-auto px-4 md:px-6">
+          <div className={`max-w-6xl mx-auto rounded-full px-4 md:px-8 h-16 flex items-center justify-between transition-all duration-300 ${
+            isScrolled 
+              ? 'bg-white/90 backdrop-blur-md shadow-lg border border-gray-200' 
+              : 'bg-gradient-to-r from-red-600/90 to-purple-600/90 backdrop-blur-md border border-white/30'
+          }`}>
+            {/* Logo */}
+            <Link 
+              to="/" 
+              className="z-20 flex items-center" 
+              aria-label="Edizo Home"
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigation('/');
+              }}
             >
-              <div className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center font-medium text-sm">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <ChevronDown size={16} className={`text-gray-600 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
-            </button>
+              <Logo isScrolled={isScrolled} />
+            </Link>
 
-            <AnimatePresence>
-              {isProfileOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
+            {/* Desktop Navigation — ALWAYS VISIBLE */}
+            <nav className="hidden md:flex items-center gap-2">
+              {navLinks.map((link) => (
+                <NavLink
+                  key={link.name}
+                  to={link.path}
+                  className={({ isActive }) =>
+                    `relative font-medium tracking-wide transition-all duration-300 py-2 px-4 rounded-full text-sm md:text-base font-semibold ${
+                      isActive
+                        ? 'bg-white text-red-600 shadow-md border border-red-200'
+                        : isScrolled
+                        ? 'text-gray-700 hover:text-red-600 hover:bg-red-50/80 border border-transparent hover:border-red-200'
+                        : 'text-white hover:text-white hover:bg-white/20 border border-transparent hover:border-white/30'
+                    }`
+                  }
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleLinkClick(link.path);
+                  }}
                 >
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-800">{user.name}</p>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <LogOut size={16} />
-                    <span>Logout</span>
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
+                  {({ isActive }) => (
+                    <>
+                      {link.name}
+                      {isActive && !isScrolled && (
+                        <motion.div
+                          layoutId="underline"
+                          className="absolute -bottom-1 left-0 w-full h-0.5 bg-white"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.2 }}
+                        />
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </nav>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden z-30 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-lg p-2 transition-colors"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-expanded={isMenuOpen}
-          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-        >
-          {isMenuOpen ? (
-            <X className="w-7 h-7 text-gray-900" />
-          ) : (
-            <Menu className="w-7 h-7 text-gray-900" />
-          )}
-        </button>
-      </div>
+            {/* Desktop Profile Button — Only if logged in */}
+            {user && (
+              <div className="hidden md:block relative" ref={profileRef}>
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className={`flex items-center gap-2 p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                    isScrolled 
+                      ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' 
+                      : 'bg-white/20 hover:bg-white/30 text-white'
+                  }`}
+                  aria-haspopup="true"
+                  aria-expanded={isProfileOpen}
+                  aria-label="User profile"
+                >
+                  <div className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center font-medium text-sm">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <ChevronDown size={16} className={`transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {isProfileOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
+                    >
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-medium text-gray-800">{user.name}</p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut size={16} />
+                        <span>Logout</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <button
+              className={`md:hidden z-30 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-lg p-2 transition-colors ${
+                isScrolled ? 'text-gray-900 bg-gray-100 hover:bg-gray-200' : 'text-white bg-white/20 hover:bg-white/30'
+              }`}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-expanded={isMenuOpen}
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            >
+              {isMenuOpen ? (
+                <X className="w-7 h-7" />
+              ) : (
+                <Menu className="w-7 h-7" />
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.header>
 
       {/* Mobile Drawer */}
       <AnimatePresence>
@@ -224,13 +273,12 @@ const Header = () => {
               aria-label="Mobile navigation"
             >
               <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-white">
-                <Link
-                  to="/"
+                <button
+                  onClick={() => handleNavigation('/')}
                   className="text-xl font-bold text-gray-900"
-                  onClick={() => setIsMenuOpen(false)}
                 >
                   Edizo
-                </Link>
+                </button>
                 <button
                   onClick={() => setIsMenuOpen(false)}
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -246,21 +294,20 @@ const Header = () => {
                     const isActive = location.pathname === link.path;
                     return (
                       <li key={link.name}>
-                        <NavLink
-                          to={link.path}
-                          className={`flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group ${
+                        <button
+                          onClick={() => handleNavigation(link.path)}
+                          className={`flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group font-semibold w-full text-left ${
                             isActive
-                              ? 'bg-red-50 text-red-700 font-semibold'
-                              : 'text-gray-800 hover:bg-red-50 active:bg-red-100'
+                              ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md'
+                              : 'text-gray-800 hover:bg-gradient-to-r hover:from-red-500 hover:to-orange-500 hover:text-white'
                           }`}
-                          onClick={() => setIsMenuOpen(false)}
                           aria-current={isActive ? 'page' : undefined}
                         >
                           <link.icon
-                            className={`w-5 h-5 ${isActive ? 'text-red-600' : 'text-gray-600 group-hover:text-red-600'}`}
+                            className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-white'}`}
                           />
                           <span>{link.name}</span>
-                        </NavLink>
+                        </button>
                       </li>
                     );
                   })}
@@ -268,18 +315,19 @@ const Header = () => {
                   {/* Mobile Auth Section */}
                   {user && (
                     <li className="pt-4 mt-4 border-t border-gray-200">
-                      <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl">
-                        <div className="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center font-medium">
+                      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl text-white">
+                        <div className="w-10 h-10 bg-white text-red-500 rounded-full flex items-center justify-center font-medium">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-800">Hello, {user.name}</p>
+                          <p className="font-medium">Hello, {user.name}</p>
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               handleLogout();
                               setIsMenuOpen(false);
                             }}
-                            className="mt-1 flex items-center gap-1 text-red-600 text-sm"
+                            className="mt-1 flex items-center gap-1 text-white text-sm hover:text-red-100"
                           >
                             <LogOut size={14} />
                             Logout
@@ -300,7 +348,7 @@ const Header = () => {
           </>
         )}
       </AnimatePresence>
-    </motion.header>
+    </>
   );
 };
 

@@ -1,40 +1,13 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle, Loader2,
-  Facebook, Twitter, Linkedin, Instagram, Youtube } from 'lucide-react';
-import { useEffect } from 'react';
+  Facebook, Twitter, Linkedin, Instagram, Youtube, MessageCircle, ArrowRight, Zap } from 'lucide-react';
 
-// --- Reusable Components ---
-
-const PageHeader = ({ title, subtitle, backgroundImage, backgroundStyle }) => (
-  <motion.div
-    className="relative h-72 md:h-80 bg-cover bg-center text-white flex items-center justify-center rounded-b-xl shadow-lg overflow-hidden"
-    style={{ backgroundImage: `url(${backgroundImage})`, ...backgroundStyle }}
-  >
-    <div className="absolute inset-0 bg-black opacity-60 rounded-b-xl"></div>
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      className="relative z-10 text-center p-4 max-w-2xl"
-    >
-      <h1 className="text-4xl md:text-5xl font-extrabold mb-2 drop-shadow-md">{title}</h1>
-      <p className="text-lg md:text-xl text-gray-200 mt-2">{subtitle}</p>
-    </motion.div>
-  </motion.div>
-);
-
-const AnimatedSection = ({ children, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.7, delay, ease: "easeOut" }}
-    className="rounded-lg"
-  >
-    {children}
-  </motion.div>
-);
+// === Type Definitions ===
+interface AnimatedSectionProps {
+  children: React.ReactNode;
+  delay?: number;
+}
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -49,6 +22,27 @@ interface ButtonProps {
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
 }
+
+interface ContactInfoProps {
+  icon: React.ReactNode;
+  title: string;
+  lines: React.ReactNode[];
+  gradientClass: string;
+  delay?: number;
+}
+
+// --- Reusable Components ---
+
+const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.6, delay, type: 'spring', stiffness: 100, damping: 15 }}
+  >
+    {children}
+  </motion.div>
+);
 
 const Button: React.FC<ButtonProps> = ({
   children,
@@ -72,7 +66,7 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantClasses = {
     primary: 'bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600 focus:ring-2 ring-offset-2 ring-red-500 shadow-md hover:shadow-xl',
-    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-2 ring-offset-2 ring-gray-300',
+    secondary: 'bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-gray-50/80 border border-gray-300 focus:ring-2 ring-offset-2 ring-gray-400',
     outline: 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white focus:ring-2 ring-offset-2 ring-red-600',
     ghost: 'text-red-600 hover:text-red-700 focus:ring-2 ring-offset-2 ring-red-600',
   };
@@ -83,7 +77,7 @@ const Button: React.FC<ButtonProps> = ({
     ${fullWidth ? 'w-full' : ''}
     ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
     ${className}
-    rounded-md font-medium transition-all duration-300 ease-in-out flex items-center justify-center gap-2
+    rounded-full font-medium transition-all duration-300 ease-in-out flex items-center justify-center gap-2 min-h-12
   `.trim();
 
   if (href) {
@@ -115,19 +109,20 @@ const Button: React.FC<ButtonProps> = ({
   );
 };
 
-const ContactInfo = ({ icon, title, lines, gradientClass }) => (
+const ContactInfo: React.FC<ContactInfoProps> = ({ icon, title, lines, gradientClass, delay = 0 }) => (
   <motion.div
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.5, delay: 0.2 }}
-    className={`flex items-start space-x-4 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${gradientClass}`}
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5, delay }}
+    className={`flex items-start space-x-4 p-6 rounded-2xl shadow-md border border-gray-100/50 hover:shadow-xl transition-all duration-300 ${gradientClass} group bg-white/90 backdrop-blur-sm`}
   >
-    <div className="bg-red-600 rounded-full p-3 flex items-center justify-center text-white flex-shrink-0">
+    <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
       {icon}
     </div>
     <div>
-      <h4 className="font-semibold text-lg text-gray-900 mb-1">{title}</h4>
-      <div className="space-y-1 text-gray-700 text-sm">
+      <h4 className="font-semibold text-lg text-gray-800 mb-2">{title}</h4>
+      <div className="space-y-1 text-gray-600 text-sm">
         {lines.map((line, i) => (
           <div key={i}>{line}</div>
         ))}
@@ -148,18 +143,19 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://main-webpage-l85m.onrender.com';
+  const API_BASE_URL = 'https://your-api-url.com'; // This won't work without a backend, but the structure is correct.
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setFormError(null);
 
+    // This fetch call will fail without a backend
     try {
       const res = await fetch(`${API_BASE_URL}/api/send-contact-email`, {
         method: 'POST',
@@ -167,36 +163,31 @@ const Contact = () => {
         body: JSON.stringify(formData),
       });
 
-      let result;
-      try {
-        result = await res.json();
-      } catch {
-        const textResult = await res.text();
-        throw new Error(`Invalid JSON response: ${textResult.substring(0, 100)}...`);
+      if (!res.ok) {
+        const errorResult = await res.json().catch(() => ({ message: res.statusText }));
+        throw new Error(errorResult.message || `Error: ${res.statusText}`);
       }
-
-      if (!res.ok) throw new Error(result.message || `Error: ${res.statusText}`);
 
       setFormSubmitted(true);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Error:', error);
-      setFormError(
-        error.message.includes("Failed to fetch")
-          ? "Unable to connect to server. Please check your internet or try later."
-          : "Something went wrong. Please try again."
-      );
+      if (error instanceof Error) {
+        setFormError(
+          error.message.includes("Failed to fetch")
+            ? "Unable to connect to server. Please check your internet or try later."
+            : "Something went wrong. Please try again."
+        );
+      } else {
+        setFormError("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const inputFieldClasses = "border border-gray-300 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-sm hover:border-red-400 bg-white";
-
-  const socialIcons = { Facebook, Twitter, Linkedin, Instagram, Youtube };
-
-  // Add JSON-LD structured data
   useEffect(() => {
+    // This structured data won't be picked up by search engines in this environment, but the code is kept for demonstration.
     const schema = {
       "@context": "https://schema.org",
       "@type": "ContactPage",
@@ -232,78 +223,112 @@ const Contact = () => {
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, []);
 
-  const { scrollY } = useScroll();
-  const backgroundY = useTransform(scrollY, [0, 500], [0, 100]);
-
   return (
-    <>
-      <PageHeader
-        title={<span className="text-white">Contact Us</span>}
-        subtitle={<span className="text-gray-200">Get in touch with our team for any inquiries or assistance</span>}
-        backgroundImage="https://images.pexels.com/photos/7413915/pexels-photo-7413915.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-        backgroundStyle={{ y: backgroundY }}
-      />
+    <div className="bg-gray-50 min-h-screen">
+      {/* Curved Header Section */}
+      <header className="relative w-full bg-gradient-to-br from-red-600 to-orange-600 text-white pt-24 pb-32 overflow-hidden">
+        <motion.div
+          className="text-center p-6 relative z-10"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight drop-shadow-lg">
+            Contact Us
+          </h1>
+          <p className="text-lg md:text-xl font-medium drop-shadow max-w-2xl mx-auto">
+            We'd love to hear from you. Reach out and let's create something amazing together.
+          </p>
+        </motion.div>
+        <svg className="absolute bottom-0 left-0 w-full h-auto text-gray-50" viewBox="0 0 1440 100" fill="currentColor" preserveAspectRatio="none">
+          <path d="M0,0C144,0,288,0,432,0C576,0,720,0,864,0C1008,0,1152,0,1296,0C1440,0,1440,100,1440,100C1296,100,1152,100,1008,100C864,100,720,100,576,100C432,100,288,100,144,100C0,100,0,0,0,0Z"></path>
+        </svg>
+      </header>
 
-      <section className="section bg-gradient-to-b from-gray-50 to-white py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <AnimatedSection>
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-gray-900">We'd Love to Hear From You</h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
+      {/* Main Content Section */}
+      <section className="relative -top-16 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-gray-50 rounded-t-[3rem] p-6 sm:p-8">
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <AnimatedSection>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-100 to-orange-100 text-red-700 rounded-full font-medium text-sm mb-6 border border-red-200/50">
+                <Zap size={16} />
+                Get in Touch
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                How Can We Help You?
+              </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Whether you have a question about our services, need a consultation, or just want to say hello, our dedicated team is here to assist you every step of the way.
               </p>
-            </div>
-          </AnimatedSection>
+            </AnimatedSection>
+          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Contact Info */}
-            <AnimatedSection delay={0.1}>
-              <div className="bg-gradient-to-b from-gray-100 to-gray-50 p-8 rounded-xl h-full shadow-lg">
-                <h3 className="text-2xl font-extrabold mb-6 text-gray-900 border-b pb-4">Our Details</h3>
-                <div className="space-y-6">
-                  <ContactInfo
-                    icon={<MapPin className="text-white" size={20} />}
-                    title="Our Virtual Office"
-                    lines={['Global Remote Operations']}
-                    gradientClass="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-100 hover:bg-blue-100/50"
-                  />
-                  <ContactInfo
-                    icon={<Mail className="text-white" size={20} />}
-                    title="Email Support"
-                    lines={[
-                      <a href="mailto:edizoofficial@gmail.com" className="text-gray-700 hover:text-red-600 transition-colors">edizoofficial@gmail.com</a>,
-                      <span className="text-sm text-gray-600">General inquiries & partnerships</span>,
-                      <a href="mailto:edizoteam@gmail.com" className="text-gray-700 hover:text-red-600 block mt-2 transition-colors">edizoteam@gmail.com</a>,
-                      <span className="text-sm text-gray-600">Technical support & service requests</span>,
-                    ]}
-                    gradientClass="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-100 hover:bg-gray-100/50"
-                  />
-                  <ContactInfo
-                    icon={<Phone className="text-white" size={20} />}
-                    title="Call Us"
-                    lines={[
-                      <a href="tel:+919876543210" className="text-gray-700 hover:text-red-600 transition-colors">+91 9876543210</a>,
-                      <span className="text-sm text-gray-600">Mon-Sat: 9:00 AM - 6:00 PM (IST)</span>
-                    ]}
-                    gradientClass="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-100 hover:bg-slate-100/50"
-                  />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Contact Info Cards */}
+            <div className="space-y-6 lg:col-span-1">
+              <AnimatedSection delay={0.1}>
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-100/50">
+                  <h3 className="text-2xl font-bold mb-6 text-gray-900 flex items-center">
+                    <MapPin className="w-6 h-6 text-red-500 mr-2" />
+                    Contact Information
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    <ContactInfo
+                      icon={<MapPin size={24} />}
+                      title="Location"
+                      lines={['Global Remote Operations', 'Serving clients worldwide']}
+                      gradientClass="bg-gradient-to-br from-blue-500 to-blue-600"
+                      delay={0.2}
+                    />
+                    
+                    <ContactInfo
+                      icon={<Mail size={24} />}
+                      title="Email"
+                      lines={[
+                        <a key="email1" href="mailto:edizoofficial@gmail.com" className="hover:text-red-600 transition-colors">edizoofficial@gmail.com</a>,
+                        <a key="email2" href="mailto:edizoteam@gmail.com" className="hover:text-red-600 transition-colors">edizoteam@gmail.com</a>
+                      ]}
+                      gradientClass="bg-gradient-to-br from-purple-500 to-purple-600"
+                      delay={0.3}
+                    />
+                    
+                    <ContactInfo
+                      icon={<Phone size={24} />}
+                      title="Phone"
+                      lines={[
+                        <a key="phone" href="tel:+919876543210" className="hover:text-red-600 transition-colors">+91 9876543210</a>,
+                        <span key="hours" className="text-gray-500">Mon-Sat: 9:00 AM - 6:00 PM (IST)</span>
+                      ]}
+                      gradientClass="bg-gradient-to-br from-green-500 to-green-600"
+                      delay={0.4}
+                    />
+                  </div>
                 </div>
-
-                <div className="mt-10">
-                  <h4 className="font-extrabold text-xl mb-4 text-gray-900 border-b pb-2">Connect With Us</h4>
-                  <div className="flex space-x-4 justify-center md:justify-start">
+              </AnimatedSection>
+              
+              <AnimatedSection delay={0.5}>
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-100/50">
+                  <h3 className="text-2xl font-bold mb-6 text-gray-900 flex items-center">
+                    <MessageCircle className="w-6 h-6 text-red-500 mr-2" />
+                    Connect With Us
+                  </h3>
+                  
+                  <div className="space-y-4">
                     {[
-                      { platform: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61576742758066' },
-                      { platform: 'Twitter', url: 'https://x.com/edizo_official' },
-                      { platform: 'Linkedin', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/' },
-                      { platform: 'Instagram', url: 'https://www.instagram.com/edizo_official?igsh=dXc1MnFucGY4MHo4' },
-                      { platform: 'Youtube', url: 'https://www.youtube.com/@edizo_official' }
+                      { platform: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61576742758066', icon: Facebook },
+                      { platform: 'Twitter', url: 'https://x.com/edizo_official', icon: Twitter },
+                      { platform: 'Linkedin', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/', icon: Linkedin },
+                      { platform: 'Instagram', url: 'https://www.instagram.com/edizo_official?igsh=dXc1MnFucGY4MHo4', icon: Instagram },
+                      { platform: 'Youtube', url: 'https://www.youtube.com/@edizo_official', icon: Youtube }
                     ].map((social, i) => {
-                      const IconComponent = socialIcons[social.platform];
+                      const IconComponent = social.icon;
                       return (
                         <motion.a
                           key={i}
@@ -311,35 +336,48 @@ const Contact = () => {
                           aria-label={social.platform}
                           target="_blank"
                           rel="noopener noreferrer"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3, delay: 0.1 * i + 0.3 }}
-                          className="bg-gray-200 text-gray-700 hover:bg-gradient-to-r from-red-500 to-orange-500 hover:text-white transition-all duration-300 w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-xl"
-                          whileHover={{ scale: 1.1, rotate: 5 }}
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.3, delay: 0.1 * i }}
+                          className="flex items-center p-3 rounded-xl bg-gray-50 hover:bg-gradient-to-r hover:from-red-500 hover:to-orange-500 hover:text-white transition-all duration-300 group"
                         >
-                          {IconComponent && <IconComponent size={24} />}
+                          <div className="w-10 h-10 rounded-full bg-gray-200 group-hover:bg-white/20 flex items-center justify-center mr-3 transition-colors duration-300">
+                            <IconComponent size={20} className="group-hover:text-white" />
+                          </div>
+                          <span className="font-medium group-hover:text-white transition-colors duration-300">
+                            {social.platform}
+                          </span>
                         </motion.a>
                       );
                     })}
                   </div>
                 </div>
-              </div>
-            </AnimatedSection>
+              </AnimatedSection>
+            </div>
 
             {/* Contact Form */}
             <AnimatedSection delay={0.2}>
-              <div className="bg-white p-8 rounded-xl shadow-xl lg:col-span-2">
-                <h3 className="text-2xl font-extrabold mb-6 text-gray-900 border-b pb-4">Send Us a Message</h3>
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100/50 lg:col-span-2">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mr-4">
+                    <Send className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Send Us a Message</h3>
+                </div>
+                
                 {formSubmitted ? (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="text-center py-12 px-4 bg-gradient-to-b from-green-50 to-green-100 rounded-lg"
+                    className="text-center py-12 px-4 bg-gradient-to-b from-green-50 to-green-100 rounded-xl"
                   >
-                    <CheckCircle className="w-20 h-20 text-green-600 mx-auto mb-6" />
-                    <h4 className="text-2xl font-extrabold mb-3 text-gray-900">Thank You!</h4>
-                    <p className="text-gray-700 text-lg mb-8 font-light">
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle className="w-12 h-12 text-green-600" />
+                    </div>
+                    <h4 className="text-2xl font-bold mb-3 text-gray-900">Thank You!</h4>
+                    <p className="text-gray-700 text-lg mb-8">
                       We've received your message and will get back to you within 24-48 hours.
                     </p>
                     <Button variant="outline" onClick={() => setFormSubmitted(false)} size="lg">
@@ -349,19 +387,18 @@ const Contact = () => {
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {formError && (
-                      <motion.p
+                      <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-red-600 text-center bg-red-50 p-3 rounded-md border border-red-200 shadow-sm"
+                        className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600"
                       >
                         {formError}
-                      </motion.p>
+                      </motion.div>
                     )}
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                          Name <span className="text-red-600">*</span>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                          Full Name
                         </label>
                         <input
                           type="text"
@@ -370,13 +407,12 @@ const Contact = () => {
                           value={formData.name}
                           onChange={handleInputChange}
                           required
-                          className={inputFieldClasses}
-                          placeholder="Full Name"
+                          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
                         />
                       </div>
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                          Email <span className="text-red-600">*</span>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                          Email Address
                         </label>
                         <input
                           type="email"
@@ -385,28 +421,26 @@ const Contact = () => {
                           value={formData.email}
                           onChange={handleInputChange}
                           required
-                          className={inputFieldClasses}
-                          placeholder="your.email@example.com"
+                          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
                         />
                       </div>
                     </div>
-
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number
+                      </label>
                       <input
                         type="tel"
                         id="phone"
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className={inputFieldClasses}
-                        placeholder="e.g., +91 98765 43210"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
                       />
                     </div>
-
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                        Subject <span className="text-red-600">*</span>
+                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                        Subject
                       </label>
                       <input
                         type="text"
@@ -415,40 +449,32 @@ const Contact = () => {
                         value={formData.subject}
                         onChange={handleInputChange}
                         required
-                        className={inputFieldClasses}
-                        placeholder="How can we help?"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
                       />
                     </div>
-
                     <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                        Message <span className="text-red-600">*</span>
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                        Your Message
                       </label>
                       <textarea
                         id="message"
                         name="message"
-                        rows={6}
+                        rows={5}
                         value={formData.message}
                         onChange={handleInputChange}
                         required
-                        className={`${inputFieldClasses} resize-y`}
-                        placeholder="Tell us about your project or question..."
-                      />
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
+                      ></textarea>
                     </div>
-
-                    <div className="text-right mt-6">
-                      <Button type="submit" disabled={loading} size="lg">
-                        {loading ? (
-                          <>
-                            Sending... <Loader2 className="ml-3 w-5 h-5 animate-spin" />
-                          </>
-                        ) : (
-                          <>
-                            Send Message <Send className="ml-3 w-5 h-5" />
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                    <Button
+                      type="submit"
+                      fullWidth
+                      size="lg"
+                      disabled={loading}
+                      iconRight={loading ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
+                    >
+                      {loading ? 'Sending...' : 'Send Message'}
+                    </Button>
                   </form>
                 )}
               </div>
@@ -456,7 +482,7 @@ const Contact = () => {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 

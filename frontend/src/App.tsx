@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
@@ -23,6 +23,15 @@ const App: React.FC = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    // Simulate loading or use your actual loading logic
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   if (loading) return <Preloader onLoaded={() => setLoading(false)} duration={2100} />;
 
   return (
@@ -34,13 +43,13 @@ const App: React.FC = () => {
           <Route path="services/:id" element={<ServiceDetails />} />
           <Route path="internships" element={<Internships />} />
           <Route path="internships/:id" element={<InternshipDetails />} />
-          <Route path="/apply/:id" element={<InternshipApplication />} />
+          <Route path="apply/:id" element={<InternshipApplication />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projects/:id" element={<ProjectDetails />} />
           <Route path="contact" element={<Contact />} />
-          <Route path="/events" element={<UpcomingEvents />} />
+          <Route path="events" element={<UpcomingEvents />} />
           <Route path="verify-certificate" element={<CertificateVerification />} />
-          <Route path="/reviews" element={<ReviewPage />} />
+          <Route path="reviews" element={<ReviewPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
