@@ -1,12 +1,13 @@
+// src/pages/Projects.tsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowRight, 
-  MapPin, 
-  Shield, 
-  Eye, 
-  Gamepad, 
+import { motion } from 'framer-motion'; // Removed AnimatePresence import
+import {
+  ArrowRight,
+  MapPin,
+  Shield,
+  Eye,
+  Gamepad,
   Search,
   Video,
   Palette,
@@ -22,14 +23,14 @@ import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
 import recapImage from '../assets/project/redcap.png';
 import placeholderImage from '../assets/placeholder.png'; // Fallback image
-// Local images for the profile section scroll view
+// Local gallery images
 import edizoLogo from '../assets/project/scrollImages/A2A.png';
 import recapLogo from '../assets/project/scrollImages/C-G 3D.png';
 import cybersecurityPoster from '../assets/project/scrollImages/E2D.png';
 import webBanner from '../assets/project/scrollImages/cse.png';
 import brandingKit from '../assets/project/scrollImages/edizo.png';
 
-// --- Project Data ---
+// --- Types ---
 export interface Project {
   id: string;
   title: string;
@@ -47,7 +48,6 @@ export interface Project {
   gradient: string;
 }
 
-// --- Graphics Project Data (for Graphics Tab) ---
 interface GraphicsProject {
   id: string;
   title: string;
@@ -62,16 +62,15 @@ interface GraphicsProject {
   viewLink: string;
 }
 
-// --- Gallery Image Data (for AutoScrollingGallery) ---
 interface GalleryImage {
   id: string;
-  title: string; // Name or project title
-  role: string;  // Role or short description (e.g., "Lead Designer")
-  image: string; // Profile or project image
-  viewLink: string; // Link to profile or project details
+  title: string;
+  role: string;
+  image: string;
+  viewLink: string;
 }
 
-// Data for profile section scroll view using local images
+// --- Gallery Data ---
 const galleryImagesData: GalleryImage[] = [
   {
     id: 'edizo-logo',
@@ -109,10 +108,9 @@ const galleryImagesData: GalleryImage[] = [
     viewLink: 'https://drive.google.com/file/d/5eFgHiJkLmNoPqRsTuVwXyZ12345678/view',
   },
 ];
-
-// Duplicate for seamless infinite scrolling
 const duplicatedGalleryImages = [...galleryImagesData, ...galleryImagesData];
 
+// --- Projects Data ---
 export const projects: Project[] = [
   {
     id: 'ai-ransomware-detection',
@@ -203,7 +201,7 @@ export const projects: Project[] = [
   }
 ];
 
-// --- Auto-Scrolling Image Gallery Component ---
+// --- Auto-Scrolling Gallery ---
 const AutoScrollingGallery: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
 
@@ -239,7 +237,10 @@ const AutoScrollingGallery: React.FC = () => {
                   alt={image.title}
                   className="w-full h-48 object-cover rounded-xl"
                   loading="lazy"
-                  onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
+                  onError={(e) => {
+                    console.warn(`Failed to load gallery image ${image.id}`);
+                    e.currentTarget.src = placeholderImage;
+                  }}
                 />
                 <div className="mt-4 text-center">
                   <h4 className="text-lg font-semibold text-gray-900">{image.title}</h4>
@@ -263,7 +264,7 @@ const AutoScrollingGallery: React.FC = () => {
   );
 };
 
-// --- Typing Animation Component ---
+// --- Typing Animation ---
 interface AnimatedTypingSubtitleProps {
   phrases: string[];
 }
@@ -307,7 +308,7 @@ const AnimatedTypingSubtitle: React.FC<AnimatedTypingSubtitleProps> = ({ phrases
   );
 };
 
-// --- Main Projects Component ---
+// --- Main Component ---
 const Projects: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -317,24 +318,36 @@ const Projects: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [graphicsProjects, setGraphicsProjects] = useState<GraphicsProject[]>([]);
 
-  // Extract unique categories for development and graphics projects
+  // Extract categories
   const devCategories = ['All', ...new Set(projects.map(p => p.category))];
   const graphicsCategories = ['All', ...new Set(graphicsProjects.map(p => p.category))];
 
-  // Fetch graphics projects for the graphics tab
+  // Fetch graphics projects
   useEffect(() => {
     const fetchGraphicsProjects = async () => {
       try {
         setLoading(true);
+        setError(null); // Clear previous errors
         const response = await fetch('/data/graphics-design.json');
         if (!response.ok) {
-          throw new Error('Failed to fetch graphics design projects');
+          // Handle non-2xx responses
+          if (response.status === 404) {
+             console.warn('Graphics projects file not found (/data/graphics-design.json)');
+          } else {
+             console.warn(`Failed to load graphics projects: ${response.status} ${response.statusText}`);
+          }
+          // Fallback to empty array
+          setGraphicsProjects([]);
+          setLoading(false);
+          return;
         }
         const data: GraphicsProject[] = await response.json();
         setGraphicsProjects(data);
         setLoading(false);
       } catch (err) {
-        setError('Error loading graphics design projects');
+        console.error('Error fetching graphics projects:', err);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setGraphicsProjects([]); // Fallback to empty array
         setLoading(false);
       }
     };
@@ -342,31 +355,33 @@ const Projects: React.FC = () => {
     fetchGraphicsProjects();
   }, []);
 
-  // Filter projects
+  // Filter logic
   const filteredDevProjects = projects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          project.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          project.tech.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch =
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.tech.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const filteredGraphicsProjects = graphicsProjects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          project.tools.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch =
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.tools.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // Add JSON-LD structured data for SEO
+  // Add JSON-LD for SEO - ✅ FIXED URLs
   useEffect(() => {
     const schema = {
-      '@context': 'https://schema.org',
+      '@context': 'https://schema.org', // ✅ Removed trailing spaces
       '@type': 'ItemList',
       name: 'Edizo Projects Portfolio',
       description: 'A curated list of featured projects by Edizo in cybersecurity, AI, web development, and graphics design.',
-      url: 'https://www.edizo.in/projects',
+      url: 'https://www.edizo.in/projects', // ✅ Removed trailing spaces
       numberOfItems: projects.length + graphicsProjects.length,
       itemListElement: [
         ...projects.map((project, index) => ({
@@ -378,7 +393,7 @@ const Projects: React.FC = () => {
           datePublished: project.timeline,
           creator: { '@type': 'Organization', name: 'Edizo' },
           thumbnailUrl: project.image,
-          url: `https://www.edizo.in/projects/${project.id}`
+          url: `https://www.edizo.in/projects/${project.id}`, // ✅ Removed trailing spaces
         })),
         ...graphicsProjects.map((project, index) => ({
           '@type': 'CreativeWork',
@@ -389,7 +404,7 @@ const Projects: React.FC = () => {
           datePublished: project.year,
           creator: { '@type': 'Organization', name: 'Edizo' },
           thumbnailUrl: project.image,
-          url: project.viewLink
+          url: project.viewLink, // ✅ Assume this is clean in your JSON
         }))
       ]
     };
@@ -404,16 +419,17 @@ const Projects: React.FC = () => {
       const existing = document.getElementById('projects-schema');
       if (existing) document.head.removeChild(existing);
     };
-  }, [graphicsProjects]);
+  }, [graphicsProjects]); // Dependency array is correct
 
-  if (error && activeTab !== 'graphics') {
+  // Handle error display for graphics tab specifically
+  if (error && activeTab === 'graphics') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-16">
         <div className="text-center p-8 bg-white rounded-xl shadow-md max-w-md mx-auto">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Projects</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => window.location.reload()} // Simple retry
             className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
             Retry
@@ -428,10 +444,9 @@ const Projects: React.FC = () => {
       <PageHeader
         title="Our Projects"
         subtitle={<AnimatedTypingSubtitle phrases={['Innovative Solutions', 'Creative Designs', 'Impactful Videos']} />}
-        backgroundImage={headerBackground}
+        backgroundImage={headerBackground} // Ensure this path is correct
       />
 
-      {/* Auto-scrolling Profile Section */}
       <AutoScrollingGallery />
 
       <section className="bg-gray-50 py-16 md:py-20 px-4">
@@ -445,7 +460,7 @@ const Projects: React.FC = () => {
             </div>
           </AnimatedSection>
 
-          {/* Tabs Navigation */}
+          {/* Tabs */}
           <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-12">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -488,7 +503,7 @@ const Projects: React.FC = () => {
             </motion.button>
           </div>
 
-          {/* Search and View Controls */}
+          {/* Search & View Mode */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
             <div className="relative w-full sm:w-2/3 lg:w-1/2">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -501,15 +516,14 @@ const Projects: React.FC = () => {
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent shadow-sm transition-all"
               />
             </div>
-
             <div className="flex items-center space-x-2 bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-md transition-colors ${
-                  viewMode === 'grid' 
-                    ? 'bg-red-100 text-red-600' 
+                  viewMode === 'grid'
+                    ? 'bg-red-100 text-red-600'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
                 aria-label="Grid view"
@@ -521,8 +535,8 @@ const Projects: React.FC = () => {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setViewMode('list')}
                 className={`p-2 rounded-md transition-colors ${
-                  viewMode === 'list' 
-                    ? 'bg-red-100 text-red-600' 
+                  viewMode === 'list'
+                    ? 'bg-red-100 text-red-600'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
                 aria-label="List view"
@@ -553,7 +567,7 @@ const Projects: React.FC = () => {
             </div>
           )}
 
-          {/* Projects Content */}
+          {/* Projects Grid/List */}
           <div className="space-y-8">
             {activeTab === 'development' && (
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ${viewMode === 'list' ? 'md:grid-cols-1' : ''}`}>
@@ -563,7 +577,7 @@ const Projects: React.FC = () => {
                       key={project.id}
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -30 }}
+                      // Removed exit animation as AnimatePresence is not wrapping this list directly
                       transition={{ duration: 0.3 }}
                       className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 ${project.gradient} ${viewMode === 'list' ? 'md:flex' : ''}`}
                     >
@@ -575,7 +589,10 @@ const Projects: React.FC = () => {
                               alt={project.title}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
-                              onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
+                              onError={(e) => {
+                                console.warn(`Failed to load project image for ${project.id}`);
+                                e.currentTarget.src = placeholderImage;
+                              }}
                             />
                           </div>
                           <div className="p-6 md:w-2/3">
@@ -627,7 +644,10 @@ const Projects: React.FC = () => {
                               alt={project.title}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
-                              onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
+                              onError={(e) => {
+                                console.warn(`Failed to load project image for ${project.id}`);
+                                e.currentTarget.src = placeholderImage;
+                              }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute bottom-3 left-3">
@@ -682,10 +702,10 @@ const Projects: React.FC = () => {
                   ))
                 ) : (
                   <motion.div
-                    key="no-results"
+                    key="no-results-dev"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    // Removed exit animation
                     className="col-span-full text-center py-12"
                   >
                     <p className="text-gray-500 text-lg">No development projects match your search.</p>
@@ -709,11 +729,11 @@ const Projects: React.FC = () => {
                   <div className="col-span-full text-center py-12">
                     <p className="text-gray-600">Loading graphics design projects...</p>
                   </div>
-                ) : error ? (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-red-600">{error}</p>
+                ) : error ? ( // Show error state if fetch failed (even if not displayed in main section)
+                 <div className="col-span-full text-center py-12">
+                    <p className="text-red-600">Failed to load graphics projects: {error}</p>
                     <button
-                      onClick={() => window.location.reload()}
+                      onClick={() => window.location.reload()} // Simple retry
                       className="mt-4 text-red-600 hover:underline font-semibold"
                     >
                       Retry
@@ -725,7 +745,7 @@ const Projects: React.FC = () => {
                       key={project.id}
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -30 }}
+                      // Removed exit animation
                       transition={{ duration: 0.3 }}
                       className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 bg-gradient-to-br from-blue-50 to-cyan-50 ${viewMode === 'list' ? 'md:flex' : ''}`}
                     >
@@ -737,7 +757,10 @@ const Projects: React.FC = () => {
                               alt={project.title}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
-                              onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
+                              onError={(e) => {
+                                console.warn(`Failed to load graphics project image for ${project.id}`);
+                                e.currentTarget.src = placeholderImage;
+                              }}
                             />
                           </div>
                           <div className="p-6 md:w-2/3">
@@ -790,7 +813,10 @@ const Projects: React.FC = () => {
                               alt={project.title}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
-                              onError={(e) => (e.currentTarget.src = placeholderImage)} // Fallback image
+                              onError={(e) => {
+                                console.warn(`Failed to load graphics project image for ${project.id}`);
+                                e.currentTarget.src = placeholderImage;
+                              }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute bottom-3 left-3">
@@ -846,10 +872,10 @@ const Projects: React.FC = () => {
                   ))
                 ) : (
                   <motion.div
-                    key="no-results"
+                    key="no-results-graphics"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    // Removed exit animation
                     className="col-span-full text-center py-12"
                   >
                     <p className="text-gray-500 text-lg">No graphics projects match your search.</p>

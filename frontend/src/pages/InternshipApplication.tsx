@@ -1,23 +1,79 @@
-
+// InternshipApplication.tsx
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import {
-  CheckCircle,
-  XCircle,
-  Loader2,
-  Send,
-  Clock,
-  IndianRupee,
-  Building2,
-} from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { CheckCircle, XCircle, Loader2, Send, Clock, IndianRupee, Building2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-// Import JSON data
+// Ensure internshipsData is correctly typed and imported
 import internshipsData from './internships.json';
 
-// --- Reusable Components ---
+// === Interfaces ===
+interface Internship {
+  id: string;
+  title: string;
+  category: string;
+  mode: 'Online' | 'Offline';
+  company: string;
+  image: string;
+  rating: number;
+  description: string;
+  isTrending?: boolean;
+  syllabus: { [key: string]: string[] };
+  whyChooseEdizo: string[];
+  benefits: string[];
+}
 
-// Button component for consistent styling and behavior
+interface CoursePeriod {
+  value: string;
+  label: string;
+  price: number;
+  description: string;
+  popular?: boolean;
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  university: string;
+  yearOfStudy: string;
+  education: string;
+  coursePeriod: string;
+  academicExperience: string;
+  message: string;
+}
+
+// Fallback image map - Ensure these paths are correct or use imported images
+const fallbackImages: Record<string, string> = {
+  'ui-ux-design': '/assets/images/web-design.png',
+  'frontend-development': '/assets/images/responsive-design.png',
+  'backend-development': '/assets/images/back-end.png',
+  'hr-management': '/assets/images/hr-manager.png',
+  'data-analytics': '/assets/images/data-Analytics.png',
+  'java-development': '/assets/images/java.png',
+  'python-development': '/assets/images/python.png',
+  'digital-marketing': '/assets/images/content-strategy.png',
+  'ai-ml': '/assets/images/ai-assistant.png',
+  'ai-with-chatgpt': '/assets/images/AI with CHATGPT.png',
+  'web-development': '/assets/images/web-development.png',
+  'csharp': '/assets/images/c-sharp.png',
+  default: '/assets/images/default-internship.png', // Ensure this path is correct
+};
+
+// Image source function - Simplified
+const getImageSrc = (id: string | undefined, image: string | undefined): string => {
+  // If image path is provided and seems valid, use it
+  if (image && (image.startsWith('/') || image.startsWith('http'))) {
+    return image;
+  }
+  // Otherwise, try to find a fallback based on ID
+  if (id && fallbackImages[id]) {
+    return fallbackImages[id];
+  }
+  // Use default fallback
+  return fallbackImages.default;
+};
+
+// Button Component
 interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
@@ -58,7 +114,7 @@ const Button: React.FC<ButtonProps> = ({
   );
 };
 
-// AnimatedSection component for smooth entrance animations
+// Animated Section Component
 interface AnimatedSectionProps {
   children: React.ReactNode;
   delay?: number;
@@ -74,18 +130,7 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }
   </motion.div>
 );
 
-// Input Field styling
-const inputFieldClasses = 'w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200';
-
-// --- Course Period Pricing Configuration ---
-interface CoursePeriod {
-  value: string;
-  label: string;
-  price: number;
-  description: string;
-  popular?: boolean;
-}
-
+// Course Period Pricing Configuration
 const coursePeriods: CoursePeriod[] = [
   {
     value: '15-days',
@@ -114,78 +159,17 @@ const coursePeriods: CoursePeriod[] = [
   },
 ];
 
-// --- Internship Data Interface ---
-interface Internship {
-  id: string;
-  title: string;
-  category: string;
-  mode: 'Online' | 'Offline';
-  company: string;
-  image: string;
-  rating: number;
-  description: string;
-  isTrending?: boolean;
-  syllabus: { [key: string]: string[] };
-  whyChooseEdizo: string[];
-  benefits: string[];
-}
-
-// --- Fallback Image Map ---
-const fallbackImages: Record<string, string> = {
-  'ui-ux-design': '/assets/images/web-design.png',
-  'frontend-development': '/assets/images/responsive-design.png',
-  'backend-development': '/assets/images/back-end.png',
-  'hr-management': '/assets/images/hr-manager.png',
-  'data-analytics': '/assets/images/content-strategy.png',
-  'java-development': '/assets/images/java.png',
-  'python-development': '/assets/images/python.png',
-  'digital-marketing': '/assets/images/content-strategy.png',
-  'ai-ml': '/assets/images/ai-assistant.png',
-  'ai-with-chatgpt': '/assets/images/AI with CHATGPT.png',
-  'web-development': '/assets/images/web-development.png',
-  'csharp': '/assets/images/c-sharp.png',
-  default: '/assets/images/default-internship.png' // Generic fallback
-};
-
-// --- Image Source Function ---
-const getImageSrc = (id: string | undefined, image: string | undefined): string => {
-  if (!id || !image) {
-    console.warn(`Image not found for ID: ${id}, using default fallback`);
-    return fallbackImages.default;
-  }
-  // Normalize image path to ensure it starts with '/assets/images/'
-  const normalizedImage = image.startsWith('/assets/images/') ? image : `/assets/images/${image.split('/').pop()}`;
-  // Validate image path format
-  if (!normalizedImage.match(/^\/assets\/images\/[a-zA-Z0-9-]+\.(png|jpg|jpeg|webp)$/)) {
-    console.warn(`Invalid image path for ID: ${id}, path: ${image}, using fallback`);
-    return fallbackImages[id] || fallbackImages.default;
-  }
-  return normalizedImage;
-};
-
-// --- Main InternshipApplication Component ---
+// Main Component
 const InternshipApplication: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
-  const internshipId = id && id in internshipsData ? id : 'web-development';
+  const navigate = useNavigate();
+
+  // Safely get internship data
+  const internshipId = id && id in (internshipsData as Record<string, unknown>) ? id : 'web-development';
   const internship = (internshipsData as Record<string, Internship>)[internshipId];
 
-  // State to manage the application submission status
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [submissionMessage, setSubmissionMessage] = useState<string>('');
-
-  // State to hold form data
-  interface FormData {
-    name: string;
-    email: string;
-    phone: string;
-    university: string;
-    yearOfStudy: string;
-    education: string;
-    coursePeriod: string;
-    academicExperience: string;
-    message: string;
-  }
-
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -198,7 +182,7 @@ const InternshipApplication: React.FC = () => {
     message: '',
   });
 
-  // Handle input changes for text fields
+  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -209,19 +193,25 @@ const InternshipApplication: React.FC = () => {
     return coursePeriods.find((period) => period.value === formData.coursePeriod);
   };
 
-  // Define the API base URL for your Render backend
+  // API base URL - Ensure VITE_API_URL is set in your .env file
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   // Handle form submission
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!formData.coursePeriod) {
+      setSubmissionStatus('error');
+      setSubmissionMessage('Please select a course period.');
+      return;
+    }
+
     setSubmissionStatus('processing');
     setSubmissionMessage('Sending your application and confirmation email...');
 
     const selectedPeriod = getSelectedPeriodDetails();
 
     try {
-      // Step 1: Send confirmation email to applicant
+      // --- Send confirmation email to applicant ---
       const applicantRes = await fetch(`${API_BASE_URL}/api/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -232,18 +222,19 @@ const InternshipApplication: React.FC = () => {
           coursePeriod: selectedPeriod?.label,
           price: selectedPeriod?.price,
           company: internship?.company || 'EDIZO',
+          type: 'applicant',
         }),
       });
 
       if (!applicantRes.ok) {
+        // Log warning but don't stop the process
         const errorText = await applicantRes.text();
-        console.warn('⚠️ Failed to send confirmation email to applicant:', applicantRes.status, errorText);
-      } else {
-        console.log('✅ Confirmation email sent to applicant.');
+        console.warn('Failed to send confirmation email to applicant:', applicantRes.status, errorText);
+        // Optionally, you could inform the user that the email failed but the application was submitted.
       }
 
-      // Step 2: Send application notification to admin
-      const adminRes = await fetch(`${API_BASE_URL}/api/send-email`, {
+      // --- Send application notification to admin ---
+      const adminRes = await fetch(`${API_BASE_URL}/api/send-admin-notification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -259,19 +250,20 @@ const InternshipApplication: React.FC = () => {
           message: formData.message,
           internshipTitle: internship?.title || 'Internship',
           company: internship?.company || 'EDIZO',
+          type: 'admin',
         }),
       });
 
       if (!adminRes.ok) {
         const errorText = await adminRes.text();
-        throw new Error(`❌ Failed to notify admin: ${adminRes.status} - ${errorText}`);
+        throw new Error(`Failed to notify admin: ${adminRes.status} - ${errorText}`);
       }
 
-      console.log('✅ Application notification email sent to admin.');
       setSubmissionStatus('success');
-      setSubmissionMessage('🎉 Application submitted successfully! A confirmation email has been sent to you.');
+      setSubmissionMessage('Application submitted successfully! A confirmation email has been sent to you.');
 
-      // Reset the form
+      // --- Reset form after success ---
+      // Note: formData.coursePeriod is cleared here. getSelectedPeriodDetails() will return undefined until a new one is selected.
       setFormData({
         name: '',
         email: '',
@@ -279,60 +271,108 @@ const InternshipApplication: React.FC = () => {
         university: '',
         yearOfStudy: '',
         education: '',
-        coursePeriod: '',
+        coursePeriod: '', // This is cleared
         academicExperience: '',
         message: '',
       });
     } catch (error) {
-      console.error('❌ Error in form submission:', error);
+      console.error('Error in form submission:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
-
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        errorMessage = 'Network error: Could not connect to the server. Please check your internet connection and the server URL.';
+        errorMessage = 'Network error: Could not connect to the server. Please check your internet connection.';
       } else if (error instanceof Error) {
         errorMessage = `Submission failed: ${error.message}`;
       }
-
       setSubmissionStatus('error');
       setSubmissionMessage(errorMessage);
     }
   };
 
-  // Preload the header image
+  // --- Preload image - Fixed dependencies ---
   useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = getImageSrc(id, internship.image);
-    document.head.appendChild(link);
-    return () => {
-      document.head.removeChild(link);
-    };
-  }, [id, internship.image]);
+    // Ensure internship data is loaded and image path exists
+    if (internship?.image) {
+        const imgSrc = getImageSrc(internshipId, internship.image);
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = imgSrc;
+        document.head.appendChild(link);
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+        };
+    }
+    // If internship is not found or image is missing, nothing to preload
+    const cleanup = () => {};
+    return cleanup;
+  }, [internshipId, internship?.image]); // Depend on ID and image path from the resolved internship object
+
+  // --- JSON-LD for SEO - Fixed URLs and dependencies ---
+  useEffect(() => {
+    // Only add schema if internship data is available
+    if (internship) {
+      const schema = {
+        '@context': 'https://schema.org', // ✅ Removed trailing spaces
+        '@type': 'WebPage',
+        name: `${internship.title} Application`,
+        description: `Apply for the ${internship.title} internship at ${internship.company}.`,
+        url: `https://www.edizo.in/apply/${internship.id}`, // ✅ Removed trailing spaces
+        mainEntity: {
+          '@type': 'Course',
+          name: internship.title,
+          description: internship.description,
+          provider: {
+            '@type': 'Organization',
+            name: internship.company,
+            url: 'https://www.edizo.in', // ✅ Removed trailing spaces
+          },
+          image: getImageSrc(internshipId, internship.image),
+        },
+      };
+
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.id = 'application-schema';
+      script.innerHTML = JSON.stringify(schema);
+      document.head.appendChild(script);
+
+      return () => {
+        const existing = document.getElementById('application-schema');
+        if (existing) document.head.removeChild(existing);
+      };
+    }
+    // If internship is not found, don't add schema
+    const cleanup = () => {};
+    return cleanup;
+  }, [internshipId, internship]); // Depend on ID and the resolved internship object
 
   const selectedPeriod = getSelectedPeriodDetails();
 
   return (
-    <div className="min-h-screen bg-white font-['Inter',sans-serif] flex flex-col items-center py-16 px-4 md:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex flex-col items-center py-16 px-4 md:px-6 lg:px-8">
       {/* Header Section */}
       <div className="relative bg-gray-800 rounded-lg overflow-hidden mb-8 w-full max-w-6xl">
+        {/* Use getImageSrc for the header image */}
         <img
-          src={getImageSrc(id, internship.image)}
-          alt={`${internship.title} course banner`}
+          src={getImageSrc(internshipId, internship?.image)}
+          alt={`${internship?.title} course banner`}
           className="w-full h-64 object-cover opacity-50"
           loading="lazy"
           onError={(e) => {
-            console.warn(`Failed to load header image for ID: ${id}, path: ${internship.image}`);
-            e.currentTarget.src = fallbackImages[id] || fallbackImages.default;
+            console.warn(`Failed to load header image for ID: ${internshipId}`);
+            // Simplified error handling
+            e.currentTarget.src = fallbackImages.default;
           }}
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-            {internship.title} Application
+            {internship?.title} Application
           </h1>
           <span className="inline-flex items-center gap-1 bg-blue-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
             <Building2 size={16} />
-            {internship.company}
+            {internship?.company}
           </span>
         </div>
       </div>
@@ -343,24 +383,23 @@ const InternshipApplication: React.FC = () => {
             {submissionStatus === 'idle' || submissionStatus === 'processing' ? (
               <>
                 <div className="flex items-center mb-6">
+                  {/* Use getImageSrc for the thumbnail */}
                   <img
-                    src={getImageSrc(id, internship.image)}
-                    alt={`${internship.title} course thumbnail`}
+                    src={getImageSrc(internshipId, internship?.image)}
+                    alt={`${internship?.title} thumbnail`}
                     className="w-12 h-12 object-cover rounded-lg mr-4"
                     loading="lazy"
                     onError={(e) => {
-                      console.warn(`Failed to load thumbnail image for ID: ${id}, path: ${internship.image}`);
-                      e.currentTarget.src = fallbackImages[id] || fallbackImages.default;
+                      console.warn(`Failed to load thumbnail image for ID: ${internshipId}`);
+                      // Simplified error handling
+                      e.currentTarget.src = fallbackImages.default;
                     }}
                   />
                   <h3 className="text-2xl font-bold text-gray-800">Apply Now</h3>
                 </div>
                 <form onSubmit={handleFormSubmit} className="space-y-4">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
-                  >
+                  {/* Form Fields */}
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                       Full Name *
                     </label>
@@ -371,15 +410,11 @@ const InternshipApplication: React.FC = () => {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className={inputFieldClasses}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
                       placeholder="Enter Name"
                     />
                   </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.15 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }}>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                       Email Address *
                     </label>
@@ -390,15 +425,11 @@ const InternshipApplication: React.FC = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className={inputFieldClasses}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
                       placeholder="example@gmail.com"
                     />
                   </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.2 }}>
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                       Phone Number
                     </label>
@@ -408,15 +439,11 @@ const InternshipApplication: React.FC = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={inputFieldClasses}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
                       placeholder="+91 12345 67890"
                     />
                   </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.25 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.25 }}>
                     <label htmlFor="university" className="block text-sm font-medium text-gray-700 mb-1">
                       University/College Name *
                     </label>
@@ -427,15 +454,11 @@ const InternshipApplication: React.FC = () => {
                       value={formData.university}
                       onChange={handleInputChange}
                       required
-                      className={inputFieldClasses}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
                       placeholder="e.g., University of XYZ"
                     />
                   </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.3 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.3 }}>
                     <label htmlFor="yearOfStudy" className="block text-sm font-medium text-gray-700 mb-1">
                       Current Year of Study *
                     </label>
@@ -445,7 +468,7 @@ const InternshipApplication: React.FC = () => {
                       value={formData.yearOfStudy}
                       onChange={handleInputChange}
                       required
-                      className={inputFieldClasses}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
                     >
                       <option value="">Select Year</option>
                       <option value="1st Year">1st Year</option>
@@ -456,11 +479,7 @@ const InternshipApplication: React.FC = () => {
                       <option value="Other">Other</option>
                     </select>
                   </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.35 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.35 }}>
                     <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
                       Degree and Branch *
                     </label>
@@ -471,15 +490,11 @@ const InternshipApplication: React.FC = () => {
                       value={formData.education}
                       onChange={handleInputChange}
                       required
-                      className={inputFieldClasses}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
                       placeholder="e.g., B.Tech in Computer Science"
                     />
                   </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.4 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.4 }}>
                     <label htmlFor="coursePeriod" className="block text-sm font-medium text-gray-700 mb-3">
                       <Clock className="inline-block w-4 h-4 mr-1" />
                       Select Course Period *
@@ -498,6 +513,7 @@ const InternshipApplication: React.FC = () => {
                             id={period.value}
                             name="coursePeriod"
                             value={period.value}
+                            checked={formData.coursePeriod === period.value} // Use checked for radio buttons
                             onChange={handleInputChange}
                             required
                             className="sr-only"
@@ -527,6 +543,7 @@ const InternshipApplication: React.FC = () => {
                         </motion.div>
                       ))}
                     </div>
+                    {/* Display selected period info below radio buttons */}
                     {selectedPeriod && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -535,9 +552,7 @@ const InternshipApplication: React.FC = () => {
                         className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-green-800">
-                            Selected: {selectedPeriod.label}
-                          </span>
+                          <span className="text-sm font-medium text-green-800">Selected: {selectedPeriod.label}</span>
                           <div className="flex items-center text-green-700 font-bold">
                             <IndianRupee className="w-4 h-4 mr-1" />
                             <span>{selectedPeriod.price.toLocaleString()}</span>
@@ -546,11 +561,7 @@ const InternshipApplication: React.FC = () => {
                       </motion.div>
                     )}
                   </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.45 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.45 }}>
                     <label htmlFor="academicExperience" className="block text-sm font-medium text-gray-700 mb-1">
                       Academic Projects / Relevant Experience
                     </label>
@@ -560,15 +571,11 @@ const InternshipApplication: React.FC = () => {
                       value={formData.academicExperience}
                       onChange={handleInputChange}
                       rows={3}
-                      className={`${inputFieldClasses} resize-none`}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 resize-none"
                       placeholder="Describe relevant academic projects, coursework, or any prior experience..."
                     />
                   </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.5 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.5 }}>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
                       Cover Letter
                     </label>
@@ -578,15 +585,11 @@ const InternshipApplication: React.FC = () => {
                       value={formData.message}
                       onChange={handleInputChange}
                       rows={4}
-                      className={`${inputFieldClasses} resize-none`}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 resize-none"
                       placeholder="Why are you interested in this internship and Edizo?"
                     />
                   </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.55 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.55 }}>
                     <Button
                       type="submit"
                       variant="primary"
@@ -601,12 +604,11 @@ const InternshipApplication: React.FC = () => {
                       )}
                       Submit Application
                       {selectedPeriod && (
-                        <span className="ml-2 text-sm">
-                          (₹{selectedPeriod.price.toLocaleString()})
-                        </span>
+                        <span className="ml-2 text-sm"> (₹{selectedPeriod.price.toLocaleString()})</span>
                       )}
                     </Button>
                   </motion.div>
+                  {/* Processing Message */}
                   {submissionStatus === 'processing' && (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -621,6 +623,7 @@ const InternshipApplication: React.FC = () => {
                 </form>
               </>
             ) : (
+              // --- Success/Error Message Display ---
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -637,8 +640,7 @@ const InternshipApplication: React.FC = () => {
                       <CheckCircle className="inline-block mr-2 text-green-600" size={24} />
                       <p className="font-medium">Application Submitted Successfully!</p>
                       <p className="text-sm mt-2">
-                        Thank you for applying. A confirmation email has been sent to{' '}
-                        <span className="font-semibold">{formData.email}</span>. Our team will contact you soon.
+                        Thank you for applying. A confirmation email has been sent to <span className="font-semibold">{formData.email}</span>. Our team will contact you soon.
                       </p>
                     </>
                   ) : (
@@ -654,6 +656,8 @@ const InternshipApplication: React.FC = () => {
                   onClick={() => {
                     setSubmissionStatus('idle');
                     setSubmissionMessage('');
+                    // Optionally, reset form data here if needed on retry, though it's already reset on success
+                    // setFormData({ ...initialFormData });
                   }}
                   className="border-red-600 text-red-600 hover:bg-red-50"
                 >

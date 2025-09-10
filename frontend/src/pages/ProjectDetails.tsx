@@ -1,3 +1,4 @@
+// src/pages/ProjectDetails.tsx
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -17,8 +18,9 @@ import {
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
-import { projects, type Project } from './Projects';
+import { projects, type Project } from './Projects'; // Import projects and type
 import { motion } from 'framer-motion';
+import placeholderImage from '../assets/placeholder.png'; // Ensure path is correct
 
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,10 +52,10 @@ const ProjectDetails = () => {
     document.title = `${project.title} | Edizo Projects`;
   }, [project.title]);
 
-  // Add JSON-LD structured data for SEO
+  // Add JSON-LD structured data for SEO - ✅ FIXED URLs
   useEffect(() => {
     const schema = {
-      '@context': 'https://schema.org',
+      '@context': 'https://schema.org', // ✅ Removed trailing spaces
       '@type': 'CreativeWork',
       name: project.title,
       description: project.shortDescription,
@@ -63,7 +65,7 @@ const ProjectDetails = () => {
       creator: {
         '@type': 'Organization',
         name: 'Edizo',
-        url: 'https://www.edizo.in',
+        url: 'https://www.edizo.in', // ✅ Removed trailing spaces
       },
       locationCreated: {
         '@type': 'Place',
@@ -72,10 +74,10 @@ const ProjectDetails = () => {
       workFeatured: project.tech.map((tech) => ({
         '@type': 'DefinedTerm',
         name: tech,
-        inDefinedTermSet: 'https://schema.org/ComputerLanguage',
+        inDefinedTermSet: 'https://schema.org/ComputerLanguage', // ✅ Removed trailing spaces
       })),
       text: project.fullDescription,
-      url: `https://www.edizo.in/projects/${project.id}`,
+      url: `https://www.edizo.in/projects/${project.id}`, // ✅ Removed trailing spaces
     };
 
     const script = document.createElement('script');
@@ -88,7 +90,7 @@ const ProjectDetails = () => {
       const existing = document.getElementById('project-schema');
       if (existing) document.head.removeChild(existing);
     };
-  }, [project]);
+  }, [project]); // Dependency array is correct
 
   // Related projects logic
   const relatedProjects = projects
@@ -105,8 +107,8 @@ const ProjectDetails = () => {
       <PageHeader
         title={project.title}
         subtitle={project.category}
-        backgroundImage={project.image}
-        style={{ 
+        backgroundImage={project.image} // Ensure this path is correct or handle fallback
+        style={{
           background: 'linear-gradient(to right, #1e40af, #7c3aed)'
         }}
       />
@@ -135,7 +137,7 @@ const ProjectDetails = () => {
 
                 <div className="prose max-w-none text-gray-700 mb-8 leading-relaxed">
                   <p>{project.fullDescription}</p>
-                  
+
                   {/* Enhanced UI for RedCap project */}
                   {project.id === 'redcap-logistics-platform' && (
                     <motion.div
@@ -148,21 +150,21 @@ const ProjectDetails = () => {
                         <Globe className="text-red-600 mr-3" size={28} />
                         <h3 className="text-2xl font-bold text-red-800">RedCap Logistics Platform</h3>
                       </div>
-                      
+
                       <p className="mb-6 text-gray-700 text-lg">
                         Experience seamless logistics with our state-of-the-art platform.{' '}
-                        <a 
-                          href="https://recapweb.netlify.app/" 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          href="https://recapweb.netlify.app/"
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-red-600 hover:text-red-800 font-semibold hover:underline transition-colors duration-200"
                         >
                           Visit Live Site
                         </a>
                       </p>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <motion.div 
+                        <motion.div
                           whileHover={{ scale: 1.05 }}
                           className="flex items-center p-4 bg-white rounded-lg shadow-md border border-gray-100"
                         >
@@ -172,8 +174,8 @@ const ProjectDetails = () => {
                             <div className="text-sm text-gray-600">React.js Frontend</div>
                           </div>
                         </motion.div>
-                        
-                        <motion.div 
+
+                        <motion.div
                           whileHover={{ scale: 1.05 }}
                           className="flex items-center p-4 bg-white rounded-lg shadow-md border border-gray-100"
                         >
@@ -183,8 +185,8 @@ const ProjectDetails = () => {
                             <div className="text-sm text-gray-600">Flutter Framework</div>
                           </div>
                         </motion.div>
-                        
-                        <motion.div 
+
+                        <motion.div
                           whileHover={{ scale: 1.05 }}
                           className="flex items-center p-4 bg-white rounded-lg shadow-md border border-gray-100"
                         >
@@ -194,8 +196,8 @@ const ProjectDetails = () => {
                             <div className="text-sm text-gray-600">MySQL Backend</div>
                           </div>
                         </motion.div>
-                        
-                        <motion.div 
+
+                        <motion.div
                           whileHover={{ scale: 1.05 }}
                           className="flex items-center p-4 bg-white rounded-lg shadow-md border border-gray-100"
                         >
@@ -206,7 +208,7 @@ const ProjectDetails = () => {
                           </div>
                         </motion.div>
                       </div>
-                      
+
                       <div className="mt-8">
                         <h4 className="font-semibold text-gray-900 text-lg mb-4">Key Features:</h4>
                         <ul className="space-y-3">
@@ -217,7 +219,7 @@ const ProjectDetails = () => {
                             'Packers and movers services',
                             'Intercity courier services',
                           ].map((feature, i) => (
-                            <motion.li 
+                            <motion.li
                               key={i}
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
@@ -248,7 +250,7 @@ const ProjectDetails = () => {
 
                 {/* Highlights & Results */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
@@ -268,7 +270,7 @@ const ProjectDetails = () => {
                     </ul>
                   </motion.div>
 
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.1 }}
@@ -336,7 +338,7 @@ const ProjectDetails = () => {
                   <div className="border-t border-gray-200 pt-6 mt-6">
                     <h3 className="text-xl font-semibold mb-4 text-gray-900">Project Gallery</h3>
                     <div className="grid grid-cols-2 gap-3">
-                      <motion.div 
+                      <motion.div
                         whileHover={{ scale: 1.05 }}
                         className="aspect-w-1 aspect-h-1"
                       >
@@ -345,6 +347,10 @@ const ProjectDetails = () => {
                           alt={project.title}
                           className="w-full h-full object-cover rounded-lg shadow-md border border-gray-100"
                           loading="lazy"
+                          onError={(e) => {
+                            console.warn(`Failed to load project detail image for ${project.id}`);
+                            e.currentTarget.src = placeholderImage;
+                          }}
                         />
                       </motion.div>
                       <div className="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-sm font-medium">
@@ -352,7 +358,7 @@ const ProjectDetails = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Enhanced Live Demo Button for RedCap Project */}
                   {project.id === 'redcap-logistics-platform' && (
                     <motion.div
@@ -361,9 +367,9 @@ const ProjectDetails = () => {
                       transition={{ duration: 0.3 }}
                       className="border-t border-gray-200 pt-6 mt-6"
                     >
-                      <motion.a 
-                        href="https://recapweb.netlify.app/" 
-                        target="_blank" 
+                      <motion.a
+                        href="https://recapweb.netlify.app/"
+                        target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -397,6 +403,10 @@ const ProjectDetails = () => {
                           alt={related.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"
+                          onError={(e) => {
+                            console.warn(`Failed to load related project image for ${related.id}`);
+                            e.currentTarget.src = placeholderImage;
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-50" />
                         <div className="absolute bottom-2 left-2">

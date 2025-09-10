@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+// src/components/common/Header.tsx
+import { useState, useEffect, useRef } from 'react'; // Removed useCallback import
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'; // Ensure correct imports
 import {
   Menu,
   X,
@@ -12,7 +13,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Logo from './Logo';
+import Logo from './Logo'; // Ensure correct path
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -23,18 +24,26 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Check auth state
+  // Check auth state - Simplified check
   const [user, setUser] = useState<{ name: string } | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('isAuthenticated');
-    if (stored === 'true') {
-      // Mock user — replace with real user data from context/API later
-      setUser({ name: 'User' });
-    } else {
-      setUser(null);
-    }
-  }, [location.pathname]); // Recheck on route change
+    // Check auth state only once on mount or when needed, not on every pathname change
+    // unless login/logout can happen from anywhere without a full page reload/context update
+    const checkAuth = () => {
+       const stored = localStorage.getItem('isAuthenticated');
+       if (stored === 'true') {
+         // Mock user — replace with real user data from context/API later
+         setUser({ name: 'User' });
+       } else {
+         setUser(null);
+       }
+    };
+    checkAuth();
+    // If you have a global auth state (e.g., Context), listen to that instead.
+    // For localStorage, checking on mount is often sufficient unless you expect
+    // login/logout to happen via actions that don't trigger a full re-render.
+  }, []); // Run only once on mount
 
   // Close profile dropdown on outside click
   useEffect(() => {
@@ -75,11 +84,22 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMenuOpen]);
 
+  // Close menus when location changes (e.g., user navigates)
+  useEffect(() => {
+     // Close menus on navigation
+     setIsMenuOpen(false);
+     setIsProfileOpen(false);
+     // Re-check auth state on location change if needed, but usually not necessary
+     // checkAuth(); // Only if auth can change without component unmounting
+  }, [location.pathname]); // Depend on pathname to close menus on nav
+
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
     setUser(null);
     setIsProfileOpen(false);
-    navigate('/login');
+    // Navigate after logout if needed, e.g., to home or login
+    // navigate('/'); // or navigate('/login');
+    // For now, let the user stay on the current page or let App redirect
   };
 
   const navLinks = [
@@ -90,25 +110,15 @@ const Header = () => {
     { name: 'CONTACT', path: '/contact', icon: Phone },
   ];
 
-  // Optimized navigation handler with useCallback to prevent recreation on every render
-  const handleNavigation = useCallback((path: string) => {
-    // Close menus immediately
+  // Simplified navigation handler for mobile menu items
+  const handleMobileNavigation = (path: string) => {
+    // Close mobile menu immediately
     setIsMenuOpen(false);
-    setIsProfileOpen(false);
-    
-    // Only navigate if we're not already on that path
-    if (location.pathname !== path) {
-      // Use setTimeout to ensure state updates complete before navigation
-      setTimeout(() => {
-        navigate(path);
-      }, 0);
-    }
-  }, [navigate, location.pathname]);
-
-  // Handle link clicks for desktop navigation
-  const handleLinkClick = useCallback((path: string) => {
-    handleNavigation(path);
-  }, [handleNavigation]);
+    // setIsProfileOpen(false); // Not typically open on mobile menu click
+    // Navigate using useNavigate hook
+    // No need for setTimeout or preventing default on NavLinks
+    navigate(path);
+  };
 
   return (
     <>
@@ -127,24 +137,25 @@ const Header = () => {
         {/* Curved Container */}
         <div className="container mx-auto px-4 md:px-6">
           <div className={`max-w-6xl mx-auto rounded-full px-4 md:px-8 h-16 flex items-center justify-between transition-all duration-300 ${
-            isScrolled 
-              ? 'bg-white/90 backdrop-blur-md shadow-lg border border-gray-200' 
+            isScrolled
+              ? 'bg-white/90 backdrop-blur-md shadow-lg border border-gray-200'
               : 'bg-gradient-to-r from-red-600/90 to-purple-600/90 backdrop-blur-md border border-white/30'
           }`}>
-            {/* Logo */}
-            <Link 
-              to="/" 
-              className="z-20 flex items-center" 
+            {/* Logo - Use standard Link behavior */}
+            <Link
+              to="/"
+              className="z-20 flex items-center"
               aria-label="Edizo Home"
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigation('/');
-              }}
+              // Removed preventDefault and custom handler
+              // onClick={(e) => {
+              //   e.preventDefault();
+              //   handleNavigation('/');
+              // }}
             >
               <Logo isScrolled={isScrolled} />
             </Link>
 
-            {/* Desktop Navigation — ALWAYS VISIBLE */}
+            {/* Desktop Navigation - Use standard NavLink behavior */}
             <nav className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => (
                 <NavLink
@@ -159,10 +170,11 @@ const Header = () => {
                         : 'text-white hover:text-white hover:bg-white/20 border border-transparent hover:border-white/30'
                     }`
                   }
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleLinkClick(link.path);
-                  }}
+                  // Removed preventDefault and custom handler
+                  // onClick={(e) => {
+                  //   e.preventDefault();
+                  //   handleLinkClick(link.path);
+                  // }}
                 >
                   {({ isActive }) => (
                     <>
@@ -182,14 +194,14 @@ const Header = () => {
               ))}
             </nav>
 
-            {/* Desktop Profile Button — Only if logged in */}
+            {/* Desktop Profile Button - Only if logged in */}
             {user && (
               <div className="hidden md:block relative" ref={profileRef}>
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className={`flex items-center gap-2 p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                    isScrolled 
-                      ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' 
+                    isScrolled
+                      ? 'bg-gray-100 hover:bg-gray-200 text-gray-800'
                       : 'bg-white/20 hover:bg-white/30 text-white'
                   }`}
                   aria-haspopup="true"
@@ -216,7 +228,7 @@ const Header = () => {
                       </div>
                       <button
                         onClick={(e) => {
-                          e.stopPropagation();
+                          e.stopPropagation(); // Prevent closing profile dropdown immediately
                           handleLogout();
                         }}
                         className="w-full flex items-center gap-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
@@ -273,8 +285,12 @@ const Header = () => {
               aria-label="Mobile navigation"
             >
               <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-white">
+                {/* Use standard navigate for logo/home in mobile menu */}
                 <button
-                  onClick={() => handleNavigation('/')}
+                  onClick={() => {
+                      setIsMenuOpen(false);
+                      navigate('/'); // Use navigate directly
+                  }}
                   className="text-xl font-bold text-gray-900"
                 >
                   Edizo
@@ -294,8 +310,9 @@ const Header = () => {
                     const isActive = location.pathname === link.path;
                     return (
                       <li key={link.name}>
+                        {/* Use handleMobileNavigation for menu items */}
                         <button
-                          onClick={() => handleNavigation(link.path)}
+                          onClick={() => handleMobileNavigation(link.path)} // Use simplified handler
                           className={`flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group font-semibold w-full text-left ${
                             isActive
                               ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md'
@@ -325,7 +342,7 @@ const Header = () => {
                             onClick={(e) => {
                               e.stopPropagation();
                               handleLogout();
-                              setIsMenuOpen(false);
+                              setIsMenuOpen(false); // Ensure menu closes
                             }}
                             className="mt-1 flex items-center gap-1 text-white text-sm hover:text-red-100"
                           >

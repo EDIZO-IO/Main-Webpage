@@ -1,3 +1,4 @@
+
 [
   {
     "id": 1,
@@ -15,6 +16,7 @@
     "status": "Coming Soon",
     "location": "Online",
     "description": "Learn advanced patterns and best practices for using React Hooks."
+    
   },
   {
     "id": 3,

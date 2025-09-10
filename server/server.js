@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ✅ Allowed origins list
+// ✅ Allowed origins list (trailing spaces removed)
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -87,7 +87,7 @@ async function sendMail(to, subject, html) {
     html,
     text: convert(html), // Use html-to-text for better text conversion
   };
-  
+
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Email sent to ${to}: ${info.messageId}`);
@@ -97,7 +97,7 @@ async function sendMail(to, subject, html) {
   }
 }
 
-// ✅ Internship application handler (UPDATED)
+// ✅ Internship application handler (UPDATED UI)
 app.post('/api/send-email', limiter, async (req, res) => {
   const data = req.body;
   const applicantEmail = data.email;
@@ -105,144 +105,202 @@ app.post('/api/send-email', limiter, async (req, res) => {
 
   try {
     if (!applicantEmail || !/\S+@\S+\.\S+/.test(applicantEmail)) throw new Error('Invalid applicant email');
-    
+
     // Normalize undefined price or period to 'N/A'
     const period = data.coursePeriod || 'N/A';
     const price = data.price ? `₹${data.price.toLocaleString()}` : 'N/A';
 
+    // --- Updated Applicant HTML ---
     const applicantHtml = `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #dc2626; margin-bottom: 10px;">EDIZO</h1>
-          <p style="color: #666; font-style: italic;">Empowering Digital Innovators</p>
-        </div>
-        
-        <h2 style="color: #333; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Application Received – Thank You, ${data.name}!</h2>
-        
-        <p style="line-height: 1.6;">
-          Thank you for applying for the <strong>${data.internshipTitle}</strong> internship at <strong>EDIZO</strong>.
-          We appreciate your interest and the time you invested in your application.
-        </p>
-        
-        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 6px; margin: 20px 0;">
-          <h3 style="color: #333; margin-top: 0;">📋 Application Summary:</h3>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 8px;"><strong>Course:</strong> ${data.internshipTitle}</li>
-            <li style="margin-bottom: 8px;"><strong>Duration:</strong> ${period}</li>
-            <li style="margin-bottom: 8px;"><strong>Investment:</strong> <span style="color: #059669; font-weight: bold;">${price}</span></li>
-          </ul>
-        </div>
-        
-        <p style="line-height: 1.6;">
-          Our recruitment team will carefully review your submission and contact you within <strong>2-3 business days</strong>.
-        </p>
-        
-        <div style="background-color: #dcfce7; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #22c55e;">
-          <p style="margin: 0; line-height: 1.6;">
-            <strong>🚀 Next Steps:</strong><br>
-            Join our official WhatsApp group for updates, networking, and important announcements:
-          </p>
-          <p style="text-align: center; margin: 15px 0;">
-            <a href="https://chat.whatsapp.com/LhhLFD6pbil3NFImE30UIQ" 
-               style="background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-              📱 Join EDIZO WhatsApp Group
-            </a>
-          </p>
-        </div>
-        
-        <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
-          <p style="margin: 0; color: #666;">
-            Best regards,<br />
-            <strong>The EDIZO Team</strong><br />
-            <em>Building Tomorrow's Digital Leaders</em>
-          </p>
-          <p style="font-size: 12px; color: #999; margin-top: 15px;">
-            Questions? Reply to this email or contact us at ${process.env.EMAIL_USER}
-          </p>
-        </div>
-      </div>`;
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Internship Application Confirmation</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; color: #1f2937; line-height: 1.6;">
+          <table width="100%" bgcolor="#f9fafb" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                  <td align="center" style="padding: 20px 0;">
+                      <table width="100%" max-width="600px" bgcolor="#ffffff" cellpadding="0" cellspacing="0" border="0" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e5e7eb;">
+                          <!-- Header -->
+                          <tr>
+                              <td align="center" bgcolor="#dc2626" style="padding: 30px 20px; color: white;">
+                                  <h1 style="margin: 0; font-size: 28px; font-weight: 800;">EDIZO</h1>
+                                  <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9;">Empowering Digital Innovators</p>
+                              </td>
+                          </tr>
 
-    const adminHtml = `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-        <div style="text-align: center; margin-bottom: 30px; background-color: #dc2626; color: white; padding: 20px; border-radius: 6px;">
-          <h1 style="margin: 0; font-size: 24px;">📥 NEW INTERNSHIP APPLICATION</h1>
-          <p style="margin: 5px 0 0 0; opacity: 0.9;">EDIZO Application System</p>
-        </div>
-        
-        <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-          <h2 style="margin: 0 0 10px 0; color: #92400e;">🎯 ${data.internshipTitle}</h2>
-          <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-            <span style="background-color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold;">
-              ⏱️ ${period}
-            </span>
-            <span style="background-color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; color: #059669;">
-              💰 ${price}
-            </span>
-          </div>
-        </div>
-        
-        <div style="background-color: #f9fafb; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
-          <h3 style="color: #374151; margin-top: 0; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">👤 Applicant Information</h3>
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 8px 0; font-weight: bold; width: 200px; color: #4b5563;">Full Name:</td>
-              <td style="padding: 8px 0; color: #111827;">${data.name}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Email:</td>
-              <td style="padding: 8px 0; color: #111827;">
-                <a href="mailto:${data.email}" style="color: #dc2626; text-decoration: none;">${data.email}</a>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Phone:</td>
-              <td style="padding: 8px 0; color: #111827;">
-                ${data.phone ? `<a href="tel:${data.phone}" style="color: #dc2626; text-decoration: none;">${data.phone}</a>` : 'N/A'}
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">University:</td>
-              <td style="padding: 8px 0; color: #111827;">${data.university || 'N/A'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Year of Study:</td>
-              <td style="padding: 8px 0; color: #111827;">${data.yearOfStudy || 'N/A'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Degree & Branch:</td>
-              <td style="padding: 8px 0; color: #111827;">${data.education || 'N/A'}</td>
-            </tr>
+                          <!-- Body -->
+                          <tr>
+                              <td style="padding: 30px;">
+                                  <h2 style="margin-top: 0; color: #111827; font-size: 24px; font-weight: 700;">Application Received – Thank You, ${data.name}!</h2>
+
+                                  <p style="margin: 20px 0;">
+                                      Thank you for applying for the <strong style="color: #dc2626;">${data.internshipTitle}</strong> internship at <strong>EDIZO</strong>.
+                                      We appreciate your interest and the time you invested in your application.
+                                  </p>
+
+                                  <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 20px; border-radius: 10px; margin: 25px 0; border-left: 5px solid #f59e0b;">
+                                      <h3 style="margin-top: 0; color: #92400e; font-size: 18px;">📋 Application Summary</h3>
+                                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                          <tr>
+                                              <td style="padding: 5px 0; font-weight: 600; width: 30%;">Course:</td>
+                                              <td style="padding: 5px 0;">${data.internshipTitle}</td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 5px 0; font-weight: 600;">Duration:</td>
+                                              <td style="padding: 5px 0;">${period}</td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 5px 0; font-weight: 600;">Investment:</td>
+                                              <td style="padding: 5px 0; color: #059669; font-weight: 700;">${price}</td>
+                                          </tr>
+                                      </table>
+                                  </div>
+
+                                  <p style="margin: 20px 0;">
+                                      Our recruitment team will carefully review your submission and contact you within <strong>2-3 business days</strong>.
+                                  </p>
+
+                                  <div style="background-color: #dcfce7; padding: 20px; border-radius: 10px; margin: 25px 0; text-align: center; border: 1px solid #bbf7d0;">
+                                      <p style="margin: 0 0 15px 0; font-weight: 600; color: #15803d;">
+                                          🚀 <strong>Next Steps:</strong> Join our official WhatsApp group for updates!
+                                      </p>
+                                      <!-- Trailing space removed from the link -->
+                                      <a href="https://chat.whatsapp.com/LhhLFD6pbil3NFImE30UIQ"
+                                         style="display: inline-block; background: linear-gradient(to right, #22c55e, #16a34a); color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                          📱 Join EDIZO WhatsApp Group
+                                      </a>
+                                  </div>
+                              </td>
+                          </tr>
+
+                          <!-- Footer -->
+                          <tr>
+                              <td style="padding: 20px; background-color: #f3f4f6; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 14px;">
+                                  <p style="margin: 0;">
+                                      Best regards,<br />
+                                      <strong style="color: #111827;">The EDIZO Team</strong><br />
+                                      <em style="font-size: 13px;">Building Tomorrow's Digital Leaders</em>
+                                  </p>
+                                  <p style="margin: 15px 0 0 0; font-size: 12px;">
+                                      Questions? Reply to this email or contact us at <a href="mailto:${process.env.EMAIL_USER}" style="color: #dc2626; text-decoration: none;">${process.env.EMAIL_USER}</a>
+                                  </p>
+                              </td>
+                          </tr>
+                      </table>
+                  </td>
+              </tr>
           </table>
-        </div>
-        
-        ${data.academicExperience ? `
-        <div style="background-color: #eff6ff; padding: 20px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
-          <h3 style="color: #1e40af; margin-top: 0;">🎓 Academic Experience</h3>
-          <p style="margin: 0; line-height: 1.6; color: #1f2937;">${data.academicExperience}</p>
-        </div>
-        ` : ''}
-        
-        ${data.message ? `
-        <div style="background-color: #f0fdf4; padding: 20px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #22c55e;">
-          <h3 style="color: #15803d; margin-top: 0;">💭 Cover Letter</h3>
-          <p style="margin: 0; line-height: 1.6; color: #1f2937;">${data.message}</p>
-        </div>
-        ` : ''}
-        
-        <div style="border-top: 2px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
-          <p style="margin: 0; color: #6b7280; font-size: 14px;">
-            Application received on ${new Date().toLocaleString('en-IN', { 
-              timeZone: 'Asia/Kolkata',
-              year: 'numeric',
-              month: 'long', 
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })} IST
-          </p>
-        </div>
-      </div>`;
-    
+      </body>
+      </html>`;
+
+    // --- Updated Admin HTML ---
+    const adminHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Internship Application</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; color: #1f2937; line-height: 1.6;">
+          <table width="100%" bgcolor="#f9fafb" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                  <td align="center" style="padding: 20px 0;">
+                      <table width="100%" max-width="700px" bgcolor="#ffffff" cellpadding="0" cellspacing="0" border="0" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e5e7eb;">
+                          <!-- Header -->
+                          <tr>
+                              <td align="center" bgcolor="#dc2626" style="padding: 30px 20px; color: white;">
+                                  <h1 style="margin: 0; font-size: 28px; font-weight: 800;">📥 NEW INTERNSHIP APPLICATION</h1>
+                                  <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9;">EDIZO Application System</p>
+                              </td>
+                          </tr>
+
+                          <!-- Body -->
+                          <tr>
+                              <td style="padding: 30px;">
+                                  <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #3b82f6;">
+                                      <h2 style="margin: 0 0 12px 0; color: #1e40af; font-size: 22px;">🎯 ${data.internshipTitle}</h2>
+                                      <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                          <span style="background-color: #eff6ff; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; color: #1e40af; border: 1px solid #93c5fd;">
+                                              ⏱️ ${period}
+                                          </span>
+                                          <span style="background-color: #ecfdf5; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; color: #059669; border: 1px solid #6ee7b7;">
+                                              💰 ${price}
+                                          </span>
+                                      </div>
+                                  </div>
+
+                                  <div style="background-color: #f3f4f6; padding: 25px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #d1d5db;">
+                                      <h3 style="margin-top: 0; color: #374151; font-size: 18px; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">👤 Applicant Information</h3>
+                                      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 15px;">
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; width: 35%; color: #4b5563;">Full Name:</td>
+                                              <td style="padding: 8px 0; color: #111827;">${data.name}</td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; color: #4b5563;">Email:</td>
+                                              <td style="padding: 8px 0; color: #111827;">
+                                                  <a href="mailto:${data.email}" style="color: #dc2626; text-decoration: none; font-weight: 500;">${data.email}</a>
+                                              </td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; color: #4b5563;">Phone:</td>
+                                              <td style="padding: 8px 0; color: #111827;">
+                                                  ${data.phone ? `<a href="tel:${data.phone}" style="color: #dc2626; text-decoration: none; font-weight: 500;">${data.phone}</a>` : 'N/A'}
+                                              </td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; color: #4b5563;">University:</td>
+                                              <td style="padding: 8px 0; color: #111827;">${data.university || 'N/A'}</td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; color: #4b5563;">Year of Study:</td>
+                                              <td style="padding: 8px 0; color: #111827;">${data.yearOfStudy || 'N/A'}</td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; color: #4b5563;">Degree & Branch:</td>
+                                              <td style="padding: 8px 0; color: #111827;">${data.education || 'N/A'}</td>
+                                          </tr>
+                                      </table>
+                                  </div>
+
+                                  ${data.academicExperience ? `
+                                  <div style="background-color: #f0f9ff; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #0ea5e9;">
+                                      <h3 style="margin-top: 0; color: #0c4a6e; font-size: 18px;">🎓 Academic Experience</h3>
+                                      <p style="margin: 0; line-height: 1.6; color: #0f172a;">${data.academicExperience}</p>
+                                  </div>
+                                  ` : ''}
+
+                                  ${data.message ? `
+                                  <div style="background-color: #f0fdf4; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #22c55e;">
+                                      <h3 style="margin-top: 0; color: #15803d; font-size: 18px;">💭 Cover Letter</h3>
+                                      <p style="margin: 0; line-height: 1.6; color: #0f172a;">${data.message}</p>
+                                  </div>
+                                  ` : ''}
+
+                                  <div style="text-align: right; color: #6b7280; font-size: 13px; margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                                      Application received on ${new Date().toLocaleString('en-IN', {
+                                        timeZone: 'Asia/Kolkata',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      })} IST
+                                  </div>
+                              </td>
+                          </tr>
+                      </table>
+                  </td>
+              </tr>
+          </table>
+      </body>
+      </html>`;
+
     await sendMail(applicantEmail, `✅ Application Confirmation - ${data.internshipTitle} Internship`, applicantHtml);
     await sendMail(adminEmail, `🚨 New Application: ${data.internshipTitle} - ${data.name}`, adminHtml);
 
@@ -253,7 +311,7 @@ app.post('/api/send-email', limiter, async (req, res) => {
   }
 });
 
-// ✅ Contact form handler
+// ✅ Contact form handler (UI Updated)
 app.post('/api/send-contact-email', limiter, async (req, res) => {
   const data = req.body;
   const userEmail = data.email;
@@ -262,29 +320,134 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
   try {
     if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) throw new Error('Invalid contact email');
 
+    // --- Updated User HTML ---
     const userHtml = `
-      <div style="font-family: Arial, sans-serif; color: #333;">
-        <h2>Thank You for Reaching Out, ${data.name}!</h2>
-        <p>
-          We've received your message at <strong>EDIZO</strong>. Our team will respond shortly.
-        </p>
-        <p>If urgent, contact: <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a></p>
-        <p><strong>EDIZO Support Team</strong></p>
-      </div>`;
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Message Received</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; color: #1f2937; line-height: 1.6;">
+          <table width="100%" bgcolor="#f9fafb" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                  <td align="center" style="padding: 20px 0;">
+                      <table width="100%" max-width="600px" bgcolor="#ffffff" cellpadding="0" cellspacing="0" border="0" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e5e7eb;">
+                          <!-- Header -->
+                          <tr>
+                              <td align="center" bgcolor="#dc2626" style="padding: 30px 20px; color: white;">
+                                  <h1 style="margin: 0; font-size: 28px; font-weight: 800;">EDIZO</h1>
+                                  <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9;">We've Got Your Message!</p>
+                              </td>
+                          </tr>
 
+                          <!-- Body -->
+                          <tr>
+                              <td style="padding: 30px;">
+                                  <h2 style="margin-top: 0; color: #111827; font-size: 24px;">Thank You, ${data.name}!</h2>
+
+                                  <p style="margin: 20px 0;">
+                                      We've received your message at <strong>EDIZO</strong>. Our team will respond shortly.
+                                  </p>
+
+                                  <div style="background-color: #f3f4f6; padding: 20px; border-radius: 10px; margin: 25px 0; border-left: 5px solid #9ca3af;">
+                                      <h3 style="margin-top: 0; color: #374151; font-size: 18px;">📩 Message Summary</h3>
+                                      <p style="margin: 5px 0;"><strong>Subject:</strong> ${data.subject || 'N/A'}</p>
+                                      <p style="margin: 5px 0;"><strong>Message:</strong></p>
+                                      <p style="margin: 5px 0; padding: 10px; background-color: #e5e7eb; border-radius: 5px;">${data.message}</p>
+                                  </div>
+
+                                  <p style="margin: 20px 0;">
+                                      If urgent, contact us directly: <a href="mailto:${process.env.EMAIL_USER}" style="color: #dc2626; text-decoration: none; font-weight: 500;">${process.env.EMAIL_USER}</a>
+                                  </p>
+
+                                  <p style="margin: 30px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
+                                      <strong>EDIZO Support Team</strong>
+                                  </p>
+                              </td>
+                          </tr>
+                      </table>
+                  </td>
+              </tr>
+          </table>
+      </body>
+      </html>`;
+
+    // --- Updated Admin HTML for Contact ---
     const adminHtml = `
-      <div style="font-family: Arial, sans-serif; color: #333;">
-        <h2>📨 New Contact Form Submission</h2>
-        <ul>
-          <li><strong>Name:</strong> ${data.name}</li>
-          <li><strong>Email:</strong> ${data.email}</li>
-          <li><strong>Phone:</strong> ${data.phone}</li>
-          <li><strong>Subject:</strong> ${data.subject || 'N/A'}</li>
-          <li><strong>Message:</strong> ${data.message}</li>
-        </ul>
-        <p>Submitted via the contact form on EDIZO website.</p>
-      </div>`;
-      
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Contact Form Submission</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; color: #1f2937; line-height: 1.6;">
+          <table width="100%" bgcolor="#f9fafb" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                  <td align="center" style="padding: 20px 0;">
+                      <table width="100%" max-width="600px" bgcolor="#ffffff" cellpadding="0" cellspacing="0" border="0" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e5e7eb;">
+                          <!-- Header -->
+                          <tr>
+                              <td align="center" bgcolor="#dc2626" style="padding: 30px 20px; color: white;">
+                                  <h1 style="margin: 0; font-size: 28px; font-weight: 800;">📨 New Contact Form Submission</h1>
+                              </td>
+                          </tr>
+
+                          <!-- Body -->
+                          <tr>
+                              <td style="padding: 30px;">
+                                  <div style="background-color: #f3f4f6; padding: 25px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #d1d5db;">
+                                      <h3 style="margin-top: 0; color: #374151; font-size: 18px; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">👤 Sender Information</h3>
+                                      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 15px;">
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; width: 30%; color: #4b5563;">Name:</td>
+                                              <td style="padding: 8px 0; color: #111827;">${data.name}</td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; color: #4b5563;">Email:</td>
+                                              <td style="padding: 8px 0; color: #111827;">
+                                                  <a href="mailto:${data.email}" style="color: #dc2626; text-decoration: none; font-weight: 500;">${data.email}</a>
+                                              </td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; color: #4b5563;">Phone:</td>
+                                              <td style="padding: 8px 0; color: #111827;">
+                                                  ${data.phone ? `<a href="tel:${data.phone}" style="color: #dc2626; text-decoration: none; font-weight: 500;">${data.phone}</a>` : 'N/A'}
+                                              </td>
+                                          </tr>
+                                          <tr>
+                                              <td style="padding: 8px 0; font-weight: 600; color: #4b5563;">Subject:</td>
+                                              <td style="padding: 8px 0; color: #111827;">${data.subject || 'N/A'}</td>
+                                          </tr>
+                                      </table>
+                                  </div>
+
+                                  <div style="background-color: #f0fdf4; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #22c55e;">
+                                      <h3 style="margin-top: 0; color: #15803d; font-size: 18px;">💬 Message</h3>
+                                      <p style="margin: 0; line-height: 1.6; color: #0f172a;">${data.message}</p>
+                                  </div>
+
+                                  <div style="text-align: right; color: #6b7280; font-size: 13px; margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                                      Submitted on ${new Date().toLocaleString('en-IN', {
+                                        timeZone: 'Asia/Kolkata',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      })} IST
+                                  </div>
+                              </td>
+                          </tr>
+                      </table>
+                  </td>
+              </tr>
+          </table>
+      </body>
+      </html>`;
+
     await sendMail(userEmail, `We've received your message`, userHtml);
     await sendMail(adminEmail, `Contact Form - ${data.subject || 'New Inquiry'}`, adminHtml);
 

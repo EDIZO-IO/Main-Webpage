@@ -1,55 +1,82 @@
+// src/pages/UpcomingWebinars.tsx
 import React, { useEffect, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Loader2, Calendar, MapPin, UserCheck } from 'lucide-react';
+import PageHeader from '../components/common/PageHeader';
+import AnimatedSection from '../components/common/AnimatedSection';
 
 interface Webinar {
   id: number;
   title: string;
-  date: string;
-  status: 'Coming Soon' | 'Confirmed';
+  date: string; // Expecting YYYY-MM-DD format from JSON
+  status: 'Coming Soon' | 'Confirmed'; // Ensure JSON matches this exactly
   location: string;
   description: string;
-  registrationLink?: string;
+  registrationLink?: string; // Optional, as per JSON structure
 }
 
 const UpcomingWebinars: React.FC = () => {
   const [webinars, setWebinars] = useState<Webinar[]>([]);
   const [loading, setLoading] = useState(true);
-  const { scrollY } = useScroll();
-  const backgroundY = useTransform(scrollY, [0, 500], [0, 100]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/webinars.json')
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch webinars');
-        return res.json();
-      })
-      .then((data: Webinar[]) => {
-        const sorted = data.sort((a, b) => {
-          if (a.status !== b.status) {
-            return a.status === 'Confirmed' ? -1 : 1;
+    const loadWebinars = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/webinars.json');
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Webinars data file not found (/webinars.json)');
+          } else {
+            throw new Error(`Failed to load webinars: ${response.status} ${response.statusText}`);
           }
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }
+        const data: Webinar[] = await response.json();
+
+        // Sort: 'Confirmed' first (if any), then by date (ascending), then 'Coming Soon'
+        // This example assumes mostly 'Coming Soon' for simplicity, adjust sorting logic if 'Confirmed' is common
+        const sorted = data.sort((a, b) => {
+          // Prioritize 'Confirmed' over 'Coming Soon'
+          if (a.status !== b.status) {
+            if (a.status === 'Confirmed') return -1;
+            if (b.status === 'Confirmed') return 1;
+          }
+          // If statuses are the same, sort by date string (lexicographically, works for YYYY-MM-DD)
+          // This handles both 'Confirmed' and 'Coming Soon' dates
+          return a.date.localeCompare(b.date);
         });
 
         setWebinars(sorted);
         setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Error loading webinars:', err);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred while loading webinars.');
         setLoading(false);
-      });
+        // Keep previous webinars or set to empty array if preferred on error
+        // setWebinars([]);
+      }
+    };
+
+    loadWebinars();
   }, []);
 
   const formatDate = (dateString: string): string => {
     try {
-      return new Date(dateString).toLocaleDateString('en-US', {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid Date');
+      }
+      return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
+        weekday: 'long',
       });
-    } catch {
-      return 'Invalid Date';
+    } catch (e) {
+      console.warn(`Could not format date: ${dateString}`, e);
+      return 'Date TBD'; // Or just 'TBD'
     }
   };
 
@@ -61,145 +88,131 @@ const UpcomingWebinars: React.FC = () => {
       transition: {
         delay: i * 0.1,
         duration: 0.5,
-        type: 'spring',
-        stiffness: 120,
-        damping: 15,
       },
     }),
   };
 
   return (
-    <section
-      className="font-sans min-h-screen relative overflow-hidden flex items-center justify-center p-4 pt-20"
-      aria-labelledby="webinars-title"
-    >
-      {/* Background */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 z-0"
-        style={{ y: backgroundY }}
-      ></motion.div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50">
+      <PageHeader
+        title="Upcoming Webinars"
+        subtitle="Join our free sessions led by industry experts."
+        variant="default"
+      />
 
-      <div className="w-full max-w-5xl relative z-10 text-center">
-        <motion.h1
-          id="webinars-title"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-4xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-xl"
-        >
-          Join Our{' '}
-          <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-            Upcoming Webinars
-          </span>
-        </motion.h1>
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Loading State */}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Loader2 className="w-10 h-10 animate-spin text-red-600 mb-4" />
+              <p className="text-gray-600 text-lg">Loading upcoming events...</p>
+            </div>
+          )}
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-          className="text-lg md:text-xl text-gray-300 mb-12 max-w-2xl mx-auto font-light"
-        >
-          Stay ahead with exclusive insights from industry experts.
-        </motion.p>
+          {/* Error State */}
+          {error && !loading && (
+            <AnimatedSection>
+              <div className="text-center py-12 bg-white rounded-2xl shadow-sm border border-red-100 p-8">
+                <h2 className="text-2xl font-bold text-red-600 mb-2">Error Loading Webinars</h2>
+                <p className="text-gray-600 mb-4">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  Retry
+                </button>
+              </div>
+            </AnimatedSection>
+          )}
 
-        {/* Loading State */}
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-gray-400 flex items-center justify-center gap-3"
-          >
-            <Loader2 className="w-6 h-6 animate-spin text-red-600" />
-            <p>Loading webinars...</p>
-          </motion.div>
-        )}
+          {/* No Webinars */}
+          {!loading && !error && webinars.length === 0 && (
+            <AnimatedSection>
+              <div className="text-center py-12 bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">No Webinars Scheduled</h2>
+                <p className="text-gray-600">
+                  We don't have any webinars planned right now. Please check back soon!
+                </p>
+              </div>
+            </AnimatedSection>
+          )}
 
-        {/* No Webinars */}
-        {!loading && webinars.length === 0 && (
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-gray-300 text-lg bg-gray-800/50 p-4 rounded-lg shadow-md"
-          >
-            No webinars available right now. <span className="text-red-600">Check back soon!</span> 🚀
-          </motion.p>
-        )}
-
-        {/* Webinar Grid */}
-        {!loading && webinars.length > 0 && (
-          <ul className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
-            {webinars.map((event, index) => (
-              <motion.li
-                key={event.id}
-                custom={index}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-50px' }}
-                className="group bg-gray-800/50 backdrop-blur-md rounded-2xl shadow-lg border border-red-600/20 p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-105 hover:bg-gray-700/50 hover:shadow-xl"
-                whileHover={{ rotateX: 2, rotateY: 2 }}
-                style={{ perspective: 1000, boxShadow: '0 0 15px rgba(255, 0, 0, 0.1)' }}
-              >
-                {/* Status + Date */}
-                <div className="flex items-center justify-between">
-                  <span
-                    className={`px-4 py-1 rounded-full text-sm font-semibold shadow-inner ${
-                      event.status === 'Coming Soon'
-                        ? 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
-                        : 'bg-gradient-to-r from-red-500 to-orange-500 text-white'
-                    }`}
+          {/* Webinar Grid */}
+          {!loading && !error && webinars.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"> {/* Adjusted to 3 columns if desired */}
+              {webinars.map((event, index) => (
+                <AnimatedSection key={event.id} delay={index * 0.1}>
+                  <motion.div
+                    variants={cardVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-50px" }}
+                    whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                    className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 flex flex-col h-full"
                   >
-                    {event.status}
-                  </span>
+                    {/* Status Banner */}
+                    <div className={`px-6 py-3 text-center text-sm font-semibold text-white ${
+                      event.status === 'Confirmed'
+                        ? 'bg-gradient-to-r from-red-500 to-orange-500'
+                        : 'bg-gradient-to-r from-gray-500 to-gray-600'
+                    }`}>
+                      {event.status}
+                    </div>
 
-                  {event.status === 'Confirmed' && (
-                    <time
-                      dateTime={event.date}
-                      className="text-gray-300 text-sm md:text-base font-medium group-hover:text-red-500 transition-colors duration-300"
-                    >
-                      {formatDate(event.date)}
-                    </time>
-                  )}
-                </div>
+                    <div className="p-6 flex flex-col flex-grow">
+                      {/* Event Title */}
+                      <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">{event.title}</h3>
 
-                {/* Content */}
-                <div className="flex-1 space-y-2">
-                  <h2 className="text-2xl font-extrabold text-white group-hover:bg-gradient-to-r from-red-500 to-orange-500 group-hover:bg-clip-text group-hover:text-transparent transition-colors duration-300 line-clamp-2">
-                    {event.title}
-                  </h2>
-                  <p className="text-sm text-gray-300">
-                    <span className="font-semibold">Location:</span> {event.location}
-                  </p>
-                  <p className="text-gray-200 text-sm md:text-base leading-relaxed font-light">{event.description}</p>
-                </div>
+                      {/* Event Details */}
+                      <div className="space-y-2 mb-4 flex-grow">
+                        {/* Show date */}
+                        <div className="flex items-start text-gray-600">
+                          <Calendar className="flex-shrink-0 mr-2 mt-0.5 text-red-500" size={18} />
+                          <span className="text-sm">
+                            <time dateTime={event.date}>{formatDate(event.date)}</time>
+                          </span>
+                        </div>
+                        <div className="flex items-start text-gray-600">
+                          <MapPin className="flex-shrink-0 mr-2 mt-0.5 text-red-500" size={18} />
+                          <span className="text-sm">{event.location}</span>
+                        </div>
+                        <p className="text-gray-600 text-sm mt-3">{event.description}</p>
+                      </div>
 
-                {/* Registration Button */}
-                {event.status === 'Confirmed' && event.registrationLink && (
-                  <motion.a
-                    href={event.registrationLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Register for ${event.title}`}
-                    className="mt-4 inline-block w-full text-center py-3 px-6 rounded-lg text-lg font-bold bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md hover:shadow-xl transition-all duration-300"
-                    whileHover={{ scale: 1.05, boxShadow: '0 0 15px rgba(255, 0, 0, 0.3)' }}
-                  >
-                    Register Now
-                  </motion.a>
-                )}
-
-                {/* Placeholder for Coming Soon */}
-                {event.status === 'Coming Soon' && !event.registrationLink && (
-                  <div className="mt-4 w-full text-center py-3 px-6 rounded-lg text-lg font-bold text-gray-300 bg-gray-600/50 cursor-not-allowed">
-                    Registration Opening Soon
-                  </div>
-                )}
-              </motion.li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </section>
+                      {/* CTA Logic:
+                           - Show Register button ONLY if status is 'Confirmed' AND registrationLink exists and is not empty after trimming.
+                           - Show "Coming Soon" placeholder ONLY if status is 'Coming Soon' OR if status is 'Confirmed' but link is missing/empty.
+                           - This handles cases where a 'Confirmed' event might temporarily lack a link.
+                      */}
+                      {event.status === 'Confirmed' && event.registrationLink && event.registrationLink.trim() !== '' ? (
+                        // ✅ Show Register button for Confirmed events with a valid link
+                        <motion.a
+                          href={event.registrationLink.trim()} // ✅ Trim whitespace from JSON
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-auto w-full inline-flex items-center justify-center px-5 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white font-semibold rounded-lg shadow hover:from-red-700 hover:to-orange-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-center"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <UserCheck className="mr-2" size={18} />
+                          Register Now
+                        </motion.a>
+                      ) : (
+                        // ✅ Show placeholder for Coming Soon or Confirmed without link
+                        <div className="mt-auto w-full text-center py-3 px-5 bg-gray-100 text-gray-500 font-semibold rounded-lg text-sm">
+                          {event.status === 'Confirmed' ? 'Registration Link Coming Soon' : 'Registration Opening Soon'}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                </AnimatedSection>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
   );
 };
 

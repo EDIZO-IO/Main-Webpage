@@ -1,17 +1,24 @@
-
+// src/components/common/PageHeader.tsx (or your component path)
 import React from 'react';
+// ✅ Import motion and scroll hooks from framer-motion
 import { motion, useScroll, useTransform } from 'framer-motion';
+
+// --- If you intend to use a static image as a base background, import it ---
+// import headerBackgroundImage from '../../assets/background image/your-header-image.png'; // Adjust path
 
 interface PageHeaderProps {
   title: string;
-  subtitle?: string;
+  subtitle?: string | React.ReactNode; // ✅ Allow ReactNode for more flexible subtitles (like AnimatedTypingSubtitle)
   variant?: 'default' | 'services' | 'contact';
+  // ✅ Optional: Add a prop for a background image if needed
+  // backgroundImage?: string; 
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   subtitle,
-  variant = 'default'
+  variant = 'default',
+  // backgroundImage // Destructure if used
 }) => {
   const { scrollY } = useScroll();
   const backgroundY = useTransform(scrollY, [0, 500], [0, 100]);
@@ -31,6 +38,23 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       className="relative h-72 md:h-80 text-white flex items-center justify-center overflow-hidden"
       style={{ y: backgroundY }}
     >
+      {/* Optional: Static Background Image (behind SVG) */}
+      {/* {backgroundImage && (
+        <img
+          src={backgroundImage}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-30" // Adjust opacity as needed
+        />
+      )} */}
+      {/* Or if imported: */}
+      {/* {headerBackgroundImage && (
+        <img
+          src={headerBackgroundImage}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
+        />
+      )} */}
+
       {/* Curved SVG Background with Gradient */}
       <div className="absolute inset-0 z-0">
         <svg
@@ -56,6 +80,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               <stop offset="100%" style={{ stopColor: '#EC4899', stopOpacity: 1 }} />
             </linearGradient>
           </defs>
+          {/* ✅ Ensure fill uses the correct gradient ID */}
           <path
             d="M0,0 L1440,0 C1440,400 1080,600 720,600 C360,600 0,400 0,800 L0,0 Z"
             fill={`url(#${getGradientId()})`}
@@ -79,7 +104,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(6)].map((_, i) => (
           <motion.div
-            key={i}
+            key={i} // Using index is acceptable here as the array is static
             className="absolute w-2 h-2 bg-white/30 rounded-full"
             style={{
               left: `${10 + (i * 15)}%`,
@@ -111,6 +136,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           {title}
         </motion.h1>
 
+        {/* ✅ Render subtitle if it exists, handling both string and ReactNode */}
         {subtitle && (
           <motion.p
             className="text-sm sm:text-base md:text-lg lg:text-xl text-yellow-100 max-w-4xl mx-auto font-['Inter',sans-serif] leading-relaxed drop-shadow-md"
@@ -121,7 +147,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             {subtitle}
           </motion.p>
         )}
-        
+
         {/* Decorative underline */}
         <motion.div
           className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 mx-auto mt-4 rounded-full"
