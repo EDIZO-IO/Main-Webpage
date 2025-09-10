@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
-import headerBackground from '../assets/background image/project.png';
+
 import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
@@ -249,7 +249,7 @@ const AutoScrollingGallery: React.FC = () => {
                     href={image.viewLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 inline-block text-red-600 hover:text-red-700 font-medium flex items-center justify-center gap-1"
+                    className="mt-2 inline-block text-red-600 hover:text-red-700 font-medium  items-center justify-center gap-1"
                   >
                     View Profile
                     <ExternalLink size={16} />
@@ -444,7 +444,7 @@ const Projects: React.FC = () => {
       <PageHeader
         title="Our Projects"
         subtitle={<AnimatedTypingSubtitle phrases={['Innovative Solutions', 'Creative Designs', 'Impactful Videos']} />}
-        backgroundImage={headerBackground} // Ensure this path is correct
+         // Ensure this path is correct
       />
 
       <AutoScrollingGallery />

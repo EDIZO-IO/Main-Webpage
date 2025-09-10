@@ -107,10 +107,8 @@ const ProjectDetails = () => {
       <PageHeader
         title={project.title}
         subtitle={project.category}
-        backgroundImage={project.image} // Ensure this path is correct or handle fallback
-        style={{
-          background: 'linear-gradient(to right, #1e40af, #7c3aed)'
-        }}
+       // Ensure this path is correct or handle fallback
+       
       />
 
       <section className="py-16 bg-gray-50">

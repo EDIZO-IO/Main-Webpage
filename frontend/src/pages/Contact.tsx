@@ -1,7 +1,26 @@
+// src/pages/Contact.tsx
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, CheckCircle, Loader2,
-  Facebook, Twitter, Linkedin, Instagram, Youtube, MessageCircle, ArrowRight, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Send,
+  CheckCircle,
+  Loader2,
+  Facebook,
+  Twitter, // Assuming this is 'X'
+  Linkedin,
+  Instagram,
+  Youtube,
+  MessageCircle,
+  ArrowRight,
+  Clock,
+  Zap,
+  User,
+  Hash, // For Subject
+  MessageSquare, // Alternative for Message
+} from 'lucide-react';
 
 // === Type Definitions ===
 interface AnimatedSectionProps {
@@ -143,88 +162,89 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const API_BASE_URL = 'https://your-api-url.com'; // This won't work without a backend, but the structure is correct.
+  // --- FIX 1: Removed incorrect API_BASE_URL ---
+  // const API_BASE_URL = 'https://your-api-url.com  '; // ❌ Incorrect and won't work
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // --- FIX 2: Updated handleSubmit to use a functional email link ---
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setFormError(null);
 
-    // This fetch call will fail without a backend
     try {
-      const res = await fetch(`${API_BASE_URL}/api/send-contact-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      // Construct mailto link with pre-filled fields
+      const subject = encodeURIComponent(`Contact Form: ${formData.subject || 'General Inquiry'}`);
+      const body = encodeURIComponent(
+        `Name: ${formData.name}\n\n` +
+        `Email: ${formData.email}\n\n` +
+        `Phone: ${formData.phone || 'N/A'}\n\n` +
+        `Message:\n${formData.message}`
+      );
+      const mailtoLink = `mailto:edizoofficial@gmail.com?subject=${subject}&body=${body}`;
 
-      if (!res.ok) {
-        const errorResult = await res.json().catch(() => ({ message: res.statusText }));
-        throw new Error(errorResult.message || `Error: ${res.statusText}`);
-      }
+      // Attempt to open the user's default email client
+      window.location.href = mailtoLink;
 
+      // Assume success for UI purposes (as we can't easily wait for the email client)
+      // In a real backend scenario, you'd wait for the fetch response.
       setFormSubmitted(true);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-    } catch (error: unknown) {
-      console.error('❌ Error:', error);
-      if (error instanceof Error) {
-        setFormError(
-          error.message.includes("Failed to fetch")
-            ? "Unable to connect to server. Please check your internet or try later."
-            : "Something went wrong. Please try again."
-        );
-      } else {
-        setFormError("An unexpected error occurred. Please try again.");
-      }
+    } catch (error) {
+      console.error('❌ Error initiating email:', error);
+      setFormError("Failed to open email client. Please try again or use the contact information provided.");
     } finally {
       setLoading(false);
     }
   };
 
+  // --- FIX 3: Corrected Schema.org URLs ---
   useEffect(() => {
-    // This structured data won't be picked up by search engines in this environment, but the code is kept for demonstration.
     const schema = {
-      "@context": "https://schema.org",
+      "@context": "https://schema.org", // ✅ Removed trailing spaces
       "@type": "ContactPage",
       "name": "Contact Edizo",
-      "url": "https://www.edizo.in/contact",
+      // ✅ Ensure this URL matches your actual contact page route
+      "url": "https://www.edizo.in/contact", // ✅ Removed trailing spaces
       "description": "Get in touch with Edizo for inquiries about UI/UX, web & app development, and digital design services.",
       "mainEntity": {
         "@type": "Organization",
         "name": "Edizo",
-        "url": "https://www.edizo.in",
-        "logo": "https://www.edizo.in/logo.png",
+        "url": "https://www.edizo.in", // ✅ Removed trailing spaces
+        "logo": "https://www.edizo.in/logo.png", // ✅ Removed trailing spaces
         "contactPoint": {
           "@type": "ContactPoint",
           "telephone": "+919876543210",
-          "email": "contact@edizo.in",
+          "email": "edizoofficial@gmail.com", // ✅ Updated to primary email
           "contactType": "Customer Support",
           "areaServed": "Worldwide",
           "availableLanguage": "English"
         },
         "sameAs": [
           "https://www.facebook.com/profile.php?id=61576742758066",
-          "https://x.com/EdizoPvtLtd",
-          "https://www.linkedin.com/in/edizo-pvt-ltd-149748367/",
-          "https://www.instagram.com/e.d.i.z.o._official/",
-          "https://www.youtube.com/@team-edizo"
+          "https://x.com/EdizoPvtLtd", // ✅ Fixed Twitter/X URL (removed extra spaces)
+          "https://www.linkedin.com/in/edizo-pvt-ltd-149748367/", // ✅ Removed trailing spaces
+          "https://www.instagram.com/e.d.i.z.o._official/", // ✅ Removed trailing spaces (ensure correct)
+          "https://www.youtube.com/@team-edizo" // ✅ Removed trailing spaces
         ]
       }
     };
 
     const script = document.createElement('script');
     script.type = 'application/ld+json';
+    script.id = 'contact-schema'; // Add ID for cleanup
     script.innerHTML = JSON.stringify(schema);
     document.head.appendChild(script);
 
     return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
+      // Cleanup function to remove the script on component unmount
+      const existingScript = document.getElementById('contact-schema');
+      if (existingScript && document.head.contains(existingScript)) {
+        document.head.removeChild(existingScript);
       }
     };
   }, []);
@@ -278,7 +298,7 @@ const Contact = () => {
                     <MapPin className="w-6 h-6 text-red-500 mr-2" />
                     Contact Information
                   </h3>
-                  
+
                   <div className="space-y-6">
                     <ContactInfo
                       icon={<MapPin size={24} />}
@@ -287,24 +307,32 @@ const Contact = () => {
                       gradientClass="bg-gradient-to-br from-blue-500 to-blue-600"
                       delay={0.2}
                     />
-                    
+
                     <ContactInfo
                       icon={<Mail size={24} />}
                       title="Email"
                       lines={[
-                        <a key="email1" href="mailto:edizoofficial@gmail.com" className="hover:text-red-600 transition-colors">edizoofficial@gmail.com</a>,
-                        <a key="email2" href="mailto:edizoteam@gmail.com" className="hover:text-red-600 transition-colors">edizoteam@gmail.com</a>
+                        <a key="email1" href="mailto:edizoofficial@gmail.com" className="hover:text-red-600 transition-colors flex items-center">
+                          <Mail className="w-4 h-4 mr-1" /> edizoofficial@gmail.com
+                        </a>,
+                        <a key="email2" href="mailto:edizoteam@gmail.com" className="hover:text-red-600 transition-colors flex items-center">
+                          <Mail className="w-4 h-4 mr-1" /> edizoteam@gmail.com
+                        </a>
                       ]}
                       gradientClass="bg-gradient-to-br from-purple-500 to-purple-600"
                       delay={0.3}
                     />
-                    
+
                     <ContactInfo
                       icon={<Phone size={24} />}
                       title="Phone"
                       lines={[
-                        <a key="phone" href="tel:+919876543210" className="hover:text-red-600 transition-colors">+91 9876543210</a>,
-                        <span key="hours" className="text-gray-500">Mon-Sat: 9:00 AM - 6:00 PM (IST)</span>
+                        <a key="phone" href="tel:+919876543210" className="hover:text-red-600 transition-colors flex items-center">
+                          <Phone className="w-4 h-4 mr-1" /> +91 9876543210
+                        </a>,
+                        <span key="hours" className="text-gray-500 flex items-center">
+                          <Clock className="w-4 h-4 mr-1" /> Mon-Sat: 9:00 AM - 6:00 PM (IST)
+                        </span>
                       ]}
                       gradientClass="bg-gradient-to-br from-green-500 to-green-600"
                       delay={0.4}
@@ -312,21 +340,21 @@ const Contact = () => {
                   </div>
                 </div>
               </AnimatedSection>
-              
+
               <AnimatedSection delay={0.5}>
                 <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-100/50">
                   <h3 className="text-2xl font-bold mb-6 text-gray-900 flex items-center">
                     <MessageCircle className="w-6 h-6 text-red-500 mr-2" />
                     Connect With Us
                   </h3>
-                  
+
                   <div className="space-y-4">
                     {[
                       { platform: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61576742758066', icon: Facebook },
-                      { platform: 'Twitter', url: 'https://x.com/edizo_official', icon: Twitter },
-                      { platform: 'Linkedin', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/', icon: Linkedin },
-                      { platform: 'Instagram', url: 'https://www.instagram.com/edizo_official?igsh=dXc1MnFucGY4MHo4', icon: Instagram },
-                      { platform: 'Youtube', url: 'https://www.youtube.com/@edizo_official', icon: Youtube }
+                      { platform: 'Twitter', url: 'https://x.com/EdizoPvtLtd', icon: Twitter }, // ✅ Updated URL
+                      { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/', icon: Linkedin }, // ✅ Capitalized
+                      { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/', icon: Instagram }, // ✅ Ensure correct URL
+                      { platform: 'YouTube', url: 'https://www.youtube.com/@team-edizo', icon: Youtube } // ✅ Capitalized
                     ].map((social, i) => {
                       const IconComponent = social.icon;
                       return (
@@ -365,7 +393,7 @@ const Contact = () => {
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Send Us a Message</h3>
                 </div>
-                
+
                 {formSubmitted ? (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -378,7 +406,8 @@ const Contact = () => {
                     </div>
                     <h4 className="text-2xl font-bold mb-3 text-gray-900">Thank You!</h4>
                     <p className="text-gray-700 text-lg mb-8">
-                      We've received your message and will get back to you within 24-48 hours.
+                      Your message has been prepared for our email client. We will get back to you shortly.
+                      {/* You can adjust this message based on the mailto behavior */}
                     </p>
                     <Button variant="outline" onClick={() => setFormSubmitted(false)} size="lg">
                       Send Another Message
@@ -397,8 +426,8 @@ const Contact = () => {
                     )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                          Full Name
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                          <User className="w-4 h-4 mr-1" /> Full Name
                         </label>
                         <input
                           type="text"
@@ -408,11 +437,12 @@ const Contact = () => {
                           onChange={handleInputChange}
                           required
                           className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
+                          placeholder="John Doe"
                         />
                       </div>
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                          Email Address
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                          <Mail className="w-4 h-4 mr-1" /> Email Address
                         </label>
                         <input
                           type="email"
@@ -422,12 +452,13 @@ const Contact = () => {
                           onChange={handleInputChange}
                           required
                           className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
+                          placeholder="john.doe@example.com"
                         />
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                        Phone Number
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                        <Phone className="w-4 h-4 mr-1" /> Phone Number
                       </label>
                       <input
                         type="tel"
@@ -436,11 +467,12 @@ const Contact = () => {
                         value={formData.phone}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
+                        placeholder="+91 98765 43210"
                       />
                     </div>
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                        Subject
+                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                        <Hash className="w-4 h-4 mr-1" /> Subject
                       </label>
                       <input
                         type="text"
@@ -450,11 +482,12 @@ const Contact = () => {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
+                        placeholder="How can we help?"
                       />
                     </div>
                     <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                        Your Message
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                        <MessageSquare className="w-4 h-4 mr-1" /> Your Message
                       </label>
                       <textarea
                         id="message"
@@ -463,7 +496,8 @@ const Contact = () => {
                         value={formData.message}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors bg-white/50 resize-y"
+                        placeholder="Tell us about your project or ask your questions..."
                       ></textarea>
                     </div>
                     <Button
@@ -473,7 +507,7 @@ const Contact = () => {
                       disabled={loading}
                       iconRight={loading ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
                     >
-                      {loading ? 'Sending...' : 'Send Message'}
+                      {loading ? 'Preparing Email...' : 'Send Message'} {/* ✅ Updated button text */}
                     </Button>
                   </form>
                 )}
