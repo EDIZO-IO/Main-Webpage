@@ -17,20 +17,12 @@ import {
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
-
 import faceguard from '../assets/project/face-Guard.png';
 import ransomware from '../assets/project/Ransomware.png';
 import Epicnexus from '../assets/project/Epic-nexus.png';
 import recapImage from '../assets/project/redcap.png';
 import placeholderImage from '../assets/placeholder.png'; // Fallback image
-// Local gallery images
-import edizoLogo from '../assets/project/scrollImages/A2A.png';
-import recapLogo from '../assets/project/scrollImages/C-G 3D.png';
-import cybersecurityPoster from '../assets/project/scrollImages/E2D.png';
-import webBanner from '../assets/project/scrollImages/cse.png';
-import brandingKit from '../assets/project/scrollImages/edizo.png';
 
-// --- Types ---
 export interface Project {
   id: string;
   title: string;
@@ -47,7 +39,6 @@ export interface Project {
   results: string;
   gradient: string;
 }
-
 interface GraphicsProject {
   id: string;
   title: string;
@@ -62,55 +53,6 @@ interface GraphicsProject {
   viewLink: string;
 }
 
-interface GalleryImage {
-  id: string;
-  title: string;
-  role: string;
-  image: string;
-  viewLink: string;
-}
-
-// --- Gallery Data ---
-const galleryImagesData: GalleryImage[] = [
-  {
-    id: 'edizo-logo',
-    title: 'John Doe',
-    role: 'Lead Designer',
-    image: edizoLogo,
-    viewLink: 'https://drive.google.com/file/d/10iw7mezzjb5u-Q2jAF7yTtAxhLZXIh57/view',
-  },
-  {
-    id: 'recap-logo',
-    title: 'Jane Smith',
-    role: 'UI/UX Specialist',
-    image: recapLogo,
-    viewLink: 'https://drive.google.com/file/d/2bCdEfGhIjKlMnOpQrStUvWxYz789012/view',
-  },
-  {
-    id: 'cybersecurity-poster',
-    title: 'Mike Johnson',
-    role: 'Graphic Artist',
-    image: cybersecurityPoster,
-    viewLink: 'https://drive.google.com/file/d/3cDeFgHiJkLmNoPqRsTuVwXyZ1234567/view',
-  },
-  {
-    id: 'web-banner',
-    title: 'Sarah Lee',
-    role: 'Creative Director',
-    image: webBanner,
-    viewLink: 'https://drive.google.com/file/d/4dEfGhIjKlMnOpQrStUvWxYz7890123/view',
-  },
-  {
-    id: 'branding-kit',
-    title: 'Alex Brown',
-    role: 'Branding Expert',
-    image: brandingKit,
-    viewLink: 'https://drive.google.com/file/d/5eFgHiJkLmNoPqRsTuVwXyZ12345678/view',
-  },
-];
-const duplicatedGalleryImages = [...galleryImagesData, ...galleryImagesData];
-
-// --- Projects Data ---
 export const projects: Project[] = [
   {
     id: 'ai-ransomware-detection',
@@ -200,81 +142,17 @@ export const projects: Project[] = [
     gradient: 'bg-gradient-to-br from-orange-50 via-red-50 to-pink-50'
   }
 ];
-
-// --- Auto-Scrolling Gallery ---
-const AutoScrollingGallery: React.FC = () => {
-  const [isPaused, setIsPaused] = useState(false);
-
-  return (
-    <div
-      className="relative w-full overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 py-8"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
-      <div className="flex items-center mb-6 px-4">
-        <Palette className="text-red-500 mr-2" size={24} />
-        <h3 className="text-2xl font-bold text-gray-800">Our Creative Team</h3>
-      </div>
-      <div className="flex overflow-hidden">
-        <motion.div
-          animate={{ x: isPaused ? "0%" : "-50%" }}
-          transition={{
-            duration: 20,
-            ease: "linear",
-            repeat: Infinity,
-            repeatType: "loop",
-          }}
-          className="flex flex-nowrap"
-        >
-          {duplicatedGalleryImages.map((image, index) => (
-            <div
-              key={`${image.id}-${index}`}
-              className="flex-shrink-0 w-72 mx-3 transform transition-all duration-300 hover:scale-105"
-            >
-              <div className="relative overflow-hidden rounded-2xl shadow-lg bg-white p-4 h-80">
-                <img
-                  src={image.image}
-                  alt={image.title}
-                  className="w-full h-48 object-cover rounded-xl"
-                  loading="lazy"
-                  onError={(e) => {
-                    console.warn(`Failed to load gallery image ${image.id}`);
-                    e.currentTarget.src = placeholderImage;
-                  }}
-                />
-                <div className="mt-4 text-center">
-                  <h4 className="text-lg font-semibold text-gray-900">{image.title}</h4>
-                  <p className="text-sm text-gray-600">{image.role}</p>
-                  <a
-                    href={image.viewLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-block text-red-600 hover:text-red-700 font-medium  items-center justify-center gap-1"
-                  >
-                    View Profile
-                    <ExternalLink size={16} />
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
-        </motion.div>
-      </div>
-    </div>
-  );
-};
-
+// --- Auto-Scrolling Gallery --- // REMOVED ENTIRELY
+// const AutoScrollingGallery: React.FC = () => { ... }
 // --- Typing Animation ---
 interface AnimatedTypingSubtitleProps {
   phrases: string[];
 }
-
 const AnimatedTypingSubtitle: React.FC<AnimatedTypingSubtitleProps> = ({ phrases }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [typingSpeed, setTypingSpeed] = useState(150);
-
   useEffect(() => {
     const currentPhrase = phrases[phraseIndex];
     const timeout = setTimeout(() => {
@@ -296,10 +174,8 @@ const AnimatedTypingSubtitle: React.FC<AnimatedTypingSubtitleProps> = ({ phrases
         }
       }
     }, typingSpeed);
-
     return () => clearTimeout(timeout);
   }, [displayedText, isDeleting, phraseIndex, phrases, typingSpeed]);
-
   return (
     <span className="relative text-white font-medium">
       {displayedText}
@@ -307,7 +183,6 @@ const AnimatedTypingSubtitle: React.FC<AnimatedTypingSubtitleProps> = ({ phrases
     </span>
   );
 };
-
 // --- Main Component ---
 const Projects: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -317,11 +192,9 @@ const Projects: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [graphicsProjects, setGraphicsProjects] = useState<GraphicsProject[]>([]);
-
   // Extract categories
   const devCategories = ['All', ...new Set(projects.map(p => p.category))];
   const graphicsCategories = ['All', ...new Set(graphicsProjects.map(p => p.category))];
-
   // Fetch graphics projects
   useEffect(() => {
     const fetchGraphicsProjects = async () => {
@@ -351,10 +224,8 @@ const Projects: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchGraphicsProjects();
   }, []);
-
   // Filter logic
   const filteredDevProjects = projects.filter(project => {
     const matchesSearch =
@@ -364,7 +235,6 @@ const Projects: React.FC = () => {
     const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-
   const filteredGraphicsProjects = graphicsProjects.filter(project => {
     const matchesSearch =
       project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -373,7 +243,6 @@ const Projects: React.FC = () => {
     const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-
   // Add JSON-LD for SEO - ✅ FIXED URLs
   useEffect(() => {
     const schema = {
@@ -408,19 +277,16 @@ const Projects: React.FC = () => {
         }))
       ]
     };
-
     const script = document.createElement('script');
     script.type = 'application/ld+json';
     script.id = 'projects-schema';
     script.innerHTML = JSON.stringify(schema);
     document.head.appendChild(script);
-
     return () => {
       const existing = document.getElementById('projects-schema');
       if (existing) document.head.removeChild(existing);
     };
   }, [graphicsProjects]); // Dependency array is correct
-
   // Handle error display for graphics tab specifically
   if (error && activeTab === 'graphics') {
     return (
@@ -438,7 +304,6 @@ const Projects: React.FC = () => {
       </div>
     );
   }
-
   return (
     <>
       <PageHeader
@@ -446,9 +311,7 @@ const Projects: React.FC = () => {
         subtitle={<AnimatedTypingSubtitle phrases={['Innovative Solutions', 'Creative Designs', 'Impactful Videos']} />}
          // Ensure this path is correct
       />
-
-      <AutoScrollingGallery />
-
+      {/* REMOVED: <AutoScrollingGallery /> */}
       <section className="bg-gray-50 py-16 md:py-20 px-4">
         <div className="container mx-auto max-w-7xl">
           <AnimatedSection>
@@ -459,7 +322,6 @@ const Projects: React.FC = () => {
               </p>
             </div>
           </AnimatedSection>
-
           {/* Tabs */}
           <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-12">
             <motion.button
@@ -502,7 +364,6 @@ const Projects: React.FC = () => {
               Video Editing
             </motion.button>
           </div>
-
           {/* Search & View Mode */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
             <div className="relative w-full sm:w-2/3 lg:w-1/2">
@@ -545,7 +406,6 @@ const Projects: React.FC = () => {
               </motion.button>
             </div>
           </div>
-
           {/* Category Filter */}
           {(activeTab === 'development' || activeTab === 'graphics') && (
             <div className="flex flex-wrap justify-center gap-2 mb-10">
@@ -566,7 +426,6 @@ const Projects: React.FC = () => {
               ))}
             </div>
           )}
-
           {/* Projects Grid/List */}
           <div className="space-y-8">
             {activeTab === 'development' && (
@@ -722,7 +581,6 @@ const Projects: React.FC = () => {
                 )}
               </div>
             )}
-
             {activeTab === 'graphics' && (
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ${viewMode === 'list' ? 'md:grid-cols-1' : ''}`}>
                 {loading ? (
@@ -892,7 +750,6 @@ const Projects: React.FC = () => {
                 )}
               </div>
             )}
-
             {activeTab === 'video' && (
               <div className="text-center py-16">
                 <Video className="text-gray-400 mx-auto mb-4" size={64} />
@@ -906,5 +763,4 @@ const Projects: React.FC = () => {
     </>
   );
 };
-
 export default Projects;

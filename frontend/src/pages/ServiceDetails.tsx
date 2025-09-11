@@ -18,7 +18,7 @@ import {
   CheckCircle,
 } from 'lucide-react'; // Ensure all icons used are imported
 import { motion } from 'framer-motion';
-import PageHeader from '../components/common/PageHeader';
+
 import AnimatedSection from '../components/common/AnimatedSection';
 import Button from '../components/common/Button';
 import { services, type Service } from './Services'; // Import services data and type
