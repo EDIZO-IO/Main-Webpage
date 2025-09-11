@@ -1,5 +1,4 @@
 // src/components/Logo.tsx
-
 import React from 'react';
 import logoIcon from '../../assets/images/logo.png'; // Icon/logo
 import logoTextLight from '../../assets/images/brand-name.png';
@@ -15,8 +14,8 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
 
   return (
     <div className="flex items-center space-x-2 md:space-x-3 transition-all duration-300">
-      {/* Red Circular Icon Background */}
-      <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-edizo flex items-center justify-center transition-transform duration-300 hover:scale-105 shadow-md">
+      {/* Red Circular Icon Background - Updated to match the red/orange gradient */}
+      <div className="w-12 h-12 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center transition-transform duration-300 hover:scale-105 shadow-md">
         <img
           src={logoIcon}
           alt="Logo Icon"

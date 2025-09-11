@@ -17,12 +17,9 @@ import {
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
-import faceguard from '../assets/project/face-Guard.png';
-import ransomware from '../assets/project/Ransomware.png';
-import Epicnexus from '../assets/project/Epic-nexus.png';
-import recapImage from '../assets/project/redcap.png';
 import placeholderImage from '../assets/placeholder.png'; // Fallback image
 
+// --- Types ---
 export interface Project {
   id: string;
   title: string;
@@ -34,7 +31,7 @@ export interface Project {
   tech: string[];
   features: string[];
   image: string;
-  icon: JSX.Element;
+  icon: JSX.IntrinsicElements;
   challenges: string;
   results: string;
   gradient: string;
@@ -53,97 +50,68 @@ interface GraphicsProject {
   viewLink: string;
 }
 
-export const projects: Project[] = [
-  {
-    id: 'ai-ransomware-detection',
-    title: 'AI-Based Ransomware Detection System',
-    category: 'Cybersecurity',
-    location: 'Remote / Bangalore, India',
-    timeline: 'Q2 2025',
-    shortDescription: 'An AI system for detecting and preventing ransomware attacks in real-time',
-    fullDescription: 'This advanced cybersecurity solution uses machine learning to detect ransomware behavior patterns before encryption begins. The system combines LSTM networks for sequence analysis with Isolation Forest algorithms for anomaly detection, achieving 98.7% accuracy in our tests. It monitors file system activities, network traffic, and process behaviors to identify threats.',
-    tech: ['Python', 'TensorFlow', 'LSTM', 'Isolation Forest', 'PyTorch'],
-    features: [
-      'Real-time monitoring of system activities',
-      'Behavioral analysis of processes',
-      'Early detection before encryption starts',
-      'Automated threat containment',
-      'Detailed threat reporting dashboard'
-    ],
-    image: ransomware,
-    icon: <Shield className="text-blue-500" size={24} />,
-    challenges: 'Developing a system that could detect ransomware with minimal false positives while maintaining system performance was our biggest challenge. We solved this by implementing a two-stage detection process.',
-    results: 'Reduced ransomware infection risk by 95% for our client base, with less than 0.5% false positive rate in production environments.',
-    gradient: 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
-  },
-  {
-    id: 'faceguard-gan',
-    title: 'FaceGuard-GAN Deepfake Detection',
-    category: 'Computer Vision & AI',
-    location: 'Remote / Singapore',
-    timeline: 'Q3 2025',
-    shortDescription: 'GAN-powered solution for detecting manipulated facial images and videos',
-    fullDescription: 'FaceGuard-GAN is our proprietary deepfake detection system that uses generative adversarial networks to identify manipulated media. The system analyzes subtle facial micro-expressions, lighting inconsistencies, and texture patterns that are often missed by conventional detection methods. It integrates seamlessly with existing identity verification workflows.',
-    tech: ['GAN', 'Vision Transformer', 'TensorFlow', 'OpenCV', 'PyTorch'],
-    features: [
-      'Real-time deepfake detection',
-      'API for integration with eKYC systems',
-      'Detailed manipulation analysis',
-      'Continuous learning from new threats',
-      'Multi-modal detection (images & video)'
-    ],
-    image: faceguard,
-    icon: <Eye className="text-green-500" size={24} />,
-    challenges: 'Keeping pace with rapidly evolving deepfake generation techniques required us to develop an adaptive learning system that updates its detection models weekly.',
-    results: 'Achieved 99.2% accuracy in detecting state-of-the-art deepfakes during independent testing by Singapore\'s Cybersecurity Agency.',
-    gradient: 'bg-gradient-to-br from-green-50 via-teal-50 to-cyan-50'
-  },
-  {
-    id: 'epic-nexus-platform',
-    title: 'Epic Nexus Gaming Community Platform',
-    category: 'Web Development',
-    location: 'Remote / San Francisco, CA',
-    timeline: 'Q1 2025',
-    shortDescription: 'Comprehensive gaming community platform with social features and reviews',
-    fullDescription: 'Epic Nexus is a feature-rich gaming platform that brings together gamers, content creators, and hardware enthusiasts. The platform includes forums, game libraries, hardware benchmarking tools, and content sharing capabilities. Our custom recommendation engine personalizes the experience for each user based on their gaming preferences and hardware setup.',
-    tech: ['React', 'Node.js', 'MongoDB', 'GraphQL', 'Redis'],
-    features: [
-      'Personalized game recommendations',
-      'Hardware benchmarking tools',
-      'Community forums and groups',
-      'Integrated streaming support'
-    ],
-    image: Epicnexus,
-    icon: <Gamepad className="text-purple-500" size={24} />,
-    challenges: 'Handling real-time updates across a large user base while maintaining performance required innovative caching strategies and database optimizations.',
-    results: 'Grew to 250,000 monthly active users within 6 months of launch, with 78% user retention rate.',
-    gradient: 'bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50'
-  },
-  {
-    id: 'redcap-logistics-platform',
-    title: 'RedCap Logistics Platform',
-    category: 'Full-Stack Development',
-    location: 'Namakkal, India',
-    timeline: 'Q4 2024',
-    shortDescription: 'End-to-end logistics platform with web and mobile applications',
-    fullDescription: 'RedCap is a comprehensive logistics platform connecting customers with transport providers for on-demand delivery services. The platform includes a React web application for customers and businesses, an Express.js backend with MySQL database, and a Flutter mobile app for drivers. The system handles booking, real-time tracking, payment processing, and analytics.',
-    tech: ['React', 'Express.js', 'MySQL', 'Flutter'],
-    features: [
-      'Real-time vehicle tracking with GPS',
-      'Automated booking and dispatch system',
-      'Multi-platform support (Web & Mobile)',
-      'Secure payment gateway integration',
-      'Analytics dashboard for business customers'
-    ],
-    image: recapImage,
-    icon: <MapPin className="text-red-500" size={24} />,
-    challenges: 'Synchronizing real-time data across web and mobile platforms while maintaining performance under high load was our main challenge. We implemented WebSocket connections and optimized database queries.',
-    results: 'Reduced booking time by 70% and improved driver utilization by 45%. The platform now handles over 5,000 daily transactions.',
-    gradient: 'bg-gradient-to-br from-orange-50 via-red-50 to-pink-50'
-  }
-];
-// --- Auto-Scrolling Gallery --- // REMOVED ENTIRELY
-// const AutoScrollingGallery: React.FC = () => { ... }
+// --- Auto-Scrolling Gallery ---
+const AutoScrollingGallery: React.FC = () => {
+  const [isPaused, setIsPaused] = useState(false);
+  return (
+    <div
+      className="relative w-full overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 py-8"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div className="flex items-center mb-6 px-4">
+        <Palette className="text-red-500 mr-2" size={24} />
+        <h3 className="text-2xl font-bold text-gray-800">Our Creative Team</h3>
+      </div>
+      <div className="flex overflow-hidden">
+        <motion.div
+          animate={{ x: isPaused ? "0%" : "-50%" }}
+          transition={{
+            duration: 20,
+            ease: "linear",
+            repeat: Infinity,
+            repeatType: "loop",
+          }}
+          className="flex flex-nowrap"
+        >
+          {[...Array(6)].map((_, index) => (
+            <div
+              key={`gallery-${index}`}
+              className="flex-shrink-0 w-72 mx-3 transform transition-all duration-300 hover:scale-105"
+            >
+              <div className="relative overflow-hidden rounded-2xl shadow-lg bg-white p-4 h-80">
+                <img
+                  src={`https://placehold.co/600x400/eee/999?text=Team+Member+${index + 1}`}
+                  alt={`Team Member ${index + 1}`}
+                  className="w-full h-48 object-cover rounded-xl"
+                  loading="lazy"
+                  onError={(e) => {
+                    console.warn(`Failed to load gallery image`);
+                    e.currentTarget.src = placeholderImage;
+                  }}
+                />
+                <div className="mt-4 text-center">
+                  <h4 className="text-lg font-semibold text-gray-900">Team Member {index + 1}</h4>
+                  <p className="text-sm text-gray-600">Creative Designer</p>
+                  <a
+                    href="https://bytecode.edizo.in"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-red-600 hover:text-red-700 font-medium flex items-center justify-center gap-1"
+                  >
+                    View Profile
+                    <ExternalLink size={16} />
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
 // --- Typing Animation ---
 interface AnimatedTypingSubtitleProps {
   phrases: string[];
@@ -183,6 +151,7 @@ const AnimatedTypingSubtitle: React.FC<AnimatedTypingSubtitleProps> = ({ phrases
     </span>
   );
 };
+
 // --- Main Component ---
 const Projects: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -192,30 +161,22 @@ const Projects: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [graphicsProjects, setGraphicsProjects] = useState<GraphicsProject[]>([]);
+
   // Extract categories
-  const devCategories = ['All', ...new Set(projects.map(p => p.category))];
-  const graphicsCategories = ['All', ...new Set(graphicsProjects.map(p => p.category))];
-  // Fetch graphics projects
+  const devCategories = ['All', 'Cybersecurity', 'Computer Vision & AI', 'Web Development', 'Full-Stack Development'];
+  const graphicsCategories = ['All', 'Branding', 'UI/UX Design', 'Illustration'];
+
+  // Fetch graphics projects (will be empty or fetch from external source)
   useEffect(() => {
     const fetchGraphicsProjects = async () => {
       try {
         setLoading(true);
         setError(null); // Clear previous errors
-        const response = await fetch('/data/graphics-design.json');
-        if (!response.ok) {
-          // Handle non-2xx responses
-          if (response.status === 404) {
-             console.warn('Graphics projects file not found (/data/graphics-design.json)');
-          } else {
-             console.warn(`Failed to load graphics projects: ${response.status} ${response.statusText}`);
-          }
-          // Fallback to empty array
-          setGraphicsProjects([]);
-          setLoading(false);
-          return;
-        }
-        const data: GraphicsProject[] = await response.json();
-        setGraphicsProjects(data);
+        // Simulate fetching from external source
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        // In a real app, this would be a fetch call to /data/graphics-design.json
+        // For now, we'll just set it to an empty array to avoid the error
+        setGraphicsProjects([]);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching graphics projects:', err);
@@ -226,54 +187,45 @@ const Projects: React.FC = () => {
     };
     fetchGraphicsProjects();
   }, []);
+
   // Filter logic
-  const filteredDevProjects = projects.filter(project => {
-    const matchesSearch =
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.tech.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-  const filteredGraphicsProjects = graphicsProjects.filter(project => {
-    const matchesSearch =
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.tools.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredDevProjects = devCategories.filter(category => 
+    selectedCategory === 'All' || category === selectedCategory
+  );
+
+  const filteredGraphicsProjects = graphicsCategories.filter(category => 
+    selectedCategory === 'All' || category === selectedCategory
+  );
+
   // Add JSON-LD for SEO - ✅ FIXED URLs
   useEffect(() => {
     const schema = {
-      '@context': 'https://schema.org', // ✅ Removed trailing spaces
+      '@context': 'https://schema.org',
       '@type': 'ItemList',
       name: 'Edizo Projects Portfolio',
       description: 'A curated list of featured projects by Edizo in cybersecurity, AI, web development, and graphics design.',
-      url: 'https://www.edizo.in/projects', // ✅ Removed trailing spaces
-      numberOfItems: projects.length + graphicsProjects.length,
+      url: 'https://www.edizo.in/projects',
+      numberOfItems: devCategories.length + graphicsCategories.length,
       itemListElement: [
-        ...projects.map((project, index) => ({
+        ...devCategories.map((category, index) => ({
           '@type': 'CreativeWork',
           position: index + 1,
-          name: project.title,
-          description: project.shortDescription,
-          category: project.category,
-          datePublished: project.timeline,
+          name: category,
+          description: `Discover our work in ${category}`,
+          category: category,
           creator: { '@type': 'Organization', name: 'Edizo' },
-          thumbnailUrl: project.image,
-          url: `https://www.edizo.in/projects/${project.id}`, // ✅ Removed trailing spaces
+          thumbnailUrl: 'https://placehold.co/600x400/eee/999?text=Project+Thumbnail',
+          url: 'https://bytecode.edizo.in',
         })),
-        ...graphicsProjects.map((project, index) => ({
+        ...graphicsCategories.map((category, index) => ({
           '@type': 'CreativeWork',
-          position: projects.length + index + 1,
-          name: project.title,
-          description: project.description,
-          category: project.category,
-          datePublished: project.year,
+          position: devCategories.length + index + 1,
+          name: category,
+          description: `Explore our creative work in ${category}`,
+          category: category,
           creator: { '@type': 'Organization', name: 'Edizo' },
-          thumbnailUrl: project.image,
-          url: project.viewLink, // ✅ Assume this is clean in your JSON
+          thumbnailUrl: 'https://placehold.co/600x400/eee/999?text=Design+Thumbnail',
+          url: 'https://bytecode.edizo.in',
         }))
       ]
     };
@@ -286,7 +238,8 @@ const Projects: React.FC = () => {
       const existing = document.getElementById('projects-schema');
       if (existing) document.head.removeChild(existing);
     };
-  }, [graphicsProjects]); // Dependency array is correct
+  }, []); // Dependency array is correct
+
   // Handle error display for graphics tab specifically
   if (error && activeTab === 'graphics') {
     return (
@@ -304,14 +257,14 @@ const Projects: React.FC = () => {
       </div>
     );
   }
+
   return (
     <>
       <PageHeader
         title="Our Projects"
         subtitle={<AnimatedTypingSubtitle phrases={['Innovative Solutions', 'Creative Designs', 'Impactful Videos']} />}
-         // Ensure this path is correct
       />
-      {/* REMOVED: <AutoScrollingGallery /> */}
+      <AutoScrollingGallery />
       <section className="bg-gray-50 py-16 md:py-20 px-4">
         <div className="container mx-auto max-w-7xl">
           <AnimatedSection>
@@ -319,9 +272,11 @@ const Projects: React.FC = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Projects</h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                 Discover our expertise in crafting cutting-edge solutions, stunning graphics, and engaging videos that drive real impact.
+                All project details are available on our dedicated platform.
               </p>
             </div>
           </AnimatedSection>
+
           {/* Tabs */}
           <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-12">
             <motion.button
@@ -364,6 +319,7 @@ const Projects: React.FC = () => {
               Video Editing
             </motion.button>
           </div>
+
           {/* Search & View Mode */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
             <div className="relative w-full sm:w-2/3 lg:w-1/2">
@@ -406,6 +362,7 @@ const Projects: React.FC = () => {
               </motion.button>
             </div>
           </div>
+
           {/* Category Filter */}
           {(activeTab === 'development' || activeTab === 'graphics') && (
             <div className="flex flex-wrap justify-center gap-2 mb-10">
@@ -426,72 +383,65 @@ const Projects: React.FC = () => {
               ))}
             </div>
           )}
+
           {/* Projects Grid/List */}
           <div className="space-y-8">
             {activeTab === 'development' && (
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ${viewMode === 'list' ? 'md:grid-cols-1' : ''}`}>
                 {filteredDevProjects.length > 0 ? (
-                  filteredDevProjects.map((project) => (
+                  filteredDevProjects.map((category) => (
                     <motion.div
-                      key={project.id}
+                      key={category}
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
-                      // Removed exit animation as AnimatePresence is not wrapping this list directly
                       transition={{ duration: 0.3 }}
-                      className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 ${project.gradient} ${viewMode === 'list' ? 'md:flex' : ''}`}
+                      className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 bg-gradient-to-br from-blue-50 to-cyan-50 ${viewMode === 'list' ? 'md:flex' : ''}`}
                     >
                       {viewMode === 'list' ? (
                         <div className="md:flex">
                           <div className="md:w-1/3 h-48 md:h-auto overflow-hidden">
                             <img
-                              src={project.image}
-                              alt={project.title}
+                              src={`https://placehold.co/600x400/eee/999?text=${encodeURIComponent(category)}`}
+                              alt={category}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
                               onError={(e) => {
-                                console.warn(`Failed to load project image for ${project.id}`);
+                                console.warn(`Failed to load project image for ${category}`);
                                 e.currentTarget.src = placeholderImage;
                               }}
                             />
                           </div>
                           <div className="p-6 md:w-2/3">
                             <div className="flex items-center mb-3">
-                              <div className="mr-3">{project.icon}</div>
-                              <h3 className="text-xl font-bold text-gray-900 truncate" title={project.title}>
-                                {project.title}
+                              <div className="mr-3">
+                                {category === 'Cybersecurity' && <Shield className="text-blue-500" size={24} />}
+                                {category === 'Computer Vision & AI' && <Eye className="text-green-500" size={24} />}
+                                {category === 'Web Development' && <Gamepad className="text-purple-500" size={24} />}
+                                {category === 'Full-Stack Development' && <MapPin className="text-red-500" size={24} />}
+                              </div>
+                              <h3 className="text-xl font-bold text-gray-900 truncate" title={category}>
+                                {category}
                               </h3>
                             </div>
                             <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                              {project.shortDescription}
+                              Explore detailed case studies, technical insights, and success stories for our {category.toLowerCase()} projects on our dedicated platform.
                             </p>
-                            <div className="flex flex-wrap gap-1 mb-4">
-                              {project.tech.slice(0, 3).map((tech, i) => (
-                                <span
-                                  key={i}
-                                  className="bg-white text-gray-800 text-xs px-2 py-1 rounded border border-gray-200 shadow-sm"
-                                >
-                                  {tech}
-                                </span>
-                              ))}
-                              {project.tech.length > 3 && (
-                                <span className="text-xs text-gray-500">+{project.tech.length - 3} more</span>
-                              )}
-                            </div>
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center text-sm text-gray-500">
-                                <MapPin className="mr-1" size={14} />
-                                <span>{project.location.split(',')[0].trim()}</span>
-                              </div>
-                              <Link
-                                to={`/projects/${project.id}`}
+                              <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">
+                                {category}
+                              </span>
+                              <a
+                                href="https://bytecode.edizo.in"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="text-red-600 hover:text-red-700 font-medium flex items-center group"
                               >
-                                Details
+                                View Projects
                                 <ArrowRight
                                   size={16}
                                   className="ml-1 transition-transform group-hover:translate-x-1"
                                 />
-                              </Link>
+                              </a>
                             </div>
                           </div>
                         </div>
@@ -499,61 +449,49 @@ const Projects: React.FC = () => {
                         <>
                           <div className="relative h-48 overflow-hidden">
                             <img
-                              src={project.image}
-                              alt={project.title}
+                              src={`https://placehold.co/600x400/eee/999?text=${encodeURIComponent(category)}`}
+                              alt={category}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
                               onError={(e) => {
-                                console.warn(`Failed to load project image for ${project.id}`);
+                                console.warn(`Failed to load project image for ${category}`);
                                 e.currentTarget.src = placeholderImage;
                               }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute bottom-3 left-3">
                               <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                                {project.category}
+                                {category}
                               </span>
                             </div>
                           </div>
                           <div className="p-6">
                             <div className="flex items-center mb-3">
-                              <div className="mr-3">{project.icon}</div>
-                              <h3 className="text-xl font-bold text-gray-900 truncate" title={project.title}>
-                                {project.title}
+                              <div className="mr-3">
+                                {category === 'Cybersecurity' && <Shield className="text-blue-500" size={24} />}
+                                {category === 'Computer Vision & AI' && <Eye className="text-green-500" size={24} />}
+                                {category === 'Web Development' && <Gamepad className="text-purple-500" size={24} />}
+                                {category === 'Full-Stack Development' && <MapPin className="text-red-500" size={24} />}
+                              </div>
+                              <h3 className="text-xl font-bold text-gray-900 truncate" title={category}>
+                                {category}
                               </h3>
                             </div>
                             <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                              {project.shortDescription}
+                              Explore detailed case studies, technical insights, and success stories for our {category.toLowerCase()} projects on our dedicated platform.
                             </p>
-                            <div className="flex flex-wrap gap-1 mb-4">
-                              {project.tech.slice(0, 3).map((tech, i) => (
-                                <span
-                                  key={i}
-                                  className="bg-white text-gray-800 text-xs px-2 py-1 rounded border border-gray-200 shadow-sm"
-                                >
-                                  {tech}
-                                </span>
-                              ))}
-                              {project.tech.length > 3 && (
-                                <span className="text-xs text-gray-500">+{project.tech.length - 3} more</span>
-                              )}
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center text-sm text-gray-500">
-                                <MapPin className="mr-1" size={14} />
-                                <span>{project.location.split(',')[0].trim()}</span>
-                              </div>
-                              <Link
-                                to={`/projects/${project.id}`}
-                                className="text-red-600 hover:text-red-700 font-medium flex items-center group"
-                              >
-                                Details
-                                <ArrowRight
-                                  size={16}
-                                  className="ml-1 transition-transform group-hover:translate-x-1"
-                                />
-                              </Link>
-                            </div>
+                            <a
+                              href="https://bytecode.edizo.in"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-red-600 hover:text-red-700 font-medium flex items-center group mt-4"
+                            >
+                              View Projects
+                              <ArrowRight
+                                size={16}
+                                className="ml-1 transition-transform group-hover:translate-x-1"
+                              />
+                            </a>
                           </div>
                         </>
                       )}
@@ -564,7 +502,6 @@ const Projects: React.FC = () => {
                     key="no-results-dev"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    // Removed exit animation
                     className="col-span-full text-center py-12"
                   >
                     <p className="text-gray-500 text-lg">No development projects match your search.</p>
@@ -587,23 +524,22 @@ const Projects: React.FC = () => {
                   <div className="col-span-full text-center py-12">
                     <p className="text-gray-600">Loading graphics design projects...</p>
                   </div>
-                ) : error ? ( // Show error state if fetch failed (even if not displayed in main section)
+                ) : error ? (
                  <div className="col-span-full text-center py-12">
                     <p className="text-red-600">Failed to load graphics projects: {error}</p>
                     <button
-                      onClick={() => window.location.reload()} // Simple retry
+                      onClick={() => window.location.reload()}
                       className="mt-4 text-red-600 hover:underline font-semibold"
                     >
                       Retry
                     </button>
                   </div>
                 ) : filteredGraphicsProjects.length > 0 ? (
-                  filteredGraphicsProjects.map((project) => (
+                  filteredGraphicsProjects.map((category) => (
                     <motion.div
-                      key={project.id}
+                      key={category}
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
-                      // Removed exit animation
                       transition={{ duration: 0.3 }}
                       className={`rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 bg-gradient-to-br from-blue-50 to-cyan-50 ${viewMode === 'list' ? 'md:flex' : ''}`}
                     >
@@ -611,12 +547,12 @@ const Projects: React.FC = () => {
                         <div className="md:flex">
                           <div className="md:w-1/3 h-48 md:h-auto overflow-hidden">
                             <img
-                              src={project.image}
-                              alt={project.title}
+                              src={`https://placehold.co/600x400/eee/999?text=${encodeURIComponent(category)}`}
+                              alt={category}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
                               onError={(e) => {
-                                console.warn(`Failed to load graphics project image for ${project.id}`);
+                                console.warn(`Failed to load graphics project image for ${category}`);
                                 e.currentTarget.src = placeholderImage;
                               }}
                             />
@@ -624,38 +560,25 @@ const Projects: React.FC = () => {
                           <div className="p-6 md:w-2/3">
                             <div className="flex items-center mb-3">
                               <Palette className="text-blue-500 mr-3" size={24} />
-                              <h3 className="text-xl font-bold text-gray-900 truncate" title={project.title}>
-                                {project.title}
+                              <h3 className="text-xl font-bold text-gray-900 truncate" title={category}>
+                                {category}
                               </h3>
                             </div>
                             <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                              {project.description}
+                              Explore our portfolio of creative work, including branding, UI/UX design, and illustration projects on our dedicated platform.
                             </p>
-                            <div className="flex flex-wrap gap-1 mb-4">
-                              {project.tools.slice(0, 3).map((tool, i) => (
-                                <span
-                                  key={i}
-                                  className="bg-white text-gray-800 text-xs px-2 py-1 rounded border border-gray-200 shadow-sm"
-                                >
-                                  {tool}
-                                </span>
-                              ))}
-                              {project.tools.length > 3 && (
-                                <span className="text-xs text-gray-500">+{project.tools.length - 3} more</span>
-                              )}
-                            </div>
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center text-sm text-gray-500">
-                                <span>{project.year}</span>
-                              </div>
+                              <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">
+                                {category}
+                              </span>
                               <a
-                                href={project.viewLink}
+                                href="https://bytecode.edizo.in"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-red-600 hover:text-red-700 font-medium flex items-center group"
                               >
-                                View Design
-                                <ExternalLink
+                                View Designs
+                                <ArrowRight
                                   size={16}
                                   className="ml-1 transition-transform group-hover:translate-x-1"
                                 />
@@ -667,62 +590,44 @@ const Projects: React.FC = () => {
                         <>
                           <div className="relative h-48 overflow-hidden">
                             <img
-                              src={project.image}
-                              alt={project.title}
+                              src={`https://placehold.co/600x400/eee/999?text=${encodeURIComponent(category)}`}
+                              alt={category}
                               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               loading="lazy"
                               onError={(e) => {
-                                console.warn(`Failed to load graphics project image for ${project.id}`);
+                                console.warn(`Failed to load graphics project image for ${category}`);
                                 e.currentTarget.src = placeholderImage;
                               }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute bottom-3 left-3">
                               <span className="bg-white text-gray-900 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                                {project.category}
+                                {category}
                               </span>
                             </div>
                           </div>
                           <div className="p-6">
                             <div className="flex items-center mb-3">
                               <Palette className="text-blue-500 mr-3" size={24} />
-                              <h3 className="text-xl font-bold text-gray-900 truncate" title={project.title}>
-                                {project.title}
+                              <h3 className="text-xl font-bold text-gray-900 truncate" title={category}>
+                                {category}
                               </h3>
                             </div>
                             <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                              {project.description}
+                              Explore our portfolio of creative work, including branding, UI/UX design, and illustration projects on our dedicated platform.
                             </p>
-                            <div className="flex flex-wrap gap-1 mb-4">
-                              {project.tools.slice(0, 3).map((tool, i) => (
-                                <span
-                                  key={i}
-                                  className="bg-white text-gray-800 text-xs px-2 py-1 rounded border border-gray-200 shadow-sm"
-                                >
-                                  {tool}
-                                </span>
-                              ))}
-                              {project.tools.length > 3 && (
-                                <span className="text-xs text-gray-500">+{project.tools.length - 3} more</span>
-                              )}
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center text-sm text-gray-500">
-                                <span>{project.year}</span>
-                              </div>
-                              <a
-                                href={project.viewLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-red-600 hover:text-red-700 font-medium flex items-center group"
-                              >
-                                View Design
-                                <ExternalLink
-                                  size={16}
-                                  className="ml-1 transition-transform group-hover:translate-x-1"
-                                />
-                              </a>
-                            </div>
+                            <a
+                              href="https://bytecode.edizo.in"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-red-600 hover:text-red-700 font-medium flex items-center group mt-4"
+                            >
+                              View Designs
+                              <ArrowRight
+                                size={16}
+                                className="ml-1 transition-transform group-hover:translate-x-1"
+                              />
+                            </a>
                           </div>
                         </>
                       )}
@@ -733,7 +638,6 @@ const Projects: React.FC = () => {
                     key="no-results-graphics"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    // Removed exit animation
                     className="col-span-full text-center py-12"
                   >
                     <p className="text-gray-500 text-lg">No graphics projects match your search.</p>
@@ -763,4 +667,5 @@ const Projects: React.FC = () => {
     </>
   );
 };
+
 export default Projects;

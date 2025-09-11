@@ -1,6 +1,6 @@
 // src/components/common/Header.tsx
-import { useState, useEffect, useRef } from 'react'; // Removed useCallback import
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'; // Ensure correct imports
+import { useState, useEffect, useRef } from 'react';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Menu,
   X,
@@ -10,51 +10,63 @@ import {
   Users,
   Phone,
   LogOut,
-  ChevronDown,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Logo from './Logo'; // Ensure correct path
+import Logo from './Logo';
+
+// Define a type for the user data
+interface UserData {
+  name: string;
+  email: string;
+  photoURL?: string;
+}
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null); // State for user data
+
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Check auth state - Simplified check
-  const [user, setUser] = useState<{ name: string } | null>(null);
-
+  // Load user data from localStorage on mount
   useEffect(() => {
-    // Check auth state only once on mount or when needed, not on every pathname change
-    // unless login/logout can happen from anywhere without a full page reload/context update
-    const checkAuth = () => {
-       const stored = localStorage.getItem('isAuthenticated');
-       if (stored === 'true') {
-         // Mock user — replace with real user data from context/API later
-         setUser({ name: 'User' });
-       } else {
-         setUser(null);
-       }
-    };
-    checkAuth();
-    // If you have a global auth state (e.g., Context), listen to that instead.
-    // For localStorage, checking on mount is often sufficient unless you expect
-    // login/logout to happen via actions that don't trigger a full re-render.
-  }, []); // Run only once on mount
-
-  // Close profile dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (isProfileOpen && profileRef.current && !profileRef.current.contains(e.target as Node)) {
-        setIsProfileOpen(false);
+    const loadUserData = () => {
+      try {
+        const userDataString = localStorage.getItem('user');
+        if (userDataString) {
+          const userData: UserData = JSON.parse(userDataString);
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Failed to parse user data from localStorage:", error);
+        // If parsing fails, clear potentially corrupted data
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAuthenticated');
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isProfileOpen]);
+
+    loadUserData();
+
+    // Listen for changes to localStorage (e.g., login/logout in another tab)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'user') {
+        loadUserData();
+      }
+      if (e.key === 'isAuthenticated') {
+        if (localStorage.getItem('isAuthenticated') !== 'true') {
+          setUser(null);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Scroll effect
   useEffect(() => {
@@ -64,42 +76,48 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on Escape
+  // Close menus on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isMenuOpen) setIsMenuOpen(false);
+      if (e.key === 'Escape') {
+        setIsMenuOpen(false);
+        setIsProfileOpen(false);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMenuOpen]);
+  }, []);
 
-  // Close mobile menu on outside click
+  // Close menus on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (isMenuOpen && mobileNavRef.current && !mobileNavRef.current.contains(e.target as Node)) {
         setIsMenuOpen(false);
       }
+      if (isProfileOpen && profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setIsProfileOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isMenuOpen]);
+  }, [isMenuOpen, isProfileOpen]);
 
-  // Close menus when location changes (e.g., user navigates)
+  // Close menus when location changes
   useEffect(() => {
-     // Close menus on navigation
-     setIsMenuOpen(false);
-     setIsProfileOpen(false);
-     // Re-check auth state on location change if needed, but usually not necessary
-     // checkAuth(); // Only if auth can change without component unmounting
-  }, [location.pathname]); // Depend on pathname to close menus on nav
+    setIsMenuOpen(false);
+    setIsProfileOpen(false);
+  }, [location.pathname]);
 
+  // Handle logout
   const handleLogout = () => {
+    // Clear user data and auth status from localStorage
+    localStorage.removeItem('user');
     localStorage.removeItem('isAuthenticated');
     setUser(null);
     setIsProfileOpen(false);
-    // Navigate after logout if needed, e.g., to home or login
-    // navigate('/'); // or navigate('/login');
-    // For now, let the user stay on the current page or let App redirect
+
+    // Redirect to signup page
+    navigate('/signup');
   };
 
   const navLinks = [
@@ -110,13 +128,8 @@ const Header = () => {
     { name: 'CONTACT', path: '/contact', icon: Phone },
   ];
 
-  // Simplified navigation handler for mobile menu items
   const handleMobileNavigation = (path: string) => {
-    // Close mobile menu immediately
     setIsMenuOpen(false);
-    // setIsProfileOpen(false); // Not typically open on mobile menu click
-    // Navigate using useNavigate hook
-    // No need for setTimeout or preventing default on NavLinks
     navigate(path);
   };
 
@@ -134,35 +147,27 @@ const Header = () => {
         style={{ backdropFilter: isScrolled ? 'blur(8px)' : 'none' }}
         role="banner"
       >
-        {/* Curved Container */}
         <div className="container mx-auto px-4 md:px-6">
-          <div className={`max-w-6xl mx-auto rounded-full px-4 md:px-8 h-16 flex items-center justify-between transition-all duration-300 ${
+          <div className={`max-w-6xl mx-auto rounded-full px-4 md:px-8 h-12 flex items-center justify-between transition-all duration-300 ${
             isScrolled
               ? 'bg-white/90 backdrop-blur-md shadow-lg border border-gray-200'
-              : 'bg-gradient-to-r from-red-600/90 to-purple-600/90 backdrop-blur-md border border-white/30'
+              : 'bg-gradient-to-r from-red-600/90 via-purple-600/90 to-orange-500/90 backdrop-blur-md border border-white/30'
           }`}>
-            {/* Logo - Use standard Link behavior */}
             <Link
               to="/"
-              className="z-20 flex items-center"
+              className="z-10 flex items-center"
               aria-label="Edizo Home"
-              // Removed preventDefault and custom handler
-              // onClick={(e) => {
-              //   e.preventDefault();
-              //   handleNavigation('/');
-              // }}
             >
               <Logo isScrolled={isScrolled} />
             </Link>
 
-            {/* Desktop Navigation - Use standard NavLink behavior */}
             <nav className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.name}
                   to={link.path}
                   className={({ isActive }) =>
-                    `relative font-medium tracking-wide transition-all duration-300 py-2 px-4 rounded-full text-sm md:text-base font-semibold ${
+                    `relative font-medium tracking-wide transition-all duration-300 py-2 px-4 rounded-full text-sm md:text-base ${
                       isActive
                         ? 'bg-white text-red-600 shadow-md border border-red-200'
                         : isScrolled
@@ -170,11 +175,6 @@ const Header = () => {
                         : 'text-white hover:text-white hover:bg-white/20 border border-transparent hover:border-white/30'
                     }`
                   }
-                  // Removed preventDefault and custom handler
-                  // onClick={(e) => {
-                  //   e.preventDefault();
-                  //   handleLinkClick(link.path);
-                  // }}
                 >
                   {({ isActive }) => (
                     <>
@@ -194,57 +194,92 @@ const Header = () => {
               ))}
             </nav>
 
-            {/* Desktop Profile Button - Only if logged in */}
-            {user && (
-              <div className="hidden md:block relative" ref={profileRef}>
-                <button
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className={`flex items-center gap-2 p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                    isScrolled
-                      ? 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-                      : 'bg-white/20 hover:bg-white/30 text-white'
-                  }`}
-                  aria-haspopup="true"
-                  aria-expanded={isProfileOpen}
-                  aria-label="User profile"
-                >
-                  <div className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center font-medium text-sm">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                  <ChevronDown size={16} className={`transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                <AnimatePresence>
-                  {isProfileOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
-                    >
-                      <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-800">{user.name}</p>
+            {/* Desktop Profile Section */}
+            <div className="hidden md:flex items-center gap-2">
+              {user ? (
+                <div className="relative" ref={profileRef}>
+                  {/* Profile Button with Google avatar */}
+                  <button
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    className="flex items-center focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1" // Added padding for better click area
+                    aria-haspopup="true"
+                    aria-expanded={isProfileOpen}
+                    aria-label="User profile"
+                  >
+                    {user.photoURL ? (
+                      <img
+                        src={user.photoURL}
+                        alt={`${user.name}'s profile`}
+                        className="w-9 h-9 rounded-full object-cover border-2 border-white shadow"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-red-500 flex items-center justify-center text-white font-medium text-sm">
+                        {user.name.charAt(0).toUpperCase()}
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent closing profile dropdown immediately
-                          handleLogout();
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+                    )}
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  <AnimatePresence>
+                    {isProfileOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 origin-top-right"
                       >
-                        <LogOut size={16} />
-                        <span>Logout</span>
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <div className="flex items-center gap-3">
+                            {user.photoURL ? (
+                              <img
+                                src={user.photoURL}
+                                alt={`${user.name}'s profile`}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white font-medium">
+                                {user.name.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                            <div className="min-w-0"> {/* Prevents text overflow issues */}
+                              <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleLogout();
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut size={16} />
+                          <span>Logout</span>
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                // Show Sign In button if not logged in
+                <Link
+                  to="/signup"
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    isScrolled
+                      ? 'bg-red-600 text-white hover:bg-red-700'
+                      : 'bg-white text-red-600 hover:bg-gray-100'
+                  }`}
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
 
             {/* Mobile Menu Button */}
             <button
-              className={`md:hidden z-30 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-lg p-2 transition-colors ${
+              className={`md:hidden z-20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-lg p-2 transition-colors ${
                 isScrolled ? 'text-gray-900 bg-gray-100 hover:bg-gray-200' : 'text-white bg-white/20 hover:bg-white/30'
               }`}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -252,9 +287,9 @@ const Header = () => {
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {isMenuOpen ? (
-                <X className="w-7 h-7" />
+                <X className="w-6 h-6" />
               ) : (
-                <Menu className="w-7 h-7" />
+                <Menu className="w-6 h-6" />
               )}
             </button>
           </div>
@@ -285,11 +320,10 @@ const Header = () => {
               aria-label="Mobile navigation"
             >
               <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-white">
-                {/* Use standard navigate for logo/home in mobile menu */}
                 <button
                   onClick={() => {
-                      setIsMenuOpen(false);
-                      navigate('/'); // Use navigate directly
+                    setIsMenuOpen(false);
+                    navigate('/');
                   }}
                   className="text-xl font-bold text-gray-900"
                 >
@@ -310,9 +344,8 @@ const Header = () => {
                     const isActive = location.pathname === link.path;
                     return (
                       <li key={link.name}>
-                        {/* Use handleMobileNavigation for menu items */}
                         <button
-                          onClick={() => handleMobileNavigation(link.path)} // Use simplified handler
+                          onClick={() => handleMobileNavigation(link.path)}
                           className={`flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group font-semibold w-full text-left ${
                             isActive
                               ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md'
@@ -330,27 +363,47 @@ const Header = () => {
                   })}
 
                   {/* Mobile Auth Section */}
-                  {user && (
+                  {user ? (
                     <li className="pt-4 mt-4 border-t border-gray-200">
-                      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl text-white">
-                        <div className="w-10 h-10 bg-white text-red-500 rounded-full flex items-center justify-center font-medium">
-                          {user.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-medium">Hello, {user.name}</p>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleLogout();
-                              setIsMenuOpen(false); // Ensure menu closes
-                            }}
-                            className="mt-1 flex items-center gap-1 text-white text-sm hover:text-red-100"
-                          >
-                            <LogOut size={14} />
-                            Logout
-                          </button>
+                      <div className="flex items-center gap-3 p-3">
+                        {user.photoURL ? (
+                          <img
+                            src={user.photoURL}
+                            alt={`${user.name}'s profile`}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white font-medium text-lg">
+                            {user.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate">{user.name}</p>
+                          <p className="text-sm text-gray-500 truncate">{user.email}</p>
                         </div>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLogout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <LogOut size={16} />
+                        <span>Logout</span>
+                      </button>
+                    </li>
+                  ) : (
+                    <li className="pt-4 mt-4 border-t border-gray-200">
+                      <Link
+                        to="/signup"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                      >
+                        <User size={16} />
+                        <span>Sign In</span>
+                      </Link>
                     </li>
                   )}
                 </ul>

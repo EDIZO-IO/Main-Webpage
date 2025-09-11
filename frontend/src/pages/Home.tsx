@@ -339,6 +339,32 @@ const Hero: React.FC = () => {
 
 // Main Home Component
 const Home: React.FC = () => {
+  const featuredProjects = [
+    {
+      id: 'cybersecurity',
+      img: 'https://placehold.co/600x400/eee/999?text=Cybersecurity',
+      title: 'AI-Based Ransomware Detection System',
+      category: 'Cybersecurity',
+      link: 'https://bytecode.edizo.in', // Link to external site
+      shortDescription: 'An AI system for detecting and preventing ransomware attacks in real-time'
+    },
+    {
+      id: 'ai-computer-vision',
+      img: 'https://placehold.co/600x400/eee/999?text=AI+%26+Computer+Vision',
+      title: 'FaceGuard-GAN Deepfake Detection',
+      category: 'Computer Vision & AI',
+      link: 'https://bytecode.edizo.in', // Link to external site
+      shortDescription: 'GAN-powered solution for detecting manipulated facial images and videos'
+    },
+    {
+      id: 'web-development',
+      img: 'https://placehold.co/600x400/eee/999?text=Web+Development',
+      title: 'Epic Nexus Gaming Community Platform',
+      category: 'Web Development',
+      link: 'https://bytecode.edizo.in', // Link to external site
+      shortDescription: 'Comprehensive gaming community platform with social features and reviews'
+    }
+  ];
   return (
     <div className="bg-gradient-to-b from-gray-50 to-blue-50" id="home" role="main">
       <Hero />
@@ -429,29 +455,63 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* PROJECTS */}
+     {/* PROJECTS - Updated Section to link to external site */}
       <section className="py-16 bg-gradient-to-b from-gray-50 to-blue-50">
         <div className="container mx-auto px-6">
           <AnimatedSection>
             <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-4">Our Work</h2>
-            <p className="text-gray-600 text-center mb-10">Award-worthy digital solutions.</p>
+            <p className="text-gray-600 text-center mb-10">Award-worthy digital solutions. Explore our complete portfolio on our dedicated platform.</p>
           </AnimatedSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { img: faceguard, title: "FaceGuard UI/UX", category: "UI/UX", link: "/projects/faceguard-gan" },
-              { img: ransomware, title: "Ransomware Awareness", category: "Security", link: "/projects/ai-ransomware-detection" },
-              { img: Epicnexus, title: "Epic Nexus App", category: "App", link: "/projects/epic-nexus-platform" },
-            ].map((p) => (
-              <PortfolioCard key={p.title} {...p} />
+            {featuredProjects.map((project) => (
+              <AnimatedSection key={project.id}>
+                <motion.div
+                  className="relative rounded-xl shadow-md border border-gray-100/50 overflow-hidden bg-white/90 backdrop-blur-sm transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl"
+                  whileHover={{ y: -6 }}
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <LazyImage
+                      src={project.img}
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                    />
+                    <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2.5 py-1 rounded-full font-semibold">
+                      {project.category}
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{project.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.shortDescription}</p>
+                    {/* Changed from Link to external <a> tag */}
+                    <a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-full font-medium text-sm hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-md"
+                    >
+                      View Details
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </a>
+                  </div>
+                </motion.div>
+              </AnimatedSection>
             ))}
           </div>
           <div className="text-center mt-8">
-            <CTAButton to="/projects" variant="primary" icon={ArrowRight}>
+            {/* Changed CTA button to link to external site */}
+            <a
+              href="https://bytecode.edizo.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 min-h-12 bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600 hover:shadow-md focus:ring-red-500"
+            >
               View All Projects
-            </CTAButton>
+              <ArrowRight size={20} />
+            </a>
           </div>
         </div>
       </section>
+
 
       {/* WHY CHOOSE US */}
       <section className="py-16 bg-gradient-to-r from-white via-gray-50 to-white">
