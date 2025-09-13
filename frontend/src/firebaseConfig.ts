@@ -2,10 +2,10 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
-// Your Firebase configuration
+// Updated Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBa_gD1ALHXV7aiOK-pMKOqIoS7DGgoLIw",
-  authDomain: "edizobackend.firebaseapp.com",
+  authDomain: "edizobackend.firebaseapp.com", // Keep this as is
   databaseURL: "https://edizobackend-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "edizobackend",
   storageBucket: "edizobackend.firebasestorage.app",
@@ -20,5 +20,9 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+// Add these to prevent redirect issues
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 export default app;
