@@ -2,8 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
-
-// TODO: Replace with your project's configuration
+// Your Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBa_gD1ALHXV7aiOK-pMKOqIoS7DGgoLIw",
   authDomain: "edizobackend.firebaseapp.com",

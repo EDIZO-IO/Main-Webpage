@@ -35,16 +35,14 @@ const UpcomingWebinars: React.FC = () => {
         }
         const data: Webinar[] = await response.json();
 
-        // Sort: 'Confirmed' first (if any), then by date (ascending), then 'Coming Soon'
-        // This example assumes mostly 'Coming Soon' for simplicity, adjust sorting logic if 'Confirmed' is common
+        // Sort: 'Confirmed' first, then by date (ascending)
         const sorted = data.sort((a, b) => {
           // Prioritize 'Confirmed' over 'Coming Soon'
           if (a.status !== b.status) {
             if (a.status === 'Confirmed') return -1;
             if (b.status === 'Confirmed') return 1;
           }
-          // If statuses are the same, sort by date string (lexicographically, works for YYYY-MM-DD)
-          // This handles both 'Confirmed' and 'Coming Soon' dates
+          // If statuses are the same, sort by date string
           return a.date.localeCompare(b.date);
         });
 
@@ -54,8 +52,6 @@ const UpcomingWebinars: React.FC = () => {
         console.error('Error loading webinars:', err);
         setError(err instanceof Error ? err.message : 'An unknown error occurred while loading webinars.');
         setLoading(false);
-        // Keep previous webinars or set to empty array if preferred on error
-        // setWebinars([]);
       }
     };
 
@@ -76,7 +72,7 @@ const UpcomingWebinars: React.FC = () => {
       });
     } catch (e) {
       console.warn(`Could not format date: ${dateString}`, e);
-      return 'Date TBD'; // Or just 'TBD'
+      return 'Date TBD';
     }
   };
 
@@ -140,7 +136,7 @@ const UpcomingWebinars: React.FC = () => {
 
           {/* Webinar Grid */}
           {!loading && !error && webinars.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"> {/* Adjusted to 3 columns if desired */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {webinars.map((event, index) => (
                 <AnimatedSection key={event.id} delay={index * 0.1}>
                   <motion.div
@@ -166,13 +162,21 @@ const UpcomingWebinars: React.FC = () => {
 
                       {/* Event Details */}
                       <div className="space-y-2 mb-4 flex-grow">
-                        {/* Show date */}
-                        <div className="flex items-start text-gray-600">
-                          <Calendar className="flex-shrink-0 mr-2 mt-0.5 text-red-500" size={18} />
-                          <span className="text-sm">
-                            <time dateTime={event.date}>{formatDate(event.date)}</time>
-                          </span>
-                        </div>
+                        {/* Show date only for confirmed webinars */}
+                        {event.status === 'Confirmed' ? (
+                          <div className="flex items-start text-gray-600">
+                            <Calendar className="flex-shrink-0 mr-2 mt-0.5 text-red-500" size={18} />
+                            <span className="text-sm">
+                              <time dateTime={event.date}>{formatDate(event.date)}</time>
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-start text-gray-600">
+                            <Calendar className="flex-shrink-0 mr-2 mt-0.5 text-red-500" size={18} />
+                            <span className="text-sm">Date to be announced</span>
+                          </div>
+                        )}
+                        
                         <div className="flex items-start text-gray-600">
                           <MapPin className="flex-shrink-0 mr-2 mt-0.5 text-red-500" size={18} />
                           <span className="text-sm">{event.location}</span>
@@ -180,15 +184,10 @@ const UpcomingWebinars: React.FC = () => {
                         <p className="text-gray-600 text-sm mt-3">{event.description}</p>
                       </div>
 
-                      {/* CTA Logic:
-                           - Show Register button ONLY if status is 'Confirmed' AND registrationLink exists and is not empty after trimming.
-                           - Show "Coming Soon" placeholder ONLY if status is 'Coming Soon' OR if status is 'Confirmed' but link is missing/empty.
-                           - This handles cases where a 'Confirmed' event might temporarily lack a link.
-                      */}
+                      {/* Show registration link only for confirmed webinars */}
                       {event.status === 'Confirmed' && event.registrationLink && event.registrationLink.trim() !== '' ? (
-                        // ✅ Show Register button for Confirmed events with a valid link
                         <motion.a
-                          href={event.registrationLink.trim()} // ✅ Trim whitespace from JSON
+                          href={event.registrationLink.trim()}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="mt-auto w-full inline-flex items-center justify-center px-5 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white font-semibold rounded-lg shadow hover:from-red-700 hover:to-orange-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-center"
@@ -199,7 +198,6 @@ const UpcomingWebinars: React.FC = () => {
                           Register Now
                         </motion.a>
                       ) : (
-                        // ✅ Show placeholder for Coming Soon or Confirmed without link
                         <div className="mt-auto w-full text-center py-3 px-5 bg-gray-100 text-gray-500 font-semibold rounded-lg text-sm">
                           {event.status === 'Confirmed' ? 'Registration Link Coming Soon' : 'Registration Opening Soon'}
                         </div>

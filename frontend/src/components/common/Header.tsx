@@ -10,10 +10,13 @@ import {
   Users,
   Phone,
   LogOut,
-  User
+  User as UserIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './Logo';
+import { auth, googleProvider } from '../../firebaseConfig';
+import { signInWithPopup, onAuthStateChanged, signOut, signInWithCredential, GoogleAuthProvider } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 // Define a type for the user data
 interface UserData {
@@ -26,46 +29,66 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [user, setUser] = useState<UserData | null>(null); // State for user data
+  const [user, setUser] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading state
 
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Load user data from localStorage on mount
+  // Handle authentication state changes and auto-signin
   useEffect(() => {
-    const loadUserData = () => {
-      try {
-        const userDataString = localStorage.getItem('user');
-        if (userDataString) {
-          const userData: UserData = JSON.parse(userDataString);
+    let unsubscribe: (() => void) | undefined;
+    
+    const initAuth = async () => {
+      // Check if we have cached credentials for silent sign-in
+      const cachedCredential = localStorage.getItem('firebaseCachedCredential');
+      
+      if (cachedCredential) {
+        try {
+          const credential = GoogleAuthProvider.credential(cachedCredential);
+          await signInWithCredential(auth, credential);
+          // User will be set via onAuthStateChanged below
+        } catch (error) {
+          console.warn('Silent sign-in failed:', error);
+          localStorage.removeItem('firebaseCachedCredential');
+        }
+      }
+      
+      // Set up auth state listener
+      unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        if (firebaseUser) {
+          const userData: UserData = {
+            name: firebaseUser.displayName || 'User',
+            email: firebaseUser.email || '',
+            photoURL: firebaseUser.photoURL || ''
+          };
           setUser(userData);
-        }
-      } catch (error) {
-        console.error("Failed to parse user data from localStorage:", error);
-        // If parsing fails, clear potentially corrupted data
-        localStorage.removeItem('user');
-        localStorage.removeItem('isAuthenticated');
-      }
-    };
-
-    loadUserData();
-
-    // Listen for changes to localStorage (e.g., login/logout in another tab)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'user') {
-        loadUserData();
-      }
-      if (e.key === 'isAuthenticated') {
-        if (localStorage.getItem('isAuthenticated') !== 'true') {
+          localStorage.setItem('user', JSON.stringify(userData));
+          localStorage.setItem('isAuthenticated', 'true');
+          
+          // Cache the credential for future silent sign-ins
+          firebaseUser.getIdToken().then(token => {
+            localStorage.setItem('firebaseCachedCredential', token);
+          });
+        } else {
           setUser(null);
+          localStorage.removeItem('user');
+          localStorage.removeItem('isAuthenticated');
+          localStorage.removeItem('firebaseCachedCredential');
         }
-      }
+        setIsLoading(false);
+      });
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    initAuth();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   // Scroll effect
@@ -108,16 +131,31 @@ const Header = () => {
     setIsProfileOpen(false);
   }, [location.pathname]);
 
-  // Handle logout
-  const handleLogout = () => {
-    // Clear user data and auth status from localStorage
-    localStorage.removeItem('user');
-    localStorage.removeItem('isAuthenticated');
-    setUser(null);
-    setIsProfileOpen(false);
+  // Handle Google Sign In
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      // Cache credential for future silent sign-ins
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      if (credential) {
+        localStorage.setItem('firebaseCachedCredential', JSON.stringify(credential));
+      }
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    // Redirect to signup page
-    navigate('/signup');
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setIsProfileOpen(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const navLinks = [
@@ -133,6 +171,23 @@ const Header = () => {
     navigate(path);
   };
 
+  // Show loading indicator while initializing auth
+  if (isLoading) {
+    return (
+      <header className="fixed w-full z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100/50">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-6xl mx-auto rounded-full px-4 md:px-8 h-12 flex items-center justify-between bg-white/90 backdrop-blur-md shadow-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="animate-pulse bg-gray-200 rounded-full h-8 w-8"></div>
+              <div className="ml-2 animate-pulse bg-gray-200 h-6 w-24 rounded"></div>
+            </div>
+            <div className="animate-pulse bg-gray-200 rounded-full h-9 w-9"></div>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <>
       <motion.header
@@ -144,7 +199,6 @@ const Header = () => {
             ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100/50'
             : 'bg-transparent'
         }`}
-        style={{ backdropFilter: isScrolled ? 'blur(8px)' : 'none' }}
         role="banner"
       >
         <div className="container mx-auto px-4 md:px-6">
@@ -201,7 +255,7 @@ const Header = () => {
                   {/* Profile Button with Google avatar */}
                   <button
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1" // Added padding for better click area
+                    className="flex items-center focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1"
                     aria-haspopup="true"
                     aria-expanded={isProfileOpen}
                     aria-label="User profile"
@@ -242,7 +296,7 @@ const Header = () => {
                                 {user.name.charAt(0).toUpperCase()}
                               </div>
                             )}
-                            <div className="min-w-0"> {/* Prevents text overflow issues */}
+                            <div className="min-w-0">
                               <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
                               <p className="text-xs text-gray-500 truncate">{user.email}</p>
                             </div>
@@ -264,16 +318,27 @@ const Header = () => {
                 </div>
               ) : (
                 // Show Sign In button if not logged in
-                <Link
-                  to="/signup"
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                <button
+                  onClick={handleGoogleSignIn}
+                  disabled={isLoading}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${
                     isScrolled
                       ? 'bg-red-600 text-white hover:bg-red-700'
                       : 'bg-white text-red-600 hover:bg-gray-100'
                   }`}
                 >
-                  Sign In
-                </Link>
+                  {isLoading ? (
+                    <>
+                      <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                      Signing in...
+                    </>
+                  ) : (
+                    <>
+                      <UserIcon size={16} />
+                      Sign In
+                    </>
+                  )}
+                </button>
               )}
             </div>
 
@@ -396,14 +461,26 @@ const Header = () => {
                     </li>
                   ) : (
                     <li className="pt-4 mt-4 border-t border-gray-200">
-                      <Link
-                        to="/signup"
-                        onClick={() => setIsMenuOpen(false)}
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          handleGoogleSignIn();
+                        }}
+                        disabled={isLoading}
                         className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                       >
-                        <User size={16} />
-                        <span>Sign In</span>
-                      </Link>
+                        {isLoading ? (
+                          <>
+                            <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                            Signing in...
+                          </>
+                        ) : (
+                          <>
+                            <UserIcon size={16} />
+                            <span>Sign In with Google</span>
+                          </>
+                        )}
+                      </button>
                     </li>
                   )}
                 </ul>
