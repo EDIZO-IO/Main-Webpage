@@ -5,8 +5,8 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 // Updated Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBa_gD1ALHXV7aiOK-pMKOqIoS7DGgoLIw",
-  authDomain: "edizobackend.firebaseapp.com", // Keep this as is
-  databaseURL: "https://edizobackend-default-rtdb.asia-southeast1.firebasedatabase.app",
+  authDomain: "edizobackend.firebaseapp.com",
+  databaseURL: "https://edizobackend-default-rtdb.asia-southeast1.firebasedatabase.app", // Removed trailing spaces
   projectId: "edizobackend",
   storageBucket: "edizobackend.firebasestorage.app",
   messagingSenderId: "1002381596917",
