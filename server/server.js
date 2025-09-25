@@ -37,7 +37,7 @@ app.use(
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
-      imgSrc: ["'self'", 'data:', 'https:'],
+      imgSrc: ["'self'", '', 'https:'],
     },
   })
 );
@@ -253,7 +253,7 @@ app.post('/api/send-email', limiter, async (req, res) => {
   }
 });
 
-// ✅ Contact form handler
+// ✅ Contact form handler - Updated to handle both general and service forms
 app.post('/api/send-contact-email', limiter, async (req, res) => {
   const data = req.body;
   const userEmail = data.email;
@@ -262,31 +262,87 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
   try {
     if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) throw new Error('Invalid contact email');
 
-    const userHtml = `
-      <div style="font-family: Arial, sans-serif; color: #333;">
-        <h2>Thank You for Reaching Out, ${data.name}!</h2>
-        <p>
-          We've received your message at <strong>EDIZO</strong>. Our team will respond shortly.
-        </p>
-        <p>If urgent, contact: <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a></p>
-        <p><strong>EDIZO Support Team</strong></p>
-      </div>`;
+    // Determine form type and generate appropriate emails
+    if (data.formType === 'service') {
+      // Service requirement form
+      const service = data.service || 'Service';
+      const userHtml = `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Thank You for Your Service Inquiry, ${data.name}!</h2>
+          <p>
+            We've received your service requirement for <strong>${service}</strong> at <strong>EDIZO</strong>. Our team will review your requirements and contact you shortly.
+          </p>
+          <p><strong>EDIZO Support Team</strong></p>
+          <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+          <h3>Contact Information:</h3>
+          <p><strong>Email:</strong> <a href="mailto:edizoofficial@gmail.com">edizoofficial@gmail.com</a></p>
+          <p><strong>Phone:</strong> <a href="tel:+919876543210">+91 9876543210</a></p>
+          <p><strong>Operating Hours:</strong> Mon-Sat: 9:00 AM - 6:00 PM (IST)</p>
+          <p><strong>Website:</strong> <a href="https://www.edizo.in">www.edizo.in</a></p>
+        </div>`;
 
-    const adminHtml = `
-      <div style="font-family: Arial, sans-serif; color: #333;">
-        <h2>📨 New Contact Form Submission</h2>
-        <ul>
-          <li><strong>Name:</strong> ${data.name}</li>
-          <li><strong>Email:</strong> ${data.email}</li>
-          <li><strong>Phone:</strong> ${data.phone}</li>
-          <li><strong>Subject:</strong> ${data.subject || 'N/A'}</li>
-          <li><strong>Message:</strong> ${data.message}</li>
-        </ul>
-        <p>Submitted via the contact form on EDIZO website.</p>
-      </div>`;
+      const adminHtml = `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>💼 New Service Requirement</h2>
+          <ul>
+            <li><strong>Name:</strong> ${data.name}</li>
+            <li><strong>Email:</strong> ${data.email}</li>
+            <li><strong>Phone:</strong> ${data.phone}</li>
+            <li><strong>Service Required:</strong> ${service}</li>
+            <li><strong>Project Details:</strong> ${data.projectDetails || 'N/A'}</li>
+            <li><strong>Timeline:</strong> ${data.timeline || 'N/A'}</li>
+            <li><strong>Budget:</strong> ${data.budget || 'N/A'}</li>
+          </ul>
+          <p>Submitted via the service requirement form on EDIZO website.</p>
+          <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+          <h3>Company Contact Details:</h3>
+          <p><strong>Email:</strong> <a href="mailto:edizoofficial@gmail.com">edizoofficial@gmail.com</a></p>
+          <p><strong>Phone:</strong> <a href="tel:+919876543210">+91 9876543210</a></p>
+          <p><strong>Operating Hours:</strong> Mon-Sat: 9:00 AM - 6:00 PM (IST)</p>
+          <p><strong>Website:</strong> <a href="https://www.edizo.in">www.edizo.in</a></p>
+        </div>`;
       
-    await sendMail(userEmail, `We've received your message`, userHtml);
-    await sendMail(adminEmail, `Contact Form - ${data.subject || 'New Inquiry'}`, adminHtml);
+      await sendMail(userEmail, `Service Inquiry Confirmation - ${service}`, userHtml);
+      await sendMail(adminEmail, `New Service Requirement: ${service} - ${data.name}`, adminHtml);
+    } else {
+      // General query form
+      const userHtml = `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Thank You for Reaching Out, ${data.name}!</h2>
+          <p>
+            We've received your message at <strong>EDIZO</strong>. Our team will respond shortly.
+          </p>
+          <p><strong>EDIZO Support Team</strong></p>
+          <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+          <h3>Contact Information:</h3>
+          <p><strong>Email:</strong> <a href="mailto:edizoofficial@gmail.com">edizoofficial@gmail.com</a></p>
+          <p><strong>Phone:</strong> <a href="tel:+919876543210">+91 9876543210</a></p>
+          <p><strong>Operating Hours:</strong> Mon-Sat: 9:00 AM - 6:00 PM (IST)</p>
+          <p><strong>Website:</strong> <a href="https://www.edizo.in">www.edizo.in</a></p>
+        </div>`;
+
+      const adminHtml = `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>📨 New General Query</h2>
+          <ul>
+            <li><strong>Name:</strong> ${data.name}</li>
+            <li><strong>Email:</strong> ${data.email}</li>
+            <li><strong>Phone:</strong> ${data.phone}</li>
+            <li><strong>Subject:</strong> ${data.subject || 'General Inquiry'}</li>
+            <li><strong>Message:</strong> ${data.message}</li>
+          </ul>
+          <p>Submitted via the general query form on EDIZO website.</p>
+          <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+          <h3>Company Contact Details:</h3>
+          <p><strong>Email:</strong> <a href="mailto:edizoofficial@gmail.com">edizoofficial@gmail.com</a></p>
+          <p><strong>Phone:</strong> <a href="tel:+919876543210">+91 9876543210</a></p>
+          <p><strong>Operating Hours:</strong> Mon-Sat: 9:00 AM - 6:00 PM (IST)</p>
+          <p><strong>Website:</strong> <a href="https://www.edizo.in">www.edizo.in</a></p>
+        </div>`;
+      
+      await sendMail(userEmail, `General Query Confirmation - ${data.subject || 'General Inquiry'}`, userHtml);
+      await sendMail(adminEmail, `New General Query: ${data.subject || 'General Inquiry'} - ${data.name}`, adminHtml);
+    }
 
     res.status(200).json({ success: true, message: '✅ Contact emails sent.' });
   } catch (err) {

@@ -228,16 +228,15 @@ const CTAButton: React.FC<CTAButtonProps> = ({ to, children, variant = "primary"
   );
 };
 
-// Hero Section
+// Hero Section with 3D Effect over Old Background
 const Hero: React.FC = () => {
   const y = useParallax(0.3);
 
   return (
-    <section className="relative text-white pt-20 pb-16 md:pt-28 md:pb-24" aria-labelledby="hero-title">
-      {/* Added pt-20 (mobile) and pt-28 (desktop) to create space for the header */}
-      
-      {/* Curved SVG Background with Gradient */}
+    <section className="relative text-white pt-20 pb-16 md:pt-28 md:pb-24 overflow-hidden" aria-labelledby="hero-title">
+      {/* Original Gradient Background with 3D Effect */}
       <div className="absolute inset-0 z-0">
+        {/* Original Curved SVG with Gradient */}
         <svg
           className="w-full h-full"
           viewBox="0 0 1440 800"
@@ -261,6 +260,7 @@ const Hero: React.FC = () => {
             opacity="0.3"
           />
         </svg>
+        
         {/* Subtle Noise Overlay */}
         <div
           className="absolute inset-0"
@@ -270,25 +270,82 @@ const Hero: React.FC = () => {
         />
       </div>
 
-      {/* Floating Particles */}
+      {/* 3D Floating Elements */}
       <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-        {[...Array(4)].map((_, i) => (
+        {/* Floating 3D Spheres */}
+        {[...Array(5)].map((_, i) => (
           <motion.div
             key={i}
+            className="absolute rounded-full opacity-30"
+            style={{
+              width: `${40 + i * 10}px`,
+              height: `${40 + i * 10}px`,
+              background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.1))`,
+              left: `${10 + (i * 20) % 80}%`,
+              top: `${10 + (i * 15) % 80}%`,
+              filter: 'blur(1px)',
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, 15, 0],
+              scale: [1, 1.1, 1],
+              opacity: [0.2, 0.5, 0.2],
+            }}
+            transition={{
+              y: { duration: 8 + i, repeat: Infinity, ease: "easeInOut" },
+              x: { duration: 10 + i, repeat: Infinity, ease: "easeInOut" },
+              scale: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+              opacity: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+            }}
+          />
+        ))}
+
+        {/* Floating 3D Cubes */}
+        {[...Array(3)].map((_, i) => (
+          <motion.div
+            key={`cube-${i}`}
+            className="absolute w-12 h-12 opacity-40"
+            style={{
+              background: `linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05))`,
+              transform: 'rotateX(60deg) rotateY(45deg)',
+              left: `${30 + i * 25}%`,
+              top: `${40 + i * 20}%`,
+              filter: 'blur(0.5px)',
+            }}
+            animate={{
+              rotateX: [0, 360],
+              rotateY: [0, 360],
+              y: [0, -20, 0],
+              x: [0, 10, 0],
+            }}
+            transition={{
+              rotateX: { duration: 20 + i * 5, repeat: Infinity, ease: "linear" },
+              rotateY: { duration: 15 + i * 3, repeat: Infinity, ease: "linear" },
+              y: { duration: 6 + i, repeat: Infinity, ease: "easeInOut" },
+              x: { duration: 8 + i, repeat: Infinity, ease: "easeInOut" },
+            }}
+          />
+        ))}
+
+        {/* Floating Particles */}
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={`particle-${i}`}
             animate={{
               y: [0, 20, 0],
+              x: [0, 10, 0],
               opacity: [0.3, 0.6, 0.3],
             }}
             transition={{
               repeat: Infinity,
-              duration: 5 + i * 2,
-              delay: i * 1,
+              duration: 5 + i % 3,
+              delay: i * 0.5,
               ease: "easeInOut",
             }}
             className="absolute w-1 h-1 bg-yellow-300 rounded-full"
             style={{
-              left: `${20 + (i * 20) % 80}%`,
-              top: `${20 + i * 15}%`,
+              left: `${10 + (i * 7) % 90}%`,
+              top: `${10 + (i * 5) % 80}%`,
             }}
           />
         ))}

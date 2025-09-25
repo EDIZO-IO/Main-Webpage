@@ -10,7 +10,8 @@ import {
   Users,
   Phone,
   LogOut,
-  User as UserIcon
+  User as UserIcon,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './Logo';
@@ -215,13 +216,13 @@ const Header = () => {
               <Logo isScrolled={isScrolled} />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-2">
+            <nav className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.name}
                   to={link.path}
                   className={({ isActive }) =>
-                    `relative font-medium tracking-wide transition-all duration-300 py-2 px-4 rounded-full text-sm md:text-base ${
+                    `relative font-medium tracking-wide transition-all duration-300 py-2 px-3 rounded-full text-sm md:text-base ${
                       isActive
                         ? 'bg-white text-red-600 shadow-md border border-red-200'
                         : isScrolled
@@ -232,7 +233,10 @@ const Header = () => {
                 >
                   {({ isActive }) => (
                     <>
-                      {link.name}
+                      <div className="flex items-center gap-1">
+                        <link.icon size={16} className="hidden md:block" />
+                        {link.name}
+                      </div>
                       {isActive && !isScrolled && (
                         <motion.div
                           layoutId="underline"
@@ -334,7 +338,7 @@ const Header = () => {
                     </>
                   ) : (
                     <>
-                      <UserIcon size={16} />
+                      <Sparkles size={16} />
                       Sign In
                     </>
                   )}
@@ -380,30 +384,31 @@ const Header = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 w-4/5 max-w-sm h-full bg-white shadow-2xl z-40 flex flex-col"
+              className="fixed top-0 right-0 w-4/5 max-w-sm h-full bg-gradient-to-b from-red-600 to-orange-500 shadow-2xl z-40 flex flex-col"
               role="navigation"
               aria-label="Mobile navigation"
             >
-              <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-white">
+              <div className="flex items-center justify-between p-5 border-b border-white/20">
                 <button
                   onClick={() => {
                     setIsMenuOpen(false);
                     navigate('/');
                   }}
-                  className="text-xl font-bold text-gray-900"
+                  className="text-xl font-bold text-white flex items-center gap-2"
                 >
+                  <Sparkles className="text-yellow-300" />
                   Edizo
                 </button>
                 <button
                   onClick={() => setIsMenuOpen(false)}
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  className="p-2 rounded-full hover:bg-white/10 transition-colors"
                   aria-label="Close mobile menu"
                 >
-                  <X className="w-6 h-6 text-gray-900" />
+                  <X className="w-6 h-6 text-white" />
                 </button>
               </div>
 
-              <nav className="flex-1 p-6 bg-gray-50">
+              <nav className="flex-1 p-6 bg-white/5 backdrop-blur-sm">
                 <ul className="space-y-1">
                   {navLinks.map((link) => {
                     const isActive = location.pathname === link.path;
@@ -413,13 +418,13 @@ const Header = () => {
                           onClick={() => handleMobileNavigation(link.path)}
                           className={`flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group font-semibold w-full text-left ${
                             isActive
-                              ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md'
-                              : 'text-gray-800 hover:bg-gradient-to-r hover:from-red-500 hover:to-orange-500 hover:text-white'
+                              ? 'bg-white text-red-600 shadow-md'
+                              : 'text-white/90 hover:bg-white/10'
                           }`}
                           aria-current={isActive ? 'page' : undefined}
                         >
                           <link.icon
-                            className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-white'}`}
+                            className={`w-5 h-5 ${isActive ? 'text-red-600' : 'text-white'}`}
                           />
                           <span>{link.name}</span>
                         </button>
@@ -429,22 +434,22 @@ const Header = () => {
 
                   {/* Mobile Auth Section */}
                   {user ? (
-                    <li className="pt-4 mt-4 border-t border-gray-200">
-                      <div className="flex items-center gap-3 p-3">
+                    <li className="pt-4 mt-4 border-t border-white/20">
+                      <div className="flex items-center gap-3 p-3 bg-white/10 rounded-xl">
                         {user.photoURL ? (
                           <img
                             src={user.photoURL}
                             alt={`${user.name}'s profile`}
-                            className="w-12 h-12 rounded-full object-cover"
+                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white font-medium text-lg">
+                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-red-600 font-medium text-lg">
                             {user.name.charAt(0).toUpperCase()}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 truncate">{user.name}</p>
-                          <p className="text-sm text-gray-500 truncate">{user.email}</p>
+                          <p className="font-medium text-white truncate">{user.name}</p>
+                          <p className="text-sm text-white/80 truncate">{user.email}</p>
                         </div>
                       </div>
                       <button
@@ -453,25 +458,25 @@ const Header = () => {
                           handleLogout();
                           setIsMenuOpen(false);
                         }}
-                        className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
                       >
                         <LogOut size={16} />
                         <span>Logout</span>
                       </button>
                     </li>
                   ) : (
-                    <li className="pt-4 mt-4 border-t border-gray-200">
+                    <li className="pt-4 mt-4 border-t border-white/20">
                       <button
                         onClick={() => {
                           setIsMenuOpen(false);
                           handleGoogleSignIn();
                         }}
                         disabled={isLoading}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-red-600 rounded-lg hover:bg-gray-100 transition-colors"
                       >
                         {isLoading ? (
                           <>
-                            <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                            <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></span>
                             Signing in...
                           </>
                         ) : (
@@ -486,8 +491,8 @@ const Header = () => {
                 </ul>
               </nav>
 
-              <div className="p-5 border-t border-gray-200 bg-white text-center">
-                <p className="text-sm text-gray-500">
+              <div className="p-5 border-t border-white/20 bg-white/5 text-center">
+                <p className="text-sm text-white/80">
                   © {new Date().getFullYear()} Edizo. All rights reserved.
                 </p>
               </div>
