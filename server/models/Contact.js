@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const ContactSchema = new mongoose.Schema({
+  // Common fields for both form types
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -17,16 +18,61 @@ const ContactSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  
+  // Form type to distinguish between general and service
+  formType: {
+    type: String,
+    required: [true, 'Form type is required'],
+    enum: ['general', 'service'],
+    default: 'general'
+  },
+  
+  // General query fields
   subject: {
     type: String,
-    required: [true, 'Subject is required'],
+    required: function() {
+      return this.formType === 'general';
+    },
     trim: true
   },
   message: {
     type: String,
-    required: [true, 'Message is required'],
+    required: function() {
+      return this.formType === 'general';
+    },
     trim: true
   },
+  
+  // Service requirement fields
+  service: {
+    type: String,
+    required: function() {
+      return this.formType === 'service';
+    },
+    trim: true
+  },
+  projectDetails: {
+    type: String,
+    required: function() {
+      return this.formType === 'service';
+    },
+    trim: true
+  },
+  timeline: {
+    type: String,
+    required: function() {
+      return this.formType === 'service';
+    },
+    trim: true
+  },
+  budget: {
+    type: String,
+    required: function() {
+      return this.formType === 'service';
+    },
+    trim: true
+  },
+  
   createdAt: {
     type: Date,
     default: Date.now
