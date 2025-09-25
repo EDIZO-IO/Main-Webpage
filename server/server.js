@@ -37,7 +37,7 @@ app.use(
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
-      imgSrc: ["'self'", '', 'https:'],
+      imgSrc: ["'self'", 'data:', 'https:'],
     },
   })
 );
@@ -253,7 +253,7 @@ app.post('/api/send-email', limiter, async (req, res) => {
   }
 });
 
-// ✅ Contact form handler - Updated to handle both general and service forms
+// ✅ Contact form handler
 app.post('/api/send-contact-email', limiter, async (req, res) => {
   const data = req.body;
   const userEmail = data.email;
@@ -262,188 +262,31 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
   try {
     if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) throw new Error('Invalid contact email');
 
-    // Determine form type and generate appropriate emails
-    if (data.formType === 'service') {
-      // Service requirement form
-      const service = data.service || 'Service';
-      const userHtml = `
-        <div style="font-family: Arial, sans-serif; color: #333;">
-          <h2>Thank You for Your Service Inquiry, ${data.name}!</h2>
-          <p>
-            We've received your service requirement for <strong>${service}</strong> at <strong>EDIZO</strong>. Our team will review your requirements and contact you shortly.
-          </p>
-          <p><strong>EDIZO Support Team</strong></p>
-          <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-          <h3>Contact Information:</h3>
-          <p><strong>Email:</strong> <a href="mailto:edizo5491@gmail.com">edizo5491@gmail.com</a></p>
-          <p><strong>Phone:</strong> <a href="tel:+919876543210">+91 9876543210</a></p>
-          <p><strong>Operating Hours:</strong> Mon-Sat: 9:00 AM - 6:00 PM (IST)</p>
-          <p><strong>Website:</strong> <a href="https://www.edizo.in">www.edizo.in</a></p>
-        </div>`;
+    const userHtml = `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Thank You for Reaching Out, ${data.name}!</h2>
+        <p>
+          We've received your message at <strong>EDIZO</strong>. Our team will respond shortly.
+        </p>
+        <p>If urgent, contact: <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a></p>
+        <p><strong>EDIZO Support Team</strong></p>
+      </div>`;
 
-      // Enhanced service requirement admin email
-      const adminHtml = `
-        <div style="font-family: Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-          <div style="text-align: center; margin-bottom: 30px; background: linear-gradient(135deg, #dc2626, #ea580c); color: white; padding: 20px; border-radius: 8px;">
-            <h1 style="margin: 0; font-size: 24px;">💼 NEW SERVICE REQUIREMENT</h1>
-            <p style="margin: 5px 0 0 0; opacity: 0.9;">EDIZO Client Inquiry System</p>
-          </div>
-          
-          <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-            <h2 style="margin: 0 0 10px 0; color: #92400e;">🎯 Service Inquiry Details</h2>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-              <span style="background-color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; color: #059669;">
-                🛠️ ${service}
-              </span>
-              <span style="background-color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; color: #1e40af;">
-                ⏱️ ${data.timeline || 'Not specified'}
-              </span>
-              <span style="background-color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; color: #be123c;">
-                💰 ${data.budget || 'Not specified'}
-              </span>
-            </div>
-          </div>
-          
-          <div style="background-color: #f9fafb; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
-            <h3 style="color: #374151; margin-top: 0; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">👤 Client Information</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; font-weight: bold; width: 150px; color: #4b5563;">Full Name:</td>
-                <td style="padding: 8px 0; color: #111827;">${data.name}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Email:</td>
-                <td style="padding: 8px 0; color: #111827;">
-                  <a href="mailto:${data.email}" style="color: #dc2626; text-decoration: none;">${data.email}</a>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Phone:</td>
-                <td style="padding: 8px 0; color: #111827;">
-                  ${data.phone ? `<a href="tel:${data.phone}" style="color: #dc2626; text-decoration: none;">${data.phone}</a>` : 'N/A'}
-                </td>
-              </tr>
-            </table>
-          </div>
-          
-          <div style="background-color: #f0f9ff; padding: 20px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #0ea5e9;">
-            <h3 style="color: #0c4a6e; margin-top: 0;">📋 Project Details</h3>
-            <p style="margin: 0; line-height: 1.6; color: #1e293b;">${data.projectDetails || 'No project details provided.'}</p>
-          </div>
-          
-          <div style="background-color: #f0fdf4; padding: 20px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #22c55e;">
-            <h3 style="color: #15803d; margin-top: 0;">📅 Timeline & Budget</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; font-weight: bold; width: 150px; color: #4b5563;">Timeline:</td>
-                <td style="padding: 8px 0; color: #111827;">${data.timeline || 'Not specified'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Budget:</td>
-                <td style="padding: 8px 0; color: #111827;">${data.budget || 'Not specified'}</td>
-              </tr>
-            </table>
-          </div>
-          
-          <div style="border-top: 2px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
-            <p style="margin: 0; color: #6b7280; font-size: 14px;">
-              Inquiry received on ${new Date().toLocaleString('en-IN', { 
-                timeZone: 'Asia/Kolkata',
-                year: 'numeric',
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })} IST
-            </p>
-            <p style="margin: 10px 0 0 0; color: #6b7280; font-size: 14px;">
-              Form Type: Service Requirement
-            </p>
-          </div>
-        </div>`;
+    const adminHtml = `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2>📨 New Contact Form Submission</h2>
+        <ul>
+          <li><strong>Name:</strong> ${data.name}</li>
+          <li><strong>Email:</strong> ${data.email}</li>
+          <li><strong>Phone:</strong> ${data.phone}</li>
+          <li><strong>Subject:</strong> ${data.subject || 'N/A'}</li>
+          <li><strong>Message:</strong> ${data.message}</li>
+        </ul>
+        <p>Submitted via the contact form on EDIZO website.</p>
+      </div>`;
       
-      await sendMail(userEmail, `Service Inquiry Confirmation - ${service}`, userHtml);
-      await sendMail(adminEmail, `New Service Requirement: ${service} - ${data.name}`, adminHtml);
-    } else {
-      // General query form
-      const userHtml = `
-        <div style="font-family: Arial, sans-serif; color: #333;">
-          <h2>Thank You for Reaching Out, ${data.name}!</h2>
-          <p>
-            We've received your message at <strong>EDIZO</strong>. Our team will respond shortly.
-          </p>
-          <p><strong>EDIZO Support Team</strong></p>
-          <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-          <h3>Contact Information:</h3>
-          <p><strong>Email:</strong> <a href="mailto:edizo5491@gmail.com">edizo5491@gmail.com</a></p>
-          <p><strong>Phone:</strong> <a href="tel:+919876543210">+91 9876543210</a></p>
-          <p><strong>Operating Hours:</strong> Mon-Sat: 9:00 AM - 6:00 PM (IST)</p>
-          <p><strong>Website:</strong> <a href="https://www.edizo.in">www.edizo.in</a></p>
-        </div>`;
-
-      const adminHtml = `
-        <div style="font-family: Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-          <div style="text-align: center; margin-bottom: 30px; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 20px; border-radius: 8px;">
-            <h1 style="margin: 0; font-size: 24px;">📨 NEW GENERAL INQUIRY</h1>
-            <p style="margin: 5px 0 0 0; opacity: 0.9;">EDIZO Contact System</p>
-          </div>
-          
-          <div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-            <h2 style="margin: 0 0 10px 0; color: #4b5563;">📋 Inquiry Details</h2>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-              <span style="background-color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; color: #4f46e5;">
-                📝 ${data.subject || 'General Inquiry'}
-              </span>
-            </div>
-          </div>
-          
-          <div style="background-color: #f9fafb; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
-            <h3 style="color: #374151; margin-top: 0; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">👤 Client Information</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; font-weight: bold; width: 150px; color: #4b5563;">Full Name:</td>
-                <td style="padding: 8px 0; color: #111827;">${data.name}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Email:</td>
-                <td style="padding: 8px 0; color: #111827;">
-                  <a href="mailto:${data.email}" style="color: #4f46e5; text-decoration: none;">${data.email}</a>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Phone:</td>
-                <td style="padding: 8px 0; color: #111827;">
-                  ${data.phone ? `<a href="tel:${data.phone}" style="color: #4f46e5; text-decoration: none;">${data.phone}</a>` : 'N/A'}
-                </td>
-              </tr>
-            </table>
-          </div>
-          
-          <div style="background-color: #fef2f2; padding: 20px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
-            <h3 style="color: #b91c1c; margin-top: 0;">💬 Message Content</h3>
-            <p style="margin: 0; line-height: 1.6; color: #1e293b;">${data.message || 'No message provided.'}</p>
-          </div>
-          
-          <div style="border-top: 2px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
-            <p style="margin: 0; color: #6b7280; font-size: 14px;">
-              Inquiry received on ${new Date().toLocaleString('en-IN', { 
-                timeZone: 'Asia/Kolkata',
-                year: 'numeric',
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })} IST
-            </p>
-            <p style="margin: 10px 0 0 0; color: #6b7280; font-size: 14px;">
-              Form Type: General Query
-            </p>
-          </div>
-        </div>`;
-      
-      await sendMail(userEmail, `General Query Confirmation - ${data.subject || 'General Inquiry'}`, userHtml);
-      await sendMail(adminEmail, `New General Query: ${data.subject || 'General Inquiry'} - ${data.name}`, adminHtml);
-    }
+    await sendMail(userEmail, `We've received your message`, userHtml);
+    await sendMail(adminEmail, `Contact Form - ${data.subject || 'New Inquiry'}`, adminHtml);
 
     res.status(200).json({ success: true, message: '✅ Contact emails sent.' });
   } catch (err) {
