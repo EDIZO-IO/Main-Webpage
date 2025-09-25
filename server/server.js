@@ -275,7 +275,7 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
           <p><strong>EDIZO Support Team</strong></p>
           <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
           <h3>Contact Information:</h3>
-          <p><strong>Email:</strong> <a href="mailto:edizoofficial@gmail.com">edizoofficial@gmail.com</a></p>
+          <p><strong>Email:</strong> <a href="mailto:edizo5491@gmail.com">edizo5491@gmail.com</a></p>
           <p><strong>Phone:</strong> <a href="tel:+919876543210">+91 9876543210</a></p>
           <p><strong>Operating Hours:</strong> Mon-Sat: 9:00 AM - 6:00 PM (IST)</p>
           <p><strong>Website:</strong> <a href="https://www.edizo.in">www.edizo.in</a></p>
@@ -375,7 +375,7 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
           <p><strong>EDIZO Support Team</strong></p>
           <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
           <h3>Contact Information:</h3>
-          <p><strong>Email:</strong> <a href="mailto:edizoofficial@gmail.com">edizoofficial@gmail.com</a></p>
+          <p><strong>Email:</strong> <a href="mailto:edizo5491@gmail.com">edizo5491@gmail.com</a></p>
           <p><strong>Phone:</strong> <a href="tel:+919876543210">+91 9876543210</a></p>
           <p><strong>Operating Hours:</strong> Mon-Sat: 9:00 AM - 6:00 PM (IST)</p>
           <p><strong>Website:</strong> <a href="https://www.edizo.in">www.edizo.in</a></p>
