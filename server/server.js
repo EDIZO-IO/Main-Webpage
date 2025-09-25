@@ -1,5 +1,3 @@
-// server.js
-
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -13,6 +11,9 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// ✅ Enable trust proxy for proper handling of X-Forwarded-For header
+app.set('trust proxy', 1); // Trust the first proxy (e.g., Render's load balancer)
 
 // ✅ Allowed origins list
 const allowedOrigins = [
@@ -42,26 +43,30 @@ app.use(
   })
 );
 
-app.use(cors({
-  origin: function (origin, callback) {
-    console.log('🌐 Incoming request from:', origin || 'undefined');
-    if (!origin || allowedOrigins.includes(origin) || netlifyPattern.test(origin)) {
-      return callback(null, true);
-    }
-    console.warn('❌ Blocked by CORS:', origin);
-    return callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      console.log('🌐 Incoming request from:', origin || 'undefined');
+      if (!origin || allowedOrigins.includes(origin) || netlifyPattern.test(origin)) {
+        return callback(null, true);
+      }
+      console.warn('❌ Blocked by CORS:', origin);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  })
+);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // ✅ Rate limiter (protect POST routes)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Max 5 requests per window
   message: 'Too many requests, please try again later.',
+  standardHeaders: true, // Return rate limit info in headers
+  legacyHeaders: false, // Disable legacy headers
 });
 
 // ✅ Health check route
@@ -69,43 +74,71 @@ app.get('/', (req, res) => {
   res.send('✅ EDIZO Backend is running.');
 });
 
-// ✅ Nodemailer transport configuration (FIXED)
+// ✅ Nodemailer transport configuration with pooling
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  pool: true, // Enable connection pooling
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // Use TLS
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  maxConnections: 5, // Limit concurrent connections
+  maxMessages: 10, // Limit messages per connection
+  connectionTimeout: 10000, // 10 seconds timeout
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
+  logger: true, // Enable logging for debugging
+  debug: true, // Detailed debug output
 });
 
-// ✅ Reusable sendMail function
-async function sendMail(to, subject, html) {
+// ✅ Verify transporter on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ Nodemailer verification failed:', error.message);
+  } else {
+    console.log('✅ Nodemailer is ready to send emails.');
+  }
+});
+
+// ✅ Reusable sendMail function with retry logic
+async function sendMail(to, subject, html, retries = 3) {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: `"EDIZO Team" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     html,
-    text: convert(html), // Use html-to-text for better text conversion
+    text: convert(html, { wordwrap: 130 }), // Improved text conversion
   };
-  
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Email sent to ${to}: ${info.messageId}`);
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${to}:`, error.message);
-    throw error;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`✅ Email sent to ${to}: ${info.messageId}`);
+      return info;
+    } catch (error) {
+      console.error(`❌ Attempt ${attempt} failed to send email to ${to}:`, error.message);
+      if (attempt === retries) {
+        throw new Error(`Failed to send email after ${retries} attempts: ${error.message}`);
+      }
+      // Wait before retrying
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+    }
   }
 }
 
-// ✅ Internship application handler (UPDATED)
+// ✅ Internship application handler
 app.post('/api/send-email', limiter, async (req, res) => {
   const data = req.body;
   const applicantEmail = data.email;
   const adminEmail = process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER;
 
   try {
-    if (!applicantEmail || !/\S+@\S+\.\S+/.test(applicantEmail)) throw new Error('Invalid applicant email');
-    
+    if (!applicantEmail || !/\S+@\S+\.\S+/.test(applicantEmail)) {
+      throw new Error('Invalid applicant email');
+    }
+
     // Normalize undefined price or period to 'N/A'
     const period = data.coursePeriod || 'N/A';
     const price = data.price ? `₹${data.price.toLocaleString()}` : 'N/A';
@@ -243,13 +276,15 @@ app.post('/api/send-email', limiter, async (req, res) => {
         </div>
       </div>`;
     
-    await sendMail(applicantEmail, `✅ Application Confirmation - ${data.internshipTitle} Internship`, applicantHtml);
-    await sendMail(adminEmail, `🚨 New Application: ${data.internshipTitle} - ${data.name}`, adminHtml);
+    await Promise.all([
+      sendMail(applicantEmail, `✅ Application Confirmation - ${data.internshipTitle} Internship`, applicantHtml),
+      sendMail(adminEmail, `🚨 New Application: ${data.internshipTitle} - ${data.name}`, adminHtml),
+    ]);
 
     res.status(200).json({ success: true, message: '✅ Emails sent successfully.' });
   } catch (err) {
     console.error('❌ Error in /api/send-email:', err.message);
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: `Failed to send email: ${err.message}` });
   }
 });
 
@@ -260,7 +295,9 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
   const adminEmail = process.env.CONTACT_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER;
 
   try {
-    if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) throw new Error('Invalid contact email');
+    if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) {
+      throw new Error('Invalid contact email');
+    }
 
     const userHtml = `
       <div style="font-family: Arial, sans-serif; color: #333;">
@@ -278,30 +315,39 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
         <ul>
           <li><strong>Name:</strong> ${data.name}</li>
           <li><strong>Email:</strong> ${data.email}</li>
-          <li><strong>Phone:</strong> ${data.phone}</li>
+          <li><strong>Phone:</strong> ${data.phone || 'N/A'}</li>
           <li><strong>Subject:</strong> ${data.subject || 'N/A'}</li>
           <li><strong>Message:</strong> ${data.message}</li>
         </ul>
         <p>Submitted via the contact form on EDIZO website.</p>
       </div>`;
       
-    await sendMail(userEmail, `We've received your message`, userHtml);
-    await sendMail(adminEmail, `Contact Form - ${data.subject || 'New Inquiry'}`, adminHtml);
+    await Promise.all([
+      sendMail(userEmail, `We've received your message`, userHtml),
+      sendMail(adminEmail, `Contact Form - ${data.subject || 'New Inquiry'}`, adminHtml),
+    ]);
 
     res.status(200).json({ success: true, message: '✅ Contact emails sent.' });
   } catch (err) {
     console.error('❌ Error in /api/send-contact-email:', err.message);
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: `Failed to send email: ${err.message}` });
   }
 });
 
 // ✅ Global error handler
 app.use((err, req, res, next) => {
-  console.error('❌ Global error handler:', err.message);
-  res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
+  console.error('❌ Global error handler:', err.stack);
+  res.status(500).json({ success: false, message: 'Internal Server Error' });
 });
 
 // ✅ Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+// ✅ Handle process termination gracefully
+process.on('SIGTERM', () => {
+  console.log('❌ SIGTERM received. Closing server...');
+  transporter.close();
+  process.exit(0);
 });
