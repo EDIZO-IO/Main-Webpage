@@ -20,14 +20,14 @@ app.set('trust proxy', 1); // Trust the first proxy (e.g., Render's load balance
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://edizo-intern.netlify.app  ',
-  'https://edizo-io.netlify.app  ',
-  'https://main-webpage.netlify.app  ',
-  'https://edizo.github.io  ',
-  'https://edizo.github.io/Main-Webpage  ',
-  'https://main-webpage-l85m.onrender.com  ',
-  'https://www.edizo.in  ',
-  'https://edizo.in  ',
+  'https://edizo-intern.netlify.app',
+  'https://edizo-io.netlify.app',
+  'https://main-webpage.netlify.app',
+  'https://edizo.github.io',
+  'https://edizo.github.io/Main-Webpage',
+  'https://main-webpage-l85m.onrender.com',
+  'https://www.edizo.in',
+  'https://edizo.in',
 ];
 const netlifyPattern = /^https:\/\/.*\.netlify\.app$/;
 
@@ -87,9 +87,9 @@ const transporter = nodemailer.createTransport({
   },
   maxConnections: 5, // Limit concurrent connections
   maxMessages: 10, // Limit messages per connection
-  connectionTimeout: 10000, // 10 seconds timeout
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
+  connectionTimeout: 30000, // 30 seconds timeout
+  greetingTimeout: 30000,
+  socketTimeout: 30000,
   logger: true, // Enable logging for debugging
   debug: true, // Detailed debug output
 });
@@ -98,6 +98,7 @@ const transporter = nodemailer.createTransport({
 transporter.verify((error, success) => {
   if (error) {
     console.error('❌ Nodemailer verification failed:', error.message);
+    process.exit(1); // Exit if SMTP is not configured properly
   } else {
     console.log('✅ Nodemailer is ready to send emails.');
   }
@@ -268,14 +269,270 @@ app.post('/api/send-checkout-email', limiter, async (req, res) => {
   }
 });
 
-// ✅ Internship application handler (existing)
+// ✅ Internship application handler
 app.post('/api/send-email', limiter, async (req, res) => {
-  // ... existing code ...
+  const data = req.body;
+  const applicantEmail = data.email;
+  const adminEmail = process.env.INTERNSHIP_RECIPIENT_EMAIL || process.env.EMAIL_USER;
+
+  try {
+    if (!applicantEmail || !/\S+@\S+\.\S+/.test(applicantEmail)) {
+      throw new Error('Invalid applicant email');
+    }
+
+    // Normalize undefined price or period to 'N/A'
+    const period = data.coursePeriod || 'N/A';
+    const price = data.price ? `₹${data.price.toLocaleString()}` : 'N/A';
+
+    const applicantHtml = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #dc2626; margin-bottom: 10px;">EDIZO</h1>
+          <p style="color: #666; font-style: italic;">Empowering Digital Innovators</p>
+        </div>
+        
+        <h2 style="color: #333; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Application Received – Thank You, ${data.name}!</h2>
+        
+        <p style="line-height: 1.6;">
+          Thank you for applying for the <strong>${data.internshipTitle}</strong> internship at <strong>EDIZO</strong>.
+          We appreciate your interest and the time you invested in your application.
+        </p>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 6px; margin: 20px 0;">
+          <h3 style="color: #333; margin-top: 0;">📋 Application Summary:</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 8px;"><strong>Course:</strong> ${data.internshipTitle}</li>
+            <li style="margin-bottom: 8px;"><strong>Duration:</strong> ${period}</li>
+            <li style="margin-bottom: 8px;"><strong>Investment:</strong> <span style="color: #059669; font-weight: bold;">${price}</span></li>
+          </ul>
+        </div>
+        
+        <p style="line-height: 1.6;">
+          Our recruitment team will carefully review your submission and contact you within <strong>2-3 business days</strong>.
+        </p>
+        
+        <div style="background-color: #dcfce7; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #22c55e;">
+          <p style="margin: 0; line-height: 1.6;">
+            <strong>🚀 Next Steps:</strong><br>
+            Join our official WhatsApp group for updates, networking, and important announcements:
+          </p>
+          <p style="text-align: center; margin: 15px 0;">
+            <a href="https://chat.whatsapp.com/LhhLFD6pbil3NFImE30UIQ" 
+               style="background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              📱 Join EDIZO WhatsApp Group
+            </a>
+          </p>
+        </div>
+        
+        <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
+          <p style="margin: 0; color: #666;">
+            Best regards,<br />
+            <strong>The EDIZO Team</strong><br />
+            <em>Building Tomorrow's Digital Leaders</em>
+          </p>
+          <p style="font-size: 12px; color: #999; margin-top: 15px;">
+            Questions? Reply to this email or contact us at ${process.env.EMAIL_USER}
+          </p>
+        </div>
+      </div>`;
+
+    const adminHtml = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px; background-color: #dc2626; color: white; padding: 20px; border-radius: 6px;">
+          <h1 style="margin: 0; font-size: 24px;">📥 NEW INTERNSHIP APPLICATION</h1>
+          <p style="margin: 5px 0 0 0; opacity: 0.9;">EDIZO Application System</p>
+        </div>
+        
+        <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+          <h2 style="margin: 0 0 10px 0; color: #92400e;">🎯 ${data.internshipTitle}</h2>
+          <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <span style="background-color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold;">
+              ⏱️ ${period}
+            </span>
+            <span style="background-color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; color: #059669;">
+              💰 ${price}
+            </span>
+          </div>
+        </div>
+        
+        <div style="background-color: #f9fafb; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+          <h3 style="color: #374151; margin-top: 0; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">👤 Applicant Information</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; width: 200px; color: #4b5563;">Full Name:</td>
+              <td style="padding: 8px 0; color: #111827;">${data.name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Email:</td>
+              <td style="padding: 8px 0; color: #111827;">
+                <a href="mailto:${data.email}" style="color: #dc2626; text-decoration: none;">${data.email}</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Phone:</td>
+              <td style="padding: 8px 0; color: #111827;">
+                ${data.phone ? `<a href="tel:${data.phone}" style="color: #dc2626; text-decoration: none;">${data.phone}</a>` : 'N/A'}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">University:</td>
+              <td style="padding: 8px 0; color: #111827;">${data.university || 'N/A'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Year of Study:</td>
+              <td style="padding: 8px 0; color: #111827;">${data.yearOfStudy || 'N/A'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Degree & Branch:</td>
+              <td style="padding: 8px 0; color: #111827;">${data.education || 'N/A'}</td>
+            </tr>
+          </table>
+        </div>
+        
+        ${data.academicExperience ? `
+        <div style="background-color: #eff6ff; padding: 20px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+          <h3 style="color: #1e40af; margin-top: 0;">🎓 Academic Experience</h3>
+          <p style="margin: 0; line-height: 1.6; color: #1f2937;">${data.academicExperience}</p>
+        </div>
+        ` : ''}
+        
+        ${data.message ? `
+        <div style="background-color: #f0fdf4; padding: 20px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #22c55e;">
+          <h3 style="color: #15803d; margin-top: 0;">💭 Cover Letter</h3>
+          <p style="margin: 0; line-height: 1.6; color: #1f2937;">${data.message}</p>
+        </div>
+        ` : ''}
+        
+        <div style="border-top: 2px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
+          <p style="margin: 0; color: #6b7280; font-size: 14px;">
+            Application received on ${new Date().toLocaleString('en-IN', { 
+              timeZone: 'Asia/Kolkata',
+              year: 'numeric',
+              month: 'long', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })} IST
+          </p>
+        </div>
+      </div>`;
+    
+    await Promise.all([
+      sendMail(applicantEmail, `✅ Application Confirmation - ${data.internshipTitle} Internship`, applicantHtml),
+      sendMail(adminEmail, `🚨 New Application: ${data.internshipTitle} - ${data.name}`, adminHtml),
+    ]);
+
+    res.status(200).json({ success: true, message: '✅ Emails sent successfully.' });
+  } catch (err) {
+    console.error('❌ Error in /api/send-email:', err.message);
+    res.status(500).json({ success: false, message: `Failed to send email: ${err.message}` });
+  }
 });
 
-// ✅ Contact form handler (existing)
+// ✅ Contact form handler
 app.post('/api/send-contact-email', limiter, async (req, res) => {
-  // ... existing code ...
+  const data = req.body;
+  const userEmail = data.email;
+  const adminEmail = process.env.CONTACT_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER;
+
+  try {
+    if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) {
+      throw new Error('Invalid contact email');
+    }
+
+    const userHtml = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #dc2626; margin-bottom: 10px;">EDIZO</h1>
+          <p style="color: #666; font-style: italic;">Empowering Digital Innovators</p>
+        </div>
+        
+        <h2 style="color: #333; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Thank You for Reaching Out, ${data.name}!</h2>
+        
+        <p style="line-height: 1.6;">
+          We've received your message at <strong>EDIZO</strong>. Our team will respond shortly.
+        </p>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 6px; margin: 20px 0;">
+          <h3 style="color: #333; margin-top: 0;">Your Message:</h3>
+          <p style="line-height: 1.6;">${data.message}</p>
+        </div>
+        
+        <p style="line-height: 1.6;">
+          If urgent, contact: <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a>
+        </p>
+        
+        <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
+          <p style="margin: 0; color: #666;">
+            Best regards,<br />
+            <strong>The EDIZO Team</strong><br />
+            <em>Building Tomorrow's Digital Leaders</em>
+          </p>
+        </div>
+      </div>`;
+
+    const adminHtml = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px; background-color: #dc2626; color: white; padding: 20px; border-radius: 6px;">
+          <h1 style="margin: 0; font-size: 24px;">📥 NEW CONTACT FORM SUBMISSION</h1>
+          <p style="margin: 5px 0 0 0; opacity: 0.9;">EDIZO Contact System</p>
+        </div>
+        
+        <div style="background-color: #f9fafb; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+          <h3 style="color: #374151; margin-top: 0; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">👤 Contact Information</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; width: 200px; color: #4b5563;">Full Name:</td>
+              <td style="padding: 8px 0; color: #111827;">${data.name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Email:</td>
+              <td style="padding: 8px 0; color: #111827;">
+                <a href="mailto:${data.email}" style="color: #dc2626; text-decoration: none;">${data.email}</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Phone:</td>
+              <td style="padding: 8px 0; color: #111827;">
+                ${data.phone ? `<a href="tel:${data.phone}" style="color: #dc2626; text-decoration: none;">${data.phone}</a>` : 'N/A'}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Subject:</td>
+              <td style="padding: 8px 0; color: #111827;">${data.subject || 'N/A'}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="background-color: #eff6ff; padding: 20px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+          <h3 style="color: #1e40af; margin-top: 0;">💬 Message Content</h3>
+          <p style="margin: 0; line-height: 1.6; color: #1f2937;">${data.message}</p>
+        </div>
+        
+        <div style="border-top: 2px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
+          <p style="margin: 0; color: #6b7280; font-size: 14px;">
+            Form submitted on ${new Date().toLocaleString('en-IN', { 
+              timeZone: 'Asia/Kolkata',
+              year: 'numeric',
+              month: 'long', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })} IST
+          </p>
+        </div>
+      </div>`;
+      
+    await Promise.all([
+      sendMail(userEmail, `We've received your message`, userHtml),
+      sendMail(adminEmail, `Contact Form - ${data.subject || 'New Inquiry'}`, adminHtml),
+    ]);
+
+    res.status(200).json({ success: true, message: '✅ Contact emails sent.' });
+  } catch (err) {
+    console.error('❌ Error in /api/send-contact-email:', err.message);
+    res.status(500).json({ success: false, message: `Failed to send email: ${err.message}` });
+  }
 });
 
 // ✅ Global error handler
