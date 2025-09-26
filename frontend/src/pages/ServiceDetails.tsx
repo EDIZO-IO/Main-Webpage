@@ -222,7 +222,7 @@ const ServiceDetails: React.FC = () => {
                   {service.longDescription}
                 </p>
 
-                {/* CTA Banner */}
+                 {/* CTA Banner */}
                 <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-8 border border-red-100 mb-12">
                   <h3 className="flex items-center text-xl font-semibold text-gray-900 mb-3">
                     <MessageSquare className="mr-2 text-red-600" size={24} />
@@ -231,10 +231,17 @@ const ServiceDetails: React.FC = () => {
                   <p className="text-gray-600 mb-6">
                     Ready to bring your {service.title.toLowerCase()} vision to life?
                   </p>
-                  <Button to="/contact" variant="primary" size="lg" className="w-full sm:w-auto">
-                    Get Free Consultation
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button to="/checkout" variant="primary" size="lg" className="w-full sm:w-auto">
+                      Get Free Consultation
+                    </Button>
+                    <Button to="/checkout" variant="primary" size="lg" className="w-full sm:w-auto">
+                      For Apply service
+                    </Button>
+                  </div>
                 </div>
+
+
 
                 {/* Process Steps */}
                 <div className="mb-12">

@@ -1,6 +1,6 @@
 // src/pages/Pricing.tsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Globe,
@@ -11,6 +11,9 @@ import {
   ArrowRight,
   Check,
   X,
+  MessageSquare,
+  Minus,
+  Plus,
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
@@ -312,8 +315,16 @@ const PricingPage: React.FC = () => {
     }
   ];
 
-   // State for selected plans
+  // State for selected plans
   const [selectedPlans, setSelectedPlans] = useState<{[key: string]: number}>({});
+  
+  // State for custom pricing requests
+  const [customRequests, setCustomRequests] = useState<{[key: string]: { price: number; message: string }}>({});
+  const [showCustomForm, setShowCustomForm] = useState<string | null>(null);
+  const [budget, setBudget] = useState<number | ''>('');
+  const [customMessage, setCustomMessage] = useState('');
+  
+  const navigate = useNavigate();
   
   // Calculate total price and discount
   const calculateTotal = () => {
@@ -347,6 +358,12 @@ const PricingPage: React.FC = () => {
       // Remove if already selected
       const newSelected = { ...selectedPlans };
       delete newSelected[serviceKey];
+      
+      // Also remove custom request if exists
+      const newCustomRequests = { ...customRequests };
+      delete newCustomRequests[serviceKey];
+      setCustomRequests(newCustomRequests);
+      
       setSelectedPlans(newSelected);
     } else {
       // Add if not selected
@@ -360,6 +377,74 @@ const PricingPage: React.FC = () => {
   // Clear all selections
   const clearAllSelections = () => {
     setSelectedPlans({});
+    setCustomRequests({});
+  };
+
+  // Handle custom price request
+  const handleCustomRequest = (serviceIndex: number, planIndex: number) => {
+    const serviceKey = `${serviceIndex}-${planIndex}`;
+    const plan = servicePricing[serviceIndex].plans[planIndex];
+    
+    if (customRequests[serviceKey]) {
+      // Remove custom request
+      const newCustomRequests = { ...customRequests };
+      delete newCustomRequests[serviceKey];
+      setCustomRequests(newCustomRequests);
+      
+      // Reset to default price
+      setSelectedPlans({
+        ...selectedPlans,
+        [serviceKey]: plan.price
+      });
+    } else {
+      // Show custom form
+      setShowCustomForm(serviceKey);
+    }
+  };
+
+  // Handle custom form submission
+  const handleCustomSubmit = (serviceIndex: number, planIndex: number) => {
+    const serviceKey = `${serviceIndex}-${planIndex}`;
+    const plan = servicePricing[serviceIndex].plans[planIndex];
+    
+    if (budget === '') {
+      alert('Please enter a budget');
+      return;
+    }
+    
+    if (customMessage.trim() === '') {
+      alert('Please provide details about your requirements');
+      return;
+    }
+    
+    // Add to custom requests
+    const newCustomRequests = {
+      ...customRequests,
+      [serviceKey]: {
+        price: Number(budget),
+        message: customMessage
+      }
+    };
+    
+    setCustomRequests(newCustomRequests);
+    
+    // Add to selected plans with custom price
+    setSelectedPlans({
+      ...selectedPlans,
+      [serviceKey]: Number(budget)
+    });
+    
+    // Reset form
+    setBudget('');
+    setCustomMessage('');
+    setShowCustomForm(null);
+  };
+
+  // Cancel custom form
+  const handleCustomCancel = () => {
+    setBudget('');
+    setCustomMessage('');
+    setShowCustomForm(null);
   };
 
   const { total, discount, discountPercentage, finalPrice } = calculateTotal();
@@ -412,19 +497,19 @@ const PricingPage: React.FC = () => {
               </div>
               
               <div className="mt-6">
-                <Link
-                  to="/checkout"
-                  state={{ selectedPlans, finalPrice }}
+                <button
+                  onClick={() => navigate('/checkout', { state: { selectedPlans, finalPrice } })}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors w-full md:w-auto justify-center"
                 >
                   Proceed to Checkout
                   <ArrowRight size={18} />
-                </Link>
+                </button>
               </div>
             </div>
           </div>
         </section>
       )}
+
       {/* Pricing Cards */}
       <section className="py-16 bg-gradient-to-r from-gray-50 via-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -446,6 +531,7 @@ const PricingPage: React.FC = () => {
                     {service.plans.map((plan, planIndex) => {
                       const serviceKey = `${serviceIndex}-${planIndex}`;
                       const isSelected = !!selectedPlans[serviceKey];
+                      const isCustom = !!customRequests[serviceKey];
                       
                       return (
                         <div 
@@ -458,7 +544,9 @@ const PricingPage: React.FC = () => {
                         >
                           <div className="flex justify-between items-center mb-3">
                             <h4 className="font-bold text-gray-900">{plan.name}</h4>
-                            <div className="text-2xl font-bold text-gray-900">₹{plan.price.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-gray-900">
+                              {isCustom ? `₹${customRequests[serviceKey].price.toLocaleString()}` : `₹${plan.price.toLocaleString()}`}
+                            </div>
                           </div>
                           
                           <ul className="space-y-2 mb-4">
@@ -472,23 +560,80 @@ const PricingPage: React.FC = () => {
                             ))}
                           </ul>
                           
-                          <button
-                            onClick={() => togglePlan(serviceIndex, planIndex)}
-                            className={`w-full py-2.5 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                              isSelected
-                                ? 'bg-red-600 text-white hover:bg-red-700'
-                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                            }`}
-                          >
-                            {isSelected ? (
-                              <>
-                                <Check size={18} />
-                                Selected
-                              </>
-                            ) : (
-                              plan.ctaText
-                            )}
-                          </button>
+                          {showCustomForm === serviceKey ? (
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Your Budget (₹)</label>
+                                <input
+                                  type="number"
+                                  value={budget}
+                                  onChange={(e) => setBudget(e.target.value ? Number(e.target.value) : '')}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                                  placeholder="Enter your budget"
+                                />
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
+                                <textarea
+                                  value={customMessage}
+                                  onChange={(e) => setCustomMessage(e.target.value)}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                                  placeholder="Describe your specific requirements"
+                                  rows={3}
+                                />
+                              </div>
+                              
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleCustomSubmit(serviceIndex, planIndex)}
+                                  className="flex-1 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <Check size={18} />
+                                  Confirm
+                                </button>
+                                <button
+                                  onClick={handleCustomCancel}
+                                  className="flex-1 py-2.5 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <X size={18} />
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col gap-2">
+                              <button
+                                onClick={() => togglePlan(serviceIndex, planIndex)}
+                                className={`py-2.5 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                                  isSelected
+                                    ? 'bg-red-600 text-white hover:bg-red-700'
+                                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                }`}
+                              >
+                                {isSelected ? (
+                                  <>
+                                    <Check size={18} />
+                                    Selected
+                                  </>
+                                ) : (
+                                  plan.ctaText
+                                )}
+                              </button>
+                              
+                              <button
+                                onClick={() => handleCustomRequest(serviceIndex, planIndex)}
+                                className={`py-2.5 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                                  isCustom 
+                                    ? 'text-red-600 bg-red-100 hover:bg-red-200' 
+                                    : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                              >
+                                <MessageSquare size={18} />
+                                {isCustom ? 'Custom Price Applied' : 'Custom Quote'}
+                              </button>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -512,6 +657,44 @@ const PricingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Final Price Summary at Bottom */}
+      {Object.keys(selectedPlans).length > 0 && (
+        <section className="py-12 bg-gradient-to-r from-gray-100 to-gray-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">Your Final Price Summary</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-gray-50 p-4 rounded-xl text-center">
+                  <p className="text-gray-600">Original Price</p>
+                  <p className="text-2xl font-bold text-gray-900">₹{total.toLocaleString()}</p>
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-xl text-center">
+                  <p className="text-gray-600">Discount ({discountPercentage}%)</p>
+                  <p className="text-2xl font-bold text-green-600">-₹{discount.toLocaleString()}</p>
+                </div>
+                
+                <div className="bg-gradient-to-r from-red-500 to-orange-500 p-4 rounded-xl text-center">
+                  <p className="text-white/80">Final Price</p>
+                  <p className="text-2xl font-bold text-white">₹{finalPrice.toLocaleString()}</p>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <button
+                  onClick={() => navigate('/checkout', { state: { selectedPlans, finalPrice } })}
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold rounded-full hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-lg"
+                >
+                  Proceed to Checkout
+                  <ArrowRight size={20} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="py-16 bg-gradient-to-r from-red-600 via-orange-500 to-pink-500 text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <AnimatedSection>
@@ -522,13 +705,13 @@ const PricingPage: React.FC = () => {
               Let's discuss how our services can help you achieve your goals.
             </p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                to="/contact"
+              <button
+                onClick={() => navigate('/contact')}
                 className="inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-full shadow-lg hover:shadow-xl hover:bg-gray-100 transition-all duration-300 min-h-12"
               >
                 Start Your Project Today
                 <ArrowRight size={24} className="transition-transform group-hover:translate-x-1" />
-              </Link>
+              </button>
             </motion.div>
             <p className="text-gray-500 text-sm mt-4">Free consultation • No obligation • Expert advice</p>
           </AnimatedSection>

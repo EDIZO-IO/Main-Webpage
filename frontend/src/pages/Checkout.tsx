@@ -1,6 +1,6 @@
 // src/pages/Checkout.tsx
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, User, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
@@ -17,8 +17,16 @@ interface CheckoutState {
 
 const Checkout: React.FC = () => {
   const location = useLocation();
-  const { selectedPlans, finalPrice } = location.state as CheckoutState;
   
+  // Validate location state
+  const locationState = location.state as CheckoutState | null;
+  const { selectedPlans = {}, finalPrice = 0 } = locationState || {};
+
+  // Redirect if no state is passed
+  if (!locationState || Object.keys(selectedPlans).length === 0) {
+    return <Navigate to="/pricing" replace />;
+  }
+
   // Form state
   const [formData, setFormData] = useState({
     name: '',
@@ -34,6 +42,7 @@ const Checkout: React.FC = () => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -42,6 +51,7 @@ const Checkout: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setIsSubmitting(true);
     
     try {
@@ -62,10 +72,11 @@ const Checkout: React.FC = () => {
       if (result.success) {
         setIsSubmitted(true);
       } else {
-        alert(`Error: ${result.message}`);
+        setError(result.message || 'Failed to submit form. Please try again.');
       }
     } catch (error) {
-      alert('Failed to submit form. Please try again.');
+      console.error('Submission error:', error);
+      setError('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -304,11 +315,21 @@ const Checkout: React.FC = () => {
                         </div>
                       </div>
                       
+                      {error && (
+                        <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg">
+                          {error}
+                        </div>
+                      )}
+                      
                       <div className="mt-8 flex justify-end">
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
+                          className={`inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg transition-colors ${
+                            isSubmitting 
+                              ? 'bg-gray-400 text-white' 
+                              : 'bg-red-600 text-white hover:bg-red-700'
+                          }`}
                         >
                           {isSubmitting ? 'Sending Request...' : 'Submit Request'}
                           <ArrowRight size={18} />

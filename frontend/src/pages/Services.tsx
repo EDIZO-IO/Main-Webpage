@@ -601,7 +601,7 @@ const Services: React.FC = () => {
                   ctaText: "Get Advanced Plan"
                 }
               ]}
-              ctaLink="/contact"
+              ctaLink="/checkout"
               index={0}
             />
             
@@ -653,7 +653,7 @@ const Services: React.FC = () => {
                   ctaText: "Get Advanced Plan"
                 }
               ]}
-              ctaLink="/contact"
+              ctaLink="/checkout"
               index={1}
             />
             
@@ -705,7 +705,7 @@ const Services: React.FC = () => {
                   ctaText: "Get Advanced Plan"
                 }
               ]}
-              ctaLink="/contact"
+              ctaLink="/checkout"
               index={2}
             />
           </div>
@@ -734,7 +734,7 @@ const Services: React.FC = () => {
             </p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
-                to="/contact"
+                to="/checkout"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-full shadow-lg hover:shadow-xl hover:bg-gray-100 transition-all duration-300 min-h-12"
               >
                 Start Your Project Today
