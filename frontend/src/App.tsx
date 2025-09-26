@@ -1,6 +1,8 @@
 // src/App.tsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+
+// Import your components
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Services from './pages/Services';
@@ -13,18 +15,15 @@ import NotFound from './pages/NotFound';
 import InternshipApplication from './pages/InternshipApplication';
 import CertificateVerification from './pages/CertificateVerification';
 import UpcomingEvents from './pages/UpcomingEvents';
-import Pricing from './pages/Pricing';
-import Checkout from './pages/Checkout'; // Add this import
 
 const App: React.FC = () => {
   return (
     <Routes>
+      {/* Protected routes within MainLayout */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="services" element={<Services />} />
         <Route path="services/:id" element={<ServiceDetails />} />
-        <Route path="pricing" element={<Pricing />} />
-        <Route path="checkout" element={<Checkout />} /> {/* Add this route */}
         <Route path="internships" element={<Internships />} />
         <Route path="internships/:id" element={<InternshipDetails />} />
         <Route path="apply/:id" element={<InternshipApplication />} />
@@ -32,6 +31,8 @@ const App: React.FC = () => {
         <Route path="contact" element={<Contact />} />
         <Route path="events" element={<UpcomingEvents />} />
         <Route path="verify-certificate" element={<CertificateVerification />} />
+
+        {/* Catch-all route for 404 within protected area */}
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
+  // Icons used in service cards or main content
   ArrowRight,
   Code,
   Palette,
@@ -13,20 +14,32 @@ import {
   Shield,
   BarChart2,
   Search,
-  Users,
-  Eye,
-  RefreshCw,
-  Trello,
-  Headphones,
-  Server,
-  Film,
-  Layers,
-  Brush,
-  Monitor,
-  FileText,
+  // Icons used in the 'whyChoose' sections of specific services
+  // For UI/UX
+  Users, // Added
+  Eye, // Added
+  RefreshCw, // Added
+  // For App Development
+  Trello, // Added
+  Headphones, // Added
+  Server, // Already imported
+  // For Video Editing
+  Film, // Added
+  Layers, // Added
+  // For Graphic Design
+  Brush, // Added
+  Monitor, // Added
+  // For API Development
+  FileText, // Added
+  // Pricing section icons
+  Monitor as WebIcon,
+  Smartphone as AppIcon,
+  Zap as CombinedIcon,
+  // Add any other icons used in 'whyChoose' sections here
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
+// Removed unused Button import
 
 // --- Image Imports ---
 import webDevelopmentImg from '../assets/services/website design.webp';
@@ -34,10 +47,11 @@ import uiuxImg from '../assets/services/uiux.webp';
 import appDesignImg from '../assets/services/app design.webp';
 import videoEditingImg from '../assets/services/video editing.webp';
 import graphicDesignImg from '../assets/services/graphic design.webp';
-import apiDevelopmentImg from '../assets/services/api-development.webp';
+// Assuming you have an API development image, if not, use a placeholder or one of the others
+import apiDevelopmentImg from '../assets/services/api-development.webp'; // Ensure this path is correct or use an existing image
 
 // --- Types ---
-export interface Service {
+export interface Service { // Export the interface
   id: string;
   title: string;
   subtitle: string;
@@ -50,7 +64,7 @@ export interface Service {
   benefits: string[];
   process: string[];
   whyChoose: { title: string; icon: React.ReactNode }[];
-  relatedServices: string[];
+  relatedServices: string[]; // IDs of related services
   ctaText: string;
 }
 
@@ -74,8 +88,8 @@ const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className = '' }) => (
   />
 );
 
-// --- Service Data ---
-export const services: Service[] = [
+// --- Service Data (Only specified services) ---
+export const services: Service[] = [ // Export the data array
   {
     id: 'web-development',
     title: 'Web Development',
@@ -113,7 +127,7 @@ export const services: Service[] = [
       { title: 'SEO & Accessibility', icon: <Search className="text-green-500" size={20} /> },
       { title: 'Scalable Solutions', icon: <BarChart2 className="text-purple-500" size={20} /> }
     ],
-    relatedServices: ['ui-ux', 'app-development'],
+    relatedServices: ['ui-ux', 'app-development'], // Removed non-existent services
     ctaText: 'Build Your Dream Website'
   },
   {
@@ -148,10 +162,10 @@ export const services: Service[] = [
       'Prototyping & Testing'
     ],
     whyChoose: [
-      { title: 'Human-Centered', icon: <Users className="text-teal-500" size={20} /> },
+      { title: 'Human-Centered', icon: <Users className="text-teal-500" size={20} /> }, // Fixed: Imported and used
       { title: 'Data-Driven Insights', icon: <BarChart2 className="text-blue-500" size={20} /> },
-      { title: 'Pixel-Perfect Execution', icon: <Eye className="text-purple-500" size={20} /> },
-      { title: 'Iterative Process', icon: <RefreshCw className="text-green-500" size={20} /> }
+      { title: 'Pixel-Perfect Execution', icon: <Eye className="text-purple-500" size={20} /> }, // Fixed: Imported and used
+      { title: 'Iterative Process', icon: <RefreshCw className="text-green-500" size={20} /> } // Fixed: Imported and used
     ],
     relatedServices: ['web-development', 'app-development'],
     ctaText: 'Design Better Experiences'
@@ -189,9 +203,9 @@ export const services: Service[] = [
     ],
     whyChoose: [
       { title: 'Native-Like Performance', icon: <Zap className="text-yellow-500" size={20} /> },
-      { title: 'Agile Development', icon: <Trello className="text-blue-500" size={20} /> },
+      { title: 'Agile Development', icon: <Trello className="text-blue-500" size={20} /> }, // Fixed: Imported and used
       { title: 'Scalable Architecture', icon: <Server className="text-gray-500" size={20} /> },
-      { title: 'Post-Launch Support', icon: <Headphones className="text-green-500" size={20} /> }
+      { title: 'Post-Launch Support', icon: <Headphones className="text-green-500" size={20} /> } // Fixed: Imported and used
     ],
     relatedServices: ['web-development', 'ui-ux'],
     ctaText: 'Launch Your App Idea'
@@ -228,10 +242,10 @@ export const services: Service[] = [
       'Final Delivery & Formats'
     ],
     whyChoose: [
-      { title: 'Creative Storytelling', icon: <Film className="text-red-500" size={20} /> },
-      { title: 'Attention to Detail', icon: <Eye className="text-blue-500" size={20} /> },
-      { title: 'Fast Turnaround', icon: <Zap className="text-yellow-500" size={20} /> },
-      { title: 'Multiple Formats', icon: <Layers className="text-purple-500" size={20} /> }
+      { title: 'Creative Storytelling', icon: <Film className="text-red-500" size={20} /> }, // Fixed: Imported and used
+      { title: 'Attention to Detail', icon: <Eye className="text-blue-500" size={20} /> }, // Reused existing import
+      { title: 'Fast Turnaround', icon: <Zap className="text-yellow-500" size={20} /> }, // Reused existing import
+      { title: 'Multiple Formats', icon: <Layers className="text-purple-500" size={20} /> } // Fixed: Imported and used
     ],
     relatedServices: ['graphic-design'],
     ctaText: 'Tell Your Story Visually'
@@ -268,10 +282,10 @@ export const services: Service[] = [
       'Brand Guidelines (Optional)'
     ],
     whyChoose: [
-      { title: 'Brand-Aligned Designs', icon: <Shield className="text-yellow-500" size={20} /> },
-      { title: 'Creative Versatility', icon: <Brush className="text-pink-500" size={20} /> },
-      { title: 'Quick Revisions', icon: <RefreshCw className="text-blue-500" size={20} /> },
-      { title: 'Print & Digital Ready', icon: <Monitor className="text-gray-500" size={20} /> }
+      { title: 'Brand-Aligned Designs', icon: <Shield className="text-yellow-500" size={20} /> }, // Reused existing import
+      { title: 'Creative Versatility', icon: <Brush className="text-pink-500" size={20} /> }, // Fixed: Imported and used
+      { title: 'Quick Revisions', icon: <RefreshCw className="text-blue-500" size={20} /> }, // Reused existing import
+      { title: 'Print & Digital Ready', icon: <Monitor className="text-gray-500" size={20} /> } // Fixed: Imported and used
     ],
     relatedServices: ['video-editing', 'web-development'],
     ctaText: 'Elevate Your Brand Visually'
@@ -282,8 +296,8 @@ export const services: Service[] = [
     subtitle: 'Seamless Integration & Data Flow',
     description: 'Build robust, scalable APIs to connect your applications and services.',
     longDescription: 'In a connected world, APIs are the backbone of modern software. Our API development services focus on creating secure, efficient, and well-documented APIs that enable seamless communication between your applications, services, and third-party systems. Whether you need a RESTful API, GraphQL endpoint, or a custom integration, we ensure reliability, scalability, and ease of use for developers.',
-    image: apiDevelopmentImg,
-    icon: <Server className="text-gray-600" size={24} />,
+    image: apiDevelopmentImg, // Use the imported image or a placeholder
+    icon: <Server className="text-gray-600" size={24} />, // Reused existing import
     features: [
       'RESTful & GraphQL APIs',
       'Authentication & Authorization',
@@ -308,10 +322,10 @@ export const services: Service[] = [
       'Deployment & Support'
     ],
     whyChoose: [
-      { title: 'Well-Documented', icon: <FileText className="text-blue-500" size={20} /> },
-      { title: 'Secure by Design', icon: <Shield className="text-gray-700" size={20} /> },
-      { title: 'Highly Scalable', icon: <BarChart2 className="text-teal-500" size={20} /> },
-      { title: 'Developer-Friendly', icon: <Code className="text-green-500" size={20} /> }
+      { title: 'Well-Documented', icon: <FileText className="text-blue-500" size={20} /> }, // Fixed: Imported and used
+      { title: 'Secure by Design', icon: <Shield className="text-gray-700" size={20} /> }, // Reused existing import
+      { title: 'Highly Scalable', icon: <BarChart2 className="text-teal-500" size={20} /> }, // Reused existing import
+      { title: 'Developer-Friendly', icon: <Code className="text-green-500" size={20} /> } // Reused existing import
     ],
     relatedServices: ['web-development', 'app-development'],
     ctaText: 'Connect Your Systems'
@@ -365,12 +379,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, index }) => (
 interface PricingCardProps {
   title: string;
   icon: React.ReactNode;
-  plans: {
-    name: string;
-    price: string;
-    features: string[];
-    ctaText: string;
-  }[];
+  startingPrice: string;
+  description: string;
+  features: string[];
+  ctaText: string;
   ctaLink: string;
   index: number;
 }
@@ -378,7 +390,10 @@ interface PricingCardProps {
 const PricingCard: React.FC<PricingCardProps> = ({ 
   title, 
   icon, 
-  plans,
+  startingPrice, 
+  description, 
+  features, 
+  ctaText, 
   ctaLink,
   index
 }) => (
@@ -394,38 +409,33 @@ const PricingCard: React.FC<PricingCardProps> = ({
         <h3 className="text-xl font-bold text-gray-900">{title}</h3>
       </div>
       
-      <div className="space-y-6">
-        {plans.map((plan, idx) => (
-          <div key={idx} className={`p-4 rounded-xl border ${idx === 1 ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}>
-            <div className="flex justify-between items-center mb-3">
-              <h4 className="font-bold text-gray-900">{plan.name}</h4>
-              <div className="text-2xl font-bold text-gray-900">₹{plan.price}</div>
-            </div>
-            
-            <ul className="space-y-2 mb-4">
-              {plan.features.map((feature, fIdx) => (
-                <li key={fIdx} className="flex items-start">
-                  <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span className="text-gray-700">{feature}</span>
-                </li>
-              ))}
-            </ul>
-            
-            <Link
-              to={ctaLink}
-              className={`w-full text-center py-2.5 font-medium rounded-lg transition-colors ${
-                idx === 1 
-                  ? 'bg-red-600 text-white hover:bg-red-700' 
-                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-              }`}
-            >
-              {plan.ctaText}
-            </Link>
-          </div>
-        ))}
+      <div className="mb-4">
+        <div className="text-3xl font-bold text-gray-900 mb-1">
+          ₹{startingPrice}
+          <span className="text-sm font-normal text-gray-500 ml-2">starting at</span>
+        </div>
+        <p className="text-gray-600 text-sm">Custom pricing based on requirements</p>
       </div>
+      
+      <p className="text-gray-600 mb-4 flex-grow">{description}</p>
+      
+      <ul className="mb-6 space-y-2">
+        {features.map((feature, idx) => (
+          <li key={idx} className="flex items-start">
+            <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span className="text-gray-700">{feature}</span>
+          </li>
+        ))}
+      </ul>
+      
+      <Link
+        to={ctaLink}
+        className="mt-auto inline-flex items-center justify-center px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
+      >
+        {ctaText}
+      </Link>
     </motion.div>
   </AnimatedSection>
 );
@@ -551,7 +561,7 @@ const Services: React.FC = () => {
                 Transparent <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Pricing</span>
               </h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Choose the perfect plan for your project needs
+                Affordable solutions with custom pricing based on your project requirements
               </p>
             </div>
           </AnimatedSection>
@@ -559,165 +569,57 @@ const Services: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <PricingCard
               title="Web Development"
-              icon={<Globe className="text-red-600" size={24} />}
-              plans={[
-                {
-                  name: "Basic",
-                  price: "15,000",
-                  features: [
-                    "Up to 5 pages",
-                    "Responsive design",
-                    "Basic SEO optimization",
-                    "Contact form",
-                    "1 month support"
-                  ],
-                  ctaText: "Get Basic Plan"
-                },
-                {
-                  name: "Standard",
-                  price: "35,000",
-                  features: [
-                    "Up to 10 pages",
-                    "Responsive design",
-                    "Advanced SEO",
-                    "Contact forms & CMS",
-                    "Blog integration",
-                    "3 months support"
-                  ],
-                  ctaText: "Get Standard Plan"
-                },
-                {
-                  name: "Advanced",
-                  price: "65,000",
-                  features: [
-                    "Unlimited pages",
-                    "Custom functionality",
-                    "E-commerce integration",
-                    "Advanced SEO",
-                    "Blog & CMS",
-                    "API integration",
-                    "6 months support"
-                  ],
-                  ctaText: "Get Advanced Plan"
-                }
+              icon={<WebIcon className="text-red-600" size={24} />}
+              startingPrice="15,000"
+              description="Professional websites built with modern technologies for optimal performance and user experience."
+              features={[
+                "Responsive design for all devices",
+                "SEO optimization included",
+                "Content Management System",
+                "Security implementation",
+                "Performance optimization",
+                "3 months support included"
               ]}
-              ctaLink="/checkout"
+              ctaText="Get Web Quote"
+              ctaLink="/contact"
               index={0}
             />
             
             <PricingCard
               title="App Development"
-              icon={<Smartphone className="text-green-600" size={24} />}
-              plans={[
-                {
-                  name: "Basic",
-                  price: "30,000",
-                  features: [
-                    "Up to 5 screens",
-                    "Basic functionality",
-                    "iOS or Android",
-                    "Simple UI/UX",
-                    "Basic testing",
-                    "1 month support"
-                  ],
-                  ctaText: "Get Basic Plan"
-                },
-                {
-                  name: "Standard",
-                  price: "65,000",
-                  features: [
-                    "Up to 15 screens",
-                    "Core functionality",
-                    "Cross-platform (iOS & Android)",
-                    "Custom UI/UX",
-                    "Push notifications",
-                    "API integration",
-                    "3 months support"
-                  ],
-                  ctaText: "Get Standard Plan"
-                },
-                {
-                  name: "Advanced",
-                  price: "1,20,000",
-                  features: [
-                    "Unlimited screens",
-                    "Full feature set",
-                    "Cross-platform (iOS & Android)",
-                    "Advanced UI/UX",
-                    "Push notifications",
-                    "Offline functionality",
-                    "API integration",
-                    "Analytics",
-                    "6 months support"
-                  ],
-                  ctaText: "Get Advanced Plan"
-                }
+              icon={<AppIcon className="text-green-600" size={24} />}
+              startingPrice="30,000"
+              description="Cross-platform mobile applications with native performance and engaging user interfaces."
+              features={[
+                "iOS and Android development",
+                "Push notifications",
+                "Offline functionality",
+                "App store deployment",
+                "Analytics integration",
+                "6 months support included"
               ]}
-              ctaLink="/checkout"
+              ctaText="Get App Quote"
+              ctaLink="/contact"
               index={1}
             />
             
             <PricingCard
-              title="UI/UX Design"
-              icon={<Palette className="text-purple-600" size={24} />}
-              plans={[
-                {
-                  name: "Basic",
-                  price: "8,000",
-                  features: [
-                    "Up to 5 screens",
-                    "Basic wireframes",
-                    "Style guide",
-                    "2 revision rounds",
-                    "Source files"
-                  ],
-                  ctaText: "Get Basic Plan"
-                },
-                {
-                  name: "Standard",
-                  price: "20,000",
-                  features: [
-                    "Up to 15 screens",
-                    "Complete wireframes",
-                    "Interactive prototype",
-                    "Style guide",
-                    "User flow diagrams",
-                    "3 revision rounds",
-                    "Source files"
-                  ],
-                  ctaText: "Get Standard Plan"
-                },
-                {
-                  name: "Advanced",
-                  price: "40,000",
-                  features: [
-                    "Unlimited screens",
-                    "Complete wireframes",
-                    "Interactive prototype",
-                    "Style guide",
-                    "User flow diagrams",
-                    "User research",
-                    "Usability testing",
-                    "Design system",
-                    "5 revision rounds",
-                    "Source files"
-                  ],
-                  ctaText: "Get Advanced Plan"
-                }
+              title="Combined Package"
+              icon={<CombinedIcon className="text-purple-600" size={24} />}
+              startingPrice="40,000"
+              description="Complete digital solution with both web and mobile applications at a discounted rate."
+              features={[
+                "Full web application",
+                "Companion mobile app",
+                "Shared API backend",
+                "Unified design system",
+                "Cross-platform integration",
+                "12 months support included"
               ]}
-              ctaLink="/checkout"
+              ctaText="Get Full Package Quote"
+              ctaLink="/contact"
               index={2}
             />
-          </div>
-
-          <div className="text-center mt-12">
-            <Link
-              to="/pricing"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
-            >
-              View All Pricing Details
-              <ArrowRight size={18} />
-            </Link>
           </div>
         </div>
       </section>
@@ -734,7 +636,7 @@ const Services: React.FC = () => {
             </p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
-                to="/checkout"
+                to="/contact"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-full shadow-lg hover:shadow-xl hover:bg-gray-100 transition-all duration-300 min-h-12"
               >
                 Start Your Project Today
