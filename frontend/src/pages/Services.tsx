@@ -375,70 +375,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, index }) => (
   </AnimatedSection>
 );
 
-// --- Pricing Card Component ---
-interface PricingCardProps {
-  title: string;
-  icon: React.ReactNode;
-  startingPrice: string;
-  description: string;
-  features: string[];
-  ctaText: string;
-  ctaLink: string;
-  index: number;
-}
 
-const PricingCard: React.FC<PricingCardProps> = ({ 
-  title, 
-  icon, 
-  startingPrice, 
-  description, 
-  features, 
-  ctaText, 
-  ctaLink,
-  index
-}) => (
-  <AnimatedSection delay={index * 0.1}>
-    <motion.div 
-      whileHover={{ y: -8 }}
-      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col h-full"
-    >
-      <div className="flex items-center mb-4">
-        <div className="p-3 bg-red-100 rounded-full mr-4">
-          {icon}
-        </div>
-        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
-      </div>
-      
-      <div className="mb-4">
-        <div className="text-3xl font-bold text-gray-900 mb-1">
-          ₹{startingPrice}
-          <span className="text-sm font-normal text-gray-500 ml-2">starting at</span>
-        </div>
-        <p className="text-gray-600 text-sm">Custom pricing based on requirements</p>
-      </div>
-      
-      <p className="text-gray-600 mb-4 flex-grow">{description}</p>
-      
-      <ul className="mb-6 space-y-2">
-        {features.map((feature, idx) => (
-          <li key={idx} className="flex items-start">
-            <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <span className="text-gray-700">{feature}</span>
-          </li>
-        ))}
-      </ul>
-      
-      <Link
-        to={ctaLink}
-        className="mt-auto inline-flex items-center justify-center px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
-      >
-        {ctaText}
-      </Link>
-    </motion.div>
-  </AnimatedSection>
-);
 
 // --- Main Component ---
 const Services: React.FC = () => {
@@ -552,77 +489,7 @@ const Services: React.FC = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Transparent <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Pricing</span>
-              </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Affordable solutions with custom pricing based on your project requirements
-              </p>
-            </div>
-          </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <PricingCard
-              title="Web Development"
-              icon={<WebIcon className="text-red-600" size={24} />}
-              startingPrice="15,000"
-              description="Professional websites built with modern technologies for optimal performance and user experience."
-              features={[
-                "Responsive design for all devices",
-                "SEO optimization included",
-                "Content Management System",
-                "Security implementation",
-                "Performance optimization",
-                "3 months support included"
-              ]}
-              ctaText="Get Web Quote"
-              ctaLink="/contact"
-              index={0}
-            />
-            
-            <PricingCard
-              title="App Development"
-              icon={<AppIcon className="text-green-600" size={24} />}
-              startingPrice="30,000"
-              description="Cross-platform mobile applications with native performance and engaging user interfaces."
-              features={[
-                "iOS and Android development",
-                "Push notifications",
-                "Offline functionality",
-                "App store deployment",
-                "Analytics integration",
-                "6 months support included"
-              ]}
-              ctaText="Get App Quote"
-              ctaLink="/contact"
-              index={1}
-            />
-            
-            <PricingCard
-              title="Combined Package"
-              icon={<CombinedIcon className="text-purple-600" size={24} />}
-              startingPrice="40,000"
-              description="Complete digital solution with both web and mobile applications at a discounted rate."
-              features={[
-                "Full web application",
-                "Companion mobile app",
-                "Shared API backend",
-                "Unified design system",
-                "Cross-platform integration",
-                "12 months support included"
-              ]}
-              ctaText="Get Full Package Quote"
-              ctaLink="/contact"
-              index={2}
-            />
-          </div>
-        </div>
-      </section>
 
       {/* CTA Banner */}
       <section className="py-16 bg-gradient-to-r from-red-600 via-orange-500 to-pink-500 text-white">
