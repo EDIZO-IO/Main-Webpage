@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import Header from '../components/common/Header';
+import Header from '../components/common/Header'; // This is the redesigned Header
 import Footer from '../components/common/Footer';
 import ScrollToTop from '../components/common/ScrollToTop';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -56,26 +56,26 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   // Show loading indicator while checking auth
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
-        <span className="ml-3 text-blue-200">Initializing...</span>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-blue-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+        <span className="ml-3 text-gray-700">Initializing...</span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-blue-50"> {/* Updated background to match Home */}
       <ScrollToTop />
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only absolute left-4 top-4 z-50 rounded-md bg-gray-800 p-2 text-white shadow-lg outline-none ring-2 ring-offset-2 ring-cyan-500 transition focus:ring-cyan-500"
+        className="sr-only focus:not-sr-only absolute left-4 top-4 z-50 rounded-md bg-red-600 p-2 text-white shadow-lg outline-none ring-2 ring-offset-2 ring-red-500 transition focus:ring-red-500"
       >
         Skip to main content
       </a>
 
-      <Header />
+      <Header /> {/* This is the redesigned Header */}
 
-      <main id="main-content" role="main" className="flex-grow pt-12">
+      <main id="main-content" role="main" className="flex-grow pt-14"> {/* Adjusted padding-top to match header height */}
         <div className="w-full">
           {children ? (
             children

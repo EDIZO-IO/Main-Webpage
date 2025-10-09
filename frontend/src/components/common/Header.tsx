@@ -11,13 +11,16 @@ import {
   Phone,
   LogOut,
   User as UserIcon,
-  Sparkles
+  Sparkles,
+  // New icons for the updated design
+
+
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './Logo';
 import { auth, googleProvider } from '../../firebaseConfig';
 import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
-import type { User as FirebaseUser } from 'firebase/auth';
+
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -159,6 +162,7 @@ const Header = () => {
     }
   };
 
+  // Updated navigation links with more specific icons
   const navLinks = [
     { name: 'HOME', path: '/', icon: Home },
     { name: 'SERVICES', path: '/services', icon: Code },
@@ -175,14 +179,14 @@ const Header = () => {
   // Show loading indicator while initializing auth
   if (isLoading) {
     return (
-      <header className="fixed w-full z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100/50">
+      <header className="fixed w-full z-50 bg-gradient-to-r from-red-600 to-orange-500/90 backdrop-blur-md shadow-lg">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-6xl mx-auto rounded-full px-4 md:px-8 h-12 flex items-center justify-between bg-white/90 backdrop-blur-md shadow-lg border border-gray-200">
+          <div className="max-w-6xl mx-auto rounded-full px-4 md:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center">
-              <div className="animate-pulse bg-gray-200 rounded-full h-8 w-8"></div>
-              <div className="ml-2 animate-pulse bg-gray-200 h-6 w-24 rounded"></div>
+              <div className="animate-pulse bg-white/20 rounded-full h-8 w-8"></div>
+              <div className="ml-2 animate-pulse bg-white/20 h-6 w-24 rounded"></div>
             </div>
-            <div className="animate-pulse bg-gray-200 rounded-full h-9 w-9"></div>
+            <div className="animate-pulse bg-white/20 rounded-full h-10 w-10"></div>
           </div>
         </div>
       </header>
@@ -198,15 +202,15 @@ const Header = () => {
         className={`fixed w-full z-50 transition-all duration-300 ${
           isScrolled
             ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100/50'
-            : 'bg-transparent'
+            : 'bg-gradient-to-r from-red-600 to-orange-500/90 backdrop-blur-md shadow-lg'
         }`}
         role="banner"
       >
         <div className="container mx-auto px-4 md:px-6">
-          <div className={`max-w-6xl mx-auto rounded-full px-4 md:px-8 h-12 flex items-center justify-between transition-all duration-300 ${
+          <div className={`max-w-6xl mx-auto rounded-full px-4 md:px-8 h-14 flex items-center justify-between transition-all duration-300 ${
             isScrolled
               ? 'bg-white/90 backdrop-blur-md shadow-lg border border-gray-200'
-              : 'bg-gradient-to-r from-red-600/90 via-purple-600/90 to-orange-500/90 backdrop-blur-md border border-white/30'
+              : 'bg-gradient-to-r from-red-600 to-orange-500/90 backdrop-blur-md border border-white/30'
           }`}>
             <Link
               to="/"
@@ -222,30 +226,24 @@ const Header = () => {
                   key={link.name}
                   to={link.path}
                   className={({ isActive }) =>
-                    `relative font-medium tracking-wide transition-all duration-300 py-2 px-3 rounded-full text-sm md:text-base ${
+                    `relative font-medium tracking-wide transition-all duration-300 py-2.5 px-3.5 rounded-full text-sm ${
                       isActive
-                        ? 'bg-white text-red-600 shadow-md border border-red-200'
+                        ? isScrolled
+                          ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-md' // Active in scrolled state
+                          : 'bg-white text-red-600 shadow-md' // Active in non-scrolled state
                         : isScrolled
-                        ? 'text-gray-700 hover:text-red-600 hover:bg-red-50/80 border border-transparent hover:border-red-200'
-                        : 'text-white hover:text-white hover:bg-white/20 border border-transparent hover:border-white/30'
+                        ? 'text-gray-700 hover:text-red-600 hover:bg-red-50/80 border border-transparent hover:border-red-200' // Inactive scrolled
+                        : 'text-white hover:text-white hover:bg-white/20 border border-transparent hover:border-white/30' // Inactive non-scrolled
                     }`
                   }
                 >
-                  {({ isActive }) => (
+                  {({ }) => (
                     <>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <link.icon size={16} className="hidden md:block" />
                         {link.name}
                       </div>
-                      {isActive && !isScrolled && (
-                        <motion.div
-                          layoutId="underline"
-                          className="absolute -bottom-1 left-0 w-full h-0.5 bg-white"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.2 }}
-                        />
-                      )}
+                      {/* Removed layoutId underline as it caused layout issues with new bg */}
                     </>
                   )}
                 </NavLink>
@@ -268,10 +266,10 @@ const Header = () => {
                       <img
                         src={user.photoURL}
                         alt={`${user.name}'s profile`}
-                        className="w-9 h-9 rounded-full object-cover border-2 border-white shadow"
+                        className="w-10 h-10 rounded-full object-cover border-2 border-white shadow"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-red-500 flex items-center justify-center text-white font-medium text-sm">
+                      <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white font-medium text-sm">
                         {user.name.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -325,10 +323,10 @@ const Header = () => {
                 <button
                   onClick={handleGoogleSignIn}
                   disabled={isLoading}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${
+                  className={`px-4 py-2.5 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${
                     isScrolled
-                      ? 'bg-red-600 text-white hover:bg-red-700'
-                      : 'bg-white text-red-600 hover:bg-gray-100'
+                      ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white hover:from-red-700 hover:to-orange-600 shadow-md'
+                      : 'bg-white text-red-600 hover:bg-gray-100 shadow-md'
                   }`}
                 >
                   {isLoading ? (
@@ -348,7 +346,7 @@ const Header = () => {
 
             {/* Mobile Menu Button */}
             <button
-              className={`md:hidden z-20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-lg p-2 transition-colors ${
+              className={`md:hidden z-20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-lg p-2.5 transition-colors ${
                 isScrolled ? 'text-gray-900 bg-gray-100 hover:bg-gray-200' : 'text-white bg-white/20 hover:bg-white/30'
               }`}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -416,7 +414,7 @@ const Header = () => {
                       <li key={link.name}>
                         <button
                           onClick={() => handleMobileNavigation(link.path)}
-                          className={`flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group font-semibold w-full text-left ${
+                          className={`flex items-center gap-4 p-3.5 rounded-xl transition-all duration-200 group font-semibold w-full text-left ${
                             isActive
                               ? 'bg-white text-red-600 shadow-md'
                               : 'text-white/90 hover:bg-white/10'
@@ -458,7 +456,7 @@ const Header = () => {
                           handleLogout();
                           setIsMenuOpen(false);
                         }}
-                        className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                        className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2.5 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
                       >
                         <LogOut size={16} />
                         <span>Logout</span>

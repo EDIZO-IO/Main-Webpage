@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Wifi, ArrowRight, Star, Search } from 'lucide-react';
+import { Wifi, ArrowRight, Star, Search, TrendingUp, Users, Zap, Award } from 'lucide-react';
 
 // === Local Image Imports ===
 import webDesign from '../assets/images/web-design.png';
@@ -17,7 +17,6 @@ import aiAssistant from '../assets/images/ai-assistant.png';
 import aiChatgpt from '../assets/images/AI with CHATGPT.png';
 import webDevelopment from '../assets/images/web-development.png';
 import csharp from '../assets/images/c-sharp.png';
-// import headerImg from '../assets/background image/internship.png'; // Remove this import
 
 // === Define TypeScript interfaces ===
 interface AnimatedSectionProps {
@@ -33,30 +32,28 @@ interface Internship {
   image: string;
   rating: number;
   isTrending?: boolean;
+  description: string; // Added description for the new design
+
 }
 
 // === Simplified PageHeader Component (Styled like Home.tsx) ===
 interface PageHeaderProps {
   title: string;
-  subtitle?: string | React.ReactNode; // Allow ReactNode for flexibility like AnimatedTypingSubtitle
-  // Removed variant prop
+  subtitle?: string | React.ReactNode;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   subtitle,
 }) => {
-  // Use scroll effect like in Home.tsx
   const { scrollY } = useScroll();
   const backgroundY = useTransform(scrollY, [0, 500], [0, 100]);
 
   return (
-    // Match the structure and classes from Home.tsx Hero section
     <section
-      className="relative text-white pt-20 pb-16 md:pt-28 md:pb-24" // Added pt for header space
+      className="relative text-white pt-20 pb-16 md:pt-28 md:pb-24"
       aria-labelledby="internships-hero-title"
     >
-      {/* Curved SVG Background with Gradient - Simplified from Home.tsx */}
       <div className="absolute inset-0 z-0">
         <svg
           className="w-full h-full"
@@ -65,7 +62,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            {/* Use the same gradient as Home.tsx for consistency */}
             <linearGradient id="internshipsHeroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style={{ stopColor: '#FF6B6B', stopOpacity: 1 }} />
               <stop offset="50%" style={{ stopColor: '#8B5CF6', stopOpacity: 1 }} />
@@ -82,7 +78,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             opacity="0.3"
           />
         </svg>
-        {/* Subtle Noise Overlay - Same as Home.tsx */}
         <div
           className="absolute inset-0"
           style={{
@@ -92,7 +87,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         />
       </div>
 
-      {/* Floating Particles - Simplified version from Home.tsx */}
       <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
         {[...Array(4)].map((_, i) => (
           <motion.div
@@ -116,13 +110,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         ))}
       </div>
 
-      {/* Content - Match Home.tsx content structure */}
       <motion.div
-        className="container mx-auto px-6 lg:px-12 relative z-20" // Use container and padding like Home
-        style={{ y: backgroundY }} // Apply parallax effect
+        className="container mx-auto px-6 lg:px-12 relative z-20"
+        style={{ y: backgroundY }}
       >
-        <div className="max-w-4xl mx-auto text-center"> {/* Center content */}
-          {/* Use motion.divs for fade-in like Home.tsx */}
+        <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -162,7 +154,7 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }
   </motion.div>
 );
 
-// === Internship Data ===
+// === Updated Internship Data (Added description, duration, price) ===
 const internships: Internship[] = [
   {
     id: 'ui-ux-design',
@@ -172,6 +164,8 @@ const internships: Internship[] = [
     image: webDesign,
     rating: 4.7,
     isTrending: true,
+    description: 'Learn to design user-friendly interfaces and experiences for digital products.',
+
   },
   {
     id: 'frontend-development',
@@ -180,6 +174,8 @@ const internships: Internship[] = [
     mode: 'Online',
     image: responsiveDesign,
     rating: 4.5,
+    description: 'Master HTML, CSS, JavaScript, and React to build interactive web applications.',
+
   },
   {
     id: 'backend-development',
@@ -188,6 +184,8 @@ const internships: Internship[] = [
     mode: 'Online',
     image: backEnd,
     rating: 4.6,
+    description: 'Develop server-side logic, APIs, and databases using Node.js and Express.',
+
   },
   {
     id: 'hr-management',
@@ -196,6 +194,8 @@ const internships: Internship[] = [
     mode: 'Online',
     image: hrManager,
     rating: 4.2,
+    description: 'Understand recruitment, employee relations, and performance management.',
+
   },
   {
     id: 'data-analytics',
@@ -205,6 +205,8 @@ const internships: Internship[] = [
     image: dataAnalytics,
     rating: 4.8,
     isTrending: true,
+    description: 'Analyze data using Python, SQL, and visualization tools like Tableau.',
+
   },
   {
     id: 'java-development',
@@ -213,6 +215,8 @@ const internships: Internship[] = [
     mode: 'Online',
     image: java,
     rating: 4.4,
+    description: 'Build robust applications using the Java programming language and frameworks.',
+
   },
   {
     id: 'python-development',
@@ -222,6 +226,8 @@ const internships: Internship[] = [
     image: python,
     rating: 4.6,
     isTrending: true,
+    description: 'Learn Python for automation, data science, and web development.',
+
   },
   {
     id: 'digital-marketing',
@@ -230,6 +236,8 @@ const internships: Internship[] = [
     mode: 'Online',
     image: contentStrategy,
     rating: 4.3,
+    description: 'Explore SEO, SEM, SMM, and email marketing strategies.',
+
   },
   {
     id: 'ai-ml',
@@ -239,6 +247,8 @@ const internships: Internship[] = [
     image: aiAssistant,
     rating: 4.9,
     isTrending: true,
+    description: 'Dive into AI concepts, algorithms, and machine learning models.',
+
   },
   {
     id: 'ai-with-chatgpt',
@@ -248,6 +258,8 @@ const internships: Internship[] = [
     image: aiChatgpt,
     rating: 4.8,
     isTrending: true,
+    description: 'Learn to leverage AI tools like ChatGPT for various applications.',
+
   },
   {
     id: 'web-development',
@@ -256,6 +268,8 @@ const internships: Internship[] = [
     mode: 'Online',
     image: webDevelopment,
     rating: 4.7,
+    description: 'Full-stack web development covering both frontend and backend technologies.',
+
   },
   {
     id: 'csharp',
@@ -264,8 +278,50 @@ const internships: Internship[] = [
     mode: 'Online',
     image: csharp,
     rating: 4.5,
+    description: 'Develop applications using the C# programming language and .NET framework.',
+
   },
 ];
+
+// === New Section: Why Choose Our Internships ===
+const WhyChooseUs = () => (
+  <section className="py-16 bg-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection>
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Why Choose Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Internships?</span>
+          </h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            We provide a structured learning path with real-world projects and mentorship.
+          </p>
+        </div>
+      </AnimatedSection>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {[
+          { title: "Expert Mentorship", description: "Learn from industry professionals.", icon: <Users className="w-8 h-8 text-red-500" /> },
+          { title: "Hands-On Projects", description: "Build a portfolio with real tasks.", icon: <Zap className="w-8 h-8 text-red-500" /> },
+          { title: "Flexible Scheduling", description: "Learn at your own pace online.", icon: <Wifi className="w-8 h-8 text-red-500" /> },
+          { title: "Job Readiness", description: "Gain skills employers seek.", icon: <Award className="w-8 h-8 text-red-500" /> }
+        ].map((item, index) => (
+          <AnimatedSection key={item.title} delay={index * 0.1}>
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="bg-gray-50 p-6 rounded-xl text-center border border-gray-100 hover:border-red-200 transition-colors duration-300"
+            >
+              <div className="flex justify-center mb-4">
+                {item.icon}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
+              <p className="text-gray-600 text-sm">{item.description}</p>
+            </motion.div>
+          </AnimatedSection>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
 // === Main Component ===
 const Internships: React.FC = () => {
@@ -283,11 +339,11 @@ const Internships: React.FC = () => {
   // Add JSON-LD for SEO - ✅ FIXED URLs (Removed trailing spaces)
   useEffect(() => {
     const schema = {
-      '@context': 'https://schema.org', // ✅ Fixed
+      '@context': 'https://schema.org',
       '@type': 'ItemList',
       name: 'Edizo Internship Programs',
       description: 'A collection of internship programs offered by Edizo in various fields such as Design, Development, AI/ML, and more.',
-      url: 'https://www.edizo.in/internships', // ✅ Fixed
+      url: 'https://www.edizo.in/internships',
       numberOfItems: internships.length,
       itemListElement: internships.map((internship, index) => ({
         '@type': 'Course',
@@ -297,10 +353,10 @@ const Internships: React.FC = () => {
         provider: {
           '@type': 'Organization',
           name: 'Edizo',
-          url: 'https://www.edizo.in', // ✅ Fixed
+          url: 'https://www.edizo.in',
         },
         image: internship.image,
-        url: `https://www.edizo.in/internships/${internship.id}`, // ✅ Fixed
+        url: `https://www.edizo.in/internships/${internship.id}`,
       })),
     };
 
@@ -327,22 +383,22 @@ const Internships: React.FC = () => {
   };
 
   return (
-    // Update main div background to match Home.tsx
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 font-['Inter',sans-serif]">
-      {/* Use the new PageHeader styled like Home.tsx */}
       <PageHeader
         title="Our Internships"
         subtitle="Kickstart your career with hands-on experience in a supportive, innovative environment."
       />
 
-      {/* Rest of your component remains largely the same, just wrapped in the new structure */}
+      {/* Why Choose Us Section */}
+      <WhyChooseUs />
+
       {/* Trending Internships */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-12 bg-gradient-to-r from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-6">
           <AnimatedSection>
             <div className="text-center mb-10">
               <h2 className="text-3xl font-bold text-gray-800 flex items-center justify-center gap-2">
-                <span className="text-red-600">🔥</span> Trending Internships
+                <TrendingUp className="text-red-500" /> Trending Internships
               </h2>
               <p className="text-gray-600 mt-2 max-w-xl mx-auto">
                 Discover our most popular internship programs, highly rated by students.
@@ -381,9 +437,12 @@ const Internships: React.FC = () => {
                       </h3>
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-gray-600 text-sm">{internship.category}</span>
-                        <span className="text-xs font-medium text-white bg-red-600 rounded-full px-2 py-1">
-                          {internship.rating}
-                        </span>
+                        <div className="flex items-center">
+                          <Star className="text-yellow-400 fill-current w-4 h-4 mr-1" />
+                          <span className="text-xs font-medium text-white bg-red-600 rounded-full px-2 py-1">
+                            {internship.rating}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </Link>
@@ -401,7 +460,7 @@ const Internships: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <AnimatedSection>
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">All Internship Programs</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">Explore All Programs</h2>
               <div className="max-w-md mx-auto relative mb-6">
                 <input
                   type="text"
@@ -447,42 +506,40 @@ const Internships: React.FC = () => {
                   whileInView="visible"
                   whileHover="hover"
                   viewport={{ once: true, margin: '-50px' }}
-                  className="group bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300"
+                  className="group bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden"
                 >
                   <Link to={`/internships/${internship.id}`}>
-                    <div className="relative h-48 overflow-hidden rounded-t-lg">
+                    <div className="relative h-48 overflow-hidden">
                       <img
                         src={internship.image}
                         alt={internship.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                       />
-                      <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-80" />
+                      <div className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
                         {internship.category}
-                      </span>
-                      {internship.rating >= 4.8 && (
-                        <span className="absolute top-3 right-3 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
-                          New
-                        </span>
-                      )}
+                      </div>
+
                     </div>
                     <div className="p-5">
                       <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
                         {internship.title}
                       </h3>
-                      <div className="flex items-center mb-2">
-                        <span className="text-white text-sm font-medium bg-red-600 rounded-full px-2 py-1 mr-2">
-                          {internship.rating}
-                        </span>
-                        <span className="text-gray-600 text-sm">{internship.category}</span>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        {internship.description}
+                      </p>
+                      <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                        <div className="flex items-center">
+                          <Wifi className="mr-1 text-red-600" size={14} />
+                          <span>{internship.mode}</span>
+                        </div>
+                       
                       </div>
-                      <div className="flex items-center text-sm text-gray-500 mb-3">
-                        <Wifi className="mr-1 text-red-600" size={14} />
-                        <span>{internship.mode}</span>
-                      </div>
-                      <div className="border-t pt-3">
+                      <div className="flex items-center justify-between border-t pt-3">
+
                         <span className="text-red-600 text-sm font-semibold flex items-center hover:underline group-hover:gap-1 transition-all">
-                          Explore More <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 transition-all" />
+                          Apply Now <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 transition-all" />
                         </span>
                       </div>
                     </div>

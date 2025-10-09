@@ -31,11 +31,12 @@ import {
   Monitor, // Added
   // For API Development
   FileText, // Added
-  // Pricing section icons
-  Monitor as WebIcon,
-  Smartphone as AppIcon,
-  Zap as CombinedIcon,
-  // Add any other icons used in 'whyChoose' sections here
+  // For SEO
+  TrendingUp, // Added
+  Target, // Added
+  Share2, // Added
+
+
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
@@ -47,8 +48,10 @@ import uiuxImg from '../assets/services/uiux.webp';
 import appDesignImg from '../assets/services/app design.webp';
 import videoEditingImg from '../assets/services/video editing.webp';
 import graphicDesignImg from '../assets/services/graphic design.webp';
-// Assuming you have an API development image, if not, use a placeholder or one of the others
 import apiDevelopmentImg from '../assets/services/api-development.webp'; // Ensure this path is correct or use an existing image
+// Add new service image imports
+import seoImg from '../assets/services/seo.webp'; // Add your SEO image
+import digitalMarketingImg from '../assets/services/digital-marketing.webp'; // Add your Digital Marketing image
 
 // --- Types ---
 export interface Service { // Export the interface
@@ -88,7 +91,7 @@ const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className = '' }) => (
   />
 );
 
-// --- Service Data (Only specified services) ---
+// --- Service Data (Updated with SEO and Digital Marketing) ---
 export const services: Service[] = [ // Export the data array
   {
     id: 'web-development',
@@ -127,7 +130,7 @@ export const services: Service[] = [ // Export the data array
       { title: 'SEO & Accessibility', icon: <Search className="text-green-500" size={20} /> },
       { title: 'Scalable Solutions', icon: <BarChart2 className="text-purple-500" size={20} /> }
     ],
-    relatedServices: ['ui-ux', 'app-development'], // Removed non-existent services
+    relatedServices: ['ui-ux', 'app-development', 'seo'], // Added SEO
     ctaText: 'Build Your Dream Website'
   },
   {
@@ -247,7 +250,7 @@ export const services: Service[] = [ // Export the data array
       { title: 'Fast Turnaround', icon: <Zap className="text-yellow-500" size={20} /> }, // Reused existing import
       { title: 'Multiple Formats', icon: <Layers className="text-purple-500" size={20} /> } // Fixed: Imported and used
     ],
-    relatedServices: ['graphic-design'],
+    relatedServices: ['graphic-design', 'digital-marketing'], // Added Digital Marketing
     ctaText: 'Tell Your Story Visually'
   },
   {
@@ -287,7 +290,7 @@ export const services: Service[] = [ // Export the data array
       { title: 'Quick Revisions', icon: <RefreshCw className="text-blue-500" size={20} /> }, // Reused existing import
       { title: 'Print & Digital Ready', icon: <Monitor className="text-gray-500" size={20} /> } // Fixed: Imported and used
     ],
-    relatedServices: ['video-editing', 'web-development'],
+    relatedServices: ['video-editing', 'web-development', 'digital-marketing'], // Added Digital Marketing
     ctaText: 'Elevate Your Brand Visually'
   },
   {
@@ -329,6 +332,92 @@ export const services: Service[] = [ // Export the data array
     ],
     relatedServices: ['web-development', 'app-development'],
     ctaText: 'Connect Your Systems'
+  },
+  // --- NEW SERVICE: SEO ---
+  {
+    id: 'seo',
+    title: 'SEO Optimization',
+    subtitle: 'Dominate Search Engine Rankings',
+    description: 'Drive organic traffic and grow your online presence with proven SEO strategies.',
+    longDescription: 'Search Engine Optimization (SEO) is crucial for increasing your website\'s visibility on search engines like Google. Our comprehensive SEO services include technical optimization, content strategy, link building, and performance monitoring. We help you rank higher for relevant keywords, attract qualified visitors, and ultimately increase conversions and revenue.',
+    image: seoImg, // Use your new SEO image
+    icon: <TrendingUp className="text-green-600" size={24} />,
+    features: [
+      'Technical SEO Audit',
+      'Keyword Research & Strategy',
+      'On-Page Optimization',
+      'Content Creation & Optimization',
+      'Link Building',
+      'Local SEO',
+      'Performance Monitoring & Reporting'
+    ],
+    technologies: ['Google Analytics', 'Google Search Console', 'SEMrush', 'Ahrefs', 'Moz', 'Yoast SEO'],
+    benefits: [
+      'Increased organic website traffic',
+      'Higher search engine rankings',
+      'Improved brand credibility',
+      'Long-term, sustainable growth',
+      'Better ROI compared to paid ads'
+    ],
+    process: [
+      'Initial SEO Audit & Competitor Analysis',
+      'Keyword Research & Strategy Development',
+      'Technical & On-Page Optimization',
+      'Content Creation & Link Building',
+      'Performance Monitoring & Reporting',
+      'Strategy Refinement & Ongoing Optimization'
+    ],
+    whyChoose: [
+      { title: 'Proven Results', icon: <TrendingUp className="text-blue-500" size={20} /> },
+      { title: 'White-Hat Techniques', icon: <Shield className="text-green-500" size={20} /> },
+      { title: 'Keyword Focused', icon: <Target className="text-purple-500" size={20} /> },
+      { title: 'Transparent Reporting', icon: <BarChart2 className="text-yellow-500" size={20} /> }
+    ],
+    relatedServices: ['web-development', 'content-writing', 'digital-marketing'], // Added Content Writing, Digital Marketing
+    ctaText: 'Rank Higher on Google'
+  },
+  // --- NEW SERVICE: Digital Marketing ---
+  {
+    id: 'digital-marketing',
+    title: 'Digital Marketing',
+    subtitle: 'Reach & Engage Your Audience',
+    description: 'Comprehensive online marketing strategies to grow your brand and business.',
+    longDescription: 'Our digital marketing services encompass a wide range of online channels to promote your business effectively. From Pay-Per-Click (PPC) advertising and Social Media Marketing to Email Campaigns and Content Marketing, we develop integrated strategies tailored to your goals. We help you reach your target audience, build brand awareness, drive traffic, and generate leads or sales.',
+    image: digitalMarketingImg, // Use your new Digital Marketing image
+    icon: <Share2 className="text-blue-600" size={24} />,
+    features: [
+      'Search Engine Marketing (SEM/PPC)',
+      'Social Media Marketing (SMM)',
+      'Email Marketing Campaigns',
+      'Content Marketing Strategy',
+      'Influencer Marketing',
+      'Marketing Automation',
+      'Analytics & ROI Tracking'
+    ],
+    technologies: ['Google Ads', 'Meta Ads Manager', 'Mailchimp', 'HubSpot', 'Hootsuite', 'Google Analytics', 'Facebook Pixel'],
+    benefits: [
+      'Targeted reach to potential customers',
+      'Increased brand awareness and engagement',
+      'Measurable results and ROI',
+      'Cost-effective marketing compared to traditional methods',
+      'Flexibility to adjust campaigns in real-time'
+    ],
+    process: [
+      'Marketing Strategy & Goal Definition',
+      'Target Audience Research',
+      'Channel Selection & Campaign Setup',
+      'Content Creation & Ad Design',
+      'Campaign Launch & Management',
+      'Monitoring, Analysis & Optimization'
+    ],
+    whyChoose: [
+      { title: 'Multi-Channel Approach', icon: <Share2 className="text-purple-500" size={20} /> },
+      { title: 'Data-Driven Decisions', icon: <BarChart2 className="text-green-500" size={20} /> },
+      { title: 'Audience Focused', icon: <Users className="text-blue-500" size={20} /> },
+      { title: 'Measurable ROI', icon: <Target className="text-yellow-500" size={20} /> }
+    ],
+    relatedServices: ['seo', 'content-writing', 'graphic-design', 'video-editing'], // Added Content Writing
+    ctaText: 'Boost Your Online Presence'
   }
 ];
 
@@ -375,7 +464,90 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, index }) => (
   </AnimatedSection>
 );
 
+// --- New Section: Services Overview ---
+const ServicesOverview = () => (
+  <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection>
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Services</span>
+          </h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            We offer a comprehensive suite of digital solutions to help your business grow, connect, and succeed in the modern marketplace.
+          </p>
+        </div>
+      </AnimatedSection>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {services.map((service, index) => (
+          <AnimatedSection key={service.id} delay={index * 0.1}>
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 flex items-start"
+            >
+              <div className="p-3 bg-red-100 rounded-lg mr-4">
+                {service.icon}
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">{service.title}</h3>
+                <p className="text-gray-600 text-sm mt-1">{service.subtitle}</p>
+                <p className="text-gray-500 text-sm mt-2">{service.description}</p>
+                <Link
+                  to={`/services/${service.id}`}
+                  className="mt-3 inline-flex items-center text-sm font-medium text-red-600 hover:underline"
+                >
+                  Learn More
+                  <ArrowRight className="ml-1 w-4 h-4" />
+                </Link>
+              </div>
+            </motion.div>
+          </AnimatedSection>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+// --- New Section: Why Choose Us (Summary) ---
+const WhyChooseUsSummary = () => (
+  <section className="py-16 bg-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection>
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Edizo?</span>
+          </h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            We combine technical expertise with creative vision to deliver solutions that exceed expectations.
+          </p>
+        </div>
+      </AnimatedSection>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {[
+          { title: "Expert Team", description: "Skilled professionals with deep industry knowledge.", icon: <Users className="w-8 h-8 text-red-500" /> },
+          { title: "Innovation", description: "Cutting-edge solutions tailored to your unique needs.", icon: <Zap className="w-8 h-8 text-red-500" /> },
+          { title: "Quality Focus", description: "Rigorous testing and quality assurance at every step.", icon: <Shield className="w-8 h-8 text-red-500" /> },
+          { title: "Client Partnership", description: "We work closely with you as a trusted partner.", icon: <TrendingUp className="w-8 h-8 text-red-500" /> }
+        ].map((item, index) => (
+          <AnimatedSection key={item.title} delay={index * 0.1}>
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="bg-gray-50 p-6 rounded-xl text-center border border-gray-100 hover:border-red-200 transition-colors duration-300"
+            >
+              <div className="flex justify-center mb-4">
+                {item.icon}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
+              <p className="text-gray-600 text-sm">{item.description}</p>
+            </motion.div>
+          </AnimatedSection>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
 // --- Main Component ---
 const Services: React.FC = () => {
@@ -383,7 +555,7 @@ const Services: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   // Simple category filtering based on service ID or title keywords
-  const categories = ['All', 'Development', 'Design', 'API'];
+  const categories = ['All', 'Development', 'Design', 'API', 'Marketing'];
 
   const filteredServices = services.filter(service => {
     const matchesSearch =
@@ -406,6 +578,9 @@ const Services: React.FC = () => {
         case 'API':
           matchesCategory = titleLower.includes('api');
           break;
+        case 'Marketing':
+          matchesCategory = titleLower.includes('seo') || titleLower.includes('marketing');
+          break;
         default:
           matchesCategory = true;
       }
@@ -422,20 +597,16 @@ const Services: React.FC = () => {
         variant="services"
       />
 
-      {/* What We Offer */}
-      <section className="py-16 bg-gradient-to-r from-gray-50 via-white to-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                What We <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Offer</span>
-              </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                A full spectrum of services to help your business thrive in the digital age.
-              </p>
-            </div>
-          </AnimatedSection>
+      {/* New Services Overview Section */}
+      <ServicesOverview />
 
+      {/* Search and Filter Section */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Find Your Perfect Service</h2>
+            <p className="text-gray-600">Explore our offerings and see how we can help you achieve your goals.</p>
+          </div>
           {/* Search and Filter */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div className="relative w-full md:w-1/2">
@@ -489,7 +660,8 @@ const Services: React.FC = () => {
         </div>
       </section>
 
-
+      {/* New Why Choose Us Summary Section */}
+      <WhyChooseUsSummary />
 
       {/* CTA Banner */}
       <section className="py-16 bg-gradient-to-r from-red-600 via-orange-500 to-pink-500 text-white">

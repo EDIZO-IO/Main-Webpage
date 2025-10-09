@@ -162,53 +162,56 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // --- FIX 1: Removed incorrect API_BASE_URL ---
-  // const API_BASE_URL = 'https://your-api-url.com  '; // ❌ Incorrect and won't work
+  // --- ADD: Define your backend API URL ---
+  // Replace this with your actual backend URL (e.g., 'https://your-app-name.onrender.com' when deployed)
+ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';// Uses env var or defaults to localhost
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // --- FIX 2: Updated handleSubmit to use a functional email link ---
+  // --- UPDATE: handleSubmit to send data to backend ---
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setFormError(null);
 
     try {
-      // Construct mailto link with pre-filled fields
-      const subject = encodeURIComponent(`Contact Form: ${formData.subject || 'General Inquiry'}`);
-      const body = encodeURIComponent(
-        `Name: ${formData.name}\n\n` +
-        `Email: ${formData.email}\n\n` +
-        `Phone: ${formData.phone || 'N/A'}\n\n` +
-        `Message:\n${formData.message}`
-      );
-      const mailtoLink = `mailto:edizoofficial@gmail.com?subject=${subject}&body=${body}`;
+      // Make the API call to your backend
+      const response = await fetch(`${API_BASE_URL}/api/send-contact-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-      // Attempt to open the user's default email client
-      window.location.href = mailtoLink;
+      const result = await response.json();
 
-      // Assume success for UI purposes (as we can't easily wait for the email client)
-      // In a real backend scenario, you'd wait for the fetch response.
-      setFormSubmitted(true);
-      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      if (result.success) {
+        // If the backend returns success, show the thank you message
+        setFormSubmitted(true);
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      } else {
+        // If the backend returns an error, show it
+        setFormError(result.message || "An error occurred while sending the message.");
+      }
     } catch (error) {
-      console.error('❌ Error initiating email:', error);
-      setFormError("Failed to open email client. Please try again or use the contact information provided.");
+      // Handle network errors or other unexpected issues
+      console.error('❌ Error submitting form:', error);
+      setFormError("Failed to send message. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // --- FIX 3: Corrected Schema.org URLs ---
+  // --- Schema.org (Corrected URLs) ---
   useEffect(() => {
     const schema = {
       "@context": "https://schema.org", // ✅ Removed trailing spaces
       "@type": "ContactPage",
       "name": "Contact Edizo",
-      // ✅ Ensure this URL matches your actual contact page route
       "url": "https://www.edizo.in/contact", // ✅ Removed trailing spaces
       "description": "Get in touch with Edizo for inquiries about UI/UX, web & app development, and digital design services.",
       "mainEntity": {
@@ -228,7 +231,7 @@ const Contact = () => {
           "https://www.facebook.com/profile.php?id=61576742758066",
           "https://x.com/EdizoPvtLtd", // ✅ Fixed Twitter/X URL (removed extra spaces)
           "https://www.linkedin.com/in/edizo-pvt-ltd-149748367/", // ✅ Removed trailing spaces
-          "https://www.instagram.com/e.d.i.z.o._official/", // ✅ Removed trailing spaces (ensure correct)
+          "https://www.instagram.com/e.d.i.z.o._official/", // ✅ Removed trailing spaces
           "https://www.youtube.com/@team-edizo" // ✅ Removed trailing spaces
         ]
       }
@@ -353,7 +356,7 @@ const Contact = () => {
                       { platform: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61576742758066', icon: Facebook },
                       { platform: 'Twitter', url: 'https://x.com/EdizoPvtLtd', icon: Twitter }, // ✅ Updated URL
                       { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/', icon: Linkedin }, // ✅ Capitalized
-                      { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/', icon: Instagram }, // ✅ Ensure correct URL
+                      { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/', icon: Instagram }, // Ensure correct URL
                       { platform: 'YouTube', url: 'https://www.youtube.com/@team-edizo', icon: Youtube } // ✅ Capitalized
                     ].map((social, i) => {
                       const IconComponent = social.icon;
@@ -406,8 +409,7 @@ const Contact = () => {
                     </div>
                     <h4 className="text-2xl font-bold mb-3 text-gray-900">Thank You!</h4>
                     <p className="text-gray-700 text-lg mb-8">
-                      Your message has been prepared for our email client. We will get back to you shortly.
-                      {/* You can adjust this message based on the mailto behavior */}
+                      Your message has been sent successfully. We will get back to you shortly.
                     </p>
                     <Button variant="outline" onClick={() => setFormSubmitted(false)} size="lg">
                       Send Another Message
@@ -507,7 +509,7 @@ const Contact = () => {
                       disabled={loading}
                       iconRight={loading ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
                     >
-                      {loading ? 'Preparing Email...' : 'Send Message'} {/* ✅ Updated button text */}
+                      {loading ? 'Sending...' : 'Send Message'} {/* ✅ Updated button text */}
                     </Button>
                   </form>
                 )}

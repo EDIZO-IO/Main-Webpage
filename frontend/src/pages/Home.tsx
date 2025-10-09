@@ -1,18 +1,20 @@
+// src/pages/Home.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import {
-  Users,
-  Briefcase as ProjectsIcon,
-  UserCheck,
-  Star,
+
+
+
   ArrowRight,
-  MessageCircle,
-  Target,
-  Zap,
-  Shield,
-  Palette,
-  Video,
+
+  Calendar,
+
+  
+  Target as TargetIcon,
+  Zap as ZapIcon,
+  Shield as ShieldIcon2,
+
 } from 'lucide-react';
 
 // Import Assets
@@ -26,11 +28,15 @@ import uiuxImg from '../assets/services/uiux.webp';
 import appDesignImg from '../assets/services/app design.webp';
 import videoEditingImg from '../assets/services/video editing.webp';
 import graphicDesignImg from '../assets/services/graphic design.webp';
+import apiDevelopmentImg from '../assets/services/api-development.webp'; // Ensure this path is correct
+import seoImg from '../assets/services/seo.webp'; // Ensure this path is correct
+import digitalMarketingImg from '../assets/services/digital-marketing.webp'; // Ensure this path is correct
 
 // Internship Images
 import uiux from '../assets/images/web-design.png';
 import webdevelop from '../assets/images/web-development.png';
 import aiml from '../assets/images/ai-assistant.png';
+
 
 // Type definitions
 interface LazyImageProps {
@@ -54,7 +60,6 @@ interface ServiceCardProps {
   title: string;
   desc: string;
   link: string;
-  isGraphicsOrVideo?: boolean;
 }
 
 interface PortfolioCardProps {
@@ -62,6 +67,8 @@ interface PortfolioCardProps {
   title: string;
   category?: string;
   link: string;
+  shortDescription?: string;
+  isExternal?: boolean; // Added for external links
   isInternship?: boolean;
 }
 
@@ -118,12 +125,10 @@ const StatCard: React.FC<StatCardProps> = ({ value, label }) => (
 );
 
 // Service Card
-const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link, isGraphicsOrVideo = false }) => (
+const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link }) => (
   <AnimatedSection>
     <motion.div
-      className={`relative rounded-2xl shadow-lg border border-gray-100/50 overflow-hidden ${
-        isGraphicsOrVideo ? 'bg-gradient-to-br from-red-100 via-orange-100 to-pink-100' : 'bg-white/90 backdrop-blur-sm'
-      } transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl group`}
+      className="relative rounded-2xl shadow-lg border border-gray-100/50 overflow-hidden bg-white/90 backdrop-blur-sm transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl group"
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -133,32 +138,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link, isGra
           alt={title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        {isGraphicsOrVideo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 bg-black/60 flex items-center justify-center"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              whileHover={{ scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center"
-            >
-              {title === 'Graphic Design' ? (
-                <Palette className="text-red-600" size={28} />
-              ) : (
-                <Video className="text-red-600" size={28} />
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-        {isGraphicsOrVideo && (
-          <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-            {title === 'Graphic Design' ? 'BRANDING' : 'VIDEO'}
-          </div>
-        )}
       </div>
       <div className="p-6">
         <h3 className="text-xl font-semibold text-gray-800 group-hover:text-red-600 transition-colors">
@@ -183,12 +162,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link, isGra
 );
 
 // Portfolio Card (Projects & Internships)
-const PortfolioCard: React.FC<PortfolioCardProps> = ({ img, title, category, link, isInternship = false }) => (
-  <AnimatedSection>
-    <motion.div
-      className="relative rounded-xl shadow-md border border-gray-100/50 overflow-hidden bg-white/90 backdrop-blur-sm transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl"
-      whileHover={{ y: -6 }}
-    >
+const PortfolioCard: React.FC<PortfolioCardProps> = ({ img, title, category, link, shortDescription, isExternal = false, isInternship = false }) => {
+  const content = (
+    <>
       <div className="relative h-40 overflow-hidden">
         <LazyImage src={img} alt={title} className="w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
         {category && (
@@ -199,16 +175,51 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ img, title, category, lin
       </div>
       <div className="p-5">
         <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+        {shortDescription && (
+          <p className="text-gray-600 text-sm mt-1 line-clamp-2">{shortDescription}</p>
+        )}
         {isInternship && (
           <p className="text-gray-600 text-sm mt-1">
             Gain real-world experience on live projects.
           </p>
         )}
-        <Link to={link} className="absolute inset-0 z-10" aria-label={`View ${title}`} />
       </div>
-    </motion.div>
-  </AnimatedSection>
-);
+    </>
+  );
+
+  if (isExternal) {
+    return (
+      <AnimatedSection>
+        <motion.div
+          className="relative rounded-xl shadow-md border border-gray-100/50 overflow-hidden bg-white/90 backdrop-blur-sm transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl"
+          whileHover={{ y: -6 }}
+        >
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block h-full"
+          >
+            {content}
+          </a>
+        </motion.div>
+      </AnimatedSection>
+    );
+  } else {
+    return (
+      <AnimatedSection>
+        <motion.div
+          className="relative rounded-xl shadow-md border border-gray-100/50 overflow-hidden bg-white/90 backdrop-blur-sm transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl"
+          whileHover={{ y: -6 }}
+        >
+          <Link to={link} className="block h-full">
+            {content}
+          </Link>
+        </motion.div>
+      </AnimatedSection>
+    );
+  }
+};
 
 // CTA Button
 const CTAButton: React.FC<CTAButtonProps> = ({ to, children, variant = "primary", icon: Icon }) => {
@@ -219,6 +230,20 @@ const CTAButton: React.FC<CTAButtonProps> = ({ to, children, variant = "primary"
     secondary: `${base} bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-gray-50/80 border border-gray-300 focus:ring-gray-400`,
     event: `${base} bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 hover:shadow-md focus:ring-purple-500`,
   };
+
+  if (to.startsWith('http')) { // Check if it's an external link
+    return (
+      <a
+        href={to}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={variants[variant]}
+      >
+        {children}
+        {Icon && <Icon size={20} />}
+      </a>
+    );
+  }
 
   return (
     <Link to={to} className={variants[variant]}>
@@ -399,7 +424,7 @@ const Home: React.FC = () => {
   const featuredProjects = [
     {
       id: 'cybersecurity',
-      img: 'https://placehold.co/600x400/eee/999?text=Cybersecurity',
+      img: ransomware,
       title: 'AI-Based Ransomware Detection System',
       category: 'Cybersecurity',
       link: 'https://bytecode.edizo.in', // Link to external site
@@ -407,7 +432,7 @@ const Home: React.FC = () => {
     },
     {
       id: 'ai-computer-vision',
-      img: 'https://placehold.co/600x400/eee/999?text=AI+%26+Computer+Vision',
+      img: faceguard,
       title: 'FaceGuard-GAN Deepfake Detection',
       category: 'Computer Vision & AI',
       link: 'https://bytecode.edizo.in', // Link to external site
@@ -415,13 +440,92 @@ const Home: React.FC = () => {
     },
     {
       id: 'web-development',
-      img: 'https://placehold.co/600x400/eee/999?text=Web+Development',
+      img: Epicnexus,
       title: 'Epic Nexus Gaming Community Platform',
       category: 'Web Development',
       link: 'https://bytecode.edizo.in', // Link to external site
       shortDescription: 'Comprehensive gaming community platform with social features and reviews'
     }
   ];
+
+  const featuredInternships = [
+    {
+      id: 'web-dev',
+      img: webdevelop,
+      title: 'Web Development',
+      link: '/internships/web-development',
+      isExternal: false,
+      isInternship: true,
+    },
+    {
+      id: 'ui-ux',
+      img: uiux,
+      title: 'UI/UX Design Intern',
+      link: '/internships/ui-ux-design',
+      isExternal: false,
+      isInternship: true,
+    },
+    {
+      id: 'ai-ml',
+      img: aiml,
+      title: 'AI & Machine Learning',
+      link: '/internships/ai-ml',
+      isExternal: false,
+      isInternship: true,
+    }
+  ];
+
+  const featuredServices = [
+    { 
+      img: webDevelopment, 
+      title: "Web Development", 
+      desc: "Fast, scalable websites with React & Next.js.", 
+      link: "/services/web-development" 
+    },
+    { 
+      img: uiuxImg, 
+      title: "UI/UX Design", 
+      desc: "Human-centered design that users love.", 
+      link: "/services/ui-ux" 
+    },
+    { 
+      img: appDesignImg, 
+      title: "App Development", 
+      desc: "Cross-platform apps with React Native & Flutter.", 
+      link: "/services/app-development" 
+    },
+    { 
+      img: videoEditingImg, 
+      title: "Video Editing", 
+      desc: "Engaging visuals for brand storytelling.", 
+      link: "/services/video-editing"
+    },
+    { 
+      img: graphicDesignImg, 
+      title: "Graphic Design", 
+      desc: "Brand-aligned visuals that elevate identity.", 
+      link: "/services/graphic-design"
+    },
+    { 
+      img: apiDevelopmentImg, 
+      title: "API Development", 
+      desc: "Robust, scalable APIs for seamless integration.", 
+      link: "/services/api-development"
+    },
+    { 
+      img: seoImg, 
+      title: "SEO Optimization", 
+      desc: "Dominate search engine rankings organically.", 
+      link: "/services/seo"
+    },
+    { 
+      img: digitalMarketingImg, 
+      title: "Digital Marketing", 
+      desc: "Reach & engage your audience across channels.", 
+      link: "/services/digital-marketing"
+    },
+  ];
+
   return (
     <div className="bg-gradient-to-b from-gray-50 to-blue-50" id="home" role="main">
       <Hero />
@@ -431,9 +535,7 @@ const Home: React.FC = () => {
         <div className="container mx-auto px-6 text-center max-w-3xl">
           <AnimatedSection>
             <div className="inline-flex items-center gap-2 px-5 py-2 bg-purple-100/80 backdrop-blur-sm text-purple-700 rounded-full font-medium text-sm mb-5 border border-purple-100/50">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <Calendar className="w-4 h-4" />
               Upcoming Events
             </div>
             <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-5">
@@ -471,41 +573,8 @@ const Home: React.FC = () => {
             <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-4">Our Services</h2>
             <p className="text-gray-600 text-center mb-10">Expert solutions loved by clients.</p>
           </AnimatedSection>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {[
-              { 
-                img: webDevelopment, 
-                title: "Web Development", 
-                desc: "Fast, scalable websites with React & Next.js.", 
-                link: "/services/web-development" 
-              },
-              { 
-                img: uiuxImg, 
-                title: "UI/UX Design", 
-                desc: "Human-centered design that users love.", 
-                link: "/services/ui-ux" 
-              },
-              { 
-                img: appDesignImg, 
-                title: "App Development", 
-                desc: "Cross-platform apps with React Native & Flutter.", 
-                link: "/services/app-development" 
-              },
-              { 
-                img: videoEditingImg, 
-                title: "Video Editing", 
-                desc: "Engaging visuals for brand storytelling.", 
-                link: "/services/video-editing",
-                isGraphicsOrVideo: true 
-              },
-              { 
-                img: graphicDesignImg, 
-                title: "Graphic Design", 
-                desc: "Brand-aligned visuals that elevate identity.", 
-                link: "/services/graphic-design",
-                isGraphicsOrVideo: true 
-              },
-            ].map((service) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            {featuredServices.map((service) => (
               <ServiceCard key={service.title} {...service} />
             ))}
           </div>
@@ -521,50 +590,15 @@ const Home: React.FC = () => {
           </AnimatedSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {featuredProjects.map((project) => (
-              <AnimatedSection key={project.id}>
-                <motion.div
-                  className="relative rounded-xl shadow-md border border-gray-100/50 overflow-hidden bg-white/90 backdrop-blur-sm transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl"
-                  whileHover={{ y: -6 }}
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    <LazyImage
-                      src={project.img}
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
-                    />
-                    <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2.5 py-1 rounded-full font-semibold">
-                      {project.category}
-                    </span>
-                  </div>
-                  <div className="p-5">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{project.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.shortDescription}</p>
-                    {/* Changed from Link to external <a> tag */}
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-full font-medium text-sm hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-md"
-                    >
-                      View Details
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </a>
-                  </div>
-                </motion.div>
-              </AnimatedSection>
+              <PortfolioCard key={project.id} {...project} isExternal />
             ))}
           </div>
           <div className="text-center mt-8">
             {/* Changed CTA button to link to external site */}
-            <a
-              href="https://bytecode.edizo.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 min-h-12 bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600 hover:shadow-md focus:ring-red-500"
-            >
+            <CTAButton to="https://bytecode.edizo.in" variant="primary">
               View All Projects
               <ArrowRight size={20} />
-            </a>
+            </CTAButton>
           </div>
         </div>
       </section>
@@ -579,9 +613,9 @@ const Home: React.FC = () => {
           </AnimatedSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: Zap, title: "Fast Delivery", desc: "On schedule — every time." },
-              { icon: Shield, title: "100% Satisfaction", desc: "We revise until you're thrilled." },
-              { icon: Target, title: "Results-Driven", desc: "Optimized for growth & impact." },
+              { icon: ZapIcon, title: "Fast Delivery", desc: "On schedule — every time." },
+              { icon: ShieldIcon2, title: "100% Satisfaction", desc: "We revise until you're thrilled." },
+              { icon: TargetIcon, title: "Results-Driven", desc: "Optimized for growth & impact." },
             ].map((item, i) => (
               <AnimatedSection key={item.title} delay={0.1 * i}>
                 <div className="text-center p-5 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-white/95 border border-gray-100/50 hover:border-gray-200/50 transition-all duration-300">
@@ -605,13 +639,15 @@ const Home: React.FC = () => {
             <p className="text-gray-600 text-center mb-10">Launch your career with hands-on experience.</p>
           </AnimatedSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { img: webdevelop, title: "Web Development", link: "/internships/web-development" },
-              { img: uiux, title: "UI/UX Design Intern", link: "/internships/ui-ux-design" },
-              { img: aiml, title: "AI & Machine Learning", link: "/internships/ai-ml" },
-            ].map((item) => (
-              <PortfolioCard key={item.title} {...item} isInternship />
+            {featuredInternships.map((item) => (
+              <PortfolioCard key={item.id} {...item} />
             ))}
+          </div>
+          <div className="text-center mt-8">
+            <CTAButton to="/internships" variant="primary">
+              Explore All Internships
+              <ArrowRight size={20} />
+            </CTAButton>
           </div>
         </div>
       </section>

@@ -16,17 +16,18 @@ const PORT = process.env.PORT || 3001;
 app.set('trust proxy', 1); // Trust the first proxy (e.g., Render's load balancer)
 
 // ✅ Allowed origins list
+// Note: Trailing spaces removed from some URLs for better matching
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://edizo-intern.netlify.app',
-  'https://edizo-io.netlify.app',
-  'https://main-webpage.netlify.app',
-  'https://edizo.github.io',
-  'https://edizo.github.io/Main-Webpage',
-  'https://main-webpage-l85m.onrender.com',
-  'https://www.edizo.in',
-  'https://edizo.in',
+  'https://edizo-intern.netlify.app', // Removed trailing space
+  'https://edizo-io.netlify.app', // Removed trailing space
+  'https://main-webpage.netlify.app', // Removed trailing space
+  'https://edizo.github.io', // Removed trailing space
+  'https://edizo.github.io/Main-Webpage', // Removed trailing space
+  'https://main-webpage-l85m.onrender.com', // Removed trailing space
+  'https://www.edizo.in', // Removed trailing space
+  'https://edizo.in', // Removed trailing space
 ];
 const netlifyPattern = /^https:\/\/.*\.netlify\.app$/;
 
@@ -71,7 +72,7 @@ const limiter = rateLimit({
 
 // ✅ Health check route
 app.get('/', (req, res) => {
-  res.send('✅ EDIZO Backend is running.');
+  res.send('✅ EDIZO Backend (Email Only) is running.');
 });
 
 // ✅ Nodemailer transport configuration with pooling
@@ -82,7 +83,7 @@ const transporter = nodemailer.createTransport({
   secure: false, // Use TLS
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    pass: process.env.EMAIL_PASS, // Use App Password
   },
   maxConnections: 5, // Limit concurrent connections
   maxMessages: 10, // Limit messages per connection
@@ -97,6 +98,7 @@ const transporter = nodemailer.createTransport({
 transporter.verify((error, success) => {
   if (error) {
     console.error('❌ Nodemailer verification failed:', error.message);
+    console.error('Ensure EMAIL_USER and EMAIL_PASS (App Password) are correct.');
   } else {
     console.log('✅ Nodemailer is ready to send emails.');
   }
@@ -128,7 +130,7 @@ async function sendMail(to, subject, html, retries = 3) {
   }
 }
 
-// ✅ Internship application handler
+// ✅ Updated Internship application handler (No DB storage)
 app.post('/api/send-email', limiter, async (req, res) => {
   const data = req.body;
   const applicantEmail = data.email;
@@ -136,7 +138,7 @@ app.post('/api/send-email', limiter, async (req, res) => {
 
   try {
     if (!applicantEmail || !/\S+@\S+\.\S+/.test(applicantEmail)) {
-      throw new Error('Invalid applicant email');
+      return res.status(400).json({ success: false, message: 'Invalid applicant email' });
     }
 
     // Normalize undefined price or period to 'N/A'
@@ -288,7 +290,7 @@ app.post('/api/send-email', limiter, async (req, res) => {
   }
 });
 
-// ✅ Contact form handler
+// ✅ Updated Contact form handler (No DB storage)
 app.post('/api/send-contact-email', limiter, async (req, res) => {
   const data = req.body;
   const userEmail = data.email;
@@ -296,7 +298,7 @@ app.post('/api/send-contact-email', limiter, async (req, res) => {
 
   try {
     if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) {
-      throw new Error('Invalid contact email');
+      return res.status(400).json({ success: false, message: 'Invalid contact email' });
     }
 
     const userHtml = `
@@ -348,6 +350,6 @@ app.listen(PORT, () => {
 // ✅ Handle process termination gracefully
 process.on('SIGTERM', () => {
   console.log('❌ SIGTERM received. Closing server...');
-  transporter.close();
+  transporter.close(); // Close Nodemailer pool
   process.exit(0);
 });

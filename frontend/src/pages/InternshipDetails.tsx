@@ -1,7 +1,7 @@
 // InternshipDetails.tsx
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Wifi, Home, Check, Star, TrendingUp, ArrowLeft, Building2, MapPin, Calendar, Award } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Wifi, Home, Check, Star, TrendingUp, ArrowLeft, Building2, MapPin, Calendar, Award, Users, Zap, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import internshipsData from './internships.json';
 
@@ -55,22 +55,35 @@ const getImageSrc = (id: string | undefined, image: string | undefined): string 
 // Button Component
 interface ButtonProps {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
+  to?: string; // For Link
   variant?: 'primary' | 'outline' | 'default';
   className?: string;
+  disabled?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({ children, onClick, variant = 'default', className = '' }) => {
+const Button: React.FC<ButtonProps> = ({ children, onClick, to, variant = 'default', className = '', disabled = false }) => {
   const variants: Record<string, string> = {
-    primary: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-    outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-400',
-    default: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
+    primary: 'bg-gradient-to-r from-red-600 to-orange-500 text-white hover:from-red-700 hover:to-orange-600 focus:ring-red-500 shadow-md',
+    outline: 'border border-red-600 text-red-600 hover:bg-red-50 focus:ring-red-500',
+    default: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400',
   };
+
+  const baseClasses = `px-6 py-3 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${variants[variant]} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`;
+
+  if (to) {
+    return (
+      <Link to={to} className={baseClasses}>
+        {children}
+      </Link>
+    );
+  }
 
   return (
     <button
       onClick={onClick}
-      className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${variants[variant]} ${className}`}
+      className={baseClasses}
+      disabled={disabled}
     >
       {children}
     </button>
@@ -154,32 +167,28 @@ const InternshipDetails: React.FC = () => {
     }
   }, [internship, id]);
 
-  // JSON-LD for SEO - ✅ Fixed URLs
+  // JSON-LD for SEO - ✅ Fixed URLs, removed pricing
   useEffect(() => {
     if (internship && id) {
       const schema = {
-        '@context': 'https://schema.org', // ✅ Removed trailing spaces
+        '@context': 'https://schema.org',
         '@type': 'Course',
         name: internship.title,
         description: internship.description,
         provider: {
           '@type': 'Organization',
           name: internship.company,
-          url: 'https://www.edizo.in', // ✅ Removed trailing spaces
+          url: 'https://www.edizo.in',
         },
         category: internship.category,
         image: getImageSrc(id, internship.image),
-        offers: {
-          '@type': 'Offer',
-          price: 'Free',
-          priceCurrency: 'INR',
-        },
+        // Removed offers section
         audience: {
           '@type': 'EducationalAudience',
           educationalRole: 'intern',
         },
         timeRequired: activePeriod,
-        url: `https://www.edizo.in/internships/${internship.id}`, // ✅ Removed trailing spaces
+        url: `https://www.edizo.in/internships/${internship.id}`,
       };
 
       const script = document.createElement('script');
@@ -197,7 +206,7 @@ const InternshipDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center py-20 px-6 text-center">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex items-center justify-center py-20 px-6 text-center">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
         <p className="text-gray-600 mt-4">Loading internship details...</p>
       </div>
@@ -206,13 +215,13 @@ const InternshipDetails: React.FC = () => {
 
   if (error || !internship) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center py-20 px-6 text-center">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex flex-col items-center justify-center py-20 px-6 text-center">
         <h1 className="text-3xl font-bold text-gray-800">Internship Not Found</h1>
         <p className="text-lg text-gray-600 mt-2">{error || "The internship you're looking for does not exist."}</p>
         <Button
           onClick={() => navigate('/internships')}
           variant="outline"
-          className="mt-6 border-red-600 text-red-600 hover:bg-red-50"
+          className="mt-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Internships
         </Button>
@@ -224,9 +233,9 @@ const InternshipDetails: React.FC = () => {
   const currentSyllabus = internship.syllabus[activePeriod] || [];
 
   return (
-    <div className="min-h-screen bg-white pt-20 pb-16 px-4 md:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 pt-20 pb-16 px-4 md:px-6 lg:px-8">
       {/* Header Section */}
-      <div className="relative bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 rounded-lg overflow-hidden mb-8">
+      <div className="relative bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 rounded-t-2xl overflow-hidden mb-8">
         <div className="absolute inset-0 bg-black/50 z-10"></div>
         <img
           src={getImageSrc(id, internship.image)}
@@ -262,14 +271,14 @@ const InternshipDetails: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         {/* Back Button */}
         <AnimatedSection>
-          <button
-            onClick={() => navigate('/internships')}
+          <Link
+            to="/internships"
             className="flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm mb-6 transition-all duration-200 group"
             aria-label="Go back to internships"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             <span>Back to Internships</span>
-          </button>
+          </Link>
         </AnimatedSection>
 
         {/* Layout: Sidebar + Content */}
@@ -277,7 +286,7 @@ const InternshipDetails: React.FC = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             <AnimatedSection delay={0.1}>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center mb-5">
                   <img
                     src={getImageSrc(id, internship.image)}
@@ -332,7 +341,7 @@ const InternshipDetails: React.FC = () => {
             </AnimatedSection>
             <AnimatedSection delay={0.2}>
               <Button
-                onClick={() => navigate(`/apply/${id}`)}
+                to={`/apply/${id}`} // Updated link
                 variant="primary"
                 className="w-full text-base font-semibold py-4"
               >
@@ -350,7 +359,7 @@ const InternshipDetails: React.FC = () => {
                   About This Internship
                 </h2>
               </div>
-              <p className="text-gray-600 text-base leading-relaxed mt-3 bg-gray-50 p-6 rounded-lg border-l-4 border-red-600">
+              <p className="text-gray-600 text-base leading-relaxed mt-3 bg-gray-50 p-6 rounded-xl border-l-4 border-red-600">
                 {internship.description}
               </p>
             </AnimatedSection>
@@ -384,7 +393,7 @@ const InternshipDetails: React.FC = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+                  className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
                 >
                   <h4 className="text-lg font-semibold text-gray-800 mb-4">
                     {activePeriod.replace('-', ' ').replace('days', ' Days').replace('month', ' Month').replace('months', ' Months')} Program
@@ -407,7 +416,7 @@ const InternshipDetails: React.FC = () => {
                   </ul>
                 </motion.div>
               ) : (
-                <p className="text-gray-500 text-sm italic bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <p className="text-gray-500 text-sm italic bg-yellow-50 p-4 rounded-xl border border-yellow-200">
                   No syllabus available for this program duration.
                 </p>
               )}
@@ -416,7 +425,7 @@ const InternshipDetails: React.FC = () => {
             <AnimatedSection delay={0.2}>
               <div className="flex items-center mb-4">
                 <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                  <Star className="text-red-600" size={24} />
+                  <Users className="text-red-600" size={24} />
                   Why Choose {internship.company}?
                 </h3>
               </div>
@@ -424,7 +433,7 @@ const InternshipDetails: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
               >
                 <ul className="space-y-3">
                   {internship.whyChooseEdizo.map((item, index) => (
@@ -448,7 +457,7 @@ const InternshipDetails: React.FC = () => {
             <AnimatedSection delay={0.3}>
               <div className="flex items-center mb-4">
                 <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                  <TrendingUp className="text-red-600" size={24} />
+                  <Zap className="text-red-600" size={24} />
                   Career Benefits
                 </h3>
               </div>
@@ -456,7 +465,7 @@ const InternshipDetails: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
               >
                 <ul className="space-y-3">
                   {internship.benefits.map((item, index) => (
@@ -479,11 +488,12 @@ const InternshipDetails: React.FC = () => {
 
             {/* CTA */}
             <AnimatedSection delay={0.4}>
-              <div className="text-center pt-8">
+              <div className="text-center pt-8 bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Ready to Start Your Journey?</h3>
                 <Button
-                  onClick={() => navigate(`/apply/${id}`)}
+                  to={`/apply/${id}`} // Updated link
                   variant="primary"
-                  className="px-10 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 shadow-lg"
+                  className="px-10 py-4 text-lg font-semibold text-white shadow-lg"
                 >
                   Apply Now →
                 </Button>
