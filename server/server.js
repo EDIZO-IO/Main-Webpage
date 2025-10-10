@@ -77,21 +77,24 @@ app.get('/', (req, res) => {
 
 // ✅ Nodemailer transport configuration with pooling
 const transporter = nodemailer.createTransport({
-  pool: true, // Enable connection pooling
+  pool: true, // Enable connection pooling for efficiency
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // Use TLS
+  port: 465, // SSL port
+  secure: true, // Use SSL for port 465
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Use App Password
+    user: process.env.EMAIL_USER, // Your Gmail address
+    pass: process.env.EMAIL_PASS, // Your Gmail App Password
   },
-  maxConnections: 5, // Limit concurrent connections
+  maxConnections: 5, // Limit concurrent SMTP connections
   maxMessages: 10, // Limit messages per connection
-  connectionTimeout: 10000, // 10 seconds timeout
+  connectionTimeout: 10000, // Timeout if server doesn't respond in 10s
   greetingTimeout: 10000,
   socketTimeout: 10000,
-  logger: true, // Enable logging for debugging
-  debug: true, // Detailed debug output
+  tls: {
+    rejectUnauthorized: false, // Avoid self-signed cert issues (safe for Gmail)
+  },
+  logger: true, // Show logs in console
+  debug: true, // Detailed debug info
 });
 
 // ✅ Verify transporter on startup
