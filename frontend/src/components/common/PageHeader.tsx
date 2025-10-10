@@ -35,26 +35,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   return (
     <motion.div
-      className="relative h-72 md:h-80 text-white flex items-center justify-center overflow-hidden"
+      className="relative h-64 md:h-72 lg:h-80 text-white flex items-center justify-center overflow-hidden"
       style={{ y: backgroundY }}
     >
-      {/* Optional: Static Background Image (behind SVG) */}
-      {/* {backgroundImage && (
-        <img
-          src={backgroundImage}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-30" // Adjust opacity as needed
-        />
-      )} */}
-      {/* Or if imported: */}
-      {/* {headerBackgroundImage && (
-        <img
-          src={headerBackgroundImage}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
-        />
-      )} */}
-
       {/* Curved SVG Background with Gradient */}
       <div className="absolute inset-0 z-0">
         <svg
@@ -126,9 +109,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto text-center px-4 sm:px-6 lg:px-8 py-6">
+      <div className="relative z-10 w-full max-w-7xl mx-auto text-center px-4 sm:px-6 lg:px-8">
         <motion.h1
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 font-['Inter',sans-serif] tracking-tight drop-shadow-lg text-white bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 font-['Inter',sans-serif] tracking-tight drop-shadow-lg text-white bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut', type: 'spring', stiffness: 120, damping: 15 }}
@@ -139,7 +122,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         {/* ✅ Render subtitle if it exists, handling both string and ReactNode */}
         {subtitle && (
           <motion.p
-            className="text-sm sm:text-base md:text-lg lg:text-xl text-yellow-100 max-w-4xl mx-auto font-['Inter',sans-serif] leading-relaxed drop-shadow-md"
+            className="text-sm sm:text-base md:text-lg lg:text-xl text-yellow-100 max-w-3xl mx-auto font-['Inter',sans-serif] leading-relaxed drop-shadow-md mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
@@ -150,7 +133,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
         {/* Decorative underline */}
         <motion.div
-          className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 mx-auto mt-4 rounded-full"
+          className="w-20 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 mx-auto rounded-full"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}

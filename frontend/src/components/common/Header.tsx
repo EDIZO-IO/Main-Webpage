@@ -11,20 +11,16 @@ import {
   Phone,
   LogOut,
   User as UserIcon,
-  Sparkles,
-  // New icons for the updated design
-
-
+  ChevronDown,
+  Mail,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './Logo';
 import { auth, googleProvider } from '../../firebaseConfig';
 import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
-
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Define a type for the user data
 interface UserData {
   name: string;
   email: string;
@@ -48,7 +44,6 @@ const Header = () => {
     let unsubscribe: (() => void) | undefined;
     
     const initAuth = async () => {
-      // Set up auth state listener
       unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         if (firebaseUser) {
           const userData: UserData = {
@@ -79,7 +74,7 @@ const Header = () => {
 
   // Scroll effect
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -162,13 +157,12 @@ const Header = () => {
     }
   };
 
-  // Updated navigation links with more specific icons
   const navLinks = [
-    { name: 'HOME', path: '/', icon: Home },
-    { name: 'SERVICES', path: '/services', icon: Code },
-    { name: 'PROJECTS', path: '/projects', icon: Briefcase },
-    { name: 'INTERNSHIPS', path: '/internships', icon: Users },
-    { name: 'CONTACT', path: '/contact', icon: Phone },
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Services', path: '/services', icon: Code },
+    { name: 'Projects', path: '/projects', icon: Briefcase },
+    { name: 'Internships', path: '/internships', icon: Users },
+    { name: 'Contact', path: '/contact', icon: Phone },
   ];
 
   const handleMobileNavigation = (path: string) => {
@@ -179,14 +173,13 @@ const Header = () => {
   // Show loading indicator while initializing auth
   if (isLoading) {
     return (
-      <header className="fixed w-full z-50 bg-gradient-to-r from-red-600 to-orange-500/90 backdrop-blur-md shadow-lg">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-6xl mx-auto rounded-full px-4 md:px-8 h-14 flex items-center justify-between">
+      <header className="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
             <div className="flex items-center">
-              <div className="animate-pulse bg-white/20 rounded-full h-8 w-8"></div>
-              <div className="ml-2 animate-pulse bg-white/20 h-6 w-24 rounded"></div>
+              <div className="animate-pulse bg-gray-200 rounded h-8 w-32"></div>
             </div>
-            <div className="animate-pulse bg-white/20 rounded-full h-10 w-10"></div>
+            <div className="animate-pulse bg-gray-200 rounded h-10 w-24"></div>
           </div>
         </div>
       </header>
@@ -198,66 +191,52 @@ const Header = () => {
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className={`fixed w-full z-50 transition-all duration-300 ${
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className={`fixed w-full top-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100/50'
-            : 'bg-gradient-to-r from-red-600 to-orange-500/90 backdrop-blur-md shadow-lg'
+            ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-100'
+            : 'bg-white/80 backdrop-blur-md'
         }`}
         role="banner"
       >
-        <div className="container mx-auto px-4 md:px-6">
-          <div className={`max-w-6xl mx-auto rounded-full px-4 md:px-8 h-14 flex items-center justify-between transition-all duration-300 ${
-            isScrolled
-              ? 'bg-white/90 backdrop-blur-md shadow-lg border border-gray-200'
-              : 'bg-gradient-to-r from-red-600 to-orange-500/90 backdrop-blur-md border border-white/30'
-          }`}>
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
             <Link
               to="/"
-              className="z-10 flex items-center"
+              className="relative z-10 flex items-center gap-3 group"
               aria-label="Edizo Home"
             >
               <Logo isScrolled={isScrolled} />
+           
             </Link>
 
-            <nav className="hidden md:flex items-center gap-1">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.name}
                   to={link.path}
                   className={({ isActive }) =>
-                    `relative font-medium tracking-wide transition-all duration-300 py-2.5 px-3.5 rounded-full text-sm ${
+                    `relative font-medium text-sm px-4 py-2 rounded-lg transition-all duration-200 ${
                       isActive
-                        ? isScrolled
-                          ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-md' // Active in scrolled state
-                          : 'bg-white text-red-600 shadow-md' // Active in non-scrolled state
-                        : isScrolled
-                        ? 'text-gray-700 hover:text-red-600 hover:bg-red-50/80 border border-transparent hover:border-red-200' // Inactive scrolled
-                        : 'text-white hover:text-white hover:bg-white/20 border border-transparent hover:border-white/30' // Inactive non-scrolled
+                        ? 'text-red-600 bg-red-50'
+                        : 'text-gray-700 hover:text-red-600 hover:bg-gray-50'
                     }`
                   }
                 >
-                  {({ }) => (
-                    <>
-                      <div className="flex items-center gap-1.5">
-                        <link.icon size={16} className="hidden md:block" />
-                        {link.name}
-                      </div>
-                      {/* Removed layoutId underline as it caused layout issues with new bg */}
-                    </>
-                  )}
+                  {link.name}
                 </NavLink>
               ))}
             </nav>
 
-            {/* Desktop Profile Section */}
-            <div className="hidden md:flex items-center gap-2">
+            {/* Desktop CTA & Profile */}
+            <div className="hidden lg:flex items-center gap-4">
               {user ? (
                 <div className="relative" ref={profileRef}>
-                  {/* Profile Button with Google avatar */}
                   <button
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                     aria-haspopup="true"
                     aria-expanded={isProfileOpen}
                     aria-label="User profile"
@@ -266,77 +245,78 @@ const Header = () => {
                       <img
                         src={user.photoURL}
                         alt={`${user.name}'s profile`}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-white shadow"
+                        className="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white font-medium text-sm">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center text-white font-semibold text-sm">
                         {user.name.charAt(0).toUpperCase()}
                       </div>
                     )}
+                    <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {/* Profile Dropdown */}
                   <AnimatePresence>
                     {isProfileOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 origin-top-right"
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden origin-top-right"
                       >
-                        <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="p-4 bg-gradient-to-br from-red-50 to-orange-50 border-b border-gray-100">
                           <div className="flex items-center gap-3">
                             {user.photoURL ? (
                               <img
                                 src={user.photoURL}
                                 alt={`${user.name}'s profile`}
-                                className="w-10 h-10 rounded-full object-cover"
+                                className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-md"
                               />
                             ) : (
-                              <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white font-medium">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center text-white font-semibold text-lg shadow-md">
                                 {user.name.charAt(0).toUpperCase()}
                               </div>
                             )}
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-                              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
+                              <p className="text-xs text-gray-600 truncate flex items-center gap-1">
+                                <Mail size={12} />
+                                {user.email}
+                              </p>
                             </div>
                           </div>
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleLogout();
-                          }}
-                          className="w-full flex items-center gap-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
-                        >
-                          <LogOut size={16} />
-                          <span>Logout</span>
-                        </button>
+                        <div className="p-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleLogout();
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                          >
+                            <LogOut size={18} />
+                            <span>Sign Out</span>
+                          </button>
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
               ) : (
-                // Show Sign In button if not logged in
                 <button
                   onClick={handleGoogleSignIn}
                   disabled={isLoading}
-                  className={`px-4 py-2.5 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${
-                    isScrolled
-                      ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white hover:from-red-700 hover:to-orange-600 shadow-md'
-                      : 'bg-white text-red-600 hover:bg-gray-100 shadow-md'
-                  }`}
+                  className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <>
-                      <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                      <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
                       Signing in...
                     </>
                   ) : (
                     <>
-                      <Sparkles size={16} />
+                      <UserIcon size={18} />
                       Sign In
                     </>
                   )}
@@ -346,17 +326,15 @@ const Header = () => {
 
             {/* Mobile Menu Button */}
             <button
-              className={`md:hidden z-20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-lg p-2.5 transition-colors ${
-                isScrolled ? 'text-gray-900 bg-gray-100 hover:bg-gray-200' : 'text-white bg-white/20 hover:bg-white/30'
-              }`}
+              className="lg:hidden z-20 p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-expanded={isMenuOpen}
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6 text-gray-900" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-6 h-6 text-gray-900" />
               )}
             </button>
           </div>
@@ -369,9 +347,9 @@ const Header = () => {
           <>
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.6 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black z-30"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
               onClick={() => setIsMenuOpen(false)}
               aria-hidden="true"
             />
@@ -381,73 +359,69 @@ const Header = () => {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 w-4/5 max-w-sm h-full bg-gradient-to-b from-red-600 to-orange-500 shadow-2xl z-40 flex flex-col"
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-2xl z-50 flex flex-col"
               role="navigation"
               aria-label="Mobile navigation"
             >
-              <div className="flex items-center justify-between p-5 border-b border-white/20">
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    navigate('/');
-                  }}
-                  className="text-xl font-bold text-white flex items-center gap-2"
-                >
-                  <Sparkles className="text-yellow-300" />
-                  Edizo
-                </button>
+              {/* Mobile Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <Logo isScrolled={true} />
+             
+                </div>
                 <button
                   onClick={() => setIsMenuOpen(false)}
-                  className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                   aria-label="Close mobile menu"
                 >
-                  <X className="w-6 h-6 text-white" />
+                  <X className="w-6 h-6 text-gray-900" />
                 </button>
               </div>
 
-              <nav className="flex-1 p-6 bg-white/5 backdrop-blur-sm">
-                <ul className="space-y-1">
+              {/* Mobile Navigation */}
+              <nav className="flex-1 overflow-y-auto p-6">
+                <ul className="space-y-2">
                   {navLinks.map((link) => {
                     const isActive = location.pathname === link.path;
                     return (
                       <li key={link.name}>
                         <button
                           onClick={() => handleMobileNavigation(link.path)}
-                          className={`flex items-center gap-4 p-3.5 rounded-xl transition-all duration-200 group font-semibold w-full text-left ${
+                          className={`flex items-center gap-4 w-full p-4 rounded-xl transition-all duration-200 font-medium text-left ${
                             isActive
-                              ? 'bg-white text-red-600 shadow-md'
-                              : 'text-white/90 hover:bg-white/10'
+                              ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg'
+                              : 'text-gray-700 hover:bg-gray-50'
                           }`}
                           aria-current={isActive ? 'page' : undefined}
                         >
-                          <link.icon
-                            className={`w-5 h-5 ${isActive ? 'text-red-600' : 'text-white'}`}
-                          />
+                          <link.icon className="w-5 h-5" />
                           <span>{link.name}</span>
                         </button>
                       </li>
                     );
                   })}
+                </ul>
 
-                  {/* Mobile Auth Section */}
-                  {user ? (
-                    <li className="pt-4 mt-4 border-t border-white/20">
-                      <div className="flex items-center gap-3 p-3 bg-white/10 rounded-xl">
+                {/* Mobile Auth Section */}
+                {user ? (
+                  <div className="mt-6 pt-6 border-t border-gray-100">
+                    <div className="p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl">
+                      <div className="flex items-center gap-3 mb-4">
                         {user.photoURL ? (
                           <img
                             src={user.photoURL}
                             alt={`${user.name}'s profile`}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
+                            className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-red-600 font-medium text-lg">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center text-white font-semibold text-lg shadow">
                             {user.name.charAt(0).toUpperCase()}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-white truncate">{user.name}</p>
-                          <p className="text-sm text-white/80 truncate">{user.email}</p>
+                          <p className="font-semibold text-gray-900 truncate">{user.name}</p>
+                          <p className="text-sm text-gray-600 truncate">{user.email}</p>
                         </div>
                       </div>
                       <button
@@ -456,41 +430,42 @@ const Header = () => {
                           handleLogout();
                           setIsMenuOpen(false);
                         }}
-                        className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2.5 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-red-600 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm"
                       >
-                        <LogOut size={16} />
-                        <span>Logout</span>
+                        <LogOut size={18} />
+                        <span>Sign Out</span>
                       </button>
-                    </li>
-                  ) : (
-                    <li className="pt-4 mt-4 border-t border-white/20">
-                      <button
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          handleGoogleSignIn();
-                        }}
-                        disabled={isLoading}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-red-600 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        {isLoading ? (
-                          <>
-                            <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></span>
-                            Signing in...
-                          </>
-                        ) : (
-                          <>
-                            <UserIcon size={16} />
-                            <span>Sign In with Google</span>
-                          </>
-                        )}
-                      </button>
-                    </li>
-                  )}
-                </ul>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-6 pt-6 border-t border-gray-100">
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleGoogleSignIn();
+                      }}
+                      disabled={isLoading}
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+                    >
+                      {isLoading ? (
+                        <>
+                          <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                          Signing in...
+                        </>
+                      ) : (
+                        <>
+                          <UserIcon size={18} />
+                          <span>Sign In with Google</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </nav>
 
-              <div className="p-5 border-t border-white/20 bg-white/5 text-center">
-                <p className="text-sm text-white/80">
+              {/* Mobile Footer */}
+              <div className="p-6 border-t border-gray-100 bg-gray-50">
+                <p className="text-sm text-gray-600 text-center">
                   © {new Date().getFullYear()} Edizo. All rights reserved.
                 </p>
               </div>
@@ -501,7 +476,7 @@ const Header = () => {
       
       <ToastContainer 
         position="top-right"
-        autoClose={5000}
+        autoClose={3000}
         hideProgressBar={false}
         newestOnTop
         closeOnClick
@@ -509,7 +484,8 @@ const Header = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored"
+        theme="light"
+        className="mt-20"
       />
     </>
   );

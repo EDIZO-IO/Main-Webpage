@@ -9,7 +9,7 @@ import {
   CheckCircle,
   Loader2,
   Facebook,
-  Twitter, // Assuming this is 'X'
+  Twitter,
   Linkedin,
   Instagram,
   Youtube,
@@ -18,11 +18,10 @@ import {
   Clock,
   Zap,
   User,
-  Hash, // For Subject
-  MessageSquare, // Alternative for Message
+  Hash,
+  MessageSquare,
 } from 'lucide-react';
 
-// === Type Definitions ===
 interface AnimatedSectionProps {
   children: React.ReactNode;
   delay?: number;
@@ -49,8 +48,6 @@ interface ContactInfoProps {
   gradientClass: string;
   delay?: number;
 }
-
-// --- Reusable Components ---
 
 const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }) => (
   <motion.div
@@ -162,23 +159,19 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // --- ADD: Define your backend API URL ---
-  // Replace this with your actual backend URL (e.g., 'https://your-app-name.onrender.com' when deployed)
- const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';// Uses env var or defaults to localhost
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // --- UPDATE: handleSubmit to send data to backend ---
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setFormError(null);
 
     try {
-      // Make the API call to your backend
       const response = await fetch(`${API_BASE_URL}/api/send-contact-email`, {
         method: 'POST',
         headers: {
@@ -190,15 +183,12 @@ const Contact = () => {
       const result = await response.json();
 
       if (result.success) {
-        // If the backend returns success, show the thank you message
         setFormSubmitted(true);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
       } else {
-        // If the backend returns an error, show it
         setFormError(result.message || "An error occurred while sending the message.");
       }
     } catch (error) {
-      // Handle network errors or other unexpected issues
       console.error('❌ Error submitting form:', error);
       setFormError("Failed to send message. Please check your connection and try again.");
     } finally {
@@ -206,45 +196,43 @@ const Contact = () => {
     }
   };
 
-  // --- Schema.org (Corrected URLs) ---
   useEffect(() => {
     const schema = {
-      "@context": "https://schema.org", // ✅ Removed trailing spaces
+      "@context": "https://schema.org",
       "@type": "ContactPage",
       "name": "Contact Edizo",
-      "url": "https://www.edizo.in/contact", // ✅ Removed trailing spaces
+      "url": "https://www.edizo.in/contact",
       "description": "Get in touch with Edizo for inquiries about UI/UX, web & app development, and digital design services.",
       "mainEntity": {
         "@type": "Organization",
         "name": "Edizo",
-        "url": "https://www.edizo.in", // ✅ Removed trailing spaces
-        "logo": "https://www.edizo.in/logo.png", // ✅ Removed trailing spaces
+        "url": "https://www.edizo.in",
+        "logo": "https://www.edizo.in/logo.png",
         "contactPoint": {
           "@type": "ContactPoint",
           "telephone": "+919876543210",
-          "email": "edizoofficial@gmail.com", // ✅ Updated to primary email
+          "email": "edizoofficial@gmail.com",
           "contactType": "Customer Support",
           "areaServed": "Worldwide",
           "availableLanguage": "English"
         },
         "sameAs": [
           "https://www.facebook.com/profile.php?id=61576742758066",
-          "https://x.com/EdizoPvtLtd", // ✅ Fixed Twitter/X URL (removed extra spaces)
-          "https://www.linkedin.com/in/edizo-pvt-ltd-149748367/", // ✅ Removed trailing spaces
-          "https://www.instagram.com/e.d.i.z.o._official/", // ✅ Removed trailing spaces
-          "https://www.youtube.com/@team-edizo" // ✅ Removed trailing spaces
+          "https://x.com/EdizoPvtLtd",
+          "https://www.linkedin.com/in/edizo-pvt-ltd-149748367/",
+          "https://www.instagram.com/e.d.i.z.o._official/",
+          "https://www.youtube.com/@team-edizo"
         ]
       }
     };
 
     const script = document.createElement('script');
     script.type = 'application/ld+json';
-    script.id = 'contact-schema'; // Add ID for cleanup
+    script.id = 'contact-schema';
     script.innerHTML = JSON.stringify(schema);
     document.head.appendChild(script);
 
     return () => {
-      // Cleanup function to remove the script on component unmount
       const existingScript = document.getElementById('contact-schema');
       if (existingScript && document.head.contains(existingScript)) {
         document.head.removeChild(existingScript);
@@ -253,36 +241,39 @@ const Contact = () => {
   }, []);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Curved Header Section */}
-      <header className="relative w-full bg-gradient-to-br from-red-600 to-orange-600 text-white pt-24 pb-32 overflow-hidden">
+    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen">
+      {/* Professional Header Section */}
+      <header className="relative w-full bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white pt-28 pb-40 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-orange-600/20"></div>
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-red-500 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-72 h-72 bg-orange-500 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-pulse"></div>
+        </div>
+        
         <motion.div
           className="text-center p-6 relative z-10"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight drop-shadow-lg">
-            Contact Us
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-00/30 to-orange-600/30 backdrop-blur-sm rounded-full border border-white/20 mb-6">
+            <Zap size={16} />
+            <span className="text-sm font-medium">Get in Touch</span>
+          </div>
+          <h1 className="text-4xl text-red-600  md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-lg">
+            Let's Start a Conversation
           </h1>
-          <p className="text-lg md:text-xl font-medium drop-shadow max-w-2xl mx-auto">
-            We'd love to hear from you. Reach out and let's create something amazing together.
+          <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed">
+            Have a project in mind? Reach out to our team of experts. We're here to help bring your vision to life with innovative digital solutions.
           </p>
         </motion.div>
-        <svg className="absolute bottom-0 left-0 w-full h-auto text-gray-50" viewBox="0 0 1440 100" fill="currentColor" preserveAspectRatio="none">
-          <path d="M0,0C144,0,288,0,432,0C576,0,720,0,864,0C1008,0,1152,0,1296,0C1440,0,1440,100,1440,100C1296,100,1152,100,1008,100C864,100,720,100,576,100C432,100,288,100,144,100C0,100,0,0,0,0Z"></path>
-        </svg>
       </header>
 
       {/* Main Content Section */}
-      <section className="relative -top-16 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-gray-50 rounded-t-[3rem] p-6 sm:p-8">
+      <section className="relative -top-20 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-white rounded-t-[3rem] p-6 sm:p-8 shadow-lg">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <AnimatedSection>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-100 to-orange-100 text-red-700 rounded-full font-medium text-sm mb-6 border border-red-200/50">
-                <Zap size={16} />
-                Get in Touch
-              </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                 How Can We Help You?
               </h2>
@@ -296,7 +287,7 @@ const Contact = () => {
             {/* Contact Info Cards */}
             <div className="space-y-6 lg:col-span-1">
               <AnimatedSection delay={0.1}>
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-100/50">
+                <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100/50">
                   <h3 className="text-2xl font-bold mb-6 text-gray-900 flex items-center">
                     <MapPin className="w-6 h-6 text-red-500 mr-2" />
                     Contact Information
@@ -345,7 +336,7 @@ const Contact = () => {
               </AnimatedSection>
 
               <AnimatedSection delay={0.5}>
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-100/50">
+                <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100/50">
                   <h3 className="text-2xl font-bold mb-6 text-gray-900 flex items-center">
                     <MessageCircle className="w-6 h-6 text-red-500 mr-2" />
                     Connect With Us
@@ -354,10 +345,10 @@ const Contact = () => {
                   <div className="space-y-4">
                     {[
                       { platform: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61576742758066', icon: Facebook },
-                      { platform: 'Twitter', url: 'https://x.com/EdizoPvtLtd', icon: Twitter }, // ✅ Updated URL
-                      { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/', icon: Linkedin }, // ✅ Capitalized
-                      { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/', icon: Instagram }, // Ensure correct URL
-                      { platform: 'YouTube', url: 'https://www.youtube.com/@team-edizo', icon: Youtube } // ✅ Capitalized
+                      { platform: 'Twitter', url: 'https://x.com/EdizoPvtLtd', icon: Twitter },
+                      { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/edizo-pvt-ltd-149748367/', icon: Linkedin },
+                      { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/', icon: Instagram },
+                      { platform: 'YouTube', url: 'https://www.youtube.com/@team-edizo', icon: Youtube }
                     ].map((social, i) => {
                       const IconComponent = social.icon;
                       return (
@@ -389,7 +380,7 @@ const Contact = () => {
 
             {/* Contact Form */}
             <AnimatedSection delay={0.2}>
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100/50 lg:col-span-2">
+              <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100/50 lg:col-span-2">
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mr-4">
                     <Send className="w-6 h-6 text-white" />
@@ -428,7 +419,7 @@ const Contact = () => {
                     )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                           <User className="w-4 h-4 mr-1" /> Full Name
                         </label>
                         <input
@@ -443,7 +434,7 @@ const Contact = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                           <Mail className="w-4 h-4 mr-1" /> Email Address
                         </label>
                         <input
@@ -459,7 +450,7 @@ const Contact = () => {
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                         <Phone className="w-4 h-4 mr-1" /> Phone Number
                       </label>
                       <input
@@ -473,7 +464,7 @@ const Contact = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                         <Hash className="w-4 h-4 mr-1" /> Subject
                       </label>
                       <input
@@ -488,7 +479,7 @@ const Contact = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                         <MessageSquare className="w-4 h-4 mr-1" /> Your Message
                       </label>
                       <textarea
@@ -509,7 +500,7 @@ const Contact = () => {
                       disabled={loading}
                       iconRight={loading ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
                     >
-                      {loading ? 'Sending...' : 'Send Message'} {/* ✅ Updated button text */}
+                      {loading ? 'Sending...' : 'Send Message'}
                     </Button>
                   </form>
                 )}
