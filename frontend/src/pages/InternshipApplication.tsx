@@ -139,26 +139,26 @@ const coursePeriods: CoursePeriod[] = [
   {
     value: '15-days',
     label: '15 Days',
-    price: 1599,
+    price: 1499,
     description: 'Quick introduction and basics',
   },
   {
     value: '1-month',
     label: '1 Month',
-    price: 2999,
+    price: 2499,
     description: 'Comprehensive learning with projects',
     popular: true,
   },
   {
     value: '2-months',
     label: '2 Months',
-    price: 4599,
+    price: 3499,
     description: 'In-depth training with real-world projects',
   },
   {
     value: '3-months',
     label: '3 Months',
-    price: 7999,
+    price: 4499,
     description: 'Complete mastery with industry exposure',
   },
 ];

@@ -419,7 +419,7 @@ const Contact = () => {
                     )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <label htmlFor="name" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
                           <User className="w-4 h-4 mr-1" /> Full Name
                         </label>
                         <input
@@ -434,7 +434,7 @@ const Contact = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <label htmlFor="email" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
                           <Mail className="w-4 h-4 mr-1" /> Email Address
                         </label>
                         <input
@@ -450,7 +450,7 @@ const Contact = () => {
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <label htmlFor="phone" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
                         <Phone className="w-4 h-4 mr-1" /> Phone Number
                       </label>
                       <input
@@ -464,7 +464,7 @@ const Contact = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <label htmlFor="subject" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
                         <Hash className="w-4 h-4 mr-1" /> Subject
                       </label>
                       <input
@@ -479,7 +479,7 @@ const Contact = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <label htmlFor="message" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
                         <MessageSquare className="w-4 h-4 mr-1" /> Your Message
                       </label>
                       <textarea
