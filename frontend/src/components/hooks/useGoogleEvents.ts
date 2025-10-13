@@ -1,66 +1,106 @@
 // src/hooks/useGoogleEvents.ts
-import { useState, useEffect, useCallback } from 'react';
-import { googleCalendarService } from '../../services/googleCalendarService';
-import type { CalendarEvent } from '../../types/googleEvents';
+import { useState, useEffect } from 'react';
+
+const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const EVENTS_SHEET_NAME = import.meta.env.VITE_EVENTS_SHEET_NAME || 'Events';
+
+export interface CalendarEvent {
+  id: number;
+  summary: string;
+  description: string;
+  start: { date: string };
+  end: { date: string };
+  eventType: 'festival' | 'company' | 'special';
+  animation: string;
+  emoji: string;
+  colors: string[];
+  decorElements: string[];
+}
 
 export const useGoogleEvents = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchEvents = useCallback(async () => {
-    // Prevent setting loading state on background refreshes if desired,
-    // but for now, we show loading for clarity on each fetch.
-    setLoading(true);
-    setError(null);
-    try {
-      const sheetEvents = await googleCalendarService.getSheetEvents();
-      setEvents(sheetEvents);
-    } catch (err: any) {
-      console.error('❌ Hook caught an error while fetching events:', err);
-      setError(err.message || 'Failed to load event data.');
-      setEvents([]); // Ensure events are cleared on error.
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    const fetchEvents = async () => {
+      if (!SHEET_ID || !API_KEY) {
+        setError('Google Sheets configuration is missing.');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const range = `${EVENTS_SHEET_NAME}!A2:J`;
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch events: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (!data.values || data.values.length === 0) {
+          setEvents([]);
+          setLoading(false);
+          return;
+        }
+
+        const parsedEvents: CalendarEvent[] = data.values
+          .map((row: string[]) => {
+            const [
+              id, name, description, startDate, endDate, 
+              type, animation, emoji, colors, decorElements
+            ] = row;
+
+            return {
+              id: parseInt(id, 10),
+              summary: name || '',
+              description: description || '',
+              start: { date: startDate || '' },
+              end: { date: endDate || '' },
+              eventType: (type as 'festival' | 'company' | 'special') || 'festival',
+              animation: animation || '',
+              emoji: emoji || '🎉',
+              colors: colors ? colors.split(',').map(c => c.trim()) : [],
+              decorElements: decorElements ? decorElements.split(',').map(d => d.trim()) : []
+            };
+          })
+          .filter((event: CalendarEvent) => event.start.date && event.end.date);
+
+        setEvents(parsedEvents);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching events from Google Sheets:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
   }, []);
 
-  // Initial fetch on component mount and set up a periodic refresh.
-  useEffect(() => {
-    fetchEvents();
-    const interval = setInterval(fetchEvents, 1800000); // Refresh every 30 minutes
-    return () => clearInterval(interval); // Cleanup interval on unmount.
-  }, [fetchEvents]);
-
-  /**
-   * Memoized function to find the event that is currently active.
-   * It normalizes dates to midnight to ensure accurate day-based comparisons.
-   */
-  const getActiveEvent = useCallback((): CalendarEvent | null => {
-    if (events.length === 0) return null;
-    
+  const getActiveEvent = (): CalendarEvent | null => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // FIX: Explicitly type the 'event' parameter to resolve TypeScript error ts(7006).
     const activeEvent = events.find((event: CalendarEvent) => {
-      const startDate = new Date(event.start);
-      const endDate = new Date(event.end);
-      
+      const startDate = new Date(event.start.date);
+      const endDate = new Date(event.end.date);
       startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999); // Set to end of day to be inclusive
-      
+      endDate.setHours(23, 59, 59, 999);
+
       return today >= startDate && today <= endDate;
     });
-    
-    return activeEvent || null;
-  }, [events]);
 
-  return {
-    events,
-    loading,
-    error,
-    getActiveEvent,
-    refreshEvents: fetchEvents,
+    return activeEvent || null;
   };
+
+  return { events, loading, error, getActiveEvent };
 };

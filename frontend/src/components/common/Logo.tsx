@@ -1,7 +1,7 @@
 // src/components/common/Logo.tsx
 import React, { useEffect, useState } from 'react';
 import { useGoogleEvents } from '../hooks/useGoogleEvents';
-import type { CalendarEvent } from '../../types/googleEvents';
+import type{  CalendarEvent} from '../hooks/useGoogleEvents';
 import './Logo.animations.css';
 
 import logoIcon from '../../assets/images/logo.png';
@@ -18,11 +18,11 @@ interface LogoProps {
  */
 const FloatingEmojis: React.FC<{ emojis: string[] }> = ({ emojis }) => {
   const positions = [
-    { angle: 0, radius: 55 },
-    { angle: 45, radius: 60 },
-    { angle: 90, radius: 55 },
-    { angle: 135, radius: 60 },
-    { angle: 180, radius: 55 },
+    { angle: 6, radius: 55 },
+    { angle: 95, radius: 40 },
+    { angle: 140, radius: 55 },
+    { angle: 165, radius: 60 },
+    { angle: 210, radius: 55 },
     { angle: 225, radius: 60 },
     { angle: 270, radius: 55 },
     { angle: 315, radius: 60 },
@@ -30,7 +30,7 @@ const FloatingEmojis: React.FC<{ emojis: string[] }> = ({ emojis }) => {
   
   return (
     <>
-      {emojis.slice(0, 8).map((emoji, index) => {
+      {emojis.slice(0, 2).map((emoji, index) => {
         const { angle, radius } = positions[index];
         const x = Math.cos((angle * Math.PI) / 180) * radius;
         const y = Math.sin((angle * Math.PI) / 180) * radius;

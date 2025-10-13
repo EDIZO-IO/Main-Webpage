@@ -39,12 +39,12 @@
 /* Floating emoji orbit */
 @keyframes float-emoji-orbit {
   0%, 100% {
-    transform: translate(calc(-50%), calc(-50%)) scale(0.9) rotate(0deg);
+    transform: translate(calc(-50%), calc(-50%)) scale(0.93) rotate(5deg);
     opacity: 0.8;
   }
   50% {
-    transform: translate(calc(-50%), calc(-50% - 8px)) scale(1.1) rotate(10deg);
-    opacity: 1;
+    transform: translate(calc(-50%), calc(-50% - 8px)) scale(2.02) rotate(40deg);
+    opacity: 5;
   }
 }
 
