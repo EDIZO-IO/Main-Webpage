@@ -1,0 +1,204 @@
+/* This file contains all the dynamic background styles and animations 
+  for festival and company events displayed in the header.
+*/
+
+/* --- Base Styles --- */
+
+/* Custom Toast Styles */
+.custom-toast-success::before { content: '🎉'; font-size: 20px; margin-right: 8px; }
+.custom-toast-error::before { content: '⚠️'; font-size: 20px; margin-right: 8px; }
+.custom-toast-info::before { content: '👋'; font-size: 20px; margin-right: 8px; }
+
+/* Ensure content is always visible above the animated backgrounds */
+.header-content {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* --- Festival Background Themes --- */
+
+/* Tricolor Theme - Independence Day, Republic Day */
+.festival-bg-tricolor::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    #FF9933 0%, #FF9933 20%,
+    #FFFFFF 20%, #FFFFFF 50%,
+    #138808 50%, #138808 80%,
+    transparent 80%
+  );
+  opacity: 0.15;
+  animation: tricolor-wave 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes tricolor-wave {
+  0%, 100% { background-position: 0% 50%; opacity: 0.15; }
+  50% { background-position: 100% 50%; opacity: 0.25; }
+}
+
+.festival-bg-tricolor::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255, 153, 51, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(19, 136, 8, 0.1) 0%, transparent 50%);
+  animation: flag-sparkle 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes flag-sparkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Holi Theme - Color Festival */
+.festival-bg-holi::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(255, 107, 157, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 90% 40%, rgba(255, 217, 61, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(107, 203, 119, 0.15) 0%, transparent 50%);
+  animation: holi-burst 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes holi-burst {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+/* Diwali Theme - Lights and Diyas */
+.festival-bg-diwali::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 50%, rgba(255, 107, 53, 0.15) 0%, transparent 40%);
+  animation: diya-glow 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes diya-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.festival-bg-diwali::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, rgba(255, 215, 0, 0.8), transparent),
+    radial-gradient(2px 2px at 60% 70%, rgba(255, 107, 53, 0.8), transparent);
+  background-size: 200px 200px;
+  animation: sparkle 3s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Pongal/Harvest Theme */
+.festival-bg-pongal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 30% 40%, rgba(247, 184, 1, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(255, 215, 0, 0.15) 0%, transparent 50%);
+  animation: harvest-glow 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes harvest-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* New Year Theme - Fireworks */
+.festival-bg-newyear::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(255, 215, 0, 0.2) 0%, transparent 30%),
+    radial-gradient(circle at 75% 35%, rgba(255, 20, 147, 0.2) 0%, transparent 30%);
+  animation: firework-burst 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes firework-burst {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+/* Christmas Theme - Snow and Lights */
+.festival-bg-christmas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 40%, rgba(196, 30, 58, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 50% 70%, rgba(15, 134, 68, 0.1) 0%, transparent 40%);
+  animation: christmas-glow 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes christmas-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+.festival-bg-christmas::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20% 10%, white, transparent),
+    radial-gradient(2px 2px at 60% 30%, white, transparent);
+  background-size: 150px 150px;
+  animation: snowfall 15s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes snowfall {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 150px; }
+}
+
+/* Default / Company Events Background */
+.festival-bg-default::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(239, 68, 68, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 50%, rgba(249, 115, 22, 0.08) 0%, transparent 40%);
+  animation: company-glow 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes company-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
