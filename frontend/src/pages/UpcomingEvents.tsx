@@ -6,7 +6,6 @@ import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
 import { useWebinars } from '../components/hooks/useWebinars';
 
-
 const UpcomingWebinars: React.FC = () => {
   const { webinars, loading, error } = useWebinars();
 
@@ -42,32 +41,44 @@ const UpcomingWebinars: React.FC = () => {
   };
 
   const getStatusColors = (status: string) => {
-    switch (status) {
-      case 'Confirmed':
+    // Case-insensitive comparison
+    const normalizedStatus = status.toLowerCase();
+    
+    switch (normalizedStatus) {
+      case 'confirmed':
         return {
           gradient: 'bg-gradient-to-r from-green-500 to-emerald-500',
           ring: 'ring-green-200',
-          text: 'text-green-600'
+          text: 'text-green-600',
+          bg: 'bg-green-50'
         };
-      case 'Waiting':
+      case 'waiting':
         return {
           gradient: 'bg-gradient-to-r from-blue-500 to-blue-600',
           ring: 'ring-blue-200',
-          text: 'text-blue-600'
+          text: 'text-blue-600',
+          bg: 'bg-blue-50'
         };
-      case 'Coming Soon':
+      case 'coming soon':
         return {
           gradient: 'bg-gradient-to-r from-purple-500 to-purple-600',
           ring: 'ring-purple-200',
-          text: 'text-purple-600'
+          text: 'text-purple-600',
+          bg: 'bg-purple-50'
         };
       default:
         return {
           gradient: 'bg-gradient-to-r from-gray-500 to-gray-600',
           ring: 'ring-gray-200',
-          text: 'text-gray-600'
+          text: 'text-gray-600',
+          bg: 'bg-gray-50'
         };
     }
+  };
+
+  // Helper function to check if event is confirmed (case-insensitive)
+  const isConfirmed = (status: string): boolean => {
+    return status.toLowerCase() === 'confirmed';
   };
 
   return (
@@ -124,6 +135,7 @@ const UpcomingWebinars: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {webinars.map((event, index) => {
                 const colors = getStatusColors(event.status);
+                const showFullDetails = isConfirmed(event.status);
                 
                 return (
                   <AnimatedSection key={event.id} delay={index * 0.1}>
@@ -151,23 +163,27 @@ const UpcomingWebinars: React.FC = () => {
                         </h3>
 
                         {/* Conditional Rendering based on Status */}
-                        {event.status === 'Confirmed' ? (
+                        {showFullDetails ? (
                           <>
                             {/* Event Details for Confirmed */}
                             <div className="space-y-3 mb-4 flex-grow">
-                              <div className="flex items-start text-gray-600">
-                                <Calendar className="flex-shrink-0 mr-2 mt-0.5 text-red-500" size={18} />
-                                <span className="text-sm">
-                                  <time dateTime={event.date}>{formatDate(event.date)}</time>
-                                </span>
-                              </div>
+                              {event.date && (
+                                <div className="flex items-start text-gray-600">
+                                  <Calendar className="flex-shrink-0 mr-2 mt-0.5 text-red-500" size={18} />
+                                  <span className="text-sm">
+                                    <time dateTime={event.date}>{formatDate(event.date)}</time>
+                                  </span>
+                                </div>
+                              )}
                               <div className="flex items-start text-gray-600">
                                 <MapPin className="flex-shrink-0 mr-2 mt-0.5 text-red-500" size={18} />
                                 <span className="text-sm">{event.location}</span>
                               </div>
-                              <p className="text-gray-600 text-sm mt-3 line-clamp-3">
-                                {event.description}
-                              </p>
+                              {event.description && (
+                                <p className="text-gray-600 text-sm mt-3 line-clamp-3">
+                                  {event.description}
+                                </p>
+                              )}
                             </div>
 
                             {/* Registration Link for Confirmed */}
@@ -194,13 +210,13 @@ const UpcomingWebinars: React.FC = () => {
                             {/* Minimal info for 'Waiting' or 'Coming Soon' */}
                             <div className="flex-grow flex items-center justify-center py-8">
                               <p className="text-gray-500 text-sm text-center">
-                                {event.status === 'Waiting' 
+                                {event.status.toLowerCase() === 'waiting' 
                                   ? 'Date and details will be confirmed soon'
                                   : 'Event details coming soon'}
                               </p>
                             </div>
-                            <div className={`mt-auto w-full text-center py-3 px-5 rounded-lg text-sm font-semibold ${colors.text} bg-opacity-10`}
-                              style={{ backgroundColor: `${colors.text.replace('text-', '')}15` }}
+                            <div 
+                              className={`mt-auto w-full text-center py-3 px-5 rounded-lg text-sm font-semibold ${colors.text} ${colors.bg}`}
                             >
                               Stay Tuned
                             </div>
