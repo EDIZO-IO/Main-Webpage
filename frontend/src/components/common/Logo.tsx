@@ -14,31 +14,39 @@ interface LogoProps {
 }
 
 /**
- * Floating Emoji Animations around Logo
+ * Multiple Floating Emojis - Positioned far from logo
  */
-const FloatingEmojis: React.FC<{ emojis: string[]; eventType: string }> = ({ emojis, eventType }) => {
-  // Positions for emojis around the logo (in degrees)
-  const positions = [0, 60, 120, 180, 240, 300];
+const FloatingEmojis: React.FC<{ emojis: string[] }> = ({ emojis }) => {
+  const positions = [
+    { angle: 0, radius: 55 },
+    { angle: 45, radius: 60 },
+    { angle: 90, radius: 55 },
+    { angle: 135, radius: 60 },
+    { angle: 180, radius: 55 },
+    { angle: 225, radius: 60 },
+    { angle: 270, radius: 55 },
+    { angle: 315, radius: 60 },
+  ];
   
   return (
     <>
-      {emojis.slice(0, 6).map((emoji, index) => {
-        const angle = positions[index];
-        const radius = 35; // Distance from center
+      {emojis.slice(0, 8).map((emoji, index) => {
+        const { angle, radius } = positions[index];
         const x = Math.cos((angle * Math.PI) / 180) * radius;
         const y = Math.sin((angle * Math.PI) / 180) * radius;
         
         return (
           <div
-            key={`${emoji}-${index}`}
-            className="absolute text-lg pointer-events-none z-20"
+            key={`floating-${emoji}-${index}`}
+            className="absolute text-lg pointer-events-none emoji-float"
             style={{
               left: '50%',
               top: '50%',
               transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
-              animation: `float-emoji 3s ease-in-out infinite`,
-              animationDelay: `${index * 0.2}s`,
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+              animation: `float-emoji-orbit 4s ease-in-out infinite`,
+              animationDelay: `${index * 0.25}s`,
+              filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))',
+              zIndex: 5
             }}
           >
             {emoji}
@@ -50,201 +58,209 @@ const FloatingEmojis: React.FC<{ emojis: string[]; eventType: string }> = ({ emo
 };
 
 /**
- * Festival Decorations for Indian Festivals
+ * Diwali Crackers Animation
  */
-const FestivalDecorations: React.FC<{ elements: string[]; animation: string }> = ({ elements, animation }) => (
+const DiwaliCrackers: React.FC = () => (
   <>
-    {/* Diwali - Diya (Lamp) */}
-    {elements.includes('diya') && (
-      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 diya-ornament z-15">
-        <div className="diya-base"></div>
-        <div className="diya-flame"></div>
+    {[...Array(12)].map((_, i) => (
+      <div
+        key={`cracker-${i}`}
+        className="absolute pointer-events-none"
+        style={{
+          left: '50%',
+          top: '50%',
+          transform: `translate(calc(-50% + ${Math.random() * 100 - 50}px), calc(-50% + ${Math.random() * 100 - 50}px))`,
+          animation: `cracker-blast 2.5s ease-out infinite`,
+          animationDelay: `${Math.random() * 2}s`,
+          zIndex: 3
+        }}
+      >
+        <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 shadow-lg shadow-yellow-500/50"></div>
       </div>
-    )}
+    ))}
+  </>
+);
 
-    {/* Rangoli Pattern */}
-    {elements.includes('rangoli') && (
-      <div className="absolute inset-0 rangoli-pattern pointer-events-none z-0"></div>
-    )}
-
-    {/* National Festivals - Flag */}
-    {elements.includes('flag') && (
-      <div className="absolute -top-2 -left-2 z-15">
-        <div className="w-5 h-4 rounded-sm overflow-hidden shadow-md" style={{ animation: 'flag-wave 2s ease-in-out infinite' }}>
+/**
+ * Independence/Republic Day Flags
+ */
+const WavingFlags: React.FC = () => (
+  <>
+    <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-5 pointer-events-none">
+      <div className="relative">
+        <div className="absolute w-0.5 h-16 bg-gray-700 left-0 shadow"></div>
+        <div 
+          className="w-11 h-8 rounded-sm overflow-hidden shadow-xl border border-gray-200"
+          style={{ 
+            animation: 'flag-wave-3d 2s ease-in-out infinite', 
+            transformOrigin: 'left center',
+            transformStyle: 'preserve-3d'
+          }}
+        >
           <div className="h-1/3 bg-[#FF9933]"></div>
           <div className="h-1/3 bg-white flex items-center justify-center">
-            <div className="w-2 h-2 border border-[#000080] rounded-full"></div>
+            <div className="w-2.5 h-2.5 border-2 border-[#000080] rounded-full bg-white">
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="w-1 h-1 bg-[#000080] rounded-full"></div>
+              </div>
+            </div>
           </div>
           <div className="h-1/3 bg-[#138808]"></div>
         </div>
       </div>
-    )}
-
-    {/* Holi - Color Splashes */}
-    {elements.includes('colors') && (
-      <>
-        <div className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-pink-400 opacity-60 z-15 animate-pulse"></div>
-        <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-yellow-400 opacity-60 z-15 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-        <div className="absolute -bottom-1 -left-1 w-3 h-3 rounded-full bg-green-400 opacity-60 z-15 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-        <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-blue-400 opacity-60 z-15 animate-pulse" style={{ animationDelay: '0.6s' }}></div>
-      </>
-    )}
-
-    {/* Kites for Makar Sankranti/Pongal */}
-    {elements.includes('kite') && (
-      <>
-        <div className="absolute -top-3 -right-2 text-xs z-15" style={{ animation: 'kite-float 4s ease-in-out infinite' }}>🪁</div>
-        <div className="absolute -top-4 -left-1 text-xs z-15" style={{ animation: 'kite-float 4s ease-in-out infinite', animationDelay: '0.5s' }}>🪁</div>
-      </>
-    )}
-
-    {/* Lotus for Spiritual Events */}
-    {elements.includes('lotus') && (
-      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-lg z-15" style={{ animation: 'lotus-bloom 3s ease-in-out infinite' }}>
-        🪷
-      </div>
-    )}
-
-    {/* Moon for Eid/Ramadan */}
-    {elements.includes('moon') && (
-      <div className="absolute -top-2 -right-2 text-lg z-15" style={{ animation: 'moon-glow-pulse 3s ease-in-out infinite' }}>
-        🌙
-      </div>
-    )}
-
-    {/* Om Symbol */}
-    {elements.includes('om') && (
-      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-lg z-15 text-orange-600 font-bold">
-        ॐ
-      </div>
-    )}
-
-    {/* Peacock Feather for Krishna */}
-    {elements.includes('peacock') && (
-      <div className="absolute -top-3 -right-2 text-sm z-15" style={{ animation: 'feather-sway 3s ease-in-out infinite' }}>
-        🦚
-      </div>
-    )}
+    </div>
+    {[...Array(8)].map((_, i) => (
+      <div
+        key={`flag-particle-${i}`}
+        className="absolute w-2 h-2 rounded-full pointer-events-none"
+        style={{
+          left: `${20 + Math.random() * 60}%`,
+          top: `${10 + Math.random() * 80}%`,
+          backgroundColor: i % 3 === 0 ? '#FF9933' : i % 3 === 1 ? '#FFFFFF' : '#138808',
+          animation: `tricolor-particle-float 4s ease-in-out infinite`,
+          animationDelay: `${i * 0.3}s`,
+          zIndex: 3,
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        }}
+      />
+    ))}
   </>
 );
 
 /**
- * Company Event Decorations
+ * Holi Colors Splash
  */
-const CompanyDecorations: React.FC<{ elements: string[] }> = ({ elements }) => (
+const HoliColors: React.FC = () => (
   <>
-    {/* Company Badge */}
-    <div className="absolute -top-2 -right-2 company-badge z-20">
-      <div className="company-logo-ring"></div>
-    </div>
-    
-    {/* Trophy for Achievements */}
-    {elements.includes('trophy') && (
-      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 trophy-ornament z-15">
-        🏆
+    {[...Array(10)].map((_, i) => {
+      const colors = ['#FF6B9D', '#FFD93D', '#6BCB77', '#4D96FF', '#C724B1'];
+      return (
+        <div
+          key={`holi-${i}`}
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            width: `${12 + Math.random() * 8}px`,
+            height: `${12 + Math.random() * 8}px`,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            backgroundColor: colors[i % colors.length],
+            opacity: 0.7,
+            animation: `holi-color-splash 3s ease-in-out infinite`,
+            animationDelay: `${i * 0.3}s`,
+            zIndex: 3
+          }}
+        />
+      );
+    })}
+  </>
+);
+
+/**
+ * Christmas Snowfall
+ */
+const ChristmasSnow: React.FC = () => (
+  <>
+    {[...Array(8)].map((_, i) => (
+      <div
+        key={`snow-${i}`}
+        className="absolute text-sm pointer-events-none"
+        style={{
+          left: `${i * 12}%`,
+          top: '-20px',
+          animation: `snowfall-gentle 5s linear infinite`,
+          animationDelay: `${i * 0.5}s`,
+          zIndex: 5
+        }}
+      >
+        ❄️
       </div>
-    )}
-    
-    {/* Rocket for Product Launch */}
-    {elements.includes('rocket') && (
-      <div className="absolute -top-3 -right-3 rocket-ornament z-15">🚀</div>
-    )}
-    
-    {/* Confetti for Celebrations */}
-    {elements.includes('confetti') && (
-      <div className="absolute inset-0 confetti-container pointer-events-none overflow-visible">
-        {[...Array(12)].map((_, i) => (
-          <div 
-            key={i} 
-            className="confetti-piece"
+    ))}
+  </>
+);
+
+/**
+ * New Year Fireworks
+ */
+const NewYearFireworks: React.FC = () => (
+  <>
+    {[...Array(3)].map((_, i) => (
+      <div
+        key={`firework-${i}`}
+        className="absolute pointer-events-none"
+        style={{
+          left: `${30 + i * 20}%`,
+          top: `${25 + i * 15}%`,
+          zIndex: 5
+        }}
+      >
+        {[...Array(12)].map((__, j) => (
+          <div
+            key={`spark-${j}`}
+            className="absolute w-1 h-4 rounded-full bg-gradient-to-b from-yellow-400 via-orange-500 to-red-500"
             style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 2}s`
+              left: '50%',
+              top: '50%',
+              transform: `rotate(${j * 30}deg) translateY(-20px)`,
+              transformOrigin: 'bottom center',
+              animation: `firework-particle-burst 2s ease-out infinite`,
+              animationDelay: `${i * 0.6 + j * 0.05}s`,
             }}
           />
         ))}
       </div>
-    )}
-    
-    {/* Stars for Success */}
-    {elements.includes('stars') && (
-      <>
-        <div className="absolute -top-2 -left-2 star-ornament z-15">⭐</div>
-        <div className="absolute -bottom-2 -right-2 star-ornament z-15">⭐</div>
-      </>
-    )}
-
-    {/* Cake for Anniversary */}
-    {elements.includes('cake') && (
-      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 cake-ornament z-15">🎂</div>
-    )}
-
-    {/* Medal for Awards */}
-    {elements.includes('medal') && (
-      <div className="absolute -bottom-2 -left-2 medal-ornament z-15">🥇</div>
-    )}
-
-    {/* Chart for Growth */}
-    {elements.includes('chart') && (
-      <div className="absolute -bottom-2 -right-2 text-sm z-15">📈</div>
-    )}
+    ))}
   </>
 );
 
 /**
- * Special Event Decorations
+ * Festival Decorations Component
  */
-const SpecialDecorations: React.FC<{ elements: string[] }> = ({ elements }) => (
-  <>
-    {/* Heart for Special Occasions */}
-    {elements.includes('heart') && (
-      <>
-        <div className="absolute -top-2 -right-2 text-sm z-15 animate-pulse">❤️</div>
-        <div className="absolute -bottom-2 -left-2 text-sm z-15 animate-pulse" style={{ animationDelay: '0.5s' }}>💝</div>
-      </>
-    )}
+const FestivalDecorations: React.FC<{ animation: string }> = ({ animation }) => {
+  switch (animation) {
+    case 'diwali':
+    case 'diya-glow':
+      return <DiwaliCrackers />;
+    
+    case 'independence-day':
+    case 'republic-day':
+    case 'tricolor-wave':
+      return <WavingFlags />;
+    
+    case 'holi':
+    case 'color-burst':
+      return <HoliColors />;
+    
+    case 'christmas':
+    case 'festive-snow':
+      return <ChristmasSnow />;
+    
+    case 'new-year':
+    case 'fireworks':
+      return <NewYearFireworks />;
+    
+    default:
+      return null;
+  }
+};
 
-    {/* Gift for Celebrations */}
-    {elements.includes('gift') && (
-      <div className="absolute -bottom-2 -right-2 text-sm z-15">🎁</div>
-    )}
-
-    {/* Balloon */}
-    {elements.includes('balloon') && (
-      <>
-        <div className="absolute -top-3 -left-2 text-xs z-15" style={{ animation: 'balloon-float 4s ease-in-out infinite' }}>🎈</div>
-        <div className="absolute -top-4 -right-1 text-xs z-15" style={{ animation: 'balloon-float 4s ease-in-out infinite', animationDelay: '0.5s' }}>🎈</div>
-      </>
-    )}
-
-    {/* Music Note */}
-    {elements.includes('music') && (
-      <div className="absolute -top-2 -right-2 text-sm z-15" style={{ animation: 'ornament-twinkle 2s ease-in-out infinite' }}>🎵</div>
-    )}
-  </>
-);
-
+/**
+ * Main Logo Component
+ */
 const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => {
-  const logoTextSrc = isScrolled || isFooter ? logoTextDark : logoTextLight;
   const { getActiveEvent, loading } = useGoogleEvents();
   const [activeEvent, setActiveEvent] = useState<CalendarEvent | null>(null);
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; delay: number }>>([]);
   const [floatingEmojis, setFloatingEmojis] = useState<string[]>([]);
 
   useEffect(() => {
-    console.log('📍 Logo: checking for active event, loading:', loading);
-    
     if (!loading) {
       const event = getActiveEvent();
-      console.log('📍 Logo: active event:', event);
       setActiveEvent(event);
 
       if (event) {
-        // Generate floating emojis based on event type
-        const emojis = getEmojiSet(event);
+        const emojis = parseEmojis(event);
         setFloatingEmojis(emojis);
 
-        // Animations that should show particles
         const particleAnimations = [
           'color-burst', 'fireworks', 'garba-dance', 'diya-glow', 
           'product-launch', 'success-celebration', 'holi', 'new-year',
@@ -255,11 +271,11 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
                                     particleAnimations.some(anim => event.animation.includes(anim));
         
         if (shouldShowParticles) {
-          const particleCount = event.eventType === 'company' ? 16 : 12;
+          const particleCount = event.eventType === 'company' ? 10 : 8;
           const newParticles = Array.from({ length: particleCount }, (_, i) => ({
             id: i,
-            x: Math.random() * 100,
-            y: Math.random() * 100,
+            x: 20 + Math.random() * 60,
+            y: 20 + Math.random() * 60,
             delay: Math.random() * 2
           }));
           setParticles(newParticles);
@@ -273,140 +289,184 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
     }
   }, [loading, getActiveEvent]);
 
-  // Get emoji set based on event
-  const getEmojiSet = (event: CalendarEvent): string[] => {
+  const parseEmojis = (event: CalendarEvent): string[] => {
     const emojiSets: Record<string, string[]> = {
-      // Company Events
-      'product-launch': ['🚀', '⭐', '🎯', '💡', '✨', '🎊'],
-      'team-anniversary': ['🎂', '🎉', '🥳', '🎈', '🎊', '✨'],
-      'success-celebration': ['🏆', '🥇', '⭐', '🌟', '💫', '🎉'],
-      'milestone-glow': ['🏆', '🎯', '📈', '💪', '⭐', '✨'],
-      'company-foundation': ['🏢', '🎉', '🚀', '💼', '🌟', '🎊'],
-      
-      // Indian Festivals
-      'diwali': ['🪔', '✨', '💫', '🎆', '🎇', '🌟'],
-      'holi': ['🎨', '🌈', '💙', '💚', '💛', '💜'],
-      'navratri': ['💃', '🥁', '🎵', '🌺', '✨', '🎊'],
-      'independence-day': ['🇮🇳', '🎗️', '⭐', '✨', '🎆', '🎇'],
-      'republic-day': ['🇮🇳', '🎗️', '⭐', '✨', '🎆', '🎇'],
-      'pongal': ['🌾', '🥥', '☀️', '🎉', '✨', '🌺'],
-      'makar-sankranti': ['🪁', '🌾', '☀️', '✨', '🎉', '🌟'],
-      'janmashtami': ['🦚', '🪈', '💙', '✨', '🌟', '🎵'],
-      'raksha-bandhan': ['💛', '💖', '✨', '🎀', '🌟', '💫'],
-      'eid': ['🌙', '⭐', '✨', '🕌', '🎉', '💫'],
-      'christmas': ['🎄', '⛄', '🎅', '🎁', '✨', '❄️'],
-      'new-year': ['🎆', '🎇', '🎉', '🥳', '🍾', '✨'],
-      
-      // Default
+      'product-launch': ['🚀', '⭐', '🎯', '💡', '✨', '🎊', '💫', '🌟'],
+      'team-anniversary': ['🎂', '🎉', '🥳', '🎈', '🎊', '✨', '💝', '🎁'],
+      'diwali': ['🪔', '✨', '💫', '🎆', '🎇', '🌟', '🎊', '💥'],
+      'holi': ['🎨', '🌈', '💙', '💚', '💛', '💜', '🎉', '✨'],
+      'navratri': ['💃', '🥁', '🎵', '🌺', '✨', '🎊', '🪷', '🎉'],
+      'independence-day': ['🇮🇳', '🎗️', '⭐', '✨', '🎆', '🎇', '🎉', '💫'],
+      'republic-day': ['🇮🇳', '🎗️', '⭐', '✨', '🎆', '🎇', '🎉', '💫'],
+      'christmas': ['🎄', '⛄', '🎅', '🎁', '✨', '❄️', '🌟', '🎉'],
+      'new-year': ['🎆', '🎇', '🎉', '🥳', '🍾', '✨', '💫', '🌟'],
       'default': [event.emoji, '✨', '🎉', '⭐', '💫', '🌟']
     };
+
+    if (event.decorElements && event.decorElements.length > 0) {
+      const emojiMap: Record<string, string> = {
+        'diya': '🪔', 'flag': '🇮🇳', 'colors': '🎨', 'kite': '🪁',
+        'lotus': '🪷', 'moon': '🌙', 'star': '⭐', 'om': 'ॐ',
+        'peacock': '🦚', 'rakhi': '💛', 'tree': '🎄', 'fireworks': '🎆',
+        'coconut': '🥥', 'sugarcane': '🌾', 'bonfire': '🔥', 'heart': '❤️',
+        'gift': '🎁', 'balloon': '🎈', 'rocket': '🚀', 'trophy': '🏆',
+        'cake': '🎂', 'confetti': '🎊', 'dandia': '🥢', 'music': '🎵'
+      };
+
+      const customEmojis = event.decorElements
+        .map(elem => emojiMap[elem] || '')
+        .filter(e => e);
+      
+      if (customEmojis.length > 0) {
+        return [...new Set([event.emoji, ...customEmojis, '✨', '💫'])].slice(0, 8);
+      }
+    }
 
     return emojiSets[event.animation] || emojiSets['default'];
   };
 
   const animationClass = activeEvent?.animation || '';
   
-  console.log('🎨 Animation class being applied:', animationClass);
-  console.log('🎭 Event type:', activeEvent?.eventType);
-  console.log('🎪 Decor elements:', activeEvent?.decorElements);
+  // Get colors for text
+  const getTextColors = () => {
+    if (!activeEvent || !activeEvent.colors || activeEvent.colors.length === 0) {
+      return ['#ef4444', '#dc2626', '#b91c1c', '#991b1b', '#7f1d1d'];
+    }
+    return activeEvent.colors;
+  };
+
+  const textColors = getTextColors();
+  const logoTextSrc = isScrolled || isFooter ? logoTextDark : logoTextLight;
 
   return (
-    <div 
-      className={`
-        flex items-center space-x-2 md:space-x-3 
-        transition-all duration-300
-        ${animationClass ? 'animate-brand-pulse' : ''}
-      `}
-    >
-      <div className="relative">
-        {/* Logo Icon with Animation */}
+    <div className="flex items-center gap-3 md:gap-4 transition-all duration-300">
+      {/* Logo Icon Container - Fixed size, always visible */}
+      <div className="relative" style={{ width: '50px', height: '50px', flexShrink: 0 }}>
+        {/* Glow ring for events */}
+        {activeEvent && (
+          <div 
+            className="absolute inset-0 rounded-full animate-pulse"
+            style={{
+              background: `radial-gradient(circle, ${textColors[0]}15 0%, transparent 70%)`,
+              transform: 'scale(1.3)',
+              zIndex: 0
+            }}
+          />
+        )}
+
+        {/* Main Logo Circle */}
         <div 
           className={`
-            w-12 h-12 md:w-12 md:h-12 
-            rounded-full 
+            w-12 h-12 md:w-13 md:h-13 rounded-full 
             flex items-center justify-center 
-            transition-all duration-300 
-            hover:scale-110
-            shadow-md
+            transition-all duration-500
+            hover:scale-110 shadow-lg
+            relative z-10
             ${animationClass}
           `}
           style={{
-            background: !animationClass ? 'linear-gradient(135deg, #ef4444, #f97316)' : undefined
+            background: activeEvent 
+              ? `linear-gradient(135deg, ${textColors[0]}, ${textColors[1] || textColors[0]})` 
+              : 'linear-gradient(135deg, #ef4444, #f97316)',
+            animation: activeEvent ? 'logo-pulse 3s ease-in-out infinite' : 'none'
           }}
         >
           <img
             src={logoIcon}
             alt="Edizo Logo"
-            className="w-9 h-9 md:w-9 md:h-9 object-contain relative z-10"
+            className="w-9 h-9 md:w-10 md:h-10 object-contain relative z-20"
+            style={{
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
+              animation: activeEvent ? 'logo-icon-bounce 2s ease-in-out infinite' : 'none'
+            }}
           />
 
-          {/* Event Particles */}
+          {/* Event Particles - INSIDE circle only */}
           {particles.map((particle) => (
             <div
               key={particle.id}
-              className={activeEvent?.eventType === 'company' ? 'company-particle' : 'festival-particle'}
+              className="absolute rounded-full pointer-events-none"
               style={{
+                width: '4px',
+                height: '4px',
                 left: `${particle.x}%`,
                 top: `${particle.y}%`,
-                background: activeEvent?.colors?.[particle.id % activeEvent.colors.length] || '#ef4444',
+                background: textColors[particle.id % textColors.length],
+                animation: `particle-gentle-float 3s ease-in-out infinite`,
                 animationDelay: `${particle.delay}s`,
-                '--tx': `${Math.random() * 40 - 20}px`,
-                '--ty': `${Math.random() * 40 - 20}px`
-              } as React.CSSProperties}
+                opacity: 0.6,
+                zIndex: 2,
+              }}
             />
           ))}
         </div>
 
-        {/* Floating Emojis around Logo */}
+        {/* Floating Emojis - FAR OUTSIDE logo area */}
         {activeEvent && floatingEmojis.length > 0 && (
-          <FloatingEmojis 
-            emojis={floatingEmojis} 
-            eventType={activeEvent.eventType}
-          />
+          <FloatingEmojis emojis={floatingEmojis} />
         )}
         
-        {/* Render decorations based on event type */}
+        {/* Festival Decorations - OUTSIDE logo area */}
         {activeEvent && (
-          <>
-            {activeEvent.eventType === 'company' && (
-              <CompanyDecorations elements={activeEvent.decorElements} />
-            )}
-            {activeEvent.eventType === 'festival' && (
-              <FestivalDecorations 
-                elements={activeEvent.decorElements} 
-                animation={activeEvent.animation}
-              />
-            )}
-            {activeEvent.eventType === 'special' && (
-              <SpecialDecorations elements={activeEvent.decorElements} />
-            )}
-          </>
+          <FestivalDecorations animation={activeEvent.animation} />
         )}
         
-        {/* Event Badge with Main Emoji */}
+        {/* Main Event Badge - top-right corner ONLY */}
         {activeEvent && (
           <div 
-            className="event-badge"
-            title={`${activeEvent.summary} - ${
-              activeEvent.eventType === 'company' ? 'Company Event' : 
-              activeEvent.eventType === 'special' ? 'Special Occasion' : 
-              'Celebrating'
-            }! 🎉`}
-            aria-label={`Currently celebrating ${activeEvent.summary}`}
+            className="absolute -top-2 -right-2 rounded-full w-7 h-7 flex items-center justify-center shadow-lg z-30 pointer-events-none"
+            style={{
+              background: `linear-gradient(135deg, ${textColors[0]}, ${textColors[1] || textColors[0]})`,
+              animation: 'badge-pulse-glow 2s ease-in-out infinite',
+              fontSize: '16px',
+              border: '2px solid white'
+            }}
+            title={activeEvent.summary}
           >
             {activeEvent.emoji}
           </div>
         )}
       </div>
 
-      {/* Brand Name with Synchronized Animation */}
-      <div className={`${animationClass ? 'animate-brand-glow' : ''}`}>
-        <img
-          src={logoTextSrc}
-          alt="Edizo"
-          className="h-8 md:h-9 object-contain transition-opacity duration-300"
-        />
-      </div>
+      {/* Brand Name - Image when no event, Animated Text when event active */}
+      {activeEvent ? (
+        // Animated Text for Active Events
+        <div className="relative flex items-center gap-0.5">
+          {['E', 'D', 'I', 'Z', 'O'].map((letter, index) => (
+            <span
+              key={`letter-${index}`}
+              className="font-bold text-2xl md:text-3xl transition-all duration-500 logo-letter-active"
+              style={{
+                fontFamily: '"Product Sans", "Google Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                letterSpacing: '-0.02em',
+                color: textColors[index % textColors.length],
+                animation: `letter-bounce-smooth 1.2s ease-in-out ${index * 0.1}s infinite`,
+                display: 'inline-block',
+                textShadow: `0 2px 8px ${textColors[index % textColors.length]}40`,
+                transform: 'translateZ(0)',
+                willChange: 'transform',
+                zIndex: 20
+              }}
+            >
+              {letter}
+            </span>
+          ))}
+        </div>
+      ) : (
+        // Brand Name Image when No Event
+        <div className="relative z-20 transition-opacity duration-500">
+          <img
+            src={logoTextSrc}
+            alt="Edizo"
+            className="h-8 md:h-9 object-contain transition-all duration-300"
+            style={{
+              filter: isScrolled || isFooter 
+                ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' 
+                : 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))'
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };

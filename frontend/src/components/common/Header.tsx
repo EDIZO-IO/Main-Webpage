@@ -42,11 +42,9 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get active event for header styling
   const { getActiveEvent } = useGoogleEvents();
   const activeEvent = getActiveEvent();
 
-  // Handle authentication state changes
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
     
@@ -71,15 +69,9 @@ const Header = () => {
     };
 
     initAuth();
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
+    return () => { if (unsubscribe) unsubscribe(); };
   }, []);
 
-  // Scroll effect
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     handleScroll();
@@ -87,7 +79,6 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close menus on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -99,7 +90,6 @@ const Header = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Close menus on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (isMenuOpen && mobileNavRef.current && !mobileNavRef.current.contains(e.target as Node)) {
@@ -113,20 +103,16 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMenuOpen, isProfileOpen]);
 
-  // Close menus when location changes
   useEffect(() => {
     setIsMenuOpen(false);
     setIsProfileOpen(false);
   }, [location.pathname]);
 
-  // Handle Google Sign In
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
       await signInWithPopup(auth, googleProvider);
-      toast.success('Successfully signed in!', {
-        className: 'custom-toast-success',
-      });
+      toast.success('Successfully signed in! 🎉', { className: 'custom-toast-success' });
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       let errorMessage = 'Failed to sign in. Please try again.';
@@ -148,22 +134,17 @@ const Header = () => {
           errorMessage = error.message || errorMessage;
       }
       
-      toast.error(errorMessage, {
-        className: 'custom-toast-error',
-      });
+      toast.error(errorMessage, { className: 'custom-toast-error' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle logout
   const handleLogout = async () => {
     try {
       await signOut(auth);
       setIsProfileOpen(false);
-      toast.info('You have been signed out', {
-        className: 'custom-toast-info',
-      });
+      toast.info('You have been signed out 👋', { className: 'custom-toast-info' });
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Failed to sign out. Please try again.');
@@ -183,11 +164,9 @@ const Header = () => {
     navigate(path);
   };
 
-  // Get festival background theme class
   const getFestivalTheme = () => {
     if (!activeEvent) return 'festival-bg-default';
     
-    // Map animation names to CSS classes
     const themeMap: Record<string, string> = {
       'diwali': 'festival-bg-diwali',
       'diya-glow': 'festival-bg-diya-glow',
@@ -231,7 +210,6 @@ const Header = () => {
     return themeMap[activeEvent.animation] || 'festival-bg-default';
   };
 
-  // Show loading indicator while initializing auth
   if (isLoading) {
     return (
       <header className="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
@@ -247,172 +225,218 @@ const Header = () => {
     );
   }
 
+  // Get festival theme class for the entire header
+  const festivalThemeClass = getFestivalTheme();
+
   return (
     <>
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed w-full top-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-100'
+            ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100'
             : 'bg-white/80 backdrop-blur-md'
-        }`}
+        } ${festivalThemeClass}`}
         role="banner"
       >
-        {/* Festival Background */}
-        <div className={`absolute inset-0 ${getFestivalTheme()} pointer-events-none`} />
+        {/* Festival Background - CSS handles this via ::before and ::after */}
 
         <div className="container mx-auto px-6 lg:px-8 header-content">
           <div className="flex items-center justify-between h-20">
-            {/* Logo with Event Indicator */}
-            <Link
-              to="/"
-              className="relative z-10 flex items-center gap-3 group"
-              aria-label="Edizo Home"
+            {/* Logo with Event Badge */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <Logo isScrolled={isScrolled} />
-              
-              {/* Event Indicator */}
-              {activeEvent && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0, x: -20 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  transition={{ delay: 0.3, type: "spring" }}
-                  className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-orange-100 to-red-100 rounded-full text-xs font-medium text-orange-700 shadow-sm"
-                >
+              <Link
+                to="/"
+                className="relative z-10 flex items-center gap-3 group"
+                aria-label="Edizo Home"
+              >
+                <Logo isScrolled={isScrolled} />
+                
+                {/* Event Badge with Animation */}
+                {activeEvent && (
                   <motion.div
-                    animate={{ 
-                      y: [0, -3, 0],
-                      rotate: [0, 10, -10, 0]
-                    }}
+                    initial={{ opacity: 0, scale: 0, x: -20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
                     transition={{ 
-                      duration: 2, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
+                      delay: 0.4, 
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 15
                     }}
+                    whileHover={{ scale: 1.05 }}
+                    className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-red-100 rounded-full text-xs font-semibold text-orange-700 shadow-md hover:shadow-lg transition-all duration-300 cursor-default badge"
                   >
-                    <Sparkles className="w-3 h-3" />
+                    <motion.div
+                      animate={{ 
+                        y: [0, -4, 0],
+                        rotate: [0, 15, -15, 0]
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </motion.div>
+                    <span className="max-w-[150px] truncate">{activeEvent.summary}</span>
+                    <motion.span 
+                      className="text-lg"
+                      animate={{ 
+                        scale: [1, 1.3, 1],
+                        rotate: [0, 20, -20, 0]
+                      }}
+                      transition={{ 
+                        duration: 2.5, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      {activeEvent.emoji}
+                    </motion.span>
                   </motion.div>
-                  <span className="max-w-[150px] truncate">{activeEvent.summary}</span>
-                  <motion.span 
-                    className="text-lg"
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 15, -15, 0]
-                    }}
-                    transition={{ 
-                      duration: 2, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    {activeEvent.emoji}
-                  </motion.span>
-                </motion.div>
-              )}
-            </Link>
+                )}
+              </Link>
+            </motion.div>
 
-            {/* Desktop Navigation with Animated Links */}
-            <nav className="hidden lg:flex items-center gap-1">
+            {/* Desktop Navigation with Festival Animations */}
+            <nav className="hidden lg:flex items-center gap-2">
               {navLinks.map((link, index) => {
                 const Icon = link.icon;
+                const isActive = location.pathname === link.path;
+                
                 return (
-                  <NavLink
+                  <motion.div
                     key={link.name}
-                    to={link.path}
-                    className={({ isActive }) =>
-                      `relative font-medium text-sm px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 group ${
-                        isActive
-                          ? 'text-red-600 bg-red-50'
-                          : 'text-gray-700 hover:text-red-600 hover:bg-gray-50'
-                      }`
-                    }
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ 
+                      duration: 0.4, 
+                      delay: 0.15 + index * 0.08,
+                      ease: [0.22, 1, 0.36, 1]
+                    }}
                   >
-                    {({ isActive }) => (
-                      <>
-                        <motion.div
-                          initial={{ rotate: 0 }}
-                          animate={{ 
-                            rotate: isActive ? [0, 10, -10, 0] : 0,
-                            scale: isActive ? [1, 1.1, 1] : 1
-                          }}
-                          transition={{ 
-                            duration: 0.5, 
-                            delay: index * 0.1,
-                            repeat: isActive ? Infinity : 0,
-                            repeatDelay: 3
-                          }}
-                        >
-                          <Icon className="w-4 h-4" />
-                        </motion.div>
-                        <span>{link.name}</span>
-                        
-                        {/* Animated Underline */}
+                    <NavLink
+                      to={link.path}
+                      className={`
+                        relative font-medium text-sm px-4 py-2.5 rounded-xl 
+                        transition-all duration-300 flex items-center gap-2 group
+                        ${isActive
+                          ? 'text-red-600 bg-red-50 shadow-sm'
+                          : 'text-gray-700 hover:text-red-600 hover:bg-gray-50'
+                        }
+                      `}
+                      aria-current={isActive ? 'page' : undefined}
+                    >
+                      <motion.div
+                        animate={{ 
+                          rotate: isActive ? [0, 12, -12, 0] : 0,
+                          scale: isActive ? [1, 1.15, 1] : 1
+                        }}
+                        transition={{ 
+                          duration: 0.6, 
+                          delay: index * 0.1,
+                          repeat: isActive ? Infinity : 0,
+                          repeatDelay: 3
+                        }}
+                        className="relative"
+                      >
+                        <Icon className="w-4 h-4" />
                         {isActive && (
                           <motion.div
-                            layoutId="activeNav"
-                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-orange-500 rounded-full"
+                            className="absolute -inset-1 bg-red-400 rounded-full opacity-20 blur-sm"
+                            animate={{
+                              scale: [1, 1.3, 1],
+                              opacity: [0.2, 0.4, 0.2]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        )}
+                      </motion.div>
+                      
+                      <span className="relative">
+                        {link.name}
+                        {isActive && (
+                          <motion.div
+                            className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 via-orange-500 to-red-600 rounded-full"
+                            layoutId="activeNavUnderline"
                             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                           />
                         )}
+                      </span>
 
-                        {/* Hover Effect */}
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity -z-10"
-                        />
-                      </>
-                    )}
-                  </NavLink>
+                      {/* Hover Glow Effect */}
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-red-50 via-orange-50 to-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
+                        whileHover={{
+                          scale: 1.05,
+                          transition: { duration: 0.2 }
+                        }}
+                      />
+                    </NavLink>
+                  </motion.div>
                 );
               })}
             </nav>
 
-            {/* Desktop CTA & Profile */}
-            <div className="hidden lg:flex items-center gap-4">
+            {/* Desktop CTA & Profile with Festival Animations */}
+            <motion.div 
+              className="hidden lg:flex items-center gap-4"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
               {user ? (
                 <div className="relative" ref={profileRef}>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 group"
                     aria-haspopup="true"
                     aria-expanded={isProfileOpen}
-                    aria-label="User profile"
                   >
                     {user.photoURL ? (
                       <motion.img
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         src={user.photoURL}
                         alt={`${user.name}'s profile`}
-                        className="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100"
+                        className="w-8 h-8 rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-red-300 transition-all duration-300"
                       />
                     ) : (
                       <motion.div 
                         whileHover={{ scale: 1.1, rotate: 5 }}
-                        className="w-8 h-8 rounded-full bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center text-white font-semibold text-sm"
+                        className="w-8 h-8 rounded-full bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center text-white font-semibold text-sm shadow-md"
                       >
                         {user.name.charAt(0).toUpperCase()}
                       </motion.div>
                     )}
                     <motion.div
                       animate={{ rotate: isProfileOpen ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
-                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                      <ChevronDown className="w-4 h-4 text-gray-600 group-hover:text-red-600 transition-colors" />
                     </motion.div>
                   </motion.button>
 
-                  {/* Profile Dropdown */}
                   <AnimatePresence>
                     {isProfileOpen && (
                       <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden origin-top-right"
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden origin-top-right"
                       >
                         <div className="p-4 bg-gradient-to-br from-red-50 to-orange-50 border-b border-gray-100">
                           <div className="flex items-center gap-3">
@@ -438,15 +462,12 @@ const Header = () => {
                         </div>
                         <div className="p-2">
                           <motion.button
-                            whileHover={{ scale: 1.02, x: 2 }}
+                            whileHover={{ scale: 1.02, x: 3 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleLogout();
-                            }}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 font-medium group"
                           >
-                            <LogOut size={18} />
+                            <LogOut size={18} className="group-hover:rotate-12 transition-transform duration-200" />
                             <span>Sign Out</span>
                           </motion.button>
                         </div>
@@ -456,40 +477,37 @@ const Header = () => {
                 </div>
               ) : (
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, boxShadow: "0 10px 30px -10px rgba(239, 68, 68, 0.5)" }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleGoogleSignIn}
                   disabled={isLoading}
-                  className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
+                  className="relative px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group sign"
                 >
                   <motion.div
-                    className="absolute inset-0 bg-white/20"
+                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0"
                     initial={{ x: '-100%' }}
                     whileHover={{ x: '100%' }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.6 }}
                   />
-                  {isLoading ? (
-                    <>
-                      <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-                      Signing in...
-                    </>
-                  ) : (
-                    <>
-                      <UserIcon size={18} />
-                      Sign In
-                    </>
-                  )}
+                  <motion.div
+                    animate={isLoading ? { rotate: 360 } : {}}
+                    transition={isLoading ? { duration: 1, repeat: Infinity, ease: "linear" } : {}}
+                  >
+                    <UserIcon size={18} className="relative z-10" />
+                  </motion.div>
+                  <span className="relative z-10">{isLoading ? 'Signing in...' : 'Sign In'}</span>
                 </motion.button>
               )}
-            </div>
+            </motion.div>
 
             {/* Mobile Menu Button */}
             <motion.button
               whileTap={{ scale: 0.9 }}
-              className="lg:hidden z-20 p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+              className="lg:hidden z-20 p-2.5 rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-expanded={isMenuOpen}
-              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
             >
               <AnimatePresence mode="wait">
                 {isMenuOpen ? (
@@ -519,7 +537,7 @@ const Header = () => {
         </div>
       </motion.header>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer with Festival Theme */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
@@ -529,7 +547,6 @@ const Header = () => {
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
               onClick={() => setIsMenuOpen(false)}
-              aria-hidden="true"
             />
 
             <motion.div
@@ -538,29 +555,19 @@ const Header = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-2xl z-50 flex flex-col"
-              role="navigation"
-              aria-label="Mobile navigation"
+              className={`fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-2xl z-50 flex flex-col ${festivalThemeClass}`}
             >
-              {/* Festival Background for Mobile */}
-              <div className={`absolute inset-0 ${getFestivalTheme()} pointer-events-none opacity-60`} />
-
-              {/* Mobile Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100 relative z-10 bg-white/50 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <Logo isScrolled={true} />
-                </div>
+                <Logo isScrolled={true} />
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setIsMenuOpen(false)}
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  aria-label="Close mobile menu"
                 >
                   <X className="w-6 h-6 text-gray-900" />
                 </motion.button>
               </div>
 
-              {/* Mobile Navigation */}
               <nav className="flex-1 overflow-y-auto p-6 relative z-10">
                 <ul className="space-y-2">
                   {navLinks.map((link, index) => {
@@ -601,7 +608,6 @@ const Header = () => {
                   })}
                 </ul>
 
-                {/* Mobile Auth Section */}
                 {user ? (
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -612,7 +618,7 @@ const Header = () => {
                     <div className="p-4 bg-white/70 backdrop-blur-sm rounded-xl shadow-sm">
                       <div className="flex items-center gap-3 mb-4">
                         {user.photoURL ? (
-                          <img src={user.photoURL} alt={`${user.name}'s profile`} className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow" />
+                          <img src={user.photoURL} alt="Profile" className="w-12 h-12 rounded-full ring-2 ring-white shadow" />
                         ) : (
                           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center text-white font-semibold text-lg shadow">
                             {user.name.charAt(0).toUpperCase()}
@@ -626,11 +632,7 @@ const Header = () => {
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleLogout();
-                          setIsMenuOpen(false);
-                        }}
+                        onClick={() => { handleLogout(); setIsMenuOpen(false); }}
                         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-red-600 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm"
                       >
                         <LogOut size={18} />
@@ -648,12 +650,9 @@ const Header = () => {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        handleGoogleSignIn();
-                      }}
+                      onClick={() => { setIsMenuOpen(false); handleGoogleSignIn(); }}
                       disabled={isLoading}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg hover:shadow-lg transition-all font-medium sign"
                     >
                       {isLoading ? (
                         <>
@@ -671,7 +670,6 @@ const Header = () => {
                 )}
               </nav>
 
-              {/* Mobile Footer */}
               <div className="p-6 border-t border-gray-200 bg-white/50 backdrop-blur-sm relative z-10">
                 <p className="text-sm text-gray-600 text-center">
                   © {new Date().getFullYear()} Edizo. All rights reserved.
