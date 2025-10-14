@@ -39,6 +39,9 @@ import graphicDesignImg from '../assets/services/graphic design.webp';
 import apiDevelopmentImg from '../assets/services/api-development.webp';
 import seoImg from '../assets/services/seo.webp';
 import digitalMarketingImg from '../assets/services/digital-marketing.webp';
+// Add these imports after existing imports
+import Button from '../components/common/Button';
+import { useGoogleEvents } from '../components/hooks/useGoogleEvents';
 
 interface Service {
   id: string;
@@ -433,13 +436,19 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, index }) => (
       </div>
       <div className="p-6 flex flex-col flex-grow">
         <p className="text-gray-600 mb-4 flex-grow">{service.description}</p>
-        <Link
-          to={`/services/${service.id}`}
-          className="inline-flex items-center text-sm font-semibold text-red-600 hover:underline group/link mt-auto"
-        >
-          Explore Details
-          <ArrowRight className="ml-1.5 w-4 h-4 transition-transform group-hover/link:translate-x-1" />
-        </Link>
+  
+
+<Button
+  to={`/services/${service.id}`}
+  variant="outline"
+  size="sm"
+  enableFestivalAnimation={false}
+  showFestivalEmoji={true}
+  iconRight={<ArrowRight className="w-4 h-4" />}
+  className="w-full mt-auto"
+>
+  Explore Details
+</Button>
       </div>
     </motion.div>
   </AnimatedSection>
@@ -473,13 +482,17 @@ const ServicesOverview = () => (
                 <h3 className="text-lg font-bold text-gray-900">{service.title}</h3>
                 <p className="text-gray-600 text-sm mt-1">{service.subtitle}</p>
                 <p className="text-gray-500 text-sm mt-2">{service.description}</p>
-                <Link
-                  to={`/services/${service.id}`}
-                  className="mt-3 inline-flex items-center text-sm font-medium text-red-600 hover:underline"
-                >
-                  Learn More
-                  <ArrowRight className="ml-1 w-4 h-4" />
-                </Link>
+ <Button
+  to={`/services/${service.id}`}
+  variant="ghost"
+  size="sm"
+  enableFestivalAnimation={false}
+  showFestivalEmoji={true}
+  iconRight={<ArrowRight className="w-4 h-4" />}
+  className="mt-3"
+>
+  Learn More
+</Button>
               </div>
             </motion.div>
           </AnimatedSection>
@@ -531,6 +544,9 @@ const WhyChooseUsSummary = () => (
 const Services: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+    // ✅ ADD THIS
+  const { getActiveEvent } = useGoogleEvents();
+  const activeEvent = getActiveEvent();
 
   const categories = ['All', 'Development', 'Design', 'API', 'Marketing'];
 
@@ -646,13 +662,18 @@ const Services: React.FC = () => {
               Let's discuss how our services can help you achieve your goals.
             </p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                to="/contact"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-full shadow-lg hover:shadow-xl hover:bg-gray-100 transition-all duration-300 min-h-12"
-              >
-                Start Your Project Today
-                <ArrowRight size={24} className="transition-transform group-hover:translate-x-1" />
-              </Link>
+            
+<Button
+  to="/contact"
+  variant="secondary"
+  size="xl"
+  enableFestivalAnimation={true}
+  showFestivalEmoji={true}
+  iconRight={<ArrowRight className="w-6 h-6" />}
+  className="shadow-2xl hover:shadow-3xl"
+>
+  Start Your Project Today
+</Button>
             </motion.div>
             <p className="text-gray-500 text-sm mt-4">Free consultation • No obligation • Expert advice</p>
           </AnimatedSection>

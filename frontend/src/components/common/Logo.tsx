@@ -324,6 +324,7 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
 
     return emojiSets[event.animation] || emojiSets['default'];
   };
+  
 
   const animationClass = activeEvent?.animation || '';
   
