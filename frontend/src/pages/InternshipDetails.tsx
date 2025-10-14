@@ -1,9 +1,8 @@
 // InternshipDetails.tsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Wifi, Home, Check, Star, TrendingUp, ArrowLeft, Building2, MapPin, Calendar, Award, Users, Zap, Globe } from 'lucide-react';
+import { Wifi, Home, Check, Star, TrendingUp, ArrowLeft, Building2, MapPin, Calendar, Award, Users, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import internshipsData from './internships.json';
 
 // === Define Interfaces ===
 interface Internship {
@@ -16,12 +15,17 @@ interface Internship {
   rating: number;
   description: string;
   isTrending?: boolean;
-  syllabus: { [key: string]: string[] };
   whyChooseEdizo: string[];
   benefits: string[];
+  syllabus: {
+    '15-days': string[];
+    '1-month': string[];
+    '2-months': string[];
+    '3-months': string[];
+  };
 }
 
-// Fallback image map - ✅ Use imported images if possible, or ensure paths are correct
+// Fallback image map
 const fallbackImages: Record<string, string> = {
   'ui-ux-design': '/assets/images/web-design.png',
   'frontend-development': '/assets/images/responsive-design.png',
@@ -35,20 +39,17 @@ const fallbackImages: Record<string, string> = {
   'ai-with-chatgpt': '/assets/images/AI with CHATGPT.png',
   'web-development': '/assets/images/web-development.png',
   'csharp': '/assets/images/c-sharp.png',
-  default: '/assets/images/default-internship.png', // Ensure this path is correct
+  default: 'https://via.placeholder.com/800x400?text=Internship+Image',
 };
 
-// Image source function - ✅ Simplified
+// Image source function
 const getImageSrc = (id: string | undefined, image: string | undefined): string => {
-  // If image path is provided and seems valid, use it
   if (image && (image.startsWith('/') || image.startsWith('http'))) {
     return image;
   }
-  // Otherwise, try to find a fallback based on ID
   if (id && fallbackImages[id]) {
     return fallbackImages[id];
   }
-  // Use default fallback
   return fallbackImages.default;
 };
 
@@ -56,7 +57,7 @@ const getImageSrc = (id: string | undefined, image: string | undefined): string 
 interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
-  to?: string; // For Link
+  to?: string;
   variant?: 'primary' | 'outline' | 'default';
   className?: string;
   disabled?: boolean;
@@ -80,11 +81,7 @@ const Button: React.FC<ButtonProps> = ({ children, onClick, to, variant = 'defau
   }
 
   return (
-    <button
-      onClick={onClick}
-      className={baseClasses}
-      disabled={disabled}
-    >
+    <button onClick={onClick} className={baseClasses} disabled={disabled}>
       {children}
     </button>
   );
@@ -115,59 +112,106 @@ const InternshipDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch internship details from Google Sheets
   useEffect(() => {
-    const fetchInternship = () => {
+    const fetchInternshipDetails = async () => {
       try {
         setLoading(true);
+        
         if (!id) {
           setError('Internship ID not provided');
+          setLoading(false);
+          return;
+        }
+
+        const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
+        const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
+        const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+
+        console.log('Fetching internship details for ID:', id);
+
+        if (!SHEET_ID || !API_KEY) {
+          throw new Error('Missing Google Sheets configuration');
+        }
+
+        // Fetch from Google Sheets
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error?.message || 'Failed to fetch data');
+        }
+
+        const data = await response.json();
+
+        if (!data.values || data.values.length <= 1) {
+          throw new Error('No data found in sheet');
+        }
+
+        // Find the internship by ID (column 0)
+        const internshipRow = data.values.slice(1).find((row: any[]) => row[0] === id);
+
+        if (!internshipRow) {
+          setError(`Internship with ID "${id}" not found`);
           setInternship(null);
           setLoading(false);
           return;
         }
 
-        const data = internshipsData as Record<string, Internship>;
-        const selectedInternship = data[id];
+        // Parse the row data (based on Table 2 structure)
+        const parsedInternship: Internship = {
+          id: internshipRow[0] || id,
+          title: internshipRow[1] || 'Untitled',
+          category: internshipRow[2] || 'General',
+          mode: (internshipRow[3] || 'Online') as 'Online' | 'Offline',
+          company: internshipRow[4] || 'EDIZO',
+          image: internshipRow[5] || '',
+          rating: parseFloat(internshipRow[6]) || 4.0,
+          description: internshipRow[7] || 'No description available.',
+          whyChooseEdizo: [
+            internshipRow[8] || '',
+            internshipRow[9] || '',
+            internshipRow[10] || '',
+            internshipRow[11] || '',
+            internshipRow[12] || '',
+            internshipRow[13] || '',
+            internshipRow[14] || '',
+          ].filter(Boolean),
+          benefits: [
+            internshipRow[15] || '',
+            internshipRow[16] || '',
+            internshipRow[17] || '',
+            internshipRow[18] || '',
+            internshipRow[19] || '',
+            internshipRow[20] || '',
+            internshipRow[21] || '',
+          ].filter(Boolean),
+          syllabus: {
+            '15-days': internshipRow[22] ? internshipRow[22].split(',').map((s: string) => s.trim()) : [],
+            '1-month': internshipRow[23] ? internshipRow[23].split(',').map((s: string) => s.trim()) : [],
+            '2-months': internshipRow[24] ? internshipRow[24].split(',').map((s: string) => s.trim()) : [],
+            '3-months': internshipRow[25] ? internshipRow[25].split(',').map((s: string) => s.trim()) : [],
+          },
+          isTrending: parseFloat(internshipRow[6]) >= 4.5,
+        };
 
-        if (selectedInternship) {
-            // Ensure the ID is set on the object
-            setInternship({ ...selectedInternship, id });
-            const periods = Object.keys(selectedInternship.syllabus);
-            if (periods.length > 0 && !selectedInternship.syllabus[activePeriod]) {
-                setActivePeriod(periods[0]);
-            }
-            setError(null);
-        } else {
-            setError(`Internship with ID "${id}" not found`);
-            setInternship(null);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load internship data');
+        console.log('Parsed internship:', parsedInternship);
+        setInternship(parsedInternship);
+        setError(null);
+      } catch (err: any) {
+        console.error('Error fetching internship details:', err);
+        setError(err.message || 'Failed to load internship details');
         setInternship(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchInternship();
-  }, [id, activePeriod]); // activePeriod dependency ensures re-run if needed
+    fetchInternshipDetails();
+  }, [id]);
 
-  // Preload image - ✅ Simplified
-  useEffect(() => {
-    if (internship && id) {
-      const imgSrc = getImageSrc(id, internship.image);
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = imgSrc;
-      document.head.appendChild(link);
-      return () => {
-        document.head.removeChild(link);
-      };
-    }
-  }, [internship, id]);
-
-  // JSON-LD for SEO - ✅ Fixed URLs, removed pricing
+  // JSON-LD for SEO
   useEffect(() => {
     if (internship && id) {
       const schema = {
@@ -182,7 +226,6 @@ const InternshipDetails: React.FC = () => {
         },
         category: internship.category,
         image: getImageSrc(id, internship.image),
-        // Removed offers section
         audience: {
           '@type': 'EducationalAudience',
           educationalRole: 'intern',
@@ -206,31 +249,32 @@ const InternshipDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex items-center justify-center py-20 px-6 text-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
-        <p className="text-gray-600 mt-4">Loading internship details...</p>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex items-center justify-center py-20 px-6">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-red-600 mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading internship details...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !internship) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex flex-col items-center justify-center py-20 px-6 text-center">
-        <h1 className="text-3xl font-bold text-gray-800">Internship Not Found</h1>
-        <p className="text-lg text-gray-600 mt-2">{error || "The internship you're looking for does not exist."}</p>
-        <Button
-          onClick={() => navigate('/internships')}
-          variant="outline"
-          className="mt-6"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Internships
-        </Button>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex flex-col items-center justify-center py-20 px-6">
+        <div className="text-center max-w-lg">
+          <div className="text-red-600 text-5xl mb-4">⚠️</div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Internship Not Found</h1>
+          <p className="text-lg text-gray-600 mb-6">{error || "The internship you're looking for does not exist."}</p>
+          <Button onClick={() => navigate('/internships')} variant="outline">
+            <ArrowLeft className="w-4 h-4 mr-2 inline" /> Back to Internships
+          </Button>
+        </div>
       </div>
     );
   }
 
-  const syllabusPeriods = Object.keys(internship.syllabus);
-  const currentSyllabus = internship.syllabus[activePeriod] || [];
+  const syllabusPeriods = Object.keys(internship.syllabus).filter(period => internship.syllabus[period as keyof typeof internship.syllabus].length > 0);
+  const currentSyllabus = internship.syllabus[activePeriod as keyof typeof internship.syllabus] || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 pt-20 pb-16 px-4 md:px-6 lg:px-8">
@@ -243,8 +287,7 @@ const InternshipDetails: React.FC = () => {
           className="w-full h-64 object-cover object-center"
           loading="lazy"
           onError={(e) => {
-            console.warn(`Failed to load image for ID: ${id}, path: ${internship.image}`);
-            e.currentTarget.src = fallbackImages.default; // Use default fallback on error
+            e.currentTarget.src = fallbackImages.default;
           }}
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-20">
@@ -274,7 +317,6 @@ const InternshipDetails: React.FC = () => {
           <Link
             to="/internships"
             className="flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm mb-6 transition-all duration-200 group"
-            aria-label="Go back to internships"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             <span>Back to Internships</span>
@@ -294,8 +336,7 @@ const InternshipDetails: React.FC = () => {
                     className="w-16 h-16 object-cover rounded-lg mr-4"
                     loading="lazy"
                     onError={(e) => {
-                      console.warn(`Failed to load thumbnail for ID: ${id}, path: ${internship.image}`);
-                      e.currentTarget.src = fallbackImages.default; // Use default fallback on error
+                      e.currentTarget.src = fallbackImages.default;
                     }}
                   />
                   <div>
@@ -340,11 +381,7 @@ const InternshipDetails: React.FC = () => {
               </div>
             </AnimatedSection>
             <AnimatedSection delay={0.2}>
-              <Button
-                to={`/apply/${id}`} // Updated link
-                variant="primary"
-                className="w-full text-base font-semibold py-4"
-              >
+              <Button to={`/apply/${id}`} variant="primary" className="w-full text-base font-semibold py-4">
                 Apply Now →
               </Button>
             </AnimatedSection>
@@ -364,137 +401,142 @@ const InternshipDetails: React.FC = () => {
               </p>
             </AnimatedSection>
 
-            <AnimatedSection delay={0.1}>
-              <div className="flex items-center mb-4">
-                <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                  <Calendar className="text-red-600" size={24} />
-                  Syllabus & Learning Path
-                </h3>
-              </div>
-              <div className="flex flex-wrap gap-3 mt-4 mb-5">
-                {syllabusPeriods.map((period) => (
-                  <motion.button
-                    key={period}
-                    onClick={() => setActivePeriod(period)}
-                    className={`px-5 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200 ${
-                      activePeriod === period
-                        ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.98 }}
+            {/* Syllabus Section */}
+            {syllabusPeriods.length > 0 && (
+              <AnimatedSection delay={0.1}>
+                <div className="flex items-center mb-4">
+                  <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <Calendar className="text-red-600" size={24} />
+                    Syllabus & Learning Path
+                  </h3>
+                </div>
+                <div className="flex flex-wrap gap-3 mt-4 mb-5">
+                  {syllabusPeriods.map((period) => (
+                    <motion.button
+                      key={period}
+                      onClick={() => setActivePeriod(period)}
+                      className={`px-5 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200 ${
+                        activePeriod === period
+                          ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {period.replace('-', ' ').replace('days', ' Days').replace('month', ' Month').replace('months', ' Months')}
+                    </motion.button>
+                  ))}
+                </div>
+                {currentSyllabus.length > 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
                   >
-                    {period.replace('-', ' ').replace('days', ' Days').replace('month', ' Month').replace('months', ' Months')}
-                  </motion.button>
-                ))}
-              </div>
-              {currentSyllabus.length > 0 ? (
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                      {activePeriod.replace('-', ' ').replace('days', ' Days').replace('month', ' Month').replace('months', ' Months')} Program
+                    </h4>
+                    <ul className="space-y-3">
+                      {currentSyllabus.map((topic, index) => (
+                        <motion.li
+                          key={index}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.2, delay: index * 0.05 }}
+                          className="flex items-start text-gray-600 text-sm p-3 bg-gray-50 rounded-lg"
+                        >
+                          <div className="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 text-xs font-bold">
+                            {index + 1}
+                          </div>
+                          <span>{topic}</span>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                ) : (
+                  <p className="text-gray-500 text-sm italic bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                    No syllabus available for this duration.
+                  </p>
+                )}
+              </AnimatedSection>
+            )}
+
+            {/* Why Choose Section */}
+            {internship.whyChooseEdizo.length > 0 && (
+              <AnimatedSection delay={0.2}>
+                <div className="flex items-center mb-4">
+                  <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <Users className="text-red-600" size={24} />
+                    Why Choose {internship.company}?
+                  </h3>
+                </div>
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
                 >
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                    {activePeriod.replace('-', ' ').replace('days', ' Days').replace('month', ' Month').replace('months', ' Months')} Program
-                  </h4>
                   <ul className="space-y-3">
-                    {currentSyllabus.map((topic, index) => (
+                    {internship.whyChooseEdizo.map((item, index) => (
                       <motion.li
                         key={index}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.05 }}
-                        className="flex items-start text-gray-600 text-sm p-3 bg-gray-50 rounded-lg"
+                        className="flex items-start text-gray-600 text-sm p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg"
                       >
-                        <div className="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 text-xs font-bold">
-                          {index + 1}
+                        <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">
+                          <Check size={14} />
                         </div>
-                        <span>{topic}</span>
+                        <span>{item}</span>
                       </motion.li>
                     ))}
                   </ul>
                 </motion.div>
-              ) : (
-                <p className="text-gray-500 text-sm italic bg-yellow-50 p-4 rounded-xl border border-yellow-200">
-                  No syllabus available for this program duration.
-                </p>
-              )}
-            </AnimatedSection>
+              </AnimatedSection>
+            )}
 
-            <AnimatedSection delay={0.2}>
-              <div className="flex items-center mb-4">
-                <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                  <Users className="text-red-600" size={24} />
-                  Why Choose {internship.company}?
-                </h3>
-              </div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
-              >
-                <ul className="space-y-3">
-                  {internship.whyChooseEdizo.map((item, index) => (
-                    <motion.li
-                      key={index}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.2, delay: index * 0.05 }}
-                      className="flex items-start text-gray-600 text-sm p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg"
-                    >
-                      <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">
-                        <Check size={14} />
-                      </div>
-                      <span>{item}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </motion.div>
-            </AnimatedSection>
-
-            <AnimatedSection delay={0.3}>
-              <div className="flex items-center mb-4">
-                <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                  <Zap className="text-red-600" size={24} />
-                  Career Benefits
-                </h3>
-              </div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
-              >
-                <ul className="space-y-3">
-                  {internship.benefits.map((item, index) => (
-                    <motion.li
-                      key={index}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.2, delay: index * 0.05 }}
-                      className="flex items-start text-gray-600 text-sm p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg"
-                    >
-                      <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">
-                        <Check size={14} />
-                      </div>
-                      <span>{item}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </motion.div>
-            </AnimatedSection>
+            {/* Benefits Section */}
+            {internship.benefits.length > 0 && (
+              <AnimatedSection delay={0.3}>
+                <div className="flex items-center mb-4">
+                  <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <Zap className="text-red-600" size={24} />
+                    Career Benefits
+                  </h3>
+                </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
+                >
+                  <ul className="space-y-3">
+                    {internship.benefits.map((item, index) => (
+                      <motion.li
+                        key={index}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.2, delay: index * 0.05 }}
+                        className="flex items-start text-gray-600 text-sm p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg"
+                      >
+                        <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">
+                          <Check size={14} />
+                        </div>
+                        <span>{item}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </motion.div>
+              </AnimatedSection>
+            )}
 
             {/* CTA */}
             <AnimatedSection delay={0.4}>
               <div className="text-center pt-8 bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl">
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Ready to Start Your Journey?</h3>
-                <Button
-                  to={`/apply/${id}`} // Updated link
-                  variant="primary"
-                  className="px-10 py-4 text-lg font-semibold text-white shadow-lg"
-                >
+                <Button to={`/apply/${id}`} variant="primary" className="px-10 py-4 text-lg font-semibold text-white shadow-lg">
                   Apply Now →
                 </Button>
                 <p className="text-gray-500 text-sm mt-3">

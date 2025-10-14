@@ -1,7 +1,7 @@
 // src/components/common/Logo.tsx
 import React, { useEffect, useState } from 'react';
 import { useGoogleEvents } from '../hooks/useGoogleEvents';
-import type{  CalendarEvent} from '../hooks/useGoogleEvents';
+import type { CalendarEvent } from '../hooks/useGoogleEvents';
 import './Logo.animations.css';
 
 import logoIcon from '../../assets/images/logo.png';
@@ -244,6 +244,82 @@ const FestivalDecorations: React.FC<{ animation: string }> = ({ animation }) => 
 };
 
 /**
+ * Festival-based Outline Effect
+ */
+const FestivalOutlineEffect: React.FC<{ activeEvent: CalendarEvent | null }> = ({ activeEvent }) => {
+  if (!activeEvent) return null;
+
+  const getOutlineStyle = () => {
+    if (!activeEvent.colors || activeEvent.colors.length === 0) {
+      return { background: 'linear-gradient(135deg, #ef4444, #f97316)' };
+    }
+    
+    const colors = activeEvent.colors;
+    switch (activeEvent.animation) {
+      case 'diwali':
+      case 'diya-glow':
+        return { 
+          background: `radial-gradient(circle, ${colors[0]}, ${colors[1] || colors[0]})`,
+          boxShadow: `0 0 20px ${colors[0]}60, 0 0 40px ${colors[1] || colors[0]}40`
+        };
+      case 'holi':
+      case 'color-burst':
+        return { 
+          background: `conic-gradient(${colors[0]}, ${colors[1] || colors[0]}, ${colors[2] || colors[0]}, ${colors[0]})`,
+          boxShadow: `0 0 15px ${colors[0]}40, 0 0 30px ${colors[2] || colors[0]}30`
+        };
+      case 'independence-day':
+      case 'republic-day':
+      case 'tricolor-wave':
+        return { 
+          background: `conic-gradient(#FF9933, #FFFFFF, #138808, #FF9933)`,
+          boxShadow: '0 0 15px #FF993340, 0 0 30px #13880830'
+        };
+      case 'new-year':
+      case 'fireworks':
+        return { 
+          background: `radial-gradient(circle, ${colors[0]}, ${colors[1] || colors[0]}, ${colors[2] || colors[0]})`,
+          boxShadow: `0 0 25px ${colors[0]}60, 0 0 40px ${colors[2] || colors[0]}40`
+        };
+      case 'christmas':
+      case 'festive-snow':
+        return { 
+          background: `linear-gradient(135deg, #DC143C, #006400, #FFD700)`,
+          boxShadow: '0 0 15px #DC143C40, 0 0 30px #00640030'
+        };
+      default:
+        return { 
+          background: `linear-gradient(135deg, ${colors[0]}, ${colors[1] || colors[0]})`,
+          boxShadow: `0 0 15px ${colors[0]}40, 0 0 30px ${colors[1] || colors[0]}30`
+        };
+    }
+  };
+
+  return (
+    <div 
+      className="absolute inset-0 rounded-full z-0"
+      style={{
+        ...getOutlineStyle(),
+        animation: activeEvent.animation === 'holi' || activeEvent.animation === 'color-burst' 
+          ? 'holi-gradient 3s ease-in-out infinite' 
+          : activeEvent.animation === 'independence-day' || activeEvent.animation === 'republic-day' 
+            ? 'tricolor-wave 2s ease-in-out infinite' 
+            : activeEvent.animation === 'diwali' || activeEvent.animation === 'diya-glow'
+              ? 'diya-ring 2s ease-in-out infinite'
+              : activeEvent.animation === 'christmas' || activeEvent.animation === 'festive-snow'
+                ? 'christmas-snow 3s ease-in-out infinite'
+                : activeEvent.animation === 'new-year' || activeEvent.animation === 'fireworks'
+                  ? 'new-year-fireworks 3s ease-in-out infinite'
+                  : 'logo-pulse 3s ease-in-out infinite',
+        opacity: 0.3,
+        transform: 'scale(1.1)',
+        zIndex: 0
+      }}
+    />
+  );
+};
+
+/**
  * Main Logo Component
  */
 const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => {
@@ -324,7 +400,6 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
 
     return emojiSets[event.animation] || emojiSets['default'];
   };
-  
 
   const animationClass = activeEvent?.animation || '';
   
@@ -355,7 +430,10 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
           />
         )}
 
-        {/* Main Logo Circle */}
+        {/* Festival-based Outline Effect */}
+        {activeEvent && <FestivalOutlineEffect activeEvent={activeEvent} />}
+
+        {/* Main Logo Circle with White Background */}
         <div 
           className={`
             w-12 h-12 md:w-13 md:h-13 rounded-full 
@@ -366,9 +444,7 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
             ${animationClass}
           `}
           style={{
-            background: activeEvent 
-              ? `linear-gradient(135deg, ${textColors[0]}, ${textColors[1] || textColors[0]})` 
-              : 'linear-gradient(135deg, #ef4444, #f97316)',
+            background: 'white',
             animation: activeEvent ? 'logo-pulse 3s ease-in-out infinite' : 'none'
           }}
         >
@@ -431,7 +507,7 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
 
       {/* Brand Name - Image when no event, Animated Text when event active */}
       {activeEvent ? (
-        // Animated Text for Active Events
+        // Animated Text for Active Events with Festival Effects
         <div className="relative flex items-center gap-0.5">
           {['E', 'D', 'I', 'Z', 'O'].map((letter, index) => (
             <span
@@ -446,7 +522,16 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
                 textShadow: `0 2px 8px ${textColors[index % textColors.length]}40`,
                 transform: 'translateZ(0)',
                 willChange: 'transform',
-                zIndex: 20
+                zIndex: 20,
+                // Apply festival-specific text effects
+                animationName: activeEvent.animation === 'diwali' || activeEvent.animation === 'diya-glow'
+                  ? 'diya-text-effect'
+                  : activeEvent.animation === 'holi' || activeEvent.animation === 'color-burst'
+                    ? 'holi-text-effect'
+                    : 'festival-text-glow',
+                animationDuration: '2s',
+                animationIterationCount: 'infinite',
+                animationTimingFunction: 'ease-in-out'
               }}
             >
               {letter}
