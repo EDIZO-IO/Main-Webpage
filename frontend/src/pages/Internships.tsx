@@ -2,12 +2,19 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Wifi, ArrowRight, Star, Search, TrendingUp, Users, Zap, Award } from 'lucide-react';
+import { Wifi, ArrowRight, Star, Search, TrendingUp, Users, Zap, Award, Tag, Percent } from 'lucide-react';
 
 // === Define TypeScript interfaces ===
 interface AnimatedSectionProps {
   children: React.ReactNode;
   delay?: number;
+}
+
+interface InternshipDiscount {
+  '15-days': number;
+  '1-month': number;
+  '2-months': number;
+  '3-months': number;
 }
 
 interface Internship {
@@ -20,6 +27,9 @@ interface Internship {
   rating: number;
   description: string;
   isTrending?: boolean;
+  discount?: InternshipDiscount;
+  maxDiscount?: number; // Highest discount percentage
+  hasDiscount?: boolean; // Whether any discount exists
 }
 
 // === Simplified PageHeader Component ===
@@ -151,7 +161,7 @@ const Internships: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // Fetch data from Google Sheets with improved error handling
+  // ✅ UPDATED: Fetch data with discount support
   useEffect(() => {
     const fetchInternships = async () => {
       try {
@@ -159,11 +169,9 @@ const Internships: React.FC = () => {
         const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
         const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
-        // Debug logging
         console.log('Fetching from Google Sheets...');
         console.log('Sheet ID:', SHEET_ID);
         console.log('Sheet Name:', SHEET_NAME);
-        console.log('API Key:', API_KEY ? 'Present' : 'Missing');
 
         if (!SHEET_ID || !API_KEY) {
           throw new Error('Missing Google Sheets configuration. Check your .env file.');
@@ -189,10 +197,27 @@ const Internships: React.FC = () => {
           throw new Error('No internship data found in the sheet. Please add data to the "Internships" tab.');
         }
 
-        // Skip header row (index 0), map the rest
+        // ✅ UPDATED: Parse with discount columns (30-33)
         const parsedInternships: Internship[] = data.values.slice(1).map((row: any[], index: number) => {
           console.log(`Parsing row ${index + 1}:`, row);
           
+          // Parse discount columns (30-33: AE-AH)
+          const discount = {
+            '15-days': parseFloat(row[30]) || 0,
+            '1-month': parseFloat(row[31]) || 0,
+            '2-months': parseFloat(row[32]) || 0,
+            '3-months': parseFloat(row[33]) || 0,
+          };
+
+          // Calculate max discount and check if any discount exists
+          const maxDiscount = Math.max(
+            discount['15-days'],
+            discount['1-month'],
+            discount['2-months'],
+            discount['3-months']
+          );
+          const hasDiscount = maxDiscount > 0;
+
           return {
             id: row[0] || `internship-${index}`,
             title: row[1] || 'Untitled',
@@ -203,10 +228,13 @@ const Internships: React.FC = () => {
             rating: parseFloat(row[6]) || 4.0,
             description: row[7] || 'No description available.',
             isTrending: parseFloat(row[6]) >= 4.5,
+            discount,
+            maxDiscount,
+            hasDiscount,
           };
         });
 
-        console.log('Parsed internships:', parsedInternships);
+        console.log('Parsed internships with discounts:', parsedInternships);
         setInternships(parsedInternships);
         setLoading(false);
       } catch (err: any) {
@@ -351,6 +379,13 @@ const Internships: React.FC = () => {
                       <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
                         🔥 Trending
                       </span>
+                      {/* ✅ NEW: Discount Badge */}
+                      {internship.hasDiscount && internship.maxDiscount && (
+                        <span className="absolute top-2 right-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5 shadow-md animate-pulse">
+                          <Tag size={10} />
+                          {internship.maxDiscount}% OFF
+                        </span>
+                      )}
                     </div>
                     <div className="p-3">
                       <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 h-10 group-hover:text-red-600 transition-colors">
@@ -440,6 +475,13 @@ const Internships: React.FC = () => {
                       <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
                         {internship.category}
                       </div>
+                      {/* ✅ NEW: Discount Badge for All Internships */}
+                      {internship.hasDiscount && internship.maxDiscount && (
+                        <div className="absolute top-2 right-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5 shadow-lg">
+                          <Percent size={10} />
+                          {internship.maxDiscount}%
+                        </div>
+                      )}
                     </div>
                     <div className="p-3">
                       <h3 className="text-sm font-semibold text-gray-800 mb-1.5 line-clamp-2 h-10 group-hover:text-red-600 transition-colors">
@@ -456,6 +498,17 @@ const Internships: React.FC = () => {
                           <span className="font-medium">{internship.rating}</span>
                         </div>
                       </div>
+                      {/* ✅ NEW: Show discount info at bottom */}
+                      {internship.hasDiscount && (
+                        <div className="mt-2 pt-2 border-t">
+                          <div className="flex items-center justify-between">
+                            <span className="text-green-600 text-xs font-bold flex items-center gap-1">
+                              <Tag size={12} />
+                              Up to {internship.maxDiscount}% OFF
+                            </span>
+                          </div>
+                        </div>
+                      )}
                       <div className="mt-2 pt-2 border-t">
                         <span className="text-red-600 text-xs font-semibold flex items-center hover:underline group-hover:gap-1 transition-all">
                           Apply Now <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-all" />

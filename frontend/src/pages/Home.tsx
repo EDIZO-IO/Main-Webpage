@@ -1,7 +1,7 @@
 // src/pages/Home.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   ArrowRight,
   Calendar,
@@ -11,6 +11,9 @@ import {
   CheckCircle,
   Sparkles,
   TrendingUp,
+  Tag,
+  Percent,
+  Star,
 } from 'lucide-react';
 import Button from '../components/common/Button';
 import { useGoogleEvents } from '../components/hooks/useGoogleEvents';
@@ -30,11 +33,6 @@ import apiDevelopmentImg from '../assets/services/api-development.webp';
 import seoImg from '../assets/services/seo.webp';
 import digitalMarketingImg from '../assets/services/digital-marketing.webp';
 
-// Internship Images
-import uiux from '../assets/images/web-design.png';
-import webdevelop from '../assets/images/web-development.png';
-import aiml from '../assets/images/ai-assistant.png';
-
 // Type definitions
 interface LazyImageProps {
   src: string;
@@ -45,12 +43,6 @@ interface LazyImageProps {
 interface AnimatedSectionProps {
   children: React.ReactNode;
   delay?: number;
-}
-
-interface StatCardProps {
-  value: string;
-  label: string;
-  icon?: React.ComponentType<{ size: number; className?: string }>;
 }
 
 interface ServiceCardProps {
@@ -68,6 +60,28 @@ interface PortfolioCardProps {
   shortDescription?: string;
   isExternal?: boolean;
   isInternship?: boolean;
+  maxDiscount?: number;
+  hasDiscount?: boolean;
+  rating?: number;
+}
+
+interface InternshipDiscount {
+  '15-days': number;
+  '1-month': number;
+  '2-months': number;
+  '3-months': number;
+}
+
+interface TrendingInternship {
+  id: string;
+  title: string;
+  category: string;
+  image: string;
+  rating: number;
+  description: string;
+  discount?: InternshipDiscount;
+  maxDiscount?: number;
+  hasDiscount?: boolean;
 }
 
 // Lazy Load Images
@@ -96,36 +110,8 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, delay = 0 }
   </motion.div>
 );
 
-
-
-// Stat Card - Enhanced with Icons
-const StatCard: React.FC<StatCardProps> = ({ value, label, icon: Icon }) => (
-  <AnimatedSection>
-    <motion.div
-      className="relative p-8 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-red-100 transition-all duration-300 overflow-hidden group"
-      whileHover={{ y: -8, scale: 1.02 }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-red-50/50 to-orange-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
-      <div className="relative z-10 text-center">
-        {Icon && (
-          <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
-            <Icon size={24} className="text-white" />
-          </div>
-        )}
-        <h3 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent mb-2">
-          {value}
-        </h3>
-        <p className="text-gray-600 font-medium">{label}</p>
-      </div>
-    </motion.div>
-  </AnimatedSection>
-);
-
-// Service Card - Professional Card Design
+// Service Card
 const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link }) => {
- 
-
   return (
     <AnimatedSection>
       <motion.div
@@ -148,15 +134,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link }) => 
           <p className="text-gray-600 text-sm leading-relaxed mb-4">{desc}</p>
 
           <Button
-  to={link}
-  variant="outline"
-  size="sm"
-  enableFestivalAnimation={false}  // ✅ Keep red outline
-  showFestivalEmoji={true}         // ✅ Show emoji
-  iconRight={<ArrowRight className="w-4 h-4" />}
-  className="w-full"
->       
-          
+            to={link}
+            variant="outline"
+            size="sm"
+            enableFestivalAnimation={false}
+            showFestivalEmoji={true}
+            iconRight={<ArrowRight className="w-4 h-4" />}
+            className="w-full"
+          >
             Learn More
           </Button>
         </div>
@@ -167,7 +152,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ img, title, desc, link }) => 
   );
 };
 
-// Portfolio Card - Modern Project Card
+// Portfolio Card
 const PortfolioCard: React.FC<PortfolioCardProps> = ({ 
   img, 
   title, 
@@ -175,10 +160,11 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
   link, 
   shortDescription, 
   isExternal = false, 
-  isInternship = false 
+  isInternship = false,
+  maxDiscount,
+  hasDiscount,
+  rating
 }) => {
-  
-
   const CardContent = (
     <>
       <div className="relative h-56 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
@@ -194,6 +180,14 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
           </div>
         )}
 
+        {/* ✅ NEW: Discount Badge */}
+        {hasDiscount && maxDiscount && maxDiscount > 0 && (
+          <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 shadow-lg animate-pulse">
+            <Tag size={12} />
+            {maxDiscount}% OFF
+          </div>
+        )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
 
@@ -202,14 +196,30 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
           {title}
         </h3>
         {shortDescription && (
-          <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+          <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-3">
             {shortDescription}
           </p>
         )}
-        {isInternship && (
-          <p className="text-gray-600 text-sm leading-relaxed">
+        {isInternship && !shortDescription && (
+          <p className="text-gray-600 text-sm leading-relaxed mb-3">
             Gain real-world experience on live projects.
           </p>
+        )}
+
+        {/* ✅ NEW: Rating Display */}
+        {rating && (
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center">
+              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+              <span className="text-sm font-bold text-gray-800 ml-1">{rating}</span>
+            </div>
+            {hasDiscount && maxDiscount && maxDiscount > 0 && (
+              <div className="flex items-center text-green-600 text-xs font-bold">
+                <Percent size={12} className="mr-0.5" />
+                Up to {maxDiscount}% OFF
+              </div>
+            )}
+          </div>
         )}
 
         <div className="mt-4 inline-flex items-center text-red-600 font-semibold text-sm">
@@ -247,7 +257,6 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
 
 // Hero Section
 const Hero: React.FC = () => {
-  
   const { getActiveEvent } = useGoogleEvents();
   const activeEvent = getActiveEvent();
 
@@ -290,13 +299,11 @@ const Hero: React.FC = () => {
       </div>
 
       <motion.div
-  className="container mx-auto px-6 lg:px-12 relative z-10"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ duration: 0.6 }}
->
-
-
+        className="container mx-auto px-6 lg:px-12 relative z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="max-w-5xl mx-auto">
           <AnimatedSection delay={0.1}>
             <div className="flex justify-center mb-6">
@@ -419,6 +426,85 @@ const Hero: React.FC = () => {
 const Home: React.FC = () => {
   const { getActiveEvent } = useGoogleEvents();
   const activeEvent = getActiveEvent();
+  
+  // ✅ NEW: State for trending internships from Google Sheets
+  const [trendingInternships, setTrendingInternships] = useState<TrendingInternship[]>([]);
+  const [internshipsLoading, setInternshipsLoading] = useState(true);
+
+  // ✅ NEW: Fetch trending internships from Google Sheets
+  useEffect(() => {
+    const fetchTrendingInternships = async () => {
+      try {
+        const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
+        const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
+        const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+
+        if (!SHEET_ID || !API_KEY) {
+          console.warn('Missing Google Sheets configuration');
+          setInternshipsLoading(false);
+          return;
+        }
+
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch internships');
+        }
+
+        const data = await response.json();
+
+        if (!data.values || data.values.length <= 1) {
+          setInternshipsLoading(false);
+          return;
+        }
+
+        // Parse and filter trending internships (rating >= 4.5)
+        const parsed = data.values.slice(1).map((row: any[]) => {
+          const discount = {
+            '15-days': parseFloat(row[30]) || 0,
+            '1-month': parseFloat(row[31]) || 0,
+            '2-months': parseFloat(row[32]) || 0,
+            '3-months': parseFloat(row[33]) || 0,
+          };
+
+          const maxDiscount = Math.max(
+            discount['15-days'],
+            discount['1-month'],
+            discount['2-months'],
+            discount['3-months']
+          );
+
+          return {
+            id: row[0] || '',
+            title: row[1] || 'Untitled',
+            category: row[2] || 'General',
+            image: row[5] || '',
+            rating: parseFloat(row[6]) || 0,
+            description: row[7] || '',
+            discount,
+            maxDiscount,
+            hasDiscount: maxDiscount > 0,
+          };
+        });
+
+        // Filter trending (rating >= 4.5) and sort by rating, then take top 3
+        const trending = parsed
+          .filter((item: TrendingInternship) => item.rating >= 4.5)
+          .sort((a: TrendingInternship, b: TrendingInternship) => b.rating - a.rating)
+          .slice(0, 3);
+
+        console.log('Trending internships:', trending);
+        setTrendingInternships(trending);
+        setInternshipsLoading(false);
+      } catch (error) {
+        console.error('Error fetching trending internships:', error);
+        setInternshipsLoading(false);
+      }
+    };
+
+    fetchTrendingInternships();
+  }, []);
 
   const featuredProjects = [
     {
@@ -444,33 +530,6 @@ const Home: React.FC = () => {
       category: 'Web Development',
       link: 'https://bytecode.edizo.in',
       shortDescription: 'Comprehensive gaming community platform with social features and reviews'
-    }
-  ];
-
-  const featuredInternships = [
-    {
-      id: 'web-dev',
-      img: webdevelop,
-      title: 'Web Development',
-      link: '/internships/web-development',
-      isExternal: false,
-      isInternship: true,
-    },
-    {
-      id: 'ui-ux',
-      img: uiux,
-      title: 'UI/UX Design Intern',
-      link: '/internships/ui-ux-design',
-      isExternal: false,
-      isInternship: true,
-    },
-    {
-      id: 'ai-ml',
-      img: aiml,
-      title: 'AI & Machine Learning',
-      link: '/internships/ai-ml',
-      isExternal: false,
-      isInternship: true,
     }
   ];
 
@@ -539,7 +598,7 @@ const Home: React.FC = () => {
         </div>
 
         <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto text-center">
             <AnimatedSection>
               <div className="flex justify-center mb-6">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-full shadow-sm">
@@ -717,7 +776,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* INTERNSHIPS */}
+      {/* ✅ UPDATED: INTERNSHIPS WITH GOOGLE SHEETS */}
       <section className="py-24 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -726,7 +785,7 @@ const Home: React.FC = () => {
                 <span className="text-sm font-semibold text-purple-700">Career Growth</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
-                Internships
+                Trending Internships
               </h2>
               <p className="text-xl text-gray-600">
                 Launch your career with hands-on experience
@@ -734,32 +793,64 @@ const Home: React.FC = () => {
             </AnimatedSection>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
-            {featuredInternships.map((item) => (
-              <PortfolioCard key={item.id} {...item} />
-            ))}
-          </div>
+          {internshipsLoading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-purple-600 mb-4"></div>
+              <p className="text-gray-600">Loading trending internships...</p>
+            </div>
+          ) : trendingInternships.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
+                {trendingInternships.map((item) => (
+                  <PortfolioCard 
+                    key={item.id} 
+                    img={item.image}
+                    title={item.title}
+                    category={item.category}
+                    link={`/internships/${item.id}`}
+                    shortDescription={item.description}
+                    isExternal={false}
+                    isInternship={true}
+                    maxDiscount={item.maxDiscount}
+                    hasDiscount={item.hasDiscount}
+                    rating={item.rating}
+                  />
+                ))}
+              </div>
 
-          <div className="text-center">
-            <Button 
-              to="/internships" 
-              variant="primary"
-              size="lg"
-              enableFestivalAnimation={true}
-              showFestivalEmoji={true}
-              iconRight={<ArrowRight className="w-5 h-5" />}
-              style={
-                !activeEvent
-                  ? {
-                      background: "linear-gradient(90deg, #fbbf24 0%, #f43f5e 100%)",
-                      color: "#fff"
-                    }
-                  : undefined
-              }
-            >
-              Explore All Internships
-            </Button>
-          </div>
+              <div className="text-center">
+                <Button 
+                  to="/internships" 
+                  variant="primary"
+                  size="lg"
+                  enableFestivalAnimation={true}
+                  showFestivalEmoji={true}
+                  iconRight={<ArrowRight className="w-5 h-5" />}
+                  style={
+                    !activeEvent
+                      ? {
+                          background: "linear-gradient(90deg, #fbbf24 0%, #f43f5e 100%)",
+                          color: "#fff"
+                        }
+                      : undefined
+                  }
+                >
+                  Explore All Internships
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-600 mb-6">No trending internships available at the moment.</p>
+              <Button 
+                to="/internships" 
+                variant="outline"
+                size="lg"
+              >
+                View All Internships
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
