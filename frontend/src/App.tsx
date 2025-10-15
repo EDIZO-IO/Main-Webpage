@@ -15,12 +15,13 @@ import NotFound from './pages/NotFound';
 import InternshipApplication from './pages/InternshipApplication';
 import CertificateVerification from './pages/CertificateVerification';
 import UpcomingEvents from './pages/UpcomingEvents';
-// import EventDebug from './components/EventDebug'; // ✅ Add this import
+
+// Conditionally import EventDebug only in development
+// const EventDebug = import.meta.env.DEV 
+//   ? React.lazy(() => import('./components/EventDebug'))
+//   : null;
 
 const App: React.FC = () => {
-  // Only show EventDebug in development mode
-  const isDevelopment = import.meta.env.MODE === 'development';
-
   return (
     <>
       <Routes>
@@ -40,10 +41,17 @@ const App: React.FC = () => {
           {/* Catch-all route for 404 within the main layout */}
           <Route path="*" element={<NotFound />} />
         </Route>
+        
+        {/* Optional: Add a separate route for root-level 404 if needed */}
+        {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
 
       {/* Event Debug Panel - Only in Development */}
-      {/* {isDevelopment && <EventDebug />} */}
+      {/* {import.meta.env.DEV && EventDebug && (
+        <React.Suspense fallback={null}>
+          <EventDebug />
+        </React.Suspense>
+      )} */}
     </>
   );
 };

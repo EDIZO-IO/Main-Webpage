@@ -1,6 +1,6 @@
 // src/components/common/Header.tsx
 import { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu,
   X,
@@ -40,7 +40,6 @@ const Header = () => {
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const { getActiveEvent } = useGoogleEvents();
   const activeEvent = getActiveEvent();
@@ -147,18 +146,15 @@ const Header = () => {
     }
   };
 
+  // Updated navigation links - added 'Events' link if needed
   const navLinks = [
     { name: 'Home', path: '/', icon: Home },
     { name: 'Services', path: '/services', icon: Code },
     { name: 'Projects', path: '/projects', icon: Briefcase },
     { name: 'Internships', path: '/internships', icon: Users },
+    { name: 'Events', path: '/events', icon: Sparkles }, // Added Events link
     { name: 'Contact', path: '/contact', icon: Phone },
   ];
-
-  const handleMobileNavigation = (path: string) => {
-    setIsMenuOpen(false);
-    navigate(path);
-  };
 
   const getFestivalTheme = () => {
     if (!activeEvent) return 'festival-bg-default';
@@ -236,7 +232,7 @@ const Header = () => {
       >
         <div className="container mx-auto px-6 lg:px-8 header-content">
           <div className="flex items-center justify-between h-20">
-            {/* Logo + Event Name (desktop and mobile) */}
+            {/* Logo + Event Name */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -263,7 +259,7 @@ const Header = () => {
                 </motion.div>
               )}
 
-              {/* Event name – compact mobile pill (outside the menu button) */}
+              {/* Event name – compact mobile pill */}
               {activeEvent && (
                 <motion.div
                   initial={{ opacity: 0, y: 4 }}
@@ -565,7 +561,6 @@ const Header = () => {
               <nav className="flex-1 overflow-y-auto p-6 relative z-10">
                 <ul className="space-y-2">
                   {navLinks.map((link, index) => {
-                    const isActive = location.pathname === link.path;
                     const Icon = link.icon;
                     return (
                       <motion.li 
@@ -574,28 +569,33 @@ const Header = () => {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
                       >
-                        <motion.button
-                          whileHover={{ scale: 1.02, x: 5 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handleMobileNavigation(link.path)}
-                          className={`flex items-center gap-4 w-full p-4 rounded-xl transition-all duration-200 font-medium text-left ${
-                            isActive
-                              ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg'
-                              : 'text-gray-700 hover:bg-white/70 bg-white/50 backdrop-blur-sm'
-                          }`}
+                        <NavLink
+                          to={link.path}
+                          onClick={() => setIsMenuOpen(false)}
+                          className={({ isActive }) => `
+                            flex items-center gap-4 w-full p-4 rounded-xl transition-all duration-200 font-medium ${
+                              isActive
+                                ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg'
+                                : 'text-gray-700 hover:bg-white/70 bg-white/50 backdrop-blur-sm'
+                            }
+                          `}
                         >
-                          <Icon className="w-5 h-5" />
-                          <span>{link.name}</span>
-                          {isActive && (
-                            <motion.span
-                              initial={{ scale: 0, rotate: -180 }}
-                              animate={{ scale: 1, rotate: 0 }}
-                              className="ml-auto"
-                            >
-                              <Sparkles className="w-4 h-4" />
-                            </motion.span>
+                          {({ isActive }) => (
+                            <>
+                              <Icon className="w-5 h-5" />
+                              <span>{link.name}</span>
+                              {isActive && (
+                                <motion.span
+                                  initial={{ scale: 0, rotate: -180 }}
+                                  animate={{ scale: 1, rotate: 0 }}
+                                  className="ml-auto"
+                                >
+                                  <Sparkles className="w-4 h-4" />
+                                </motion.span>
+                              )}
+                            </>
                           )}
-                        </motion.button>
+                        </NavLink>
                       </motion.li>
                     );
                   })}
