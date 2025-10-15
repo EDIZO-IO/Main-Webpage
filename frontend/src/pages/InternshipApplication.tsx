@@ -211,7 +211,6 @@ const InternshipApplication: React.FC = () => {
           throw new Error('No data found in sheet');
         }
 
-        // Find the internship by ID
         const internshipRow = data.values.slice(1).find((row: any[]) => row[0] === id);
 
         if (!internshipRow) {
@@ -221,7 +220,6 @@ const InternshipApplication: React.FC = () => {
           return;
         }
 
-        // Parse the row data
         const parsedInternship: Internship = {
           id: internshipRow[0] || id,
           title: internshipRow[1] || 'Untitled',
@@ -257,7 +255,6 @@ const InternshipApplication: React.FC = () => {
         console.log('Parsed internship:', parsedInternship);
         setInternship(parsedInternship);
 
-        // Build course periods from pricing data
         if (parsedInternship.pricing) {
           const periods: CoursePeriod[] = [
             {
@@ -292,7 +289,6 @@ const InternshipApplication: React.FC = () => {
           ];
           setCoursePeriods(periods);
 
-          // Set default period
           if (!formData.coursePeriod) {
             setFormData(prev => ({ ...prev, coursePeriod: '1-month' }));
             setActivePeriod('1-month');
@@ -312,7 +308,6 @@ const InternshipApplication: React.FC = () => {
     fetchInternshipDetails();
   }, [id]);
 
-  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -322,12 +317,11 @@ const InternshipApplication: React.FC = () => {
     }
   };
 
-  // Get selected period details
   const getSelectedPeriodDetails = (): CoursePeriod | undefined => {
     return coursePeriods.find((period) => period.value === formData.coursePeriod);
   };
 
-  // Handle form submission
+  // ✅ UPDATED: Handle form submission - Save to Google Sheets
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.coursePeriod) {
@@ -337,12 +331,13 @@ const InternshipApplication: React.FC = () => {
     }
 
     setSubmissionStatus('processing');
-    setSubmissionMessage('Sending your application and confirmation email...');
+    setSubmissionMessage('Submitting your application...');
 
     const selectedPeriod = getSelectedPeriodDetails();
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/send-email`, {
+      // ✅ CHANGED: New endpoint for Google Sheets
+      const response = await fetch(`${API_BASE_URL}/api/submit-application`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -370,7 +365,7 @@ const InternshipApplication: React.FC = () => {
       console.log('Server response:', data);
 
       setSubmissionStatus('success');
-      setSubmissionMessage('Application submitted successfully! A confirmation email has been sent to you.');
+      setSubmissionMessage('Application submitted successfully! Our team will contact you within 2-3 business days.');
 
       // Reset form
       setFormData({
@@ -425,7 +420,6 @@ const InternshipApplication: React.FC = () => {
     );
   }
 
-  // Success/Error Message Display
   const renderSubmissionMessage = () => {
     if (submissionStatus === 'idle' || submissionStatus === 'processing') return null;
     return (
@@ -442,7 +436,7 @@ const InternshipApplication: React.FC = () => {
             <CheckCircle className="inline-block mr-2 text-green-600" size={24} />
             <span className="font-medium">Application Submitted Successfully!</span>
             <p className="text-sm mt-2">
-              Thank you for applying. A confirmation email has been sent to <span className="font-semibold">{formData.email}</span>.
+              Thank you for applying! Your application has been saved. Our team will review it and contact you within 2-3 business days.
             </p>
           </>
         ) : (
@@ -484,7 +478,6 @@ const InternshipApplication: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <AnimatedSection delay={0.2}>
           <div className="bg-white rounded-xl p-8 shadow-md border border-gray-200">
-            {/* Back Button */}
             <Link
               to={`/internships/${id}`}
               className="flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm mb-6 transition-all duration-200 group"
@@ -493,10 +486,8 @@ const InternshipApplication: React.FC = () => {
               <span>Back to {internship.title}</span>
             </Link>
 
-            {/* Submission Message */}
             {renderSubmissionMessage()}
 
-            {/* Form or Success Message */}
             {submissionStatus !== 'success' ? (
               <>
                 <div className="flex items-center mb-6">
@@ -512,7 +503,7 @@ const InternshipApplication: React.FC = () => {
                   <h3 className="text-2xl font-bold text-gray-800">Apply Now</h3>
                 </div>
 
-                {/* Pricing Table - Before Form */}
+                {/* Pricing Table */}
                 {coursePeriods.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -583,7 +574,6 @@ const InternshipApplication: React.FC = () => {
                 )}
 
                 <form onSubmit={handleFormSubmit} className="space-y-6">
-                  {/* Form Fields */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -720,7 +710,7 @@ const InternshipApplication: React.FC = () => {
                       {submissionStatus === 'processing' ? (
                         <>
                           <Loader2 className="mr-2 animate-spin" size={20} />
-                          Sending...
+                          Submitting...
                         </>
                       ) : (
                         <>
@@ -768,7 +758,6 @@ const InternshipApplication: React.FC = () => {
           </div>
         </AnimatedSection>
 
-        {/* Final CTA */}
         <AnimatedSection delay={0.4}>
           <div className="text-center pt-8 bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl mt-8">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Ready to Start Your Journey?</h3>
