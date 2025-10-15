@@ -11,8 +11,6 @@
   "dependencies": {
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
-    "@react-three/drei": "^10.7.6",
-    "@react-three/fiber": "^9.4.0",
     "autoprefixer": "^10.4.21",
     "axios": "^1.12.2",
     "cors": "^2.8.5",
@@ -24,8 +22,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.4",
-    "react-toastify": "^11.0.5",
-    "three": "^0.180.0"
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.4",
