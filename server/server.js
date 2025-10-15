@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3001;
 
 app.set('trust proxy', 1);
 
+// ✅ CORS Configuration
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -38,9 +39,11 @@ app.use(helmet.contentSecurityPolicy({
 
 app.use(cors({
   origin: function (origin, callback) {
+    console.log('🌐 Request from:', origin || 'undefined');
     if (!origin || allowedOrigins.includes(origin) || netlifyPattern.test(origin)) {
       return callback(null, true);
     }
+    console.warn('❌ CORS blocked:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -49,19 +52,21 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// ✅ Rate Limiter
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Max 10 requests per window
   message: 'Too many requests, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
 });
 
+// ✅ Health Check
 app.get('/', (req, res) => {
-  res.send('✅ EDIZO Backend - Service Account Authentication Active');
+  res.send('✅ EDIZO Backend - Google Sheets Integration Active');
 });
 
-// ✅ Initialize Google Sheets with Service Account
+// ✅ Initialize Google Sheets API with Service Account
 let sheets;
 try {
   const auth = new google.auth.GoogleAuth({
@@ -78,7 +83,7 @@ try {
   console.error('❌ Failed to initialize Google Sheets:', error.message);
 }
 
-// ✅ Append to Google Sheets
+// ✅ Function: Save Internship Application to Google Sheets
 async function appendToSheet(data) {
   try {
     if (!sheets) {
@@ -88,7 +93,7 @@ async function appendToSheet(data) {
     const SHEET_ID = process.env.GOOGLE_SHEET_ID;
     const SHEET_NAME = process.env.APPLICATIONS_SHEET_NAME || 'Applications';
     
-    console.log('📝 Saving to Google Sheets...');
+    console.log('📝 Saving internship application to Google Sheets...');
     
     const currentDate = new Date().toLocaleString('en-IN', { 
       timeZone: 'Asia/Kolkata',
@@ -101,20 +106,20 @@ async function appendToSheet(data) {
     });
 
     const values = [[
-      currentDate,
-      data.name || '',
-      data.email || '',
-      data.phone || '',
-      data.university || '',
-      data.yearOfStudy || '',
-      data.education || '',
-      data.internshipTitle || '',
-      data.company || '',
-      data.coursePeriod || '',
-      data.price ? `₹${data.price}` : '',
-      data.academicExperience || '',
-      data.message || '',
-      'Pending',
+      currentDate,                          // A - Timestamp
+      data.name || '',                      // B - Name
+      data.email || '',                     // C - Email
+      data.phone || '',                     // D - Phone
+      data.university || '',                // E - University
+      data.yearOfStudy || '',               // F - Year of Study
+      data.education || '',                 // G - Education
+      data.internshipTitle || '',           // H - Internship Title
+      data.company || '',                   // I - Company
+      data.coursePeriod || '',              // J - Duration
+      data.price ? `₹${data.price}` : '',  // K - Price
+      data.academicExperience || '',        // L - Academic Experience
+      data.message || '',                   // M - Cover Letter
+      'Pending',                            // N - Status
     ]];
 
     const response = await sheets.spreadsheets.values.append({
@@ -124,17 +129,66 @@ async function appendToSheet(data) {
       requestBody: { values },
     });
 
-    console.log('✅ Data saved successfully!');
-    console.log('Updated:', response.data.updates?.updatedRange);
+    console.log('✅ Application saved successfully!');
+    console.log('Updated range:', response.data.updates?.updatedRange);
     return response.data;
   } catch (error) {
-    console.error('❌ Sheet error:', error.message);
+    console.error('❌ Error saving application:', error.message);
     if (error.code) console.error('Error code:', error.code);
-    throw new Error(`Failed to save: ${error.message}`);
+    throw new Error(`Failed to save application: ${error.message}`);
   }
 }
 
-// Email setup
+// ✅ Function: Save Contact Form to Google Sheets
+async function appendContactToSheet(data) {
+  try {
+    if (!sheets) {
+      throw new Error('Google Sheets API not initialized');
+    }
+
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+    const SHEET_NAME = 'Contacts';
+    
+    console.log('📝 Saving contact form to Google Sheets...');
+    
+    const currentDate = new Date().toLocaleString('en-IN', { 
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit', 
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+    const values = [[
+      currentDate,           // A - Timestamp
+      data.name || '',       // B - Name
+      data.email || '',      // C - Email
+      data.phone || '',      // D - Phone
+      data.subject || '',    // E - Subject
+      data.message || '',    // F - Message
+      'New',                 // G - Status
+    ]];
+
+    const response = await sheets.spreadsheets.values.append({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_NAME}!A:G`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values },
+    });
+
+    console.log('✅ Contact saved successfully!');
+    console.log('Updated range:', response.data.updates?.updatedRange);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error saving contact:', error.message);
+    if (error.code) console.error('Error code:', error.code);
+    throw new Error(`Failed to save contact: ${error.message}`);
+  }
+}
+
+// ✅ Email Setup (Optional - for contact form notifications)
 const transporter = nodemailer.createTransport({
   pool: true,
   host: 'smtp.gmail.com',
@@ -154,7 +208,7 @@ const transporter = nodemailer.createTransport({
 
 transporter.verify((error) => {
   if (error) {
-    console.error('⚠️ Email unavailable:', error.message);
+    console.error('⚠️ Email service unavailable:', error.message);
   } else {
     console.log('✅ Email service ready');
   }
@@ -172,91 +226,181 @@ async function sendMail(to, subject, html, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const info = await transporter.sendMail(mailOptions);
-      console.log(`✅ Email sent: ${info.messageId}`);
+      console.log(`✅ Email sent to ${to}: ${info.messageId}`);
       return info;
     } catch (error) {
-      if (attempt === retries) throw error;
+      console.error(`❌ Email attempt ${attempt} failed:`, error.message);
+      if (attempt === retries) {
+        throw new Error(`Email failed after ${retries} attempts`);
+      }
       await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
     }
   }
 }
 
-// Application endpoint
+// ✅ ENDPOINT: Submit Internship Application (Save to Google Sheets)
 app.post('/api/submit-application', limiter, async (req, res) => {
   try {
     const data = req.body;
     
-    console.log('📥 Application:', {
+    console.log('📥 Internship application received:', {
       name: data.name,
       email: data.email,
       internship: data.internshipTitle,
+      duration: data.coursePeriod,
+      price: data.price,
     });
     
+    // Validation
     if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) {
-      return res.status(400).json({ success: false, message: 'Invalid email' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid email address' 
+      });
     }
 
     if (!data.name || !data.internshipTitle) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Name and internship title are required' 
+      });
     }
 
+    // Save to Google Sheets
     await appendToSheet(data);
 
-    console.log('✅ Application saved');
+    console.log('✅ Application saved successfully');
 
     res.status(200).json({ 
       success: true, 
       message: 'Application submitted successfully! We will contact you within 2-3 business days.',
     });
   } catch (err) {
-    console.error('❌ Error:', err.message);
-    res.status(500).json({ success: false, message: `Submission failed: ${err.message}` });
+    console.error('❌ Error in submit-application:', err.message);
+    res.status(500).json({ 
+      success: false, 
+      message: `Submission failed: ${err.message}` 
+    });
   }
 });
 
-// Contact form
-app.post('/api/send-contact-email', limiter, async (req, res) => {
+// ✅ ENDPOINT: Submit Contact Form (Save to Google Sheets + Optional Email)
+app.post('/api/submit-contact', limiter, async (req, res) => {
   try {
     const data = req.body;
-    const userEmail = data.email;
-    const adminEmail = process.env.CONTACT_FORM_RECIPIENT_EMAIL;
-
-    if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) {
-      return res.status(400).json({ success: false, message: 'Invalid email' });
+    
+    console.log('📥 Contact form received:', {
+      name: data.name,
+      email: data.email,
+      subject: data.subject,
+    });
+    
+    // Validation
+    if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid email address' 
+      });
     }
 
-    const userHtml = `<div><h2>Thank You, ${data.name}!</h2><p>We received your message.</p></div>`;
-    const adminHtml = `<div><h2>📨 Contact</h2><ul><li><strong>Name:</strong> ${data.name}</li><li><strong>Email:</strong> ${data.email}</li><li><strong>Message:</strong> ${data.message}</li></ul></div>`;
-      
-    await Promise.all([
-      sendMail(userEmail, 'Message received', userHtml),
-      sendMail(adminEmail, `Contact: ${data.subject || 'New'}`, adminHtml),
-    ]);
+    if (!data.name || !data.subject || !data.message) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Name, subject, and message are required' 
+      });
+    }
 
-    res.status(200).json({ success: true, message: 'Emails sent' });
+    // Save to Google Sheets (PRIMARY)
+    await appendContactToSheet(data);
+
+    // Optional: Send notification emails (SECONDARY - won't fail if email service is down)
+    try {
+      const userHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #dc2626;">Thank You, ${data.name}!</h2>
+          <p>We've received your message at <strong>EDIZO</strong>.</p>
+          <p>Our team will review your inquiry and respond within 24-48 hours.</p>
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+          <p style="color: #6b7280; font-size: 14px;">Best regards,<br><strong>EDIZO Team</strong></p>
+        </div>`;
+      
+      const adminHtml = `
+        <div style="font-family: Arial, sans-serif;">
+          <h2 style="color: #dc2626;">📨 New Contact Form Submission</h2>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin: 8px 0;"><strong>Name:</strong> ${data.name}</li>
+            <li style="margin: 8px 0;"><strong>Email:</strong> ${data.email}</li>
+            <li style="margin: 8px 0;"><strong>Phone:</strong> ${data.phone || 'N/A'}</li>
+            <li style="margin: 8px 0;"><strong>Subject:</strong> ${data.subject}</li>
+            <li style="margin: 8px 0;"><strong>Message:</strong><br>${data.message}</li>
+          </ul>
+        </div>`;
+      
+      await Promise.all([
+        sendMail(data.email, 'We received your message - EDIZO', userHtml),
+        sendMail(process.env.CONTACT_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER, `Contact: ${data.subject}`, adminHtml),
+      ]);
+      
+      console.log('✅ Notification emails sent');
+    } catch (emailError) {
+      console.warn('⚠️ Email notification failed (non-critical):', emailError.message);
+      // Don't fail the request if email fails - data is already saved to sheets
+    }
+
+    console.log('✅ Contact form saved successfully');
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Message sent successfully! We will get back to you soon.',
+    });
   } catch (err) {
-    console.error('❌ Error:', err.message);
-    res.status(500).json({ success: false, message: err.message });
+    console.error('❌ Error in submit-contact:', err.message);
+    res.status(500).json({ 
+      success: false, 
+      message: `Submission failed: ${err.message}` 
+    });
   }
 });
 
-app.use((err, req, res, next) => {
-  console.error('❌ Error:', err.stack);
-  res.status(500).json({ success: false, message: 'Internal error' });
+// ✅ LEGACY ENDPOINT: Keep old contact endpoint for backwards compatibility
+app.post('/api/send-contact-email', limiter, async (req, res) => {
+  // Redirect to new endpoint
+  return app.handle(req, res, '/api/submit-contact');
 });
 
+// ✅ Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('❌ Global error:', err.stack);
+  res.status(500).json({ 
+    success: false, 
+    message: 'Internal Server Error' 
+  });
+});
+
+// ✅ Start Server
 app.listen(PORT, () => {
   console.log('\n🚀 ========================================');
   console.log('   EDIZO Backend Server');
   console.log('🚀 ========================================');
   console.log(`📍 Port: ${PORT}`);
+  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log('🔐 Auth: Service Account');
-  console.log('📊 Sheets: Connected');
-  console.log('✉️ Email: Ready');
+  console.log('📊 Google Sheets: Connected');
+  console.log('📧 Applications → Applications tab');
+  console.log('📞 Contacts → Contacts tab');
+  console.log('✉️ Email: Optional notifications');
   console.log('🚀 ========================================\n');
 });
 
+// ✅ Graceful Shutdown
 process.on('SIGTERM', () => {
+  console.log('\n❌ SIGTERM received. Shutting down gracefully...');
+  transporter.close();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('\n❌ SIGINT received. Shutting down gracefully...');
   transporter.close();
   process.exit(0);
 });

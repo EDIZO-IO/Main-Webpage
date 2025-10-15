@@ -172,7 +172,8 @@ const Contact = () => {
     setFormError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/send-contact-email`, {
+      // ✅ CHANGED: New endpoint that saves to Google Sheets
+      const response = await fetch(`${API_BASE_URL}/api/submit-contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -256,11 +257,11 @@ const Contact = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-00/30 to-orange-600/30 backdrop-blur-sm rounded-full border border-white/20 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600/30 to-orange-600/30 backdrop-blur-sm rounded-full border border-white/20 mb-6">
             <Zap size={16} />
             <span className="text-sm font-medium">Get in Touch</span>
           </div>
-          <h1 className="text-4xl text-red-600  md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-lg">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-lg text-white">
             Let's Start a Conversation
           </h1>
           <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed">
@@ -400,7 +401,7 @@ const Contact = () => {
                     </div>
                     <h4 className="text-2xl font-bold mb-3 text-gray-900">Thank You!</h4>
                     <p className="text-gray-700 text-lg mb-8">
-                      Your message has been sent successfully. We will get back to you shortly.
+                      Your message has been received successfully. We will get back to you within 24-48 hours.
                     </p>
                     <Button variant="outline" onClick={() => setFormSubmitted(false)} size="lg">
                       Send Another Message
@@ -419,7 +420,7 @@ const Contact = () => {
                     )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="name" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                           <User className="w-4 h-4 mr-1" /> Full Name
                         </label>
                         <input
@@ -434,7 +435,7 @@ const Contact = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="email" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                           <Mail className="w-4 h-4 mr-1" /> Email Address
                         </label>
                         <input
@@ -450,7 +451,7 @@ const Contact = () => {
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="phone" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                         <Phone className="w-4 h-4 mr-1" /> Phone Number
                       </label>
                       <input
@@ -464,7 +465,7 @@ const Contact = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="subject" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                         <Hash className="w-4 h-4 mr-1" /> Subject
                       </label>
                       <input
@@ -479,7 +480,7 @@ const Contact = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="message" className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                         <MessageSquare className="w-4 h-4 mr-1" /> Your Message
                       </label>
                       <textarea
