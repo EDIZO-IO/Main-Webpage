@@ -2,11 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, XCircle, Loader2, Send, Clock, IndianRupee, Building2, ArrowLeft, Check, Star } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Send, IndianRupee, Building2, ArrowLeft, Check, Star, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // === Interfaces ===
 interface InternshipPricing {
+  '15-days': number;
+  '1-month': number;
+  '2-months': number;
+  '3-months': number;
+}
+
+interface InternshipDiscount {
   '15-days': number;
   '1-month': number;
   '2-months': number;
@@ -32,6 +39,7 @@ interface Internship {
     '3-months': string[];
   };
   pricing?: InternshipPricing;
+  discount?: InternshipDiscount;
 }
 
 interface FormData {
@@ -49,13 +57,25 @@ interface FormData {
 interface CoursePeriod {
   value: string;
   label: string;
-  price: number;
+  originalPrice: number;
+  discount: number;
+  finalPrice: number;
+  savings: number;
   description: string;
   popular?: boolean;
   features: string[];
 }
 
 // === Utility Functions ===
+const calculateFinalPrice = (originalPrice: number, discountPercent: number): number => {
+  if (discountPercent <= 0) return originalPrice;
+  return Math.round(originalPrice - (originalPrice * discountPercent / 100));
+};
+
+const calculateSavings = (originalPrice: number, finalPrice: number): number => {
+  return Math.max(0, originalPrice - finalPrice);
+};
+
 const fallbackImages: Record<string, string> = {
   'ui-ux-design': '/assets/images/web-design.png',
   'frontend-development': '/assets/images/responsive-design.png',
@@ -172,7 +192,6 @@ const InternshipApplication: React.FC = () => {
     coursePeriod: '',
   });
 
-  // API base URL
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   // Fetch internship data from Google Sheets
@@ -249,25 +268,49 @@ const InternshipApplication: React.FC = () => {
             '2-months': parseFloat(internshipRow[28]) || 0,
             '3-months': parseFloat(internshipRow[29]) || 0,
           },
+          discount: {
+            '15-days': parseFloat(internshipRow[30]) || 0,
+            '1-month': parseFloat(internshipRow[31]) || 0,
+            '2-months': parseFloat(internshipRow[32]) || 0,
+            '3-months': parseFloat(internshipRow[33]) || 0,
+          },
           isTrending: parseFloat(internshipRow[6]) >= 4.5,
         };
 
         console.log('Parsed internship:', parsedInternship);
         setInternship(parsedInternship);
 
-        if (parsedInternship.pricing) {
+        if (parsedInternship.pricing && parsedInternship.discount) {
           const periods: CoursePeriod[] = [
             {
               value: '15-days',
               label: '15 Days',
-              price: parsedInternship.pricing['15-days'],
+              originalPrice: parsedInternship.pricing['15-days'],
+              discount: parsedInternship.discount['15-days'],
+              finalPrice: calculateFinalPrice(
+                parsedInternship.pricing['15-days'],
+                parsedInternship.discount['15-days']
+              ),
+              savings: calculateSavings(
+                parsedInternship.pricing['15-days'],
+                calculateFinalPrice(parsedInternship.pricing['15-days'], parsedInternship.discount['15-days'])
+              ),
               description: 'Quick introduction and basics',
               features: ['Basic concepts', 'Mini project', 'Certificate', 'Email support'],
             },
             {
               value: '1-month',
               label: '1 Month',
-              price: parsedInternship.pricing['1-month'],
+              originalPrice: parsedInternship.pricing['1-month'],
+              discount: parsedInternship.discount['1-month'],
+              finalPrice: calculateFinalPrice(
+                parsedInternship.pricing['1-month'],
+                parsedInternship.discount['1-month']
+              ),
+              savings: calculateSavings(
+                parsedInternship.pricing['1-month'],
+                calculateFinalPrice(parsedInternship.pricing['1-month'], parsedInternship.discount['1-month'])
+              ),
               description: 'Comprehensive learning with projects',
               popular: true,
               features: ['Advanced topics', 'Group project', 'Certificate', 'Mentorship', 'Q&A sessions'],
@@ -275,14 +318,32 @@ const InternshipApplication: React.FC = () => {
             {
               value: '2-months',
               label: '2 Months',
-              price: parsedInternship.pricing['2-months'],
+              originalPrice: parsedInternship.pricing['2-months'],
+              discount: parsedInternship.discount['2-months'],
+              finalPrice: calculateFinalPrice(
+                parsedInternship.pricing['2-months'],
+                parsedInternship.discount['2-months']
+              ),
+              savings: calculateSavings(
+                parsedInternship.pricing['2-months'],
+                calculateFinalPrice(parsedInternship.pricing['2-months'], parsedInternship.discount['2-months'])
+              ),
               description: 'In-depth training with real-world projects',
               features: ['Industry project', 'Portfolio building', 'Certificate', 'Mentorship', 'Code reviews', 'Interview prep'],
             },
             {
               value: '3-months',
               label: '3 Months',
-              price: parsedInternship.pricing['3-months'],
+              originalPrice: parsedInternship.pricing['3-months'],
+              discount: parsedInternship.discount['3-months'],
+              finalPrice: calculateFinalPrice(
+                parsedInternship.pricing['3-months'],
+                parsedInternship.discount['3-months']
+              ),
+              savings: calculateSavings(
+                parsedInternship.pricing['3-months'],
+                calculateFinalPrice(parsedInternship.pricing['3-months'], parsedInternship.discount['3-months'])
+              ),
               description: 'Complete mastery with industry exposure',
               features: ['Live client project', 'Full mentorship', 'Certificate', 'Placement guidance', 'Interview prep', 'Resume building'],
             },
@@ -321,7 +382,6 @@ const InternshipApplication: React.FC = () => {
     return coursePeriods.find((period) => period.value === formData.coursePeriod);
   };
 
-  // ✅ UPDATED: Handle form submission - Save to Google Sheets
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.coursePeriod) {
@@ -336,7 +396,6 @@ const InternshipApplication: React.FC = () => {
     const selectedPeriod = getSelectedPeriodDetails();
 
     try {
-      // ✅ CHANGED: New endpoint for Google Sheets
       const response = await fetch(`${API_BASE_URL}/api/submit-application`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -350,7 +409,10 @@ const InternshipApplication: React.FC = () => {
           academicExperience: formData.academicExperience,
           message: formData.message,
           coursePeriod: selectedPeriod?.label,
-          price: selectedPeriod?.price,
+          originalPrice: selectedPeriod?.originalPrice,
+          discount: selectedPeriod?.discount,
+          finalPrice: selectedPeriod?.finalPrice,
+          savings: selectedPeriod?.savings,
           internshipTitle: internship?.title,
           company: internship?.company,
         }),
@@ -367,7 +429,6 @@ const InternshipApplication: React.FC = () => {
       setSubmissionStatus('success');
       setSubmissionMessage('Application submitted successfully! Our team will contact you within 2-3 business days.');
 
-      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -392,7 +453,6 @@ const InternshipApplication: React.FC = () => {
     }
   };
 
-  // Loading State
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex items-center justify-center py-20 px-6">
@@ -404,7 +464,6 @@ const InternshipApplication: React.FC = () => {
     );
   }
 
-  // Error State
   if (error || !internship) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex flex-col items-center justify-center py-20 px-6">
@@ -452,7 +511,6 @@ const InternshipApplication: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 py-16 px-4 md:px-6 lg:px-8">
-      {/* Header Section */}
       <div className="relative bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 rounded-t-2xl overflow-hidden mb-8 w-full max-w-4xl mx-auto">
         <div className="absolute inset-0 bg-black/50 z-10"></div>
         <img
@@ -503,7 +561,7 @@ const InternshipApplication: React.FC = () => {
                   <h3 className="text-2xl font-bold text-gray-800">Apply Now</h3>
                 </div>
 
-                {/* Pricing Table */}
+                {/* Pricing Table with Discount */}
                 {coursePeriods.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -530,17 +588,46 @@ const InternshipApplication: React.FC = () => {
                           onClick={() => handleInputChange({ target: { name: 'coursePeriod', value: period.value } } as any)}
                         >
                           {period.popular && (
-                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-semibold z-10">
                               Most Popular
                             </div>
                           )}
+                          
+                          {period.discount > 0 && (
+                            <div className="absolute -top-3 right-2 bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1 shadow-md">
+                              <Tag size={12} />
+                              {period.discount}% OFF
+                            </div>
+                          )}
+
                           <div className="text-center">
                             <h5 className="text-lg font-bold text-gray-800 mb-1">{period.label}</h5>
-                            <div className="flex items-center justify-center text-2xl font-bold text-green-600 mb-2">
-                              <IndianRupee className="w-5 h-5" />
-                              <span>{period.price.toLocaleString()}</span>
+                            
+                            <div className="mb-2">
+                              {period.discount > 0 ? (
+                                <>
+                                  <div className="flex items-center justify-center text-sm text-gray-400 line-through mb-1">
+                                    <IndianRupee className="w-3 h-3" />
+                                    <span>{period.originalPrice.toLocaleString()}</span>
+                                  </div>
+                                  <div className="flex items-center justify-center text-2xl font-bold text-green-600">
+                                    <IndianRupee className="w-5 h-5" />
+                                    <span>{period.finalPrice.toLocaleString()}</span>
+                                  </div>
+                                  <p className="text-xs text-green-700 font-medium mt-1">
+                                    Save ₹{period.savings.toLocaleString()}
+                                  </p>
+                                </>
+                              ) : (
+                                <div className="flex items-center justify-center text-2xl font-bold text-gray-800">
+                                  <IndianRupee className="w-5 h-5" />
+                                  <span>{period.originalPrice.toLocaleString()}</span>
+                                </div>
+                              )}
                             </div>
+
                             <p className="text-xs text-gray-600 mb-3">{period.description}</p>
+                            
                             <ul className="space-y-1 text-left">
                               {period.features.map((feature, idx) => (
                                 <li key={idx} className="flex items-start text-xs text-gray-700">
@@ -553,19 +640,34 @@ const InternshipApplication: React.FC = () => {
                         </motion.div>
                       ))}
                     </div>
+                    
                     {getSelectedPeriodDetails() && (
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg"
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-green-800">
-                            Selected: {getSelectedPeriodDetails()?.label}
-                          </span>
-                          <div className="flex items-center text-green-700 font-bold">
-                            <IndianRupee className="w-4 h-4 mr-1" />
-                            <span>{getSelectedPeriodDetails()?.price.toLocaleString()}</span>
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div>
+                            <span className="text-sm font-medium text-green-800 block">
+                              Selected: {getSelectedPeriodDetails()?.label}
+                            </span>
+                            {getSelectedPeriodDetails()!.discount > 0 && (
+                              <span className="text-xs text-green-600">
+                                {getSelectedPeriodDetails()!.discount}% discount applied
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            {getSelectedPeriodDetails()!.discount > 0 && (
+                              <div className="text-xs text-gray-500 line-through">
+                                ₹{getSelectedPeriodDetails()!.originalPrice.toLocaleString()}
+                              </div>
+                            )}
+                            <div className="flex items-center text-green-700 font-bold text-lg">
+                              <IndianRupee className="w-4 h-4 mr-1" />
+                              <span>{getSelectedPeriodDetails()!.finalPrice.toLocaleString()}</span>
+                            </div>
                           </div>
                         </div>
                       </motion.div>
@@ -717,7 +819,7 @@ const InternshipApplication: React.FC = () => {
                           <Send className="mr-2" size={20} />
                           Submit Application
                           {getSelectedPeriodDetails() && (
-                            <span className="ml-2 text-sm">(₹{getSelectedPeriodDetails()?.price.toLocaleString()})</span>
+                            <span className="ml-2 text-sm">(₹{getSelectedPeriodDetails()!.finalPrice.toLocaleString()})</span>
                           )}
                         </>
                       )}

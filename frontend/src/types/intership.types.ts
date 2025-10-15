@@ -11,6 +11,16 @@ export interface InternshipPricing {
 }
 
 /**
+ * Discount information for different durations (percentage)
+ */
+export interface InternshipDiscount {
+  '15-days': number;
+  '1-month': number;
+  '2-months': number;
+  '3-months': number;
+}
+
+/**
  * Internship basic information interface
  */
 export interface InternshipBasic {
@@ -24,32 +34,33 @@ export interface InternshipBasic {
   description: string;
   isTrending?: boolean;
   pricing?: InternshipPricing;
+  discount?: InternshipDiscount; // NEW
 }
 
 /**
  * Why Choose Edizo points (7 points)
  */
 export interface WhyChooseEdizo {
-  point1: string; // 100% Internship Certification
-  point2: string; // Real-Time, Hands-On Project for Each Course
-  point3: string; // Learn from Experienced Industry Mentors
-  point4: string; // Placement Guidance & Portfolio Support
-  point5: string; // Flexible Duration: 15 Days to 3 Months
-  point6: string; // Paid Internship Opportunities
-  point7: string; // Modes: Online & Offline
+  point1: string;
+  point2: string;
+  point3: string;
+  point4: string;
+  point5: string;
+  point6: string;
+  point7: string;
 }
 
 /**
  * Benefits points (7 points)
  */
 export interface Benefits {
-  benefit1: string; // Gain In-Demand Industry Skills
-  benefit2: string; // Build Strong Resume with Real-Time Projects
-  benefit3: string; // Improve Communication & Team Collaboration
-  benefit4: string; // Internship Certificate Recognized by Companies
-  benefit5: string; // Opportunity to Work on Live Client Projects
-  benefit6: string; // Boost Confidence for Interviews & Job Roles
-  benefit7: string; // Get Exposure to Professional Tools & Platforms
+  benefit1: string;
+  benefit2: string;
+  benefit3: string;
+  benefit4: string;
+  benefit5: string;
+  benefit6: string;
+  benefit7: string;
 }
 
 /**
@@ -70,6 +81,7 @@ export interface InternshipDetails extends InternshipBasic {
   benefits: Benefits;
   syllabus: Syllabus;
   pricing?: InternshipPricing;
+  discount?: InternshipDiscount; // NEW
 }
 
 /**
@@ -98,10 +110,16 @@ export interface InternshipData {
     '2-months': number;
     '3-months': number;
   };
+  discount?: {
+    '15-days': number;
+    '1-month': number;
+    '2-months': number;
+    '3-months': number;
+  };
 }
 
 /**
- * Response from Google Sheets API (Extended with pricing columns)
+ * Response from Google Sheets API (Extended with discount columns 30-33)
  */
 export interface InternshipSheetRow {
   id: string;
@@ -110,7 +128,7 @@ export interface InternshipSheetRow {
   mode: 'Online' | 'Offline';
   company: string;
   image: string;
-  rating: string; // Comes as string from sheets
+  rating: string;
   description: string;
   whyChoose1: string;
   whyChoose2: string;
@@ -130,10 +148,14 @@ export interface InternshipSheetRow {
   syllabus1Month: string;
   syllabus2Months: string;
   syllabus3Months: string;
-  price15Days?: string; // Optional pricing columns (26-29)
+  price15Days?: string;
   price1Month?: string;
   price2Months?: string;
   price3Months?: string;
+  discount15Days?: string; // NEW - Column 30 (AE)
+  discount1Month?: string; // NEW - Column 31 (AF)
+  discount2Months?: string; // NEW - Column 32 (AG)
+  discount3Months?: string; // NEW - Column 33 (AH)
 }
 
 /**
@@ -163,9 +185,9 @@ export interface InternshipFilters {
   mode?: 'Online' | 'Offline' | 'All';
   searchTerm?: string;
   minRating?: number;
-  maxPrice?: number; // Added price filter
-  minPrice?: number; // Added minimum price filter
-  duration?: InternshipDuration; // Added duration filter
+  maxPrice?: number;
+  minPrice?: number;
+  duration?: InternshipDuration;
   isTrending?: boolean;
 }
 
@@ -179,27 +201,30 @@ export interface InternshipAPIResponse {
 }
 
 /**
- * Pricing tier for display purposes
+ * Pricing tier for display purposes (with discount support)
  */
 export interface PricingTier {
   duration: InternshipDuration;
   label: string;
-  price: number;
-  originalPrice?: number; // Optional: for showing discounts
-  discount?: number; // Optional: discount percentage
+  originalPrice: number; // NEW
+  discount: number; // NEW (percentage 0-100)
+  finalPrice: number; // NEW (calculated)
+  savings: number; // NEW (amount saved)
   description: string;
   features: string[];
   isPopular?: boolean;
-  savings?: number; // Amount saved
 }
 
 /**
- * Course period configuration (for application form)
+ * Course period configuration (for application form with discount)
  */
 export interface CoursePeriod {
   value: string;
   label: string;
-  price: number;
+  originalPrice: number; // NEW
+  discount: number; // NEW
+  finalPrice: number; // NEW
+  savings: number; // NEW
   description: string;
   popular?: boolean;
   features: string[];
@@ -236,7 +261,9 @@ export interface InternshipApplicationForm {
   internshipId: string;
   internshipTitle: string;
   company: string;
-  selectedPrice: number;
+  selectedOriginalPrice: number; // NEW
+  selectedDiscount: number; // NEW
+  selectedFinalPrice: number; // NEW
 }
 
 /**
@@ -256,3 +283,14 @@ export interface ApplicationAPIResponse {
   };
   error?: string;
 }
+
+/**
+ * Utility functions for price calculations
+ */
+export const calculateFinalPrice = (originalPrice: number, discountPercent: number): number => {
+  return Math.round(originalPrice - (originalPrice * discountPercent / 100));
+};
+
+export const calculateSavings = (originalPrice: number, finalPrice: number): number => {
+  return originalPrice - finalPrice;
+};

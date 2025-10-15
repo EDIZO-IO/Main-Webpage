@@ -1,9 +1,24 @@
 // frontend/src/utils/internship.utils.ts
 
-import type { InternshipData, CurrencyCode } from '../types/intership.types';
+import type { InternshipData, CurrencyCode, PricingTier } from '../types/intership.types';
 
 /**
- * Transform Google Sheets row data to InternshipData format (with pricing)
+ * Calculate final price after discount
+ */
+export const calculateFinalPrice = (originalPrice: number, discountPercent: number): number => {
+  if (discountPercent <= 0) return originalPrice;
+  return Math.round(originalPrice - (originalPrice * discountPercent / 100));
+};
+
+/**
+ * Calculate savings amount
+ */
+export const calculateSavings = (originalPrice: number, finalPrice: number): number => {
+  return Math.max(0, originalPrice - finalPrice);
+};
+
+/**
+ * Transform Google Sheets row data to InternshipData format (with pricing and discount)
  */
 export const transformSheetRowToInternship = (row: any[]): InternshipData => {
   return {
@@ -34,6 +49,13 @@ export const transformSheetRowToInternship = (row: any[]): InternshipData => {
       '1-month': parseFloat(row[27]) || 0,
       '2-months': parseFloat(row[28]) || 0,
       '3-months': parseFloat(row[29]) || 0,
+    },
+    // ✅ NEW: Parse discount columns (30-33)
+    discount: {
+      '15-days': parseFloat(row[30]) || 0,
+      '1-month': parseFloat(row[31]) || 0,
+      '2-months': parseFloat(row[32]) || 0,
+      '3-months': parseFloat(row[33]) || 0,
     },
   };
 };
@@ -126,52 +148,64 @@ export const formatPrice = (
 };
 
 /**
- * Calculate discount percentage
+ * Calculate discount percentage (between two prices)
  */
-export const calculateDiscount = (originalPrice: number, discountedPrice: number): number => {
+export const calculateDiscountPercent = (originalPrice: number, discountedPrice: number): number => {
   if (originalPrice <= 0) return 0;
   return Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
 };
 
 /**
- * Get pricing tier details
+ * Get pricing tier details with discount calculations
  */
-export const getPricingTiers = (pricing: any) => {
-  return [
-    {
-      duration: '15-days' as const,
-      label: '15 Days',
-      price: pricing['15-days'] || 0,
-      description: 'Quick introduction and basics',
-      features: ['Basic concepts', 'Mini project', 'Certificate'],
-    },
-    {
-      duration: '1-month' as const,
-      label: '1 Month',
-      price: pricing['1-month'] || 0,
-      description: 'Comprehensive learning with projects',
-      features: ['Advanced topics', 'Group project', 'Certificate', 'Mentorship'],
-      isPopular: true,
-    },
-    {
-      duration: '2-months' as const,
-      label: '2 Months',
-      price: pricing['2-months'] || 0,
-      description: 'In-depth training with real-world projects',
-      features: ['Industry project', 'Portfolio building', 'Certificate', 'Mentorship', 'Code reviews'],
-    },
-    {
-      duration: '3-months' as const,
-      label: '3 Months',
-      price: pricing['3-months'] || 0,
-      description: 'Complete mastery with industry exposure',
-      features: ['Live client project', 'Full mentorship', 'Certificate', 'Placement guidance', 'Interview prep'],
-    },
+export const getPricingTiers = (
+  pricing: any,
+  discount?: any
+): PricingTier[] => {
+  const durations: Array<'15-days' | '1-month' | '2-months' | '3-months'> = [
+    '15-days',
+    '1-month',
+    '2-months',
+    '3-months'
   ];
+
+  return durations.map((duration, index) => {
+    const originalPrice = pricing?.[duration] || 0;
+    const discountPercent = discount?.[duration] || 0;
+    const finalPrice = calculateFinalPrice(originalPrice, discountPercent);
+    const savings = calculateSavings(originalPrice, finalPrice);
+
+    const labels = ['15 Days', '1 Month', '2 Months', '3 Months'];
+    const descriptions = [
+      'Quick introduction and basics',
+      'Comprehensive learning with projects',
+      'In-depth training with real-world projects',
+      'Complete mastery with industry exposure'
+    ];
+    
+    const featuresList = [
+      ['Basic concepts', 'Mini project', 'Certificate', 'Email support'],
+      ['Advanced topics', 'Group project', 'Certificate', 'Mentorship', 'Q&A sessions'],
+      ['Industry project', 'Portfolio building', 'Certificate', 'Mentorship', 'Code reviews', 'Interview prep'],
+      ['Live client project', 'Full mentorship', 'Certificate', 'Placement guidance', 'Interview prep', 'Resume building']
+    ];
+
+    return {
+      duration,
+      label: labels[index],
+      originalPrice,
+      discount: discountPercent,
+      finalPrice,
+      savings,
+      description: descriptions[index],
+      features: featuresList[index],
+      isPopular: duration === '1-month',
+    };
+  });
 };
 
 /**
- * Filter by price range
+ * Filter by price range (using final price after discount)
  */
 export const filterByPriceRange = (
   internships: InternshipData[],
@@ -180,7 +214,118 @@ export const filterByPriceRange = (
   duration: '15-days' | '1-month' | '2-months' | '3-months' = '1-month'
 ): InternshipData[] => {
   return internships.filter((i) => {
-    const price = i.pricing?.[duration] || 0;
-    return price >= minPrice && price <= maxPrice;
+    const originalPrice = i.pricing?.[duration] || 0;
+    const discountPercent = i.discount?.[duration] || 0;
+    const finalPrice = calculateFinalPrice(originalPrice, discountPercent);
+    return finalPrice >= minPrice && finalPrice <= maxPrice;
+  });
+};
+
+/**
+ * Format discount badge text
+ */
+export const formatDiscountBadge = (discountPercent: number): string => {
+  if (discountPercent <= 0) return '';
+  return `${discountPercent}% OFF`;
+};
+
+/**
+ * Format savings text
+ */
+export const formatSavings = (savings: number, currency: CurrencyCode = 'INR'): string => {
+  if (savings <= 0) return '';
+  return `Save ${formatPrice(savings, currency)}`;
+};
+
+/**
+ * Get best discount duration (returns the duration with highest discount)
+ */
+export const getBestDiscountDuration = (
+  discount?: any
+): '15-days' | '1-month' | '2-months' | '3-months' => {
+  if (!discount) return '1-month';
+  
+  const durations: Array<'15-days' | '1-month' | '2-months' | '3-months'> = [
+    '15-days',
+    '1-month',
+    '2-months',
+    '3-months'
+  ];
+  
+  let maxDiscount = 0;
+  let bestDuration: '15-days' | '1-month' | '2-months' | '3-months' = '1-month';
+  
+  durations.forEach(duration => {
+    const discountValue = discount[duration] || 0;
+    if (discountValue > maxDiscount) {
+      maxDiscount = discountValue;
+      bestDuration = duration;
+    }
+  });
+  
+  return bestDuration;
+};
+
+/**
+ * Check if internship has any discount
+ */
+export const hasDiscount = (discount?: any): boolean => {
+  if (!discount) return false;
+  return Object.values(discount).some((d: any) => parseFloat(d) > 0);
+};
+
+/**
+ * Get highest discount percentage
+ */
+export const getHighestDiscount = (discount?: any): number => {
+  if (!discount) return 0;
+  return Math.max(...Object.values(discount).map((d: any) => parseFloat(d) || 0));
+};
+
+/**
+ * Sort internships by best discount
+ */
+export const sortByDiscount = (
+  internships: InternshipData[],
+  ascending = false
+): InternshipData[] => {
+  return [...internships].sort((a, b) => {
+    const discountA = getHighestDiscount(a.discount);
+    const discountB = getHighestDiscount(b.discount);
+    return ascending ? discountA - discountB : discountB - discountA;
+  });
+};
+
+/**
+ * Get cheapest final price across all durations
+ */
+export const getCheapestPrice = (pricing: any, discount: any): number => {
+  const durations: Array<'15-days' | '1-month' | '2-months' | '3-months'> = [
+    '15-days',
+    '1-month',
+    '2-months',
+    '3-months'
+  ];
+  
+  const prices = durations.map(duration => {
+    const original = pricing?.[duration] || 0;
+    const disc = discount?.[duration] || 0;
+    return calculateFinalPrice(original, disc);
+  }).filter(p => p > 0);
+  
+  return prices.length > 0 ? Math.min(...prices) : 0;
+};
+
+/**
+ * Sort internships by cheapest price
+ */
+export const sortByPrice = (
+  internships: InternshipData[],
+  ascending = true
+): InternshipData[] => {
+  return [...internships].sort((a, b) => {
+    const priceA = getCheapestPrice(a.pricing, a.discount);
+    const priceB = getCheapestPrice(b.pricing, b.discount);
+    return ascending ? priceA - priceB : priceB - priceA;
   });
 };

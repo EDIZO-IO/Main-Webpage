@@ -1,10 +1,8 @@
 // src/pages/Projects.tsx
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
-  MapPin,
   Shield,
   Eye,
   Gamepad,
@@ -14,12 +12,21 @@ import {
   ExternalLink,
   Grid,
   List,
-  Sparkles
+  Sparkles,
+  X,
+  Mail,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
+import { useTeamMembers } from '../components/hooks/useTeamMembers';
+import type { TeamMember, TeamMemberModalProps } from '../types/team.types';
 
-// --- Types ---
+// --- Project Types ---
 interface ProjectCategory {
   id: string;
   title: string;
@@ -29,60 +36,255 @@ interface ProjectCategory {
   link: string;
 }
 
-// --- Auto-Scrolling Gallery ---
-const AutoScrollingGallery: React.FC = () => {
-  const [isPaused, setIsPaused] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Predefined gallery items
-  const galleryItems = [
-    { id: 1, name: 'Alex Johnson', role: 'Lead Developer' },
-    { id: 2, name: 'Maria Garcia', role: 'Creative Director' },
-    { id: 3, name: 'Sam Chen', role: 'AI Specialist' },
-    { id: 4, name: 'Priya Sharma', role: 'UX Designer' },
-    { id: 5, name: 'James Wilson', role: 'Video Editor' },
-    { id: 6, name: 'Fatima Ahmed', role: 'Project Manager' },
-  ];
+// --- Team Member Modal Component ---
+const TeamMemberModal: React.FC<TeamMemberModalProps> = ({ member, onClose }) => {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 py-8"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
-      <div className="flex items-center mb-6 px-4">
-        <Sparkles className="text-red-500 mr-2" size={24} />
-        <h3 className="text-2xl font-bold text-gray-800">Meet Our Team</h3>
-      </div>
-      <div className="flex overflow-hidden">
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
         <motion.div
-          className="flex flex-nowrap"
-          animate={{ x: isPaused ? 0 : "-100%" }}
-          transition={{ duration: 25, ease: "linear", repeat: Infinity, repeatType: "loop" }}
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          transition={{ type: 'spring', duration: 0.5 }}
+          className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
         >
-          {[...galleryItems, ...galleryItems].map((item, index) => (
-            <div
-              key={`${item.id}-${index}`} // Ensure unique keys for the duplicated list
-              className="flex-shrink-0 w-64 mx-3"
+          {/* Header */}
+          <div className="bg-gradient-to-r from-red-500 to-orange-500 p-8 text-white relative">
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+              aria-label="Close modal"
             >
-              <div className="relative overflow-hidden rounded-2xl shadow-lg bg-white p-4 h-64 flex flex-col items-center justify-center">
-                <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 mb-3" />
-                <h4 className="text-lg font-semibold text-gray-900">{item.name}</h4>
-                <p className="text-sm text-gray-600">{item.role}</p>
+              <X size={24} />
+            </button>
+            <div className="flex items-center space-x-4">
+              <img
+                src={member.photo}
+                alt={member.name}
+                className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://via.placeholder.com/150';
+                }}
+              />
+              <div>
+                <h3 className="text-2xl font-bold mb-1">{member.name}</h3>
+                <p className="text-white/90 text-lg">{member.role}</p>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* Body */}
+          <div className="p-8 space-y-6">
+            {/* Bio */}
+            {member.bio && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">About</h4>
+                <p className="text-gray-700 leading-relaxed">{member.bio}</p>
+              </div>
+            )}
+
+            {/* Contact Info */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Connect</h4>
+              <div className="space-y-3">
+                {member.email && (
+                  <a
+                    href={`mailto:${member.email}`}
+                    className="flex items-center space-x-3 text-gray-700 hover:text-red-600 transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-red-100 transition-colors">
+                      <Mail size={20} className="text-gray-600 group-hover:text-red-600" />
+                    </div>
+                    <span className="font-medium">{member.email}</span>
+                  </a>
+                )}
+                {member.linkedin && (
+                  <a
+                    href={member.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                      <Linkedin size={20} className="text-gray-600 group-hover:text-blue-600" />
+                    </div>
+                    <span className="font-medium">LinkedIn Profile</span>
+                  </a>
+                )}
+                {member.facebook && (
+                  <a
+                    href={member.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 text-gray-700 hover:text-blue-700 transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                      <Facebook size={20} className="text-gray-600 group-hover:text-blue-700" />
+                    </div>
+                    <span className="font-medium">Facebook Profile</span>
+                  </a>
+                )}
+                {member.instagram && (
+                  <a
+                    href={member.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 text-gray-700 hover:text-pink-600 transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-pink-100 transition-colors">
+                      <Instagram size={20} className="text-gray-600 group-hover:text-pink-600" />
+                    </div>
+                    <span className="font-medium">Instagram Profile</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
         </motion.div>
-      </div>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
-// --- Typing Animation ---
+// --- Auto-Scrolling Team Gallery Component ---
+const AutoScrollingGallery: React.FC = () => {
+  const [isPaused, setIsPaused] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { teamMembers, loading, error } = useTeamMembers();
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="relative w-full bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 py-16 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="animate-spin text-red-500 mx-auto mb-4" size={48} />
+          <p className="text-gray-600">Loading team members...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="relative w-full bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 py-16">
+        <div className="text-center px-4">
+          <AlertCircle className="text-red-500 mx-auto mb-4" size={48} />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Failed to Load Team</h3>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (teamMembers.length === 0) {
+    return (
+      <div className="relative w-full bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 py-16">
+        <div className="text-center">
+          <p className="text-gray-600 text-lg">No team members found.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div
+        ref={containerRef}
+        className="relative w-full overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 py-12"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        <div className="flex items-center mb-8 px-4 max-w-7xl mx-auto">
+          <Sparkles className="text-red-500 mr-2" size={28} />
+          <h3 className="text-3xl font-bold text-gray-800">Meet Our Team</h3>
+        </div>
+        <div className="flex overflow-hidden">
+          <motion.div
+            className="flex flex-nowrap"
+            animate={{ x: isPaused ? 0 : "-50%" }}
+            transition={{ duration: 30, ease: "linear", repeat: Infinity, repeatType: "loop" }}
+          >
+            {[...teamMembers, ...teamMembers].map((member, index) => (
+              <div
+                key={`${member.id}-${index}`}
+                className="flex-shrink-0 w-72 mx-4"
+              >
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="relative overflow-hidden rounded-2xl shadow-lg bg-white p-6 h-80 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:shadow-2xl"
+                  onClick={() => setSelectedMember(member)}
+                >
+                  <div className="relative mb-4">
+                    <img
+                      src={member.photo}
+                      alt={member.name}
+                      className="w-32 h-32 rounded-full object-cover border-4 border-gray-100 shadow-md"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://via.placeholder.com/150';
+                      }}
+                    />
+                    <div className="absolute bottom-0 right-0 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></div>
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 text-center mb-1">{member.name}</h4>
+                  <p className="text-sm text-red-600 font-medium mb-3">{member.role}</p>
+                  <p className="text-xs text-gray-500 text-center line-clamp-2 px-2">
+                    {member.bio || 'Click to learn more'}
+                  </p>
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+                    {member.email && (
+                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                    )}
+                    {member.linkedin && (
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    )}
+                    {member.facebook && (
+                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    )}
+                    {member.instagram && (
+                      <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {selectedMember && (
+        <TeamMemberModal
+          member={selectedMember}
+          onClose={() => setSelectedMember(null)}
+        />
+      )}
+    </>
+  );
+};
+
+// --- Typing Animation Component ---
 interface AnimatedTypingSubtitleProps {
   phrases: string[];
 }
+
 const AnimatedTypingSubtitle: React.FC<AnimatedTypingSubtitleProps> = ({ phrases }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -187,7 +389,6 @@ const Projects: React.FC = () => {
     },
   ];
 
-  // Get current categories based on active tab
   const getCurrentCategories = () => {
     switch (activeTab) {
       case 'development': return developmentCategories;
@@ -199,16 +400,13 @@ const Projects: React.FC = () => {
 
   const currentCategories = getCurrentCategories();
 
-  // Filter categories based on search and selection
   const filteredCategories = currentCategories.filter(category =>
     (selectedCategory === 'All' || category.title === selectedCategory) &&
     category.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Extract unique categories for filter buttons
   const allCategories = ['All', ...new Set(currentCategories.map(c => c.title))];
 
-  // Add JSON-LD for SEO - ✅ FIXED URLs
   useEffect(() => {
     const schema = {
       '@context': 'https://schema.org',
@@ -224,7 +422,6 @@ const Projects: React.FC = () => {
         description: category.description,
         category: category.title,
         creator: { '@type': 'Organization', name: 'Edizo' },
-        thumbnailUrl: `https://placehold.co/600x400/eee/999?text=${encodeURIComponent(category.title)}`,
         url: category.link,
       }))
     };
@@ -239,7 +436,7 @@ const Projects: React.FC = () => {
       const existing = document.getElementById('projects-schema');
       if (existing) document.head.removeChild(existing);
     };
-  }, [currentCategories]); // Dependency array is correct
+  }, [currentCategories]);
 
   return (
     <>
@@ -255,7 +452,6 @@ const Projects: React.FC = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Project Categories</h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                 Explore our expertise in crafting cutting-edge solutions, stunning graphics, and engaging videos that drive real impact.
-                All project details are available on our dedicated platform.
               </p>
             </div>
           </AnimatedSection>
@@ -366,60 +562,28 @@ const Projects: React.FC = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 bg-gradient-to-br ${category.gradient} ${viewMode === 'list' ? 'md:flex' : ''}`}
+                  className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 bg-gradient-to-br ${category.gradient}`}
                 >
-                  {viewMode === 'list' ? (
-                    <div className="md:flex">
-                      <div className="md:w-1/3 h-48 md:h-full overflow-hidden bg-gray-200 border-2 border-dashed rounded-xl flex items-center justify-center">
-                        <category.icon className="text-gray-400" size={48} />
-                      </div>
-                      <div className="p-6 md:w-2/3 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center mb-3">
-                            <category.icon className="text-red-600 mr-3" size={24} />
-                            <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
-                          </div>
-                          <p className="text-gray-600 text-sm mb-4">{category.description}</p>
-                        </div>
-                        <a
-                          href={category.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 font-medium group mt-4"
-                        >
-                          View Projects
-                          <ExternalLink size={16} />
-                          <ArrowRight
-                            size={16}
-                            className="ml-1 transition-transform group-hover:translate-x-1"
-                          />
-                        </a>
-                      </div>
+                  <div className="p-6">
+                    <div className="flex items-center mb-4">
+                      <category.icon className="text-red-600 mr-3" size={32} />
+                      <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
                     </div>
-                  ) : (
-                    <>
-                      <div className="p-6">
-                        <div className="flex items-center mb-4">
-                          <category.icon className="text-red-600 mr-3" size={32} />
-                          <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
-                        </div>
-                        <p className="text-gray-600 text-sm mb-4">{category.description}</p>
-                        <a
-                          href={category.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 font-medium group mt-4"
-                        >
-                          View Projects
-                          <ExternalLink size={16} />
-                          <ArrowRight
-                            size={16}
-                            className="ml-1 transition-transform group-hover:translate-x-1"
-                          />
-                        </a>
-                      </div>
-                    </>
-                  )}
+                    <p className="text-gray-600 text-sm mb-4">{category.description}</p>
+                    <a
+                      href={category.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 font-medium group mt-4"
+                    >
+                      View Projects
+                      <ExternalLink size={16} />
+                      <ArrowRight
+                        size={16}
+                        className="ml-1 transition-transform group-hover:translate-x-1"
+                      />
+                    </a>
+                  </div>
                 </motion.div>
               ))}
             </div>

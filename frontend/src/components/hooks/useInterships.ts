@@ -22,7 +22,6 @@ export const useInternships = () => {
         const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
         const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
-        // Validate environment variables
         if (!SHEET_ID || !API_KEY) {
           throw new Error('Missing Google Sheets configuration. Check your .env file.');
         }
@@ -104,14 +103,13 @@ export const useInternship = (id: string | undefined) => {
           throw new Error('No data found in sheet');
         }
 
-        // Find the internship by ID
         const internshipRow = data.values.slice(1).find((row: any[]) => row[0] === id);
 
         if (!internshipRow) {
           throw new Error(`Internship with ID "${id}" not found`);
         }
 
-        // Parse the row data (columns 0-29)
+        // ✅ UPDATED: Parse with discount columns (30-33)
         const parsedInternship: InternshipData = {
           id: internshipRow[0] || id,
           title: internshipRow[1] || 'Untitled',
@@ -140,6 +138,13 @@ export const useInternship = (id: string | undefined) => {
             '1-month': parseFloat(internshipRow[27]) || 0,
             '2-months': parseFloat(internshipRow[28]) || 0,
             '3-months': parseFloat(internshipRow[29]) || 0,
+          },
+          // ✅ NEW: Parse discount columns
+          discount: {
+            '15-days': parseFloat(internshipRow[30]) || 0,
+            '1-month': parseFloat(internshipRow[31]) || 0,
+            '2-months': parseFloat(internshipRow[32]) || 0,
+            '3-months': parseFloat(internshipRow[33]) || 0,
           },
         };
 
@@ -174,12 +179,10 @@ export const useFilteredInternships = (
     if (!loading && internships.length > 0) {
       let filtered = [...internships];
 
-      // Filter by category
       if (category !== 'All') {
         filtered = filtered.filter((i) => i.category === category);
       }
 
-      // Filter by search term
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         filtered = filtered.filter(
@@ -190,7 +193,6 @@ export const useFilteredInternships = (
         );
       }
 
-      // Filter by minimum rating
       if (minRating > 0) {
         filtered = filtered.filter((i) => i.rating >= minRating);
       }
