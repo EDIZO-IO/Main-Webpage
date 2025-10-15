@@ -34,36 +34,81 @@ export const useInternships = () => {
 
   useEffect(() => {
     const fetchInternships = async (): Promise<InternshipData[]> => {
+      // ✅ DETAILED ENVIRONMENT DEBUG
+      console.log('🔍 ========================================');
+      console.log('   ENVIRONMENT VARIABLES CHECK');
+      console.log('🔍 ========================================');
+      console.log('MODE:', import.meta.env.MODE);
+      console.log('DEV:', import.meta.env.DEV);
+      console.log('PROD:', import.meta.env.PROD);
+      console.log('---');
+      
       const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
       const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
       const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
+      console.log('VITE_GOOGLE_SHEET_ID:', SHEET_ID || '❌ MISSING');
+      console.log('VITE_INTERNSHIPS_SHEET_NAME:', SHEET_NAME);
+      console.log('VITE_GOOGLE_API_KEY:', API_KEY ? `✅ Present (${API_KEY.substring(0, 10)}...${API_KEY.substring(API_KEY.length - 4)})` : '❌ MISSING');
+      console.log('🔍 ========================================\n');
+
       if (!SHEET_ID || !API_KEY) {
-        throw new Error('Missing Google Sheets configuration. Check your .env file.');
+        const missingVars = [];
+        if (!SHEET_ID) missingVars.push('VITE_GOOGLE_SHEET_ID');
+        if (!API_KEY) missingVars.push('VITE_GOOGLE_API_KEY');
+        
+        const errorMsg = `❌ Missing environment variables: ${missingVars.join(', ')}. Please check Netlify environment variables.`;
+        console.error(errorMsg);
+        throw new Error(errorMsg);
       }
 
-      console.log('📊 Fetching internships from Google Sheets...');
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+      console.log('📊 Fetching from:', `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=***`);
       
       const response = await fetch(url);
+      console.log('📡 Response status:', response.status, response.statusText);
 
       if (!response.ok) {
         if (response.status === 429) {
           throw new Error('Rate limit exceeded. Please try again later.');
         }
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `API error: ${response.status}`);
+        
+        let errorData;
+        try {
+          errorData = await response.json();
+          console.error('❌ API Error Response:', errorData);
+        } catch {
+          errorData = {};
+        }
+        
+        // Detailed error messages based on status
+        if (response.status === 403) {
+          throw new Error('Access denied. Check if: 1) Google Sheet is public, 2) API key is valid, 3) Google Sheets API is enabled');
+        } else if (response.status === 404) {
+          throw new Error(`Sheet not found. Check if sheet ID "${SHEET_ID}" and tab "${SHEET_NAME}" are correct`);
+        } else if (response.status === 400) {
+          throw new Error('Invalid request. Check if API key and Sheet ID are correct');
+        }
+        
+        throw new Error(errorData.error?.message || `API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('📄 Raw sheet data received, rows:', data.values?.length || 0);
+      console.log('📄 Raw sheet data received');
+      console.log('- Rows:', data.values?.length || 0);
+      console.log('- First row (headers):', data.values?.[0]?.slice(0, 5));
 
       if (!data.values || data.values.length <= 1) {
-        throw new Error('No internship data found in the sheet.');
+        throw new Error('No internship data found in the sheet. Please add data to the "Internships" tab.');
       }
 
       const parsedInternships = parseInternshipsFromSheets(data);
       console.log(`✅ Successfully parsed ${parsedInternships.length} internships`);
+      console.log('Sample internship:', parsedInternships[0] ? {
+        id: parsedInternships[0].id,
+        title: parsedInternships[0].title,
+        category: parsedInternships[0].category
+      } : 'None');
 
       return parsedInternships;
     };
