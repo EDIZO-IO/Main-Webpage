@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { convert } from 'html-to-text';
+import { google } from 'googleapis';
 
 dotenv.config();
 
@@ -37,11 +38,9 @@ app.use(helmet.contentSecurityPolicy({
 
 app.use(cors({
   origin: function (origin, callback) {
-    console.log('🌐 Request from:', origin || 'undefined');
     if (!origin || allowedOrigins.includes(origin) || netlifyPattern.test(origin)) {
       return callback(null, true);
     }
-    console.warn('❌ CORS blocked:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -59,23 +58,37 @@ const limiter = rateLimit({
 });
 
 app.get('/', (req, res) => {
-  res.send('✅ EDIZO Backend - Google Sheets API Integration Active');
+  res.send('✅ EDIZO Backend - Service Account Authentication Active');
 });
 
-// ✅ Append to Google Sheets using REST API (No googleapis library)
+// ✅ Initialize Google Sheets with Service Account
+let sheets;
+try {
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: process.env.GOOGLE_CLIENT_EMAIL,
+      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    },
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  });
+
+  sheets = google.sheets({ version: 'v4', auth });
+  console.log('✅ Google Sheets API initialized with Service Account');
+} catch (error) {
+  console.error('❌ Failed to initialize Google Sheets:', error.message);
+}
+
+// ✅ Append to Google Sheets
 async function appendToSheet(data) {
   try {
+    if (!sheets) {
+      throw new Error('Google Sheets API not initialized');
+    }
+
     const SHEET_ID = process.env.GOOGLE_SHEET_ID;
     const SHEET_NAME = process.env.APPLICATIONS_SHEET_NAME || 'Applications';
-    const API_KEY = process.env.GOOGLE_API_KEY;
     
     console.log('📝 Saving to Google Sheets...');
-    console.log('Sheet ID:', SHEET_ID);
-    console.log('Sheet Name:', SHEET_NAME);
-    
-    if (!SHEET_ID || !API_KEY) {
-      throw new Error('Missing GOOGLE_SHEET_ID or GOOGLE_API_KEY');
-    }
     
     const currentDate = new Date().toLocaleString('en-IN', { 
       timeZone: 'Asia/Kolkata',
@@ -104,36 +117,24 @@ async function appendToSheet(data) {
       'Pending',
     ]];
 
-    console.log('Data to save:', values[0]);
-
-    // Using Google Sheets API v4 REST endpoint
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A:N:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ values }),
+    const response = await sheets.spreadsheets.values.append({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_NAME}!A:N`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values },
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('❌ Sheets API Error:', errorData);
-      throw new Error(errorData.error?.message || `Sheets API returned ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log('✅ Successfully saved to Google Sheets!');
-    console.log('Updated range:', result.updates?.updatedRange);
-    return result;
+    console.log('✅ Data saved successfully!');
+    console.log('Updated:', response.data.updates?.updatedRange);
+    return response.data;
   } catch (error) {
-    console.error('❌ Error saving to sheet:', error.message);
-    throw new Error(`Failed to save to Google Sheets: ${error.message}`);
+    console.error('❌ Sheet error:', error.message);
+    if (error.code) console.error('Error code:', error.code);
+    throw new Error(`Failed to save: ${error.message}`);
   }
 }
 
-// Email configuration
+// Email setup
 const transporter = nodemailer.createTransport({
   pool: true,
   host: 'smtp.gmail.com',
@@ -153,7 +154,7 @@ const transporter = nodemailer.createTransport({
 
 transporter.verify((error) => {
   if (error) {
-    console.error('⚠️ Email service unavailable:', error.message);
+    console.error('⚠️ Email unavailable:', error.message);
   } else {
     console.log('✅ Email service ready');
   }
@@ -174,123 +175,88 @@ async function sendMail(to, subject, html, retries = 3) {
       console.log(`✅ Email sent: ${info.messageId}`);
       return info;
     } catch (error) {
-      console.error(`❌ Email attempt ${attempt} failed:`, error.message);
-      if (attempt === retries) {
-        throw new Error(`Email failed after ${retries} attempts`);
-      }
+      if (attempt === retries) throw error;
       await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
     }
   }
 }
 
-// ✅ Internship application submission endpoint
+// Application endpoint
 app.post('/api/submit-application', limiter, async (req, res) => {
   try {
     const data = req.body;
     
-    console.log('📥 Application received:', {
+    console.log('📥 Application:', {
       name: data.name,
       email: data.email,
       internship: data.internshipTitle,
-      duration: data.coursePeriod,
-      price: data.price,
     });
     
-    // Validation
     if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid email address' 
-      });
+      return res.status(400).json({ success: false, message: 'Invalid email' });
     }
 
     if (!data.name || !data.internshipTitle) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Name and internship title are required' 
-      });
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
-    // Save to Google Sheets
     await appendToSheet(data);
 
-    console.log('✅ Application saved successfully');
+    console.log('✅ Application saved');
 
     res.status(200).json({ 
       success: true, 
       message: 'Application submitted successfully! We will contact you within 2-3 business days.',
     });
   } catch (err) {
-    console.error('❌ Submission error:', err.message);
-    res.status(500).json({ 
-      success: false, 
-      message: `Submission failed: ${err.message}` 
-    });
+    console.error('❌ Error:', err.message);
+    res.status(500).json({ success: false, message: `Submission failed: ${err.message}` });
   }
 });
 
-// Contact form endpoint
+// Contact form
 app.post('/api/send-contact-email', limiter, async (req, res) => {
   try {
     const data = req.body;
     const userEmail = data.email;
-    const adminEmail = process.env.CONTACT_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER;
+    const adminEmail = process.env.CONTACT_FORM_RECIPIENT_EMAIL;
 
     if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) {
-      return res.status(400).json({ success: false, message: 'Invalid email address' });
+      return res.status(400).json({ success: false, message: 'Invalid email' });
     }
 
-    const userHtml = `
-      <div style="font-family: Arial, sans-serif;">
-        <h2>Thank You, ${data.name}!</h2>
-        <p>We've received your message at EDIZO. Our team will respond soon.</p>
-        <p><strong>EDIZO Team</strong></p>
-      </div>`;
-
-    const adminHtml = `
-      <div style="font-family: Arial, sans-serif;">
-        <h2>📨 New Contact Form Submission</h2>
-        <ul>
-          <li><strong>Name:</strong> ${data.name}</li>
-          <li><strong>Email:</strong> ${data.email}</li>
-          <li><strong>Phone:</strong> ${data.phone || 'N/A'}</li>
-          <li><strong>Subject:</strong> ${data.subject || 'N/A'}</li>
-          <li><strong>Message:</strong> ${data.message}</li>
-        </ul>
-      </div>`;
+    const userHtml = `<div><h2>Thank You, ${data.name}!</h2><p>We received your message.</p></div>`;
+    const adminHtml = `<div><h2>📨 Contact</h2><ul><li><strong>Name:</strong> ${data.name}</li><li><strong>Email:</strong> ${data.email}</li><li><strong>Message:</strong> ${data.message}</li></ul></div>`;
       
     await Promise.all([
-      sendMail(userEmail, 'We received your message', userHtml),
-      sendMail(adminEmail, `Contact Form: ${data.subject || 'New'}`, adminHtml),
+      sendMail(userEmail, 'Message received', userHtml),
+      sendMail(adminEmail, `Contact: ${data.subject || 'New'}`, adminHtml),
     ]);
 
-    res.status(200).json({ success: true, message: 'Emails sent successfully' });
+    res.status(200).json({ success: true, message: 'Emails sent' });
   } catch (err) {
-    console.error('❌ Contact email error:', err.message);
+    console.error('❌ Error:', err.message);
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// Global error handler
 app.use((err, req, res, next) => {
-  console.error('❌ Global error:', err.stack);
-  res.status(500).json({ success: false, message: 'Internal Server Error' });
+  console.error('❌ Error:', err.stack);
+  res.status(500).json({ success: false, message: 'Internal error' });
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log('\n🚀 ========================================');
-  console.log(`   EDIZO Backend Server Started`);
+  console.log('   EDIZO Backend Server');
   console.log('🚀 ========================================');
-  console.log(`📍 Local:  http://localhost:${PORT}`);
-  console.log(`📍 Render: https://main-webpage-l85m.onrender.com`);
-  console.log('📊 Google Sheets: API Key Authentication');
-  console.log('✉️ Email Service: Contact Form Only');
+  console.log(`📍 Port: ${PORT}`);
+  console.log('🔐 Auth: Service Account');
+  console.log('📊 Sheets: Connected');
+  console.log('✉️ Email: Ready');
   console.log('🚀 ========================================\n');
 });
 
 process.on('SIGTERM', () => {
-  console.log('\n❌ SIGTERM signal received: closing HTTP server');
   transporter.close();
   process.exit(0);
 });
