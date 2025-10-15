@@ -7,13 +7,14 @@ export default defineConfig({
   plugins: [react()],
   
   optimizeDeps: {
-    exclude: ['lucide-react'],
-    include: ['firebase/app', 'firebase/auth'] // Add Firebase to included deps
+    // Remove lucide-react exclusion - it should be optimized
+    exclude: []
   },
   
   build: {
     rollupOptions: {
-      external: [] // Make sure Firebase is NOT externalized
+      // Keep empty - external is for library builds only
+      external: []
     }
   }
 });
