@@ -1,3 +1,5 @@
+// server.js
+
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -54,8 +56,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // ✅ Rate Limiter
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Max 10 requests per window
+  windowMs: 15 * 60 * 1000,
+  max: 10,
   message: 'Too many requests, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -83,7 +85,7 @@ try {
   console.error('❌ Failed to initialize Google Sheets:', error.message);
 }
 
-// ✅ Function: Save Internship Application to Google Sheets
+// ✅ UPDATED: Function to save internship application with discount info
 async function appendToSheet(data) {
   try {
     if (!sheets) {
@@ -105,32 +107,51 @@ async function appendToSheet(data) {
       second: '2-digit'
     });
 
+    // ✅ NEW: Handle discount information
+    const originalPrice = data.originalPrice || 0;
+    const discount = data.discount || 0;
+    const finalPrice = data.finalPrice || originalPrice;
+    const savings = data.savings || 0;
+    
+    // Format prices with currency symbol
+    const formatPrice = (price) => price > 0 ? `₹${price.toLocaleString('en-IN')}` : '₹0';
+    
     const values = [[
-      currentDate,                          // A - Timestamp
-      data.name || '',                      // B - Name
-      data.email || '',                     // C - Email
-      data.phone || '',                     // D - Phone
-      data.university || '',                // E - University
-      data.yearOfStudy || '',               // F - Year of Study
-      data.education || '',                 // G - Education
-      data.internshipTitle || '',           // H - Internship Title
-      data.company || '',                   // I - Company
-      data.coursePeriod || '',              // J - Duration
-      data.price ? `₹${data.price}` : '',  // K - Price
-      data.academicExperience || '',        // L - Academic Experience
-      data.message || '',                   // M - Cover Letter
-      'Pending',                            // N - Status
+      currentDate,                              // A - Timestamp
+      data.name || '',                          // B - Name
+      data.email || '',                         // C - Email
+      data.phone || '',                         // D - Phone
+      data.university || '',                    // E - University
+      data.yearOfStudy || '',                   // F - Year of Study
+      data.education || '',                     // G - Education
+      data.internshipTitle || '',               // H - Internship Title
+      data.company || '',                       // I - Company
+      data.coursePeriod || '',                  // J - Duration
+      formatPrice(originalPrice),               // K - Original Price
+      discount > 0 ? `${discount}%` : 'No Discount', // L - Discount %
+      formatPrice(finalPrice),                  // M - Final Price (after discount)
+      savings > 0 ? formatPrice(savings) : '₹0', // N - Savings
+      data.academicExperience || '',            // O - Academic Experience
+      data.message || '',                       // P - Cover Letter
+      'Pending',                                // Q - Status
     ]];
 
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:N`,
+      range: `${SHEET_NAME}!A:Q`,
       valueInputOption: 'USER_ENTERED',
       requestBody: { values },
     });
 
     console.log('✅ Application saved successfully!');
     console.log('Updated range:', response.data.updates?.updatedRange);
+    console.log('💰 Price Details:', {
+      original: formatPrice(originalPrice),
+      discount: `${discount}%`,
+      final: formatPrice(finalPrice),
+      savings: formatPrice(savings)
+    });
+    
     return response.data;
   } catch (error) {
     console.error('❌ Error saving application:', error.message);
@@ -162,13 +183,13 @@ async function appendContactToSheet(data) {
     });
 
     const values = [[
-      currentDate,           // A - Timestamp
-      data.name || '',       // B - Name
-      data.email || '',      // C - Email
-      data.phone || '',      // D - Phone
-      data.subject || '',    // E - Subject
-      data.message || '',    // F - Message
-      'New',                 // G - Status
+      currentDate,
+      data.name || '',
+      data.email || '',
+      data.phone || '',
+      data.subject || '',
+      data.message || '',
+      'New',
     ]];
 
     const response = await sheets.spreadsheets.values.append({
@@ -188,7 +209,7 @@ async function appendContactToSheet(data) {
   }
 }
 
-// ✅ Email Setup (Optional - for contact form notifications)
+// ✅ Email Setup
 const transporter = nodemailer.createTransport({
   pool: true,
   host: 'smtp.gmail.com',
@@ -238,7 +259,7 @@ async function sendMail(to, subject, html, retries = 3) {
   }
 }
 
-// ✅ ENDPOINT: Submit Internship Application (Save to Google Sheets)
+// ✅ UPDATED ENDPOINT: Submit Internship Application with Discount Support
 app.post('/api/submit-application', limiter, async (req, res) => {
   try {
     const data = req.body;
@@ -248,7 +269,10 @@ app.post('/api/submit-application', limiter, async (req, res) => {
       email: data.email,
       internship: data.internshipTitle,
       duration: data.coursePeriod,
-      price: data.price,
+      originalPrice: data.originalPrice,
+      discount: data.discount,
+      finalPrice: data.finalPrice,
+      savings: data.savings,
     });
     
     // Validation
@@ -266,14 +290,27 @@ app.post('/api/submit-application', limiter, async (req, res) => {
       });
     }
 
-    // Save to Google Sheets
+    // ✅ NEW: Validate pricing information
+    if (!data.finalPrice || data.finalPrice <= 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid pricing information' 
+      });
+    }
+
+    // Save to Google Sheets with discount info
     await appendToSheet(data);
 
-    console.log('✅ Application saved successfully');
+    console.log('✅ Application saved successfully with discount details');
 
     res.status(200).json({ 
       success: true, 
       message: 'Application submitted successfully! We will contact you within 2-3 business days.',
+      data: {
+        finalPrice: data.finalPrice,
+        discount: data.discount,
+        savings: data.savings
+      }
     });
   } catch (err) {
     console.error('❌ Error in submit-application:', err.message);
@@ -284,7 +321,7 @@ app.post('/api/submit-application', limiter, async (req, res) => {
   }
 });
 
-// ✅ ENDPOINT: Submit Contact Form (Save to Google Sheets + Optional Email)
+// ✅ ENDPOINT: Submit Contact Form
 app.post('/api/submit-contact', limiter, async (req, res) => {
   try {
     const data = req.body;
@@ -295,7 +332,6 @@ app.post('/api/submit-contact', limiter, async (req, res) => {
       subject: data.subject,
     });
     
-    // Validation
     if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) {
       return res.status(400).json({ 
         success: false, 
@@ -310,10 +346,8 @@ app.post('/api/submit-contact', limiter, async (req, res) => {
       });
     }
 
-    // Save to Google Sheets (PRIMARY)
     await appendContactToSheet(data);
 
-    // Optional: Send notification emails (SECONDARY - won't fail if email service is down)
     try {
       const userHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -344,7 +378,6 @@ app.post('/api/submit-contact', limiter, async (req, res) => {
       console.log('✅ Notification emails sent');
     } catch (emailError) {
       console.warn('⚠️ Email notification failed (non-critical):', emailError.message);
-      // Don't fail the request if email fails - data is already saved to sheets
     }
 
     console.log('✅ Contact form saved successfully');
@@ -362,9 +395,8 @@ app.post('/api/submit-contact', limiter, async (req, res) => {
   }
 });
 
-// ✅ LEGACY ENDPOINT: Keep old contact endpoint for backwards compatibility
+// ✅ LEGACY ENDPOINT
 app.post('/api/send-contact-email', limiter, async (req, res) => {
-  // Redirect to new endpoint
   return app.handle(req, res, '/api/submit-contact');
 });
 
@@ -387,6 +419,7 @@ app.listen(PORT, () => {
   console.log('🔐 Auth: Service Account');
   console.log('📊 Google Sheets: Connected');
   console.log('📧 Applications → Applications tab');
+  console.log('💰 Pricing: Discount support enabled');
   console.log('📞 Contacts → Contacts tab');
   console.log('✉️ Email: Optional notifications');
   console.log('🚀 ========================================\n');
