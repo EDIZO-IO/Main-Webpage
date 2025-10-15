@@ -16,43 +16,27 @@ import InternshipApplication from './pages/InternshipApplication';
 import CertificateVerification from './pages/CertificateVerification';
 import UpcomingEvents from './pages/UpcomingEvents';
 
-// Conditionally import EventDebug only in development
-// const EventDebug = import.meta.env.DEV 
-//   ? React.lazy(() => import('./components/EventDebug'))
-//   : null;
-
 const App: React.FC = () => {
   return (
-    <>
-      <Routes>
-        {/* Main routes within MainLayout */}
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Home />} />
-          <Route path="services" element={<Services />} />
-          <Route path="services/:id" element={<ServiceDetails />} />
-          <Route path="internships" element={<Internships />} />
-          <Route path="internships/:id" element={<InternshipDetails />} />
-          <Route path="apply/:id" element={<InternshipApplication />} />
-          <Route path="projects" element={<Projects />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="events" element={<UpcomingEvents />} />
-          <Route path="verify-certificate" element={<CertificateVerification />} />
+    <Routes>
+      {/* Main routes within MainLayout. MainLayout will persist across these routes.
+           The Header inside MainLayout should no longer interfere with navigation. */}
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Home />} />
+        <Route path="services" element={<Services />} />
+        <Route path="services/:id" element={<ServiceDetails />} />
+        <Route path="internships" element={<Internships />} />
+        <Route path="internships/:id" element={<InternshipDetails />} />
+        <Route path="apply/:id" element={<InternshipApplication />} />
+        <Route path="projects" element={<Projects />} />
+        <Route path="contact" element={<Contact />} />
+        <Route path="events" element={<UpcomingEvents />} />
+        <Route path="verify-certificate" element={<CertificateVerification />} />
 
-          {/* Catch-all route for 404 within the main layout */}
-          <Route path="*" element={<NotFound />} />
-        </Route>
-        
-        {/* Optional: Add a separate route for root-level 404 if needed */}
-        {/* <Route path="*" element={<NotFound />} /> */}
-      </Routes>
-
-      {/* Event Debug Panel - Only in Development */}
-      {/* {import.meta.env.DEV && EventDebug && (
-        <React.Suspense fallback={null}>
-          <EventDebug />
-        </React.Suspense>
-      )} */}
-    </>
+        {/* Catch-all route for 404 within the main layout */}
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 };
 

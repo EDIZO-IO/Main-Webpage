@@ -20,6 +20,7 @@ import {
   User,
   Hash,
   MessageSquare,
+  AlertCircle,
 } from 'lucide-react';
 
 interface AnimatedSectionProps {
@@ -164,6 +165,8 @@ const Contact = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (formError) setFormError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -172,7 +175,8 @@ const Contact = () => {
     setFormError(null);
 
     try {
-      // ✅ CHANGED: New endpoint that saves to Google Sheets
+      console.log('📤 Submitting contact form:', { ...formData, message: formData.message.substring(0, 50) + '...' });
+
       const response = await fetch(`${API_BASE_URL}/api/submit-contact`, {
         method: 'POST',
         headers: {
@@ -181,17 +185,45 @@ const Contact = () => {
         body: JSON.stringify(formData),
       });
 
+      // Check if response is ok
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Server error:', errorText);
+        throw new Error(`Server error: ${response.status}`);
+      }
+
       const result = await response.json();
+      console.log('✅ Server response:', result);
 
       if (result.success) {
         setFormSubmitted(true);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+        console.log('✅ Form submitted successfully');
+        
+        // Auto-hide success message after 10 seconds
+        setTimeout(() => {
+          setFormSubmitted(false);
+        }, 10000);
       } else {
-        setFormError(result.message || "An error occurred while sending the message.");
+        throw new Error(result.message || "An error occurred while sending the message.");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error submitting form:', error);
-      setFormError("Failed to send message. Please check your connection and try again.");
+      
+      // Better error messages based on error type
+      let errorMessage = "Failed to send message. ";
+      
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        errorMessage += "Please check your internet connection and try again.";
+      } else if (error.message.includes('Server error: 429')) {
+        errorMessage += "Too many requests. Please wait a moment and try again.";
+      } else if (error.message.includes('Server error')) {
+        errorMessage += "Server is temporarily unavailable. Please try again later.";
+      } else {
+        errorMessage += error.message || "Please try again.";
+      }
+      
+      setFormError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -413,15 +445,16 @@ const Contact = () => {
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600"
+                        className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3"
                       >
-                        {formError}
+                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-red-600 text-sm">{formError}</p>
                       </motion.div>
                     )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                          <User className="w-4 h-4 mr-1" /> Full Name
+                          <User className="w-4 h-4 mr-1" /> Full Name *
                         </label>
                         <input
                           type="text"
@@ -436,7 +469,7 @@ const Contact = () => {
                       </div>
                       <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                          <Mail className="w-4 h-4 mr-1" /> Email Address
+                          <Mail className="w-4 h-4 mr-1" /> Email Address *
                         </label>
                         <input
                           type="email"
@@ -466,7 +499,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                        <Hash className="w-4 h-4 mr-1" /> Subject
+                        <Hash className="w-4 h-4 mr-1" /> Subject *
                       </label>
                       <input
                         type="text"
@@ -481,7 +514,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                        <MessageSquare className="w-4 h-4 mr-1" /> Your Message
+                        <MessageSquare className="w-4 h-4 mr-1" /> Your Message *
                       </label>
                       <textarea
                         id="message"

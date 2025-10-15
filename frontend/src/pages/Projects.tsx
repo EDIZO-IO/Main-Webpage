@@ -15,11 +15,6 @@ import {
   Sparkles,
   X,
   Mail,
-  Linkedin,
-  Facebook,
-  Instagram,
-  Github,
-  Globe,
   Loader2,
   AlertCircle
 } from 'lucide-react';
@@ -27,7 +22,7 @@ import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
 import { useTeamMembers } from '../components/hooks/useTeamMembers';
 import type { TeamMember, TeamMemberModalProps } from '../types/team.types';
-import { isValidUrl } from '../types/team.types';
+import { isValidEmail } from '../types/team.types';
 
 // --- Project Types ---
 interface ProjectCategory {
@@ -92,20 +87,12 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({ member, onClose }) =>
 
           {/* Body */}
           <div className="p-8 space-y-6">
-            {/* Bio */}
-            {member.bio && (
-              <div>
-                <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">About</h4>
-                <p className="text-gray-700 leading-relaxed">{member.bio}</p>
-              </div>
-            )}
-
             {/* Contact Info */}
             <div>
               <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Connect</h4>
               <div className="space-y-3">
                 {/* Email */}
-                {isValidUrl(member.email) && (
+                {isValidEmail(member.email) && (
                   <a
                     href={`mailto:${member.email}`}
                     className="flex items-center space-x-3 text-gray-700 hover:text-red-600 transition-colors group"
@@ -117,79 +104,9 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({ member, onClose }) =>
                   </a>
                 )}
 
-                {/* LinkedIn */}
-                {isValidUrl(member.linkedin) && (
-                  <a
-                    href={member.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 transition-colors group"
-                  >
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                      <Linkedin size={20} className="text-gray-600 group-hover:text-blue-600" />
-                    </div>
-                    <span className="font-medium">LinkedIn Profile</span>
-                  </a>
-                )}
-
-                {/* ✅ NEW: GitHub */}
-                {isValidUrl(member.github) && (
-                  <a
-                    href={member.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 text-gray-700 hover:text-gray-900 transition-colors group"
-                  >
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-800 group-hover:text-white transition-all">
-                      <Github size={20} className="text-gray-600 group-hover:text-white" />
-                    </div>
-                    <span className="font-medium">GitHub Profile</span>
-                  </a>
-                )}
-
-                {/* ✅ NEW: Portfolio */}
-                {isValidUrl(member.portfolio) && (
-                  <a
-                    href={member.portfolio}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 text-gray-700 hover:text-purple-600 transition-colors group"
-                  >
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-purple-100 transition-colors">
-                      <Globe size={20} className="text-gray-600 group-hover:text-purple-600" />
-                    </div>
-                    <span className="font-medium">Portfolio Website</span>
-                  </a>
-                )}
-
-                {/* Facebook */}
-                {isValidUrl(member.facebook) && (
-                  <a
-                    href={member.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 text-gray-700 hover:text-blue-700 transition-colors group"
-                  >
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                      <Facebook size={20} className="text-gray-600 group-hover:text-blue-700" />
-                    </div>
-                    <span className="font-medium">Facebook Profile</span>
-                  </a>
-                )}
-
-                {/* Instagram */}
-                {isValidUrl(member.instagram) && (
-                  <a
-                    href={member.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 text-gray-700 hover:text-pink-600 transition-colors group"
-                  >
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-pink-100 transition-colors">
-                      <Instagram size={20} className="text-gray-600 group-hover:text-pink-600" />
-                    </div>
-                    <span className="font-medium">Instagram Profile</span>
-                  </a>
+                {/* Show message if no email */}
+                {!isValidEmail(member.email) && (
+                  <p className="text-gray-500 text-sm italic">No contact information available</p>
                 )}
               </div>
             </div>
@@ -244,18 +161,6 @@ const AutoScrollingGallery: React.FC = () => {
     );
   }
 
-  // ✅ UPDATED: Count social links
-  const getSocialCount = (member: TeamMember): number => {
-    let count = 0;
-    if (isValidUrl(member.email)) count++;
-    if (isValidUrl(member.linkedin)) count++;
-    if (isValidUrl(member.github)) count++;
-    if (isValidUrl(member.portfolio)) count++;
-    if (isValidUrl(member.facebook)) count++;
-    if (isValidUrl(member.instagram)) count++;
-    return count;
-  };
-
   return (
     <>
       <div
@@ -297,38 +202,17 @@ const AutoScrollingGallery: React.FC = () => {
                   </div>
                   <h4 className="text-xl font-bold text-gray-900 text-center mb-1">{member.name}</h4>
                   <p className="text-sm text-red-600 font-medium mb-3">{member.role}</p>
-                  <p className="text-xs text-gray-500 text-center line-clamp-2 px-2">
-                    {member.bio || 'Click to learn more'}
-                  </p>
                   
-                  {/* ✅ UPDATED: Social indicator dots */}
-                  <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-                    {isValidUrl(member.email) && (
-                      <div className="w-2 h-2 bg-red-400 rounded-full" title="Email"></div>
-                    )}
-                    {isValidUrl(member.linkedin) && (
-                      <div className="w-2 h-2 bg-blue-400 rounded-full" title="LinkedIn"></div>
-                    )}
-                    {isValidUrl(member.github) && (
-                      <div className="w-2 h-2 bg-gray-700 rounded-full" title="GitHub"></div>
-                    )}
-                    {isValidUrl(member.portfolio) && (
-                      <div className="w-2 h-2 bg-purple-400 rounded-full" title="Portfolio"></div>
-                    )}
-                    {isValidUrl(member.facebook) && (
-                      <div className="w-2 h-2 bg-blue-600 rounded-full" title="Facebook"></div>
-                    )}
-                    {isValidUrl(member.instagram) && (
-                      <div className="w-2 h-2 bg-pink-400 rounded-full" title="Instagram"></div>
-                    )}
-                  </div>
-
-                  {/* Social count badge */}
-                  {getSocialCount(member) > 0 && (
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                      {getSocialCount(member)} links
+                  {/* Email indicator */}
+                  {isValidEmail(member.email) && (
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                      <Mail size={16} />
+                      <span className="truncate max-w-[200px]">{member.email}</span>
                     </div>
                   )}
+                  
+                  {/* Click to view indicator */}
+                  <p className="text-xs text-gray-400 mt-4">Click to view details</p>
                 </motion.div>
               </div>
             ))}

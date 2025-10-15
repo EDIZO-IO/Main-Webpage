@@ -1,13 +1,11 @@
 // src/layouts/MainLayout.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import Header from '../components/common/Header'; // This is the redesigned Header
+import Header from '../components/common/Header'; // Updated Header that handles auth and location internally
 import Footer from '../components/common/Footer';
 import ScrollToTop from '../components/common/ScrollToTop';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
 
 interface MainLayoutProps {
   children?: ReactNode;
@@ -15,56 +13,17 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Scroll to top on route change
     window.scrollTo(0, 0);
-    
-    // Handle auth state persistence
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in
-        const userData = {
-          name: user.displayName || 'User',
-          email: user.email || '',
-          photoURL: user.photoURL || ''
-        };
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('isAuthenticated', 'true');
-      } else {
-        // User is signed out
-        localStorage.removeItem('user');
-        localStorage.removeItem('isAuthenticated');
-      }
-      setIsLoading(false);
-    });
+  }, [location.pathname]); // Add location.pathname as dependency to trigger on route changes
 
-    // Simulate any initial loading if needed
-    const timer = setTimeout(() => {
-      if (isLoading) {
-        setIsLoading(false);
-      }
-    }, 1000);
-    
-    return () => {
-      clearTimeout(timer);
-      unsubscribe();
-    };
-  }, [isLoading]);
-
-  // Show loading indicator while checking auth
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-blue-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
-        <span className="ml-3 text-gray-700">Initializing...</span>
-      </div>
-    );
-  }
+  // Removed isLoading state and auth check from MainLayout.
+  // These are now handled by the Header component.
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-blue-50"> {/* Updated background to match Home */}
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-blue-50">
       <ScrollToTop />
       <a
         href="#main-content"
@@ -73,9 +32,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         Skip to main content
       </a>
 
-      <Header /> {/* This is the redesigned Header */}
+      <Header /> {/* This is the updated Header that handles auth and location */}
 
-      <main id="main-content" role="main" className="flex-grow pt-14"> {/* Adjusted padding-top to match header height */}
+      <main id="main-content" role="main" className="flex-grow pt-14">
         <div className="w-full">
           {children ? (
             children

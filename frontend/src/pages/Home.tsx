@@ -1,5 +1,5 @@
 // src/pages/Home.tsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -14,9 +14,12 @@ import {
   Tag,
   Percent,
   Star,
+  Loader2,
 } from 'lucide-react';
 import Button from '../components/common/Button';
 import { useGoogleEvents } from '../components/hooks/useGoogleEvents';
+import { useTrendingInternships } from '../components/hooks/useInternships'; // ✅ Use cached hook
+import { getHighestDiscount, hasDiscount } from '../utils/internship.utils'; // ✅ Use utility functions
 
 // Import Assets
 import faceguard from '../assets/project/face-Guard.png';
@@ -63,25 +66,6 @@ interface PortfolioCardProps {
   maxDiscount?: number;
   hasDiscount?: boolean;
   rating?: number;
-}
-
-interface InternshipDiscount {
-  '15-days': number;
-  '1-month': number;
-  '2-months': number;
-  '3-months': number;
-}
-
-interface TrendingInternship {
-  id: string;
-  title: string;
-  category: string;
-  image: string;
-  rating: number;
-  description: string;
-  discount?: InternshipDiscount;
-  maxDiscount?: number;
-  hasDiscount?: boolean;
 }
 
 // Lazy Load Images
@@ -180,7 +164,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
           </div>
         )}
 
-        {/* ✅ NEW: Discount Badge */}
+        {/* Discount Badge */}
         {hasDiscount && maxDiscount && maxDiscount > 0 && (
           <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 shadow-lg animate-pulse">
             <Tag size={12} />
@@ -206,7 +190,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
           </p>
         )}
 
-        {/* ✅ NEW: Rating Display */}
+        {/* Rating Display */}
         {rating && (
           <div className="flex items-center gap-2 mb-3">
             <div className="flex items-center">
@@ -427,84 +411,8 @@ const Home: React.FC = () => {
   const { getActiveEvent } = useGoogleEvents();
   const activeEvent = getActiveEvent();
   
-  // ✅ NEW: State for trending internships from Google Sheets
-  const [trendingInternships, setTrendingInternships] = useState<TrendingInternship[]>([]);
-  const [internshipsLoading, setInternshipsLoading] = useState(true);
-
-  // ✅ NEW: Fetch trending internships from Google Sheets
-  useEffect(() => {
-    const fetchTrendingInternships = async () => {
-      try {
-        const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
-        const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
-        const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-
-        if (!SHEET_ID || !API_KEY) {
-          console.warn('Missing Google Sheets configuration');
-          setInternshipsLoading(false);
-          return;
-        }
-
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch internships');
-        }
-
-        const data = await response.json();
-
-        if (!data.values || data.values.length <= 1) {
-          setInternshipsLoading(false);
-          return;
-        }
-
-        // Parse and filter trending internships (rating >= 4.5)
-        const parsed = data.values.slice(1).map((row: any[]) => {
-          const discount = {
-            '15-days': parseFloat(row[30]) || 0,
-            '1-month': parseFloat(row[31]) || 0,
-            '2-months': parseFloat(row[32]) || 0,
-            '3-months': parseFloat(row[33]) || 0,
-          };
-
-          const maxDiscount = Math.max(
-            discount['15-days'],
-            discount['1-month'],
-            discount['2-months'],
-            discount['3-months']
-          );
-
-          return {
-            id: row[0] || '',
-            title: row[1] || 'Untitled',
-            category: row[2] || 'General',
-            image: row[5] || '',
-            rating: parseFloat(row[6]) || 0,
-            description: row[7] || '',
-            discount,
-            maxDiscount,
-            hasDiscount: maxDiscount > 0,
-          };
-        });
-
-        // Filter trending (rating >= 4.5) and sort by rating, then take top 3
-        const trending = parsed
-          .filter((item: TrendingInternship) => item.rating >= 4.5)
-          .sort((a: TrendingInternship, b: TrendingInternship) => b.rating - a.rating)
-          .slice(0, 3);
-
-        console.log('Trending internships:', trending);
-        setTrendingInternships(trending);
-        setInternshipsLoading(false);
-      } catch (error) {
-        console.error('Error fetching trending internships:', error);
-        setInternshipsLoading(false);
-      }
-    };
-
-    fetchTrendingInternships();
-  }, []);
+  // ✅ Use cached hook for trending internships
+  const { internships: trendingInternships, loading: internshipsLoading } = useTrendingInternships(4.5, 3);
 
   const featuredProjects = [
     {
@@ -534,54 +442,14 @@ const Home: React.FC = () => {
   ];
 
   const featuredServices = [
-    { 
-      img: webDevelopment, 
-      title: "Web Development", 
-      desc: "Fast, scalable websites with React & Next.js.", 
-      link: "/services/web-development" 
-    },
-    { 
-      img: uiuxImg, 
-      title: "UI/UX Design", 
-      desc: "Human-centered design that users love.", 
-      link: "/services/ui-ux" 
-    },
-    { 
-      img: appDesignImg, 
-      title: "App Development", 
-      desc: "Cross-platform apps with React Native & Flutter.", 
-      link: "/services/app-development" 
-    },
-    { 
-      img: videoEditingImg, 
-      title: "Video Editing", 
-      desc: "Engaging visuals for brand storytelling.", 
-      link: "/services/video-editing"
-    },
-    { 
-      img: graphicDesignImg, 
-      title: "Graphic Design", 
-      desc: "Brand-aligned visuals that elevate identity.", 
-      link: "/services/graphic-design"
-    },
-    { 
-      img: apiDevelopmentImg, 
-      title: "API Development", 
-      desc: "Robust, scalable APIs for seamless integration.", 
-      link: "/services/api-development"
-    },
-    { 
-      img: seoImg, 
-      title: "SEO Optimization", 
-      desc: "Dominate search engine rankings organically.", 
-      link: "/services/seo"
-    },
-    { 
-      img: digitalMarketingImg, 
-      title: "Digital Marketing", 
-      desc: "Reach & engage your audience across channels.", 
-      link: "/services/digital-marketing"
-    },
+    { img: webDevelopment, title: "Web Development", desc: "Fast, scalable websites with React & Next.js.", link: "/services/web-development" },
+    { img: uiuxImg, title: "UI/UX Design", desc: "Human-centered design that users love.", link: "/services/ui-ux" },
+    { img: appDesignImg, title: "App Development", desc: "Cross-platform apps with React Native & Flutter.", link: "/services/app-development" },
+    { img: videoEditingImg, title: "Video Editing", desc: "Engaging visuals for brand storytelling.", link: "/services/video-editing"},
+    { img: graphicDesignImg, title: "Graphic Design", desc: "Brand-aligned visuals that elevate identity.", link: "/services/graphic-design"},
+    { img: apiDevelopmentImg, title: "API Development", desc: "Robust, scalable APIs for seamless integration.", link: "/services/api-development"},
+    { img: seoImg, title: "SEO Optimization", desc: "Dominate search engine rankings organically.", link: "/services/seo"},
+    { img: digitalMarketingImg, title: "Digital Marketing", desc: "Reach & engage your audience across channels.", link: "/services/digital-marketing"},
   ];
 
   return (
@@ -776,7 +644,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* ✅ UPDATED: INTERNSHIPS WITH GOOGLE SHEETS */}
+      {/* ✅ UPDATED: INTERNSHIPS WITH CACHED HOOK */}
       <section className="py-24 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -795,7 +663,7 @@ const Home: React.FC = () => {
 
           {internshipsLoading ? (
             <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-purple-600 mb-4"></div>
+              <Loader2 className="animate-spin text-purple-600 mx-auto mb-4" size={48} />
               <p className="text-gray-600">Loading trending internships...</p>
             </div>
           ) : trendingInternships.length > 0 ? (
@@ -811,8 +679,8 @@ const Home: React.FC = () => {
                     shortDescription={item.description}
                     isExternal={false}
                     isInternship={true}
-                    maxDiscount={item.maxDiscount}
-                    hasDiscount={item.hasDiscount}
+                    maxDiscount={getHighestDiscount(item.discount)}
+                    hasDiscount={hasDiscount(item.discount)}
                     rating={item.rating}
                   />
                 ))}

@@ -1,5 +1,5 @@
 // src/components/common/Logo.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useGoogleEvents } from '../hooks/useGoogleEvents';
 import type { CalendarEvent } from '../hooks/useGoogleEvents';
 import './Logo.animations.css';
@@ -324,48 +324,15 @@ const FestivalOutlineEffect: React.FC<{ activeEvent: CalendarEvent | null }> = (
  */
 const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => {
   const { getActiveEvent, loading } = useGoogleEvents();
-  const [activeEvent, setActiveEvent] = useState<CalendarEvent | null>(null);
+  // Use useMemo to get the active event and prevent new object creation on every render
+  const activeEvent = useMemo(() => getActiveEvent(), [getActiveEvent]);
+
+  const [localActiveEvent, setLocalActiveEvent] = useState<CalendarEvent | null>(null);
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; delay: number }>>([]);
   const [floatingEmojis, setFloatingEmojis] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (!loading) {
-      const event = getActiveEvent();
-      setActiveEvent(event);
-
-      if (event) {
-        const emojis = parseEmojis(event);
-        setFloatingEmojis(emojis);
-
-        const particleAnimations = [
-          'color-burst', 'fireworks', 'garba-dance', 'diya-glow', 
-          'product-launch', 'success-celebration', 'holi', 'new-year',
-          'milestone-glow', 'victory-sparkle'
-        ];
-        
-        const shouldShowParticles = event.eventType === 'company' || 
-                                    particleAnimations.some(anim => event.animation.includes(anim));
-        
-        if (shouldShowParticles) {
-          const particleCount = event.eventType === 'company' ? 10 : 8;
-          const newParticles = Array.from({ length: particleCount }, (_, i) => ({
-            id: i,
-            x: 20 + Math.random() * 60,
-            y: 20 + Math.random() * 60,
-            delay: Math.random() * 2
-          }));
-          setParticles(newParticles);
-        } else {
-          setParticles([]);
-        }
-      } else {
-        setFloatingEmojis([]);
-        setParticles([]);
-      }
-    }
-  }, [loading, getActiveEvent]);
-
-  const parseEmojis = (event: CalendarEvent): string[] => {
+  // Memoize parseEmojis function
+  const parseEmojis = useMemo(() => (event: CalendarEvent): string[] => {
     const emojiSets: Record<string, string[]> = {
       'product-launch': ['🚀', '⭐', '🎯', '💡', '✨', '🎊', '💫', '🌟'],
       'team-anniversary': ['🎂', '🎉', '🥳', '🎈', '🎊', '✨', '💝', '🎁'],
@@ -399,16 +366,51 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
     }
 
     return emojiSets[event.animation] || emojiSets['default'];
-  };
+  }, []); // No dependencies, function is stable
 
-  const animationClass = activeEvent?.animation || '';
-  
+  useEffect(() => {
+    // Only update state if the global activeEvent has changed and loading is false
+    if (!loading && activeEvent !== localActiveEvent) {
+      setLocalActiveEvent(activeEvent);
+
+      if (activeEvent) {
+        const emojis = parseEmojis(activeEvent);
+        setFloatingEmojis(emojis);
+
+        const particleAnimations = [
+          'color-burst', 'fireworks', 'garba-dance', 'diya-glow', 
+          'product-launch', 'success-celebration', 'holi', 'new-year',
+          'milestone-glow', 'victory-sparkle'
+        ];
+        
+        const shouldShowParticles = activeEvent.eventType === 'company' || 
+                                    particleAnimations.some(anim => activeEvent.animation.includes(anim));
+        
+        if (shouldShowParticles) {
+          const particleCount = activeEvent.eventType === 'company' ? 10 : 8;
+          const newParticles = Array.from({ length: particleCount }, (_, i) => ({
+            id: i,
+            x: 20 + Math.random() * 60,
+            y: 20 + Math.random() * 60,
+            delay: Math.random() * 2
+          }));
+          setParticles(newParticles);
+        } else {
+          setParticles([]);
+        }
+      } else {
+        setFloatingEmojis([]);
+        setParticles([]);
+      }
+    }
+  }, [activeEvent, localActiveEvent, loading, parseEmojis]); // Add parseEmojis to dependencies
+
   // Get colors for text
   const getTextColors = () => {
-    if (!activeEvent || !activeEvent.colors || activeEvent.colors.length === 0) {
+    if (!localActiveEvent || !localActiveEvent.colors || localActiveEvent.colors.length === 0) {
       return ['#ef4444', '#dc2626', '#b91c1c', '#991b1b', '#7f1d1d'];
     }
-    return activeEvent.colors;
+    return localActiveEvent.colors;
   };
 
   const textColors = getTextColors();
@@ -419,7 +421,7 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
       {/* Logo Icon Container - Fixed size, always visible */}
       <div className="relative" style={{ width: '50px', height: '50px', flexShrink: 0 }}>
         {/* Glow ring for events */}
-        {activeEvent && (
+        {localActiveEvent && (
           <div 
             className="absolute inset-0 rounded-full animate-pulse"
             style={{
@@ -431,7 +433,7 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
         )}
 
         {/* Festival-based Outline Effect */}
-        {activeEvent && <FestivalOutlineEffect activeEvent={activeEvent} />}
+        {localActiveEvent && <FestivalOutlineEffect activeEvent={localActiveEvent} />}
 
         {/* Main Logo Circle with White Background */}
         <div 
@@ -441,11 +443,11 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
             transition-all duration-500
             hover:scale-110 shadow-lg
             relative z-10
-            ${animationClass}
+            ${localActiveEvent?.animation || ''}
           `}
           style={{
             background: 'white',
-            animation: activeEvent ? 'logo-pulse 3s ease-in-out infinite' : 'none'
+            animation: localActiveEvent ? 'logo-pulse 3s ease-in-out infinite' : 'none'
           }}
         >
           <img
@@ -454,7 +456,7 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
             className="w-9 h-9 md:w-10 md:h-10 object-contain relative z-20"
             style={{
               filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
-              animation: activeEvent ? 'logo-icon-bounce 2s ease-in-out infinite' : 'none'
+              animation: localActiveEvent ? 'logo-icon-bounce 2s ease-in-out infinite' : 'none'
             }}
           />
 
@@ -479,17 +481,17 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
         </div>
 
         {/* Floating Emojis - FAR OUTSIDE logo area */}
-        {activeEvent && floatingEmojis.length > 0 && (
+        {localActiveEvent && floatingEmojis.length > 0 && (
           <FloatingEmojis emojis={floatingEmojis} />
         )}
         
         {/* Festival Decorations - OUTSIDE logo area */}
-        {activeEvent && (
-          <FestivalDecorations animation={activeEvent.animation} />
+        {localActiveEvent && (
+          <FestivalDecorations animation={localActiveEvent.animation} />
         )}
         
         {/* Main Event Badge - top-right corner ONLY */}
-        {activeEvent && (
+        {localActiveEvent && (
           <div 
             className="absolute -top-2 -right-2 rounded-full w-7 h-7 flex items-center justify-center shadow-lg z-30 pointer-events-none"
             style={{
@@ -498,15 +500,15 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
               fontSize: '16px',
               border: '2px solid white'
             }}
-            title={activeEvent.summary}
+            title={localActiveEvent.summary}
           >
-            {activeEvent.emoji}
+            {localActiveEvent.emoji}
           </div>
         )}
       </div>
 
       {/* Brand Name - Image when no event, Animated Text when event active */}
-      {activeEvent ? (
+      {localActiveEvent ? (
         // Animated Text for Active Events with Festival Effects
         <div className="relative flex items-center gap-0.5">
           {['E', 'D', 'I', 'Z', 'O'].map((letter, index) => (
@@ -524,9 +526,9 @@ const Logo: React.FC<LogoProps> = ({ isScrolled = false, isFooter = false }) => 
                 willChange: 'transform',
                 zIndex: 20,
                 // Apply festival-specific text effects
-                animationName: activeEvent.animation === 'diwali' || activeEvent.animation === 'diya-glow'
+                animationName: localActiveEvent.animation === 'diwali' || localActiveEvent.animation === 'diya-glow'
                   ? 'diya-text-effect'
-                  : activeEvent.animation === 'holi' || activeEvent.animation === 'color-burst'
+                  : localActiveEvent.animation === 'holi' || localActiveEvent.animation === 'color-burst'
                     ? 'holi-text-effect'
                     : 'festival-text-glow',
                 animationDuration: '2s',

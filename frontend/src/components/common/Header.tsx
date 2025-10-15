@@ -1,6 +1,7 @@
 // src/components/common/Header.tsx
-import { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+// Remove useLocation import from react-router-dom
+import { Link, NavLink } from 'react-router-dom';
 import {
   Menu,
   X,
@@ -19,8 +20,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './Logo';
 import { auth, googleProvider } from '../../firebaseConfig';
 import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
+import type { User } from 'firebase/auth'; // ✅ Use type-only import
 import { toast, ToastContainer } from 'react-toastify';
 import { useGoogleEvents } from '../hooks/useGoogleEvents';
+
 import 'react-toastify/dist/ReactToastify.css';
 import './Header.animation.css';
 
@@ -39,39 +42,45 @@ const Header = () => {
 
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
+  // Remove the useLocation hook - we don't need it here anymore as NavLink handles active state
 
   const { getActiveEvent } = useGoogleEvents();
   const activeEvent = getActiveEvent();
 
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-    const initAuth = async () => {
-      unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-        if (firebaseUser) {
-          const userData: UserData = {
-            name: firebaseUser.displayName || 'User',
-            email: firebaseUser.email || '',
-            photoURL: firebaseUser.photoURL || ''
-          };
-          setUser(userData);
-          localStorage.setItem('user', JSON.stringify(userData));
-          localStorage.setItem('isAuthenticated', 'true');
-        } else {
-          setUser(null);
-          localStorage.removeItem('user');
-          localStorage.removeItem('isAuthenticated');
-        }
-        setIsLoading(false);
-      });
-    };
-    initAuth();
-    return () => { if (unsubscribe) unsubscribe(); };
+  // Memoize auth state change handler
+  const handleAuthStateChange = useCallback((firebaseUser: User | null) => {
+    if (firebaseUser) {
+      const userData: UserData = {
+        name: firebaseUser.displayName || 'User',
+        email: firebaseUser.email || '',
+        photoURL: firebaseUser.photoURL || ''
+      };
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('isAuthenticated', 'true');
+    } else {
+      setUser(null);
+      localStorage.removeItem('user');
+      localStorage.removeItem('isAuthenticated');
+    }
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    const initAuth = async () => {
+      setIsLoading(true); // Ensure loading state is set on mount
+      unsubscribe = onAuthStateChanged(auth, handleAuthStateChange);
+    };
+    initAuth();
+    return () => { 
+      if (unsubscribe) unsubscribe(); 
+    };
+  }, [handleAuthStateChange]); // Add handleAuthStateChange as a dependency
+
+  useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    handleScroll();
+    handleScroll(); // Check initial scroll state
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -99,11 +108,6 @@ const Header = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMenuOpen, isProfileOpen]);
-
-  useEffect(() => {
-    setIsMenuOpen(false);
-    setIsProfileOpen(false);
-  }, [location.pathname]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -138,6 +142,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      // Explicitly close profile dropdown after logout
       setIsProfileOpen(false);
       toast.info('You have been signed out 👋', { className: 'custom-toast-info' });
     } catch (error) {
@@ -146,13 +151,11 @@ const Header = () => {
     }
   };
 
-  // Updated navigation links - added 'Events' link if needed
   const navLinks = [
     { name: 'Home', path: '/', icon: Home },
     { name: 'Services', path: '/services', icon: Code },
     { name: 'Projects', path: '/projects', icon: Briefcase },
     { name: 'Internships', path: '/internships', icon: Users },
-    { name: 'Events', path: '/events', icon: Sparkles }, // Added Events link
     { name: 'Contact', path: '/contact', icon: Phone },
   ];
 
@@ -282,11 +285,10 @@ const Header = () => {
             <nav className="hidden lg:flex items-center gap-2">
               {navLinks.map((link, index) => {
                 const Icon = link.icon;
-                const isActive = location.pathname === link.path;
 
                 return (
                   <motion.div
-                    key={link.name}
+                    key={link.path}
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
@@ -297,7 +299,8 @@ const Header = () => {
                   >
                     <NavLink
                       to={link.path}
-                      className={`
+                      className={({ isActive }) =>
+                        `
                         relative font-medium text-sm px-4 py-2.5 rounded-xl 
                         transition-all duration-300 flex items-center gap-2 group
                         ${isActive
@@ -305,56 +308,59 @@ const Header = () => {
                           : 'text-gray-700 hover:text-red-600 hover:bg-gray-50'
                         }
                       `}
-                      aria-current={isActive ? 'page' : undefined}
                     >
-                      <motion.div
-                        animate={{ 
-                          rotate: isActive ? [0, 12, -12, 0] : 0,
-                          scale: isActive ? [1, 1.15, 1] : 1
-                        }}
-                        transition={{ 
-                          duration: 0.6, 
-                          delay: index * 0.1,
-                          repeat: isActive ? Infinity : 0,
-                          repeatDelay: 3
-                        }}
-                        className="relative"
-                      >
-                        <Icon className="w-4 h-4" />
-                        {isActive && (
+                      {({ isActive }) => (
+                        <>
                           <motion.div
-                            className="absolute -inset-1 bg-red-400 rounded-full opacity-20 blur-sm"
-                            animate={{
-                              scale: [1, 1.3, 1],
-                              opacity: [0.2, 0.4, 0.2]
+                            animate={{ 
+                              rotate: isActive ? [0, 12, -12, 0] : 0,
+                              scale: isActive ? [1, 1.15, 1] : 1
                             }}
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity,
-                              ease: "easeInOut"
+                            transition={{ 
+                              duration: 0.6, 
+                              delay: index * 0.1,
+                              repeat: isActive ? Infinity : 0,
+                              repeatDelay: 3
+                            }}
+                            className="relative"
+                          >
+                            <Icon className="w-4 h-4" />
+                            {isActive && (
+                              <motion.div
+                                className="absolute -inset-1 bg-red-400 rounded-full opacity-20 blur-sm"
+                                animate={{
+                                  scale: [1, 1.3, 1],
+                                  opacity: [0.2, 0.4, 0.2]
+                                }}
+                                transition={{
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  ease: "easeInOut"
+                                }}
+                              />
+                            )}
+                          </motion.div>
+
+                          <span className="relative">
+                            {link.name}
+                            {isActive && (
+                              <motion.div
+                                className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 via-orange-500 to-red-600 rounded-full"
+                                layoutId="activeNavUnderline"
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                              />
+                            )}
+                          </span>
+
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-red-50 via-orange-50 to-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
+                            whileHover={{
+                              scale: 1.05,
+                              transition: { duration: 0.2 }
                             }}
                           />
-                        )}
-                      </motion.div>
-
-                      <span className="relative">
-                        {link.name}
-                        {isActive && (
-                          <motion.div
-                            className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 via-orange-500 to-red-600 rounded-full"
-                            layoutId="activeNavUnderline"
-                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                          />
-                        )}
-                      </span>
-
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-red-50 via-orange-50 to-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
-                        whileHover={{
-                          scale: 1.05,
-                          transition: { duration: 0.2 }
-                        }}
-                      />
+                        </>
+                      )}
                     </NavLink>
                   </motion.div>
                 );
@@ -564,7 +570,7 @@ const Header = () => {
                     const Icon = link.icon;
                     return (
                       <motion.li 
-                        key={link.name}
+                        key={link.path}
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
@@ -572,7 +578,8 @@ const Header = () => {
                         <NavLink
                           to={link.path}
                           onClick={() => setIsMenuOpen(false)}
-                          className={({ isActive }) => `
+                          className={({ isActive }) =>
+                            `
                             flex items-center gap-4 w-full p-4 rounded-xl transition-all duration-200 font-medium ${
                               isActive
                                 ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg'

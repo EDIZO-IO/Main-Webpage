@@ -1,29 +1,11 @@
 // InternshipDetails.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Wifi, Home, Check, Star, TrendingUp, ArrowLeft, Building2, MapPin, Calendar, Award, Users, Zap } from 'lucide-react';
+import { Wifi, Home, Check, Star, TrendingUp, ArrowLeft, Building2, MapPin, Calendar, Award, Users, Zap, Loader2, AlertCircle, Tag, Percent } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-// === Define Interfaces ===
-interface Internship {
-  id: string;
-  title: string;
-  category: string;
-  mode: 'Online' | 'Offline';
-  company: string;
-  image: string;
-  rating: number;
-  description: string;
-  isTrending?: boolean;
-  whyChooseEdizo: string[];
-  benefits: string[];
-  syllabus: {
-    '15-days': string[];
-    '1-month': string[];
-    '2-months': string[];
-    '3-months': string[];
-  };
-}
+import { useInternship } from '../components/hooks/useInternships'; // ✅ Use cached hook
+import { getHighestDiscount, hasDiscount } from '../utils/internship.utils'; // ✅ Import utilities
+import type { InternshipData } from '../types/internship.types';
 
 // Fallback image map
 const fallbackImages: Record<string, string> = {
@@ -108,108 +90,18 @@ const InternshipDetails: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const [activePeriod, setActivePeriod] = useState<string>('15-days');
-  const [internship, setInternship] = useState<Internship | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch internship details from Google Sheets
-  useEffect(() => {
-    const fetchInternshipDetails = async () => {
-      try {
-        setLoading(true);
-        
-        if (!id) {
-          setError('Internship ID not provided');
-          setLoading(false);
-          return;
-        }
+  // ✅ Use cached hook instead of direct fetch
+  const { internship, loading, error } = useInternship(id);
 
-        const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
-        const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
-        const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+  // ✅ Memoized discount calculations
+  const maxDiscount = useMemo(() => {
+    return internship ? getHighestDiscount(internship.discount) : 0;
+  }, [internship]);
 
-        console.log('Fetching internship details for ID:', id);
-
-        if (!SHEET_ID || !API_KEY) {
-          throw new Error('Missing Google Sheets configuration');
-        }
-
-        // Fetch from Google Sheets
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error?.message || 'Failed to fetch data');
-        }
-
-        const data = await response.json();
-
-        if (!data.values || data.values.length <= 1) {
-          throw new Error('No data found in sheet');
-        }
-
-        // Find the internship by ID (column 0)
-        const internshipRow = data.values.slice(1).find((row: any[]) => row[0] === id);
-
-        if (!internshipRow) {
-          setError(`Internship with ID "${id}" not found`);
-          setInternship(null);
-          setLoading(false);
-          return;
-        }
-
-        // Parse the row data (based on Table 2 structure)
-        const parsedInternship: Internship = {
-          id: internshipRow[0] || id,
-          title: internshipRow[1] || 'Untitled',
-          category: internshipRow[2] || 'General',
-          mode: (internshipRow[3] || 'Online') as 'Online' | 'Offline',
-          company: internshipRow[4] || 'EDIZO',
-          image: internshipRow[5] || '',
-          rating: parseFloat(internshipRow[6]) || 4.0,
-          description: internshipRow[7] || 'No description available.',
-          whyChooseEdizo: [
-            internshipRow[8] || '',
-            internshipRow[9] || '',
-            internshipRow[10] || '',
-            internshipRow[11] || '',
-            internshipRow[12] || '',
-            internshipRow[13] || '',
-            internshipRow[14] || '',
-          ].filter(Boolean),
-          benefits: [
-            internshipRow[15] || '',
-            internshipRow[16] || '',
-            internshipRow[17] || '',
-            internshipRow[18] || '',
-            internshipRow[19] || '',
-            internshipRow[20] || '',
-            internshipRow[21] || '',
-          ].filter(Boolean),
-          syllabus: {
-            '15-days': internshipRow[22] ? internshipRow[22].split(',').map((s: string) => s.trim()) : [],
-            '1-month': internshipRow[23] ? internshipRow[23].split(',').map((s: string) => s.trim()) : [],
-            '2-months': internshipRow[24] ? internshipRow[24].split(',').map((s: string) => s.trim()) : [],
-            '3-months': internshipRow[25] ? internshipRow[25].split(',').map((s: string) => s.trim()) : [],
-          },
-          isTrending: parseFloat(internshipRow[6]) >= 4.5,
-        };
-
-        console.log('Parsed internship:', parsedInternship);
-        setInternship(parsedInternship);
-        setError(null);
-      } catch (err: any) {
-        console.error('Error fetching internship details:', err);
-        setError(err.message || 'Failed to load internship details');
-        setInternship(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInternshipDetails();
-  }, [id]);
+  const hasDiscountBadge = useMemo(() => {
+    return internship ? hasDiscount(internship.discount) : false;
+  }, [internship]);
 
   // JSON-LD for SEO
   useEffect(() => {
@@ -251,7 +143,7 @@ const InternshipDetails: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex items-center justify-center py-20 px-6">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-red-600 mb-4"></div>
+          <Loader2 className="animate-spin text-red-600 mx-auto mb-4" size={48} />
           <p className="text-gray-600 text-lg">Loading internship details...</p>
         </div>
       </div>
@@ -262,7 +154,7 @@ const InternshipDetails: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex flex-col items-center justify-center py-20 px-6">
         <div className="text-center max-w-lg">
-          <div className="text-red-600 text-5xl mb-4">⚠️</div>
+          <AlertCircle className="text-red-600 mx-auto mb-4" size={64} />
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Internship Not Found</h1>
           <p className="text-lg text-gray-600 mb-6">{error || "The internship you're looking for does not exist."}</p>
           <Button onClick={() => navigate('/internships')} variant="outline">
@@ -275,6 +167,7 @@ const InternshipDetails: React.FC = () => {
 
   const syllabusPeriods = Object.keys(internship.syllabus).filter(period => internship.syllabus[period as keyof typeof internship.syllabus].length > 0);
   const currentSyllabus = internship.syllabus[activePeriod as keyof typeof internship.syllabus] || [];
+  const isTrending = internship.rating >= 4.5;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 pt-20 pb-16 px-4 md:px-6 lg:px-8">
@@ -301,10 +194,17 @@ const InternshipDetails: React.FC = () => {
               <MapPin size={16} />
               {internship.mode}
             </span>
-            {internship.isTrending && (
+            {isTrending && (
               <span className="inline-flex items-center gap-1 bg-red-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
                 <TrendingUp size={16} />
                 Trending
+              </span>
+            )}
+            {/* ✅ NEW: Discount Badge in Header */}
+            {hasDiscountBadge && maxDiscount > 0 && (
+              <span className="inline-flex items-center gap-1 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-semibold px-3 py-1 rounded-full shadow-lg">
+                <Tag size={16} />
+                Up to {maxDiscount}% OFF
               </span>
             )}
           </div>
@@ -377,6 +277,16 @@ const InternshipDetails: React.FC = () => {
                       <p className="text-gray-600 text-sm">100% Guaranteed</p>
                     </div>
                   </div>
+                  {/* ✅ NEW: Discount Info in Sidebar */}
+                  {hasDiscountBadge && maxDiscount > 0 && (
+                    <div className="flex items-center pt-4 border-t border-gray-200">
+                      <Percent className="text-green-600 mr-3" size={20} />
+                      <div>
+                        <h4 className="font-semibold text-green-700 text-sm">Special Offer</h4>
+                        <p className="text-green-600 text-sm font-bold">Up to {maxDiscount}% OFF</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </AnimatedSection>
@@ -463,7 +373,7 @@ const InternshipDetails: React.FC = () => {
             )}
 
             {/* Why Choose Section */}
-            {internship.whyChooseEdizo.length > 0 && (
+            {internship.whyChooseEdizo && internship.whyChooseEdizo.length > 0 && (
               <AnimatedSection delay={0.2}>
                 <div className="flex items-center mb-4">
                   <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -498,7 +408,7 @@ const InternshipDetails: React.FC = () => {
             )}
 
             {/* Benefits Section */}
-            {internship.benefits.length > 0 && (
+            {internship.benefits && internship.benefits.length > 0 && (
               <AnimatedSection delay={0.3}>
                 <div className="flex items-center mb-4">
                   <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -536,6 +446,12 @@ const InternshipDetails: React.FC = () => {
             <AnimatedSection delay={0.4}>
               <div className="text-center pt-8 bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl">
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Ready to Start Your Journey?</h3>
+                {hasDiscountBadge && maxDiscount > 0 && (
+                  <p className="text-green-600 font-bold text-lg mb-4 flex items-center justify-center gap-2">
+                    <Tag size={20} />
+                    Special Discount: Up to {maxDiscount}% OFF
+                  </p>
+                )}
                 <Button to={`/apply/${id}`} variant="primary" className="px-10 py-4 text-lg font-semibold text-white shadow-lg">
                   Apply Now →
                 </Button>

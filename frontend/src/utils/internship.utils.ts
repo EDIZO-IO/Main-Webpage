@@ -1,11 +1,22 @@
 // frontend/src/utils/internship.utils.ts
 
-import type { InternshipData, CurrencyCode, PricingTier } from '../types/intership.types';
+import type {
+  InternshipData,
+  CurrencyCode,
+  PricingTier,
+  InternshipDuration,
+  InternshipPricing,
+  InternshipDiscount
+} from '../types/internship.types'; // ✅ Fixed typo: intership -> internship
 
 /**
  * Calculate final price after discount
  */
 export const calculateFinalPrice = (originalPrice: number, discountPercent: number): number => {
+  if (originalPrice < 0 || discountPercent < 0 || discountPercent > 100) {
+    console.warn('Invalid price or discount values', { originalPrice, discountPercent });
+    return originalPrice;
+  }
   if (discountPercent <= 0) return originalPrice;
   return Math.round(originalPrice - (originalPrice * discountPercent / 100));
 };
@@ -19,43 +30,65 @@ export const calculateSavings = (originalPrice: number, finalPrice: number): num
 
 /**
  * Transform Google Sheets row data to InternshipData format (with pricing and discount)
+ * Column mapping: A-AH (33 columns)
  */
-export const transformSheetRowToInternship = (row: any[]): InternshipData => {
+export const transformSheetRowToInternship = (row: string[]): InternshipData => {
+  // Helper to safely parse float
+  const parseFloat = (value: string | undefined): number => {
+    const parsed = Number(value);
+    return isNaN(parsed) ? 0 : parsed;
+  };
+
+  // Helper to safely parse array from comma-separated string
+  const parseArray = (value: string | undefined): string[] => {
+    if (!value || value.trim() === '') return [];
+    return value.split(',').map((s: string) => s.trim()).filter(Boolean);
+  };
+
   return {
     id: row[0] || '',
     title: row[1] || 'Untitled',
     category: row[2] || 'General',
-    mode: (row[3] || 'Online') as 'Online' | 'Offline',
+    mode: (row[3] === 'Offline' ? 'Offline' : 'Online') as 'Online' | 'Offline',
     company: row[4] || 'EDIZO',
-    image: row[5] || '',
-    rating: parseFloat(row[6]) || 0,
+    image: row[5] || 'https://via.placeholder.com/400x300?text=No+Image',
+    rating: parseFloat(row[6]),
     description: row[7] || '',
+    
+    // Why Choose Edizo (columns I-O: 8-14)
     whyChooseEdizo: [
       row[8], row[9], row[10], row[11],
       row[12], row[13], row[14],
     ].filter(Boolean),
+    
+    // Benefits (columns P-V: 15-21)
     benefits: [
       row[15], row[16], row[17], row[18],
       row[19], row[20], row[21],
     ].filter(Boolean),
+    
+    // Syllabus (columns W-Z: 22-25)
     syllabus: {
-      '15-days': row[22] ? row[22].split(',').map((s: string) => s.trim()) : [],
-      '1-month': row[23] ? row[23].split(',').map((s: string) => s.trim()) : [],
-      '2-months': row[24] ? row[24].split(',').map((s: string) => s.trim()) : [],
-      '3-months': row[25] ? row[25].split(',').map((s: string) => s.trim()) : [],
+      '15-days': parseArray(row[22]),
+      '1-month': parseArray(row[23]),
+      '2-months': parseArray(row[24]),
+      '3-months': parseArray(row[25]),
     },
+    
+    // Pricing (columns AA-AD: 26-29)
     pricing: {
-      '15-days': parseFloat(row[26]) || 0,
-      '1-month': parseFloat(row[27]) || 0,
-      '2-months': parseFloat(row[28]) || 0,
-      '3-months': parseFloat(row[29]) || 0,
+      '15-days': parseFloat(row[26]),
+      '1-month': parseFloat(row[27]),
+      '2-months': parseFloat(row[28]),
+      '3-months': parseFloat(row[29]),
     },
-    // ✅ NEW: Parse discount columns (30-33)
+    
+    // Discount (columns AE-AH: 30-33)
     discount: {
-      '15-days': parseFloat(row[30]) || 0,
-      '1-month': parseFloat(row[31]) || 0,
-      '2-months': parseFloat(row[32]) || 0,
-      '3-months': parseFloat(row[33]) || 0,
+      '15-days': parseFloat(row[30]),
+      '1-month': parseFloat(row[31]),
+      '2-months': parseFloat(row[32]),
+      '3-months': parseFloat(row[33]),
     },
   };
 };
@@ -64,12 +97,18 @@ export const transformSheetRowToInternship = (row: any[]): InternshipData => {
  * Parse Google Sheets API response
  */
 export const parseInternshipsFromSheets = (sheetData: any): InternshipData[] => {
-  if (!sheetData.values || sheetData.values.length === 0) {
+  if (!sheetData?.values || sheetData.values.length === 0) {
+    console.warn('No data found in Google Sheets response');
     return [];
   }
 
-  // Skip header row (index 0) and map the rest
-  return sheetData.values.slice(1).map(transformSheetRowToInternship);
+  try {
+    // Skip header row (index 0) and map the rest
+    return sheetData.values.slice(1).map(transformSheetRowToInternship);
+  } catch (error) {
+    console.error('Error parsing internships from sheets:', error);
+    return [];
+  }
 };
 
 /**
@@ -79,8 +118,19 @@ export const filterByCategory = (
   internships: InternshipData[],
   category: string
 ): InternshipData[] => {
-  if (category === 'All') return internships;
+  if (category === 'All' || !category) return internships;
   return internships.filter((i) => i.category === category);
+};
+
+/**
+ * Filter internships by mode
+ */
+export const filterByMode = (
+  internships: InternshipData[],
+  mode: 'Online' | 'Offline' | 'All'
+): InternshipData[] => {
+  if (mode === 'All') return internships;
+  return internships.filter((i) => i.mode === mode);
 };
 
 /**
@@ -91,12 +141,13 @@ export const filterBySearch = (
   searchTerm: string
 ): InternshipData[] => {
   if (!searchTerm) return internships;
-  const term = searchTerm.toLowerCase();
+  const term = searchTerm.toLowerCase().trim();
   return internships.filter(
     (i) =>
       i.title.toLowerCase().includes(term) ||
       i.description.toLowerCase().includes(term) ||
       i.category.toLowerCase().includes(term) ||
+      i.company.toLowerCase().includes(term) ||
       i.id.toLowerCase().includes(term)
   );
 };
@@ -106,7 +157,7 @@ export const filterBySearch = (
  */
 export const getUniqueCategories = (internships: InternshipData[]): string[] => {
   const categories = new Set(internships.map((i) => i.category));
-  return ['All', ...Array.from(categories)];
+  return ['All', ...Array.from(categories).sort()];
 };
 
 /**
@@ -159,46 +210,52 @@ export const calculateDiscountPercent = (originalPrice: number, discountedPrice:
  * Get pricing tier details with discount calculations
  */
 export const getPricingTiers = (
-  pricing: any,
-  discount?: any
+  pricing?: InternshipPricing,
+  discount?: InternshipDiscount
 ): PricingTier[] => {
-  const durations: Array<'15-days' | '1-month' | '2-months' | '3-months'> = [
+  const durations: InternshipDuration[] = [
     '15-days',
     '1-month',
     '2-months',
     '3-months'
   ];
 
-  return durations.map((duration, index) => {
+  const labels: Record<InternshipDuration, string> = {
+    '15-days': '15 Days',
+    '1-month': '1 Month',
+    '2-months': '2 Months',
+    '3-months': '3 Months'
+  };
+
+  const descriptions: Record<InternshipDuration, string> = {
+    '15-days': 'Quick introduction and basics',
+    '1-month': 'Comprehensive learning with projects',
+    '2-months': 'In-depth training with real-world projects',
+    '3-months': 'Complete mastery with industry exposure'
+  };
+
+  const featuresList: Record<InternshipDuration, string[]> = {
+    '15-days': ['Basic concepts', 'Mini project', 'Certificate', 'Email support'],
+    '1-month': ['Advanced topics', 'Group project', 'Certificate', 'Mentorship', 'Q&A sessions'],
+    '2-months': ['Industry project', 'Portfolio building', 'Certificate', 'Mentorship', 'Code reviews', 'Interview prep'],
+    '3-months': ['Live client project', 'Full mentorship', 'Certificate', 'Placement guidance', 'Interview prep', 'Resume building']
+  };
+
+  return durations.map((duration) => {
     const originalPrice = pricing?.[duration] || 0;
     const discountPercent = discount?.[duration] || 0;
     const finalPrice = calculateFinalPrice(originalPrice, discountPercent);
     const savings = calculateSavings(originalPrice, finalPrice);
 
-    const labels = ['15 Days', '1 Month', '2 Months', '3 Months'];
-    const descriptions = [
-      'Quick introduction and basics',
-      'Comprehensive learning with projects',
-      'In-depth training with real-world projects',
-      'Complete mastery with industry exposure'
-    ];
-    
-    const featuresList = [
-      ['Basic concepts', 'Mini project', 'Certificate', 'Email support'],
-      ['Advanced topics', 'Group project', 'Certificate', 'Mentorship', 'Q&A sessions'],
-      ['Industry project', 'Portfolio building', 'Certificate', 'Mentorship', 'Code reviews', 'Interview prep'],
-      ['Live client project', 'Full mentorship', 'Certificate', 'Placement guidance', 'Interview prep', 'Resume building']
-    ];
-
     return {
       duration,
-      label: labels[index],
+      label: labels[duration],
       originalPrice,
       discount: discountPercent,
       finalPrice,
       savings,
-      description: descriptions[index],
-      features: featuresList[index],
+      description: descriptions[duration],
+      features: featuresList[duration],
       isPopular: duration === '1-month',
     };
   });
@@ -211,7 +268,7 @@ export const filterByPriceRange = (
   internships: InternshipData[],
   minPrice: number = 0,
   maxPrice: number = Infinity,
-  duration: '15-days' | '1-month' | '2-months' | '3-months' = '1-month'
+  duration: InternshipDuration = '1-month'
 ): InternshipData[] => {
   return internships.filter((i) => {
     const originalPrice = i.pricing?.[duration] || 0;
@@ -241,20 +298,20 @@ export const formatSavings = (savings: number, currency: CurrencyCode = 'INR'): 
  * Get best discount duration (returns the duration with highest discount)
  */
 export const getBestDiscountDuration = (
-  discount?: any
-): '15-days' | '1-month' | '2-months' | '3-months' => {
+  discount?: InternshipDiscount
+): InternshipDuration => {
   if (!discount) return '1-month';
-  
-  const durations: Array<'15-days' | '1-month' | '2-months' | '3-months'> = [
+
+  const durations: InternshipDuration[] = [
     '15-days',
     '1-month',
     '2-months',
     '3-months'
   ];
-  
+
   let maxDiscount = 0;
-  let bestDuration: '15-days' | '1-month' | '2-months' | '3-months' = '1-month';
-  
+  let bestDuration: InternshipDuration = '1-month';
+
   durations.forEach(duration => {
     const discountValue = discount[duration] || 0;
     if (discountValue > maxDiscount) {
@@ -262,24 +319,24 @@ export const getBestDiscountDuration = (
       bestDuration = duration;
     }
   });
-  
+
   return bestDuration;
 };
 
 /**
  * Check if internship has any discount
  */
-export const hasDiscount = (discount?: any): boolean => {
+export const hasDiscount = (discount?: InternshipDiscount): boolean => {
   if (!discount) return false;
-  return Object.values(discount).some((d: any) => parseFloat(d) > 0);
+  return Object.values(discount).some((d) => d > 0);
 };
 
 /**
  * Get highest discount percentage
  */
-export const getHighestDiscount = (discount?: any): number => {
+export const getHighestDiscount = (discount?: InternshipDiscount): number => {
   if (!discount) return 0;
-  return Math.max(...Object.values(discount).map((d: any) => parseFloat(d) || 0));
+  return Math.max(...Object.values(discount));
 };
 
 /**
@@ -299,20 +356,27 @@ export const sortByDiscount = (
 /**
  * Get cheapest final price across all durations
  */
-export const getCheapestPrice = (pricing: any, discount: any): number => {
-  const durations: Array<'15-days' | '1-month' | '2-months' | '3-months'> = [
+export const getCheapestPrice = (
+  pricing?: InternshipPricing,
+  discount?: InternshipDiscount
+): number => {
+  if (!pricing) return 0;
+
+  const durations: InternshipDuration[] = [
     '15-days',
     '1-month',
     '2-months',
     '3-months'
   ];
-  
-  const prices = durations.map(duration => {
-    const original = pricing?.[duration] || 0;
-    const disc = discount?.[duration] || 0;
-    return calculateFinalPrice(original, disc);
-  }).filter(p => p > 0);
-  
+
+  const prices = durations
+    .map(duration => {
+      const original = pricing[duration] || 0;
+      const disc = discount?.[duration] || 0;
+      return calculateFinalPrice(original, disc);
+    })
+    .filter(p => p > 0);
+
   return prices.length > 0 ? Math.min(...prices) : 0;
 };
 
@@ -328,4 +392,42 @@ export const sortByPrice = (
     const priceB = getCheapestPrice(b.pricing, b.discount);
     return ascending ? priceA - priceB : priceB - priceA;
   });
+};
+
+/**
+ * Validate internship data
+ */
+export const isValidInternship = (internship: Partial<InternshipData>): boolean => {
+  return !!(
+    internship.id &&
+    internship.title &&
+    internship.category &&
+    internship.mode &&
+    internship.company
+  );
+};
+
+/**
+ * Get most popular duration based on discount
+ */
+export const getMostPopularDuration = (discount?: InternshipDiscount): InternshipDuration => {
+  // Default popular duration is 1-month
+  if (!discount || !hasDiscount(discount)) return '1-month';
+  
+  // Return duration with highest discount
+  return getBestDiscountDuration(discount);
+};
+
+/**
+ * Calculate ROI (Return on Investment) message based on pricing
+ */
+export const getROIMessage = (duration: InternshipDuration): string => {
+  const messages: Record<InternshipDuration, string> = {
+    '15-days': 'Best for quick upskilling',
+    '1-month': 'Most popular choice',
+    '2-months': 'Best value for comprehensive learning',
+    '3-months': 'Ultimate career transformation package'
+  };
+  
+  return messages[duration];
 };

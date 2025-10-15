@@ -65,7 +65,15 @@ const limiter = rateLimit({
 
 // ✅ Health Check
 app.get('/', (req, res) => {
-  res.send('✅ EDIZO Backend - Google Sheets Integration Active');
+  res.json({
+    status: 'active',
+    message: '✅ EDIZO Backend - Google Sheets Integration Active',
+    timestamp: new Date().toISOString(),
+    services: {
+      googleSheets: sheets ? 'connected' : 'disconnected',
+      email: transporter ? 'ready' : 'unavailable'
+    }
+  });
 });
 
 // ✅ Initialize Google Sheets API with Service Account
@@ -84,6 +92,18 @@ try {
 } catch (error) {
   console.error('❌ Failed to initialize Google Sheets:', error.message);
 }
+
+// ✅ Helper function to format price
+const formatPrice = (price) => {
+  const numPrice = Number(price) || 0;
+  return numPrice > 0 ? `₹${numPrice.toLocaleString('en-IN')}` : '₹0';
+};
+
+// ✅ Helper function to format discount
+const formatDiscount = (discount) => {
+  const numDiscount = Number(discount) || 0;
+  return numDiscount > 0 ? `${numDiscount}%` : 'No Discount';
+};
 
 // ✅ UPDATED: Function to save internship application with discount info
 async function appendToSheet(data) {
@@ -107,14 +127,11 @@ async function appendToSheet(data) {
       second: '2-digit'
     });
 
-    // ✅ NEW: Handle discount information
-    const originalPrice = data.originalPrice || 0;
-    const discount = data.discount || 0;
-    const finalPrice = data.finalPrice || originalPrice;
-    const savings = data.savings || 0;
-    
-    // Format prices with currency symbol
-    const formatPrice = (price) => price > 0 ? `₹${price.toLocaleString('en-IN')}` : '₹0';
+    // ✅ Handle pricing with proper validation
+    const originalPrice = Number(data.originalPrice) || 0;
+    const discount = Number(data.discount) || 0;
+    const finalPrice = Number(data.finalPrice) || originalPrice;
+    const savings = Number(data.savings) || 0;
     
     const values = [[
       currentDate,                              // A - Timestamp
@@ -128,9 +145,9 @@ async function appendToSheet(data) {
       data.company || '',                       // I - Company
       data.coursePeriod || '',                  // J - Duration
       formatPrice(originalPrice),               // K - Original Price
-      discount > 0 ? `${discount}%` : 'No Discount', // L - Discount %
+      formatDiscount(discount),                 // L - Discount %
       formatPrice(finalPrice),                  // M - Final Price (after discount)
-      savings > 0 ? formatPrice(savings) : '₹0', // N - Savings
+      formatPrice(savings),                     // N - Savings
       data.academicExperience || '',            // O - Academic Experience
       data.message || '',                       // P - Cover Letter
       'Pending',                                // Q - Status
@@ -147,7 +164,7 @@ async function appendToSheet(data) {
     console.log('Updated range:', response.data.updates?.updatedRange);
     console.log('💰 Price Details:', {
       original: formatPrice(originalPrice),
-      discount: `${discount}%`,
+      discount: formatDiscount(discount),
       final: formatPrice(finalPrice),
       savings: formatPrice(savings)
     });
@@ -156,6 +173,7 @@ async function appendToSheet(data) {
   } catch (error) {
     console.error('❌ Error saving application:', error.message);
     if (error.code) console.error('Error code:', error.code);
+    if (error.errors) console.error('Error details:', error.errors);
     throw new Error(`Failed to save application: ${error.message}`);
   }
 }
@@ -259,6 +277,133 @@ async function sendMail(to, subject, html, retries = 3) {
   }
 }
 
+// ✅ NEW: Send application confirmation email with discount details
+async function sendApplicationEmails(data) {
+  try {
+    const originalPrice = Number(data.originalPrice) || 0;
+    const discount = Number(data.discount) || 0;
+    const finalPrice = Number(data.finalPrice) || originalPrice;
+    const savings = Number(data.savings) || 0;
+
+    // User confirmation email with discount info
+    const userHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+        <div style="background: linear-gradient(135deg, #dc2626 0%, #f97316 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">EDIZO</h1>
+          <p style="color: white; margin: 10px 0 0 0; font-size: 16px;">Application Received!</p>
+        </div>
+        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #dc2626; margin-top: 0;">Thank You, ${data.name}!</h2>
+          <p style="color: #374151; line-height: 1.6;">
+            We've successfully received your application for <strong>${data.internshipTitle}</strong> at <strong>${data.company}</strong>.
+          </p>
+          
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #1f2937;">Application Details:</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;"><strong>Program:</strong></td>
+                <td style="padding: 8px 0; color: #1f2937;">${data.internshipTitle}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;"><strong>Duration:</strong></td>
+                <td style="padding: 8px 0; color: #1f2937;">${data.coursePeriod}</td>
+              </tr>
+              ${discount > 0 ? `
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;"><strong>Original Price:</strong></td>
+                <td style="padding: 8px 0; color: #1f2937; text-decoration: line-through;">${formatPrice(originalPrice)}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;"><strong>Discount:</strong></td>
+                <td style="padding: 8px 0; color: #16a34a; font-weight: bold;">${formatDiscount(discount)}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;"><strong>You Save:</strong></td>
+                <td style="padding: 8px 0; color: #16a34a; font-weight: bold;">${formatPrice(savings)}</td>
+              </tr>
+              ` : ''}
+              <tr style="border-top: 2px solid #e5e7eb;">
+                <td style="padding: 12px 0; color: #1f2937;"><strong>Final Price:</strong></td>
+                <td style="padding: 12px 0; color: #dc2626; font-size: 18px; font-weight: bold;">${formatPrice(finalPrice)}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #92400e;">
+              <strong>⏰ Next Steps:</strong><br>
+              Our team will review your application and contact you within <strong>2-3 business days</strong> at ${data.email}.
+            </p>
+          </div>
+
+          <p style="color: #6b7280; font-size: 14px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            Best regards,<br>
+            <strong style="color: #dc2626;">The EDIZO Team</strong>
+          </p>
+        </div>
+      </div>`;
+
+    // Admin notification email
+    const adminHtml = `
+      <div style="font-family: Arial, sans-serif;">
+        <h2 style="color: #dc2626;">🎓 New Internship Application</h2>
+        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">Applicant Information:</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin: 8px 0;"><strong>Name:</strong> ${data.name}</li>
+            <li style="margin: 8px 0;"><strong>Email:</strong> ${data.email}</li>
+            <li style="margin: 8px 0;"><strong>Phone:</strong> ${data.phone || 'N/A'}</li>
+            <li style="margin: 8px 0;"><strong>University:</strong> ${data.university}</li>
+            <li style="margin: 8px 0;"><strong>Year:</strong> ${data.yearOfStudy}</li>
+            <li style="margin: 8px 0;"><strong>Education:</strong> ${data.education}</li>
+          </ul>
+          
+          <h3>Program Details:</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin: 8px 0;"><strong>Internship:</strong> ${data.internshipTitle}</li>
+            <li style="margin: 8px 0;"><strong>Company:</strong> ${data.company}</li>
+            <li style="margin: 8px 0;"><strong>Duration:</strong> ${data.coursePeriod}</li>
+          </ul>
+
+          <h3>Pricing:</h3>
+          <ul style="list-style: none; padding: 0; background: white; padding: 15px; border-radius: 4px;">
+            <li style="margin: 8px 0;"><strong>Original Price:</strong> ${formatPrice(originalPrice)}</li>
+            <li style="margin: 8px 0; color: #16a34a;"><strong>Discount:</strong> ${formatDiscount(discount)}</li>
+            <li style="margin: 8px 0; color: #16a34a;"><strong>Savings:</strong> ${formatPrice(savings)}</li>
+            <li style="margin: 8px 0; font-size: 18px; color: #dc2626;"><strong>Final Price:</strong> ${formatPrice(finalPrice)}</li>
+          </ul>
+
+          ${data.academicExperience ? `
+          <h3>Academic Experience:</h3>
+          <p style="background: white; padding: 15px; border-radius: 4px;">${data.academicExperience}</p>
+          ` : ''}
+
+          ${data.message ? `
+          <h3>Cover Letter:</h3>
+          <p style="background: white; padding: 15px; border-radius: 4px;">${data.message}</p>
+          ` : ''}
+        </div>
+        <p style="color: #6b7280; font-size: 14px;">
+          Submitted: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+        </p>
+      </div>`;
+
+    await Promise.all([
+      sendMail(data.email, `Application Received - ${data.internshipTitle} | EDIZO`, userHtml),
+      sendMail(
+        process.env.APPLICATION_FORM_RECIPIENT_EMAIL || process.env.EMAIL_USER,
+        `New Application: ${data.name} - ${data.internshipTitle}`,
+        adminHtml
+      ),
+    ]);
+
+    console.log('✅ Application emails sent successfully');
+  } catch (emailError) {
+    console.warn('⚠️ Email notification failed (non-critical):', emailError.message);
+  }
+}
+
 // ✅ UPDATED ENDPOINT: Submit Internship Application with Discount Support
 app.post('/api/submit-application', limiter, async (req, res) => {
   try {
@@ -290,8 +435,9 @@ app.post('/api/submit-application', limiter, async (req, res) => {
       });
     }
 
-    // ✅ NEW: Validate pricing information
-    if (!data.finalPrice || data.finalPrice <= 0) {
+    // ✅ Validate pricing information
+    const finalPrice = Number(data.finalPrice);
+    if (!finalPrice || finalPrice <= 0) {
       return res.status(400).json({ 
         success: false, 
         message: 'Invalid pricing information' 
@@ -301,15 +447,20 @@ app.post('/api/submit-application', limiter, async (req, res) => {
     // Save to Google Sheets with discount info
     await appendToSheet(data);
 
+    // Send confirmation emails (non-blocking)
+    sendApplicationEmails(data).catch(err => {
+      console.error('Email error (non-critical):', err.message);
+    });
+
     console.log('✅ Application saved successfully with discount details');
 
     res.status(200).json({ 
       success: true, 
       message: 'Application submitted successfully! We will contact you within 2-3 business days.',
       data: {
-        finalPrice: data.finalPrice,
-        discount: data.discount,
-        savings: data.savings
+        finalPrice: formatPrice(finalPrice),
+        discount: formatDiscount(data.discount),
+        savings: formatPrice(data.savings)
       }
     });
   } catch (err) {
@@ -395,17 +546,20 @@ app.post('/api/submit-contact', limiter, async (req, res) => {
   }
 });
 
-// ✅ LEGACY ENDPOINT
-app.post('/api/send-contact-email', limiter, async (req, res) => {
-  return app.handle(req, res, '/api/submit-contact');
-});
-
 // ✅ Global Error Handler
 app.use((err, req, res, next) => {
   console.error('❌ Global error:', err.stack);
   res.status(500).json({ 
     success: false, 
     message: 'Internal Server Error' 
+  });
+});
+
+// ✅ 404 Handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Endpoint not found'
   });
 });
 
@@ -421,7 +575,7 @@ app.listen(PORT, () => {
   console.log('📧 Applications → Applications tab');
   console.log('💰 Pricing: Discount support enabled');
   console.log('📞 Contacts → Contacts tab');
-  console.log('✉️ Email: Optional notifications');
+  console.log('✉️ Email: Automated notifications');
   console.log('🚀 ========================================\n');
 });
 

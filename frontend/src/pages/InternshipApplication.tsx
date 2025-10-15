@@ -1,47 +1,14 @@
 // src/pages/InternshipApplication.tsx
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, XCircle, Loader2, Send, IndianRupee, Building2, ArrowLeft, Check, Star, Tag } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Send, IndianRupee, Building2, ArrowLeft, Check, Star, Tag, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useInternship } from '../components/hooks/useInternships'; // ✅ Use cached hook
+import { getPricingTiers } from '../utils/internship.utils'; // ✅ Use utility function
+import type { CoursePeriod } from '../types/internship.types';
 
 // === Interfaces ===
-interface InternshipPricing {
-  '15-days': number;
-  '1-month': number;
-  '2-months': number;
-  '3-months': number;
-}
-
-interface InternshipDiscount {
-  '15-days': number;
-  '1-month': number;
-  '2-months': number;
-  '3-months': number;
-}
-
-interface Internship {
-  id: string;
-  title: string;
-  category: string;
-  mode: 'Online' | 'Offline';
-  company: string;
-  image: string;
-  rating: number;
-  description: string;
-  isTrending?: boolean;
-  whyChooseEdizo: string[];
-  benefits: string[];
-  syllabus: {
-    '15-days': string[];
-    '1-month': string[];
-    '2-months': string[];
-    '3-months': string[];
-  };
-  pricing?: InternshipPricing;
-  discount?: InternshipDiscount;
-}
-
 interface FormData {
   name: string;
   email: string;
@@ -54,28 +21,7 @@ interface FormData {
   coursePeriod: string;
 }
 
-interface CoursePeriod {
-  value: string;
-  label: string;
-  originalPrice: number;
-  discount: number;
-  finalPrice: number;
-  savings: number;
-  description: string;
-  popular?: boolean;
-  features: string[];
-}
-
-// === Utility Functions ===
-const calculateFinalPrice = (originalPrice: number, discountPercent: number): number => {
-  if (discountPercent <= 0) return originalPrice;
-  return Math.round(originalPrice - (originalPrice * discountPercent / 100));
-};
-
-const calculateSavings = (originalPrice: number, finalPrice: number): number => {
-  return Math.max(0, originalPrice - finalPrice);
-};
-
+// Fallback images
 const fallbackImages: Record<string, string> = {
   'ui-ux-design': '/assets/images/web-design.png',
   'frontend-development': '/assets/images/responsive-design.png',
@@ -174,12 +120,8 @@ const InternshipApplication: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const [activePeriod, setActivePeriod] = useState<string>('1-month');
-  const [internship, setInternship] = useState<Internship | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [submissionMessage, setSubmissionMessage] = useState<string>('');
-  const [coursePeriods, setCoursePeriods] = useState<CoursePeriod[]>([]);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -189,185 +131,28 @@ const InternshipApplication: React.FC = () => {
     education: '',
     academicExperience: '',
     message: '',
-    coursePeriod: '',
+    coursePeriod: '1-month',
   });
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-  // Fetch internship data from Google Sheets
+  // ✅ Use cached hook instead of direct fetch
+  const { internship, loading, error } = useInternship(id);
+
+  // ✅ Memoize pricing tiers calculation
+  const coursePeriods = useMemo<CoursePeriod[]>(() => {
+    if (!internship) return [];
+    return getPricingTiers(internship.pricing, internship.discount);
+  }, [internship]);
+
+  // Set default course period when internship loads
   useEffect(() => {
-    const fetchInternshipDetails = async () => {
-      try {
-        setLoading(true);
-        
-        if (!id) {
-          setError('Internship ID not provided');
-          setLoading(false);
-          return;
-        }
-
-        const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
-        const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
-        const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-
-        console.log('Fetching internship details for ID:', id);
-
-        if (!SHEET_ID || !API_KEY) {
-          throw new Error('Missing Google Sheets configuration');
-        }
-
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error?.message || 'Failed to fetch data');
-        }
-
-        const data = await response.json();
-
-        if (!data.values || data.values.length <= 1) {
-          throw new Error('No data found in sheet');
-        }
-
-        const internshipRow = data.values.slice(1).find((row: any[]) => row[0] === id);
-
-        if (!internshipRow) {
-          setError(`Internship with ID "${id}" not found`);
-          setInternship(null);
-          setLoading(false);
-          return;
-        }
-
-        const parsedInternship: Internship = {
-          id: internshipRow[0] || id,
-          title: internshipRow[1] || 'Untitled',
-          category: internshipRow[2] || 'General',
-          mode: (internshipRow[3] || 'Online') as 'Online' | 'Offline',
-          company: internshipRow[4] || 'EDIZO',
-          image: internshipRow[5] || '',
-          rating: parseFloat(internshipRow[6]) || 4.0,
-          description: internshipRow[7] || 'No description available.',
-          whyChooseEdizo: [
-            internshipRow[8], internshipRow[9], internshipRow[10], internshipRow[11],
-            internshipRow[12], internshipRow[13], internshipRow[14],
-          ].filter(Boolean),
-          benefits: [
-            internshipRow[15], internshipRow[16], internshipRow[17], internshipRow[18],
-            internshipRow[19], internshipRow[20], internshipRow[21],
-          ].filter(Boolean),
-          syllabus: {
-            '15-days': internshipRow[22] ? internshipRow[22].split(',').map((s: string) => s.trim()) : [],
-            '1-month': internshipRow[23] ? internshipRow[23].split(',').map((s: string) => s.trim()) : [],
-            '2-months': internshipRow[24] ? internshipRow[24].split(',').map((s: string) => s.trim()) : [],
-            '3-months': internshipRow[25] ? internshipRow[25].split(',').map((s: string) => s.trim()) : [],
-          },
-          pricing: {
-            '15-days': parseFloat(internshipRow[26]) || 0,
-            '1-month': parseFloat(internshipRow[27]) || 0,
-            '2-months': parseFloat(internshipRow[28]) || 0,
-            '3-months': parseFloat(internshipRow[29]) || 0,
-          },
-          discount: {
-            '15-days': parseFloat(internshipRow[30]) || 0,
-            '1-month': parseFloat(internshipRow[31]) || 0,
-            '2-months': parseFloat(internshipRow[32]) || 0,
-            '3-months': parseFloat(internshipRow[33]) || 0,
-          },
-          isTrending: parseFloat(internshipRow[6]) >= 4.5,
-        };
-
-        console.log('Parsed internship:', parsedInternship);
-        setInternship(parsedInternship);
-
-        if (parsedInternship.pricing && parsedInternship.discount) {
-          const periods: CoursePeriod[] = [
-            {
-              value: '15-days',
-              label: '15 Days',
-              originalPrice: parsedInternship.pricing['15-days'],
-              discount: parsedInternship.discount['15-days'],
-              finalPrice: calculateFinalPrice(
-                parsedInternship.pricing['15-days'],
-                parsedInternship.discount['15-days']
-              ),
-              savings: calculateSavings(
-                parsedInternship.pricing['15-days'],
-                calculateFinalPrice(parsedInternship.pricing['15-days'], parsedInternship.discount['15-days'])
-              ),
-              description: 'Quick introduction and basics',
-              features: ['Basic concepts', 'Mini project', 'Certificate', 'Email support'],
-            },
-            {
-              value: '1-month',
-              label: '1 Month',
-              originalPrice: parsedInternship.pricing['1-month'],
-              discount: parsedInternship.discount['1-month'],
-              finalPrice: calculateFinalPrice(
-                parsedInternship.pricing['1-month'],
-                parsedInternship.discount['1-month']
-              ),
-              savings: calculateSavings(
-                parsedInternship.pricing['1-month'],
-                calculateFinalPrice(parsedInternship.pricing['1-month'], parsedInternship.discount['1-month'])
-              ),
-              description: 'Comprehensive learning with projects',
-              popular: true,
-              features: ['Advanced topics', 'Group project', 'Certificate', 'Mentorship', 'Q&A sessions'],
-            },
-            {
-              value: '2-months',
-              label: '2 Months',
-              originalPrice: parsedInternship.pricing['2-months'],
-              discount: parsedInternship.discount['2-months'],
-              finalPrice: calculateFinalPrice(
-                parsedInternship.pricing['2-months'],
-                parsedInternship.discount['2-months']
-              ),
-              savings: calculateSavings(
-                parsedInternship.pricing['2-months'],
-                calculateFinalPrice(parsedInternship.pricing['2-months'], parsedInternship.discount['2-months'])
-              ),
-              description: 'In-depth training with real-world projects',
-              features: ['Industry project', 'Portfolio building', 'Certificate', 'Mentorship', 'Code reviews', 'Interview prep'],
-            },
-            {
-              value: '3-months',
-              label: '3 Months',
-              originalPrice: parsedInternship.pricing['3-months'],
-              discount: parsedInternship.discount['3-months'],
-              finalPrice: calculateFinalPrice(
-                parsedInternship.pricing['3-months'],
-                parsedInternship.discount['3-months']
-              ),
-              savings: calculateSavings(
-                parsedInternship.pricing['3-months'],
-                calculateFinalPrice(parsedInternship.pricing['3-months'], parsedInternship.discount['3-months'])
-              ),
-              description: 'Complete mastery with industry exposure',
-              features: ['Live client project', 'Full mentorship', 'Certificate', 'Placement guidance', 'Interview prep', 'Resume building'],
-            },
-          ];
-          setCoursePeriods(periods);
-
-          if (!formData.coursePeriod) {
-            setFormData(prev => ({ ...prev, coursePeriod: '1-month' }));
-            setActivePeriod('1-month');
-          }
-        }
-
-        setError(null);
-      } catch (err: any) {
-        console.error('Error fetching internship details:', err);
-        setError(err.message || 'Failed to load internship details');
-        setInternship(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInternshipDetails();
-  }, [id]);
+    if (coursePeriods.length > 0 && !formData.coursePeriod) {
+      const defaultPeriod = coursePeriods.find(p => p.isPopular)?.duration || '1-month';
+      setFormData(prev => ({ ...prev, coursePeriod: defaultPeriod }));
+      setActivePeriod(defaultPeriod);
+    }
+  }, [coursePeriods, formData.coursePeriod]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -379,7 +164,7 @@ const InternshipApplication: React.FC = () => {
   };
 
   const getSelectedPeriodDetails = (): CoursePeriod | undefined => {
-    return coursePeriods.find((period) => period.value === formData.coursePeriod);
+    return coursePeriods.find((period) => period.duration === formData.coursePeriod);
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -415,6 +200,7 @@ const InternshipApplication: React.FC = () => {
           savings: selectedPeriod?.savings,
           internshipTitle: internship?.title,
           company: internship?.company,
+          internshipId: internship?.id,
         }),
       });
 
@@ -438,7 +224,7 @@ const InternshipApplication: React.FC = () => {
         education: '',
         academicExperience: '',
         message: '',
-        coursePeriod: '',
+        coursePeriod: '1-month',
       });
     } catch (error: any) {
       console.error('Error in form submission:', error);
@@ -457,7 +243,7 @@ const InternshipApplication: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex items-center justify-center py-20 px-6">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-red-600 mb-4"></div>
+          <Loader2 className="animate-spin text-red-600 mx-auto mb-4" size={48} />
           <p className="text-gray-600 text-lg">Loading internship details...</p>
         </div>
       </div>
@@ -468,7 +254,7 @@ const InternshipApplication: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 flex flex-col items-center justify-center py-20 px-6">
         <div className="text-center max-w-lg">
-          <div className="text-red-600 text-5xl mb-4">⚠️</div>
+          <AlertCircle className="text-red-600 mx-auto mb-4" size={64} />
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Internship Not Found</h1>
           <p className="text-lg text-gray-600 mb-6">{error || "The internship you're looking for does not exist."}</p>
           <Button onClick={() => navigate('/internships')} variant="outline">
@@ -576,25 +362,25 @@ const InternshipApplication: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {coursePeriods.map((period) => (
                         <motion.div
-                          key={period.value}
+                          key={period.duration}
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.3 }}
                           className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                            formData.coursePeriod === period.value
+                            formData.coursePeriod === period.duration
                               ? 'border-red-500 bg-red-50 shadow-lg ring-2 ring-red-200'
                               : 'border-gray-200 hover:border-red-300 hover:shadow-md'
-                          } ${period.popular ? 'ring-2 ring-blue-300' : ''}`}
-                          onClick={() => handleInputChange({ target: { name: 'coursePeriod', value: period.value } } as any)}
+                          } ${period.isPopular ? 'ring-2 ring-blue-300' : ''}`}
+                          onClick={() => handleInputChange({ target: { name: 'coursePeriod', value: period.duration } } as any)}
                         >
-                          {period.popular && (
+                          {period.isPopular && (
                             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-semibold z-10">
                               Most Popular
                             </div>
                           )}
                           
                           {period.discount > 0 && (
-                            <div className="absolute -top-3 right-2 bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1 shadow-md">
+                            <div className="absolute -top-3 right-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1 shadow-md">
                               <Tag size={12} />
                               {period.discount}% OFF
                             </div>
