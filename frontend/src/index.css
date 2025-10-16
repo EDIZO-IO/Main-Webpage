@@ -42,6 +42,14 @@
     @apply text-base leading-relaxed text-[var(--color-light-text)];
   }
 }
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 
 /* -----------------------------------
    🎨 Components (Each Standalone)

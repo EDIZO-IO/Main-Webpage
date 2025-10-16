@@ -1,8 +1,8 @@
 // src/components/common/Button.tsx
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useGoogleEvents } from '../hooks/useGoogleEvents';
-import { motion } from 'framer-motion'; // ✅ Import the easing functions
+import { useGoogleEvents } from '../hooks/useGoogleEvents'; // ✅ Updated import path
+import { motion } from 'framer-motion';
 import './Button.css';
 
 interface ButtonProps {
@@ -192,8 +192,8 @@ const Button: React.FC<ButtonProps> = ({
   const mergedStyles = { ...festivalStyles, ...style };
 
   const buttonVariants = {
-    hover: { scale: 1.05, transition: { duration: 0.2 } },
-    tap: { scale: 0.95, transition: { duration: 0.1 } }
+    hover: { scale: 1.02, transition: { duration: 0.2 } },
+    tap: { scale: 0.98, transition: { duration: 0.1 } }
   };
 
   const shimmerVariant = {
@@ -203,7 +203,7 @@ const Button: React.FC<ButtonProps> = ({
       transition: {
         repeat: Infinity,
         duration: 2,
-        ease: "linear" as const// ✅ Use the imported linear easing function
+        ease: "linear" as const
       }
     }
   };
@@ -212,12 +212,12 @@ const Button: React.FC<ButtonProps> = ({
   const emojiVariants = {
     initial: { scale: 1, rotate: 0 },
     animate: {
-      scale: [1, 1.2, 1],
-      rotate: [0, 10, -10, 0],
+      scale: [1, 1.1, 1],
+      rotate: [0, 5, -5, 0],
       transition: {
         duration: 2,
         repeat: Infinity,
-        ease: "easeInOut" as const// ✅ Use the imported easeInOut easing function
+        ease: "easeInOut" as const
       }
     }
   };

@@ -171,7 +171,7 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship, index, show
       whileHover={{ y: -3, borderColor: '#DC2626' }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.03, duration: 0.3 }}
-      className="group bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all overflow-hidden"
+      className="group bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all overflow-hidden h-full flex flex-col"
     >
       <Link to={`/internships/${internship.id}`}>
         <div className="relative h-32 overflow-hidden">
@@ -207,13 +207,15 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship, index, show
           )}
         </div>
         
-        <div className="p-3">
-          <h3 className="text-sm font-semibold text-gray-800 mb-1.5 line-clamp-2 h-10 group-hover:text-red-600 transition-colors">
+        <div className="p-3 flex-grow flex flex-col">
+          <h3 className="text-sm font-semibold text-gray-800 mb-1.5 line-clamp-2 group-hover:text-red-600 transition-colors">
             {internship.title}
           </h3>
-          <p className="text-gray-600 text-xs mb-2 line-clamp-2">{internship.description}</p>
           
-          <div className="flex items-center justify-between text-xs border-t pt-2">
+          {/* Removed description */}
+          
+          {/* Removed border-t from this section */}
+          <div className="flex items-center justify-between text-xs pt-2 mt-auto">
             <div className="flex items-center text-gray-500">
               <Wifi className="mr-1 text-red-600" size={12} />
               <span>{internship.mode}</span>
@@ -224,9 +226,9 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship, index, show
             </div>
           </div>
 
-          {/* Discount Info */}
+          {/* Discount Info - removed border-t */}
           {hasDiscountBadge && maxDiscount > 0 && (
-            <div className="mt-2 pt-2 border-t">
+            <div className="mt-2 pt-2">
               <span className="text-green-600 text-xs font-bold flex items-center gap-1">
                 <Tag size={12} />
                 Up to {maxDiscount}% OFF
@@ -234,9 +236,10 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship, index, show
             </div>
           )}
 
-          <div className="mt-2 pt-2 border-t">
-            <span className="text-red-600 text-xs font-semibold flex items-center hover:underline group-hover:gap-1 transition-all">
-              Apply Now <ArrowRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-all" />
+          {/* Removed border-t from Apply Now section */}
+          <div className="mt-2 pt-2">
+            <span className="text-red-600 text-xs font-semibold flex items-center">
+              Apply Now <ArrowRight className="w-3 h-3 ml-1" />
             </span>
           </div>
         </div>
