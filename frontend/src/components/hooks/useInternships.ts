@@ -1,199 +1,152 @@
-// frontend/src/hooks/useInternships.ts
-
 import { useState, useEffect, useRef } from 'react';
 import type { InternshipData } from '../../types/internship.types';
 import { parseInternshipsFromSheets } from '../../utils/internship.utils';
 
-// ✅ Singleton cache to prevent multiple API calls
+// --- Singleton cache
 interface CacheEntry {
   data: InternshipData[];
   timestamp: number;
   loading: boolean;
   error: string | null;
 }
-
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 let globalCache: CacheEntry | null = null;
 let fetchPromise: Promise<InternshipData[]> | null = null;
 
-/**
- * Custom hook for fetching internships from Google Sheets
- */
+// --- Main fetcher with timeout protection
+const fetchInternshipsAPI = async (): Promise<InternshipData[]> => {
+  const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
+  const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
+  const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+
+  if (!SHEET_ID || !API_KEY) {
+    const missingVars = [];
+    if (!SHEET_ID) missingVars.push('VITE_GOOGLE_SHEET_ID');
+    if (!API_KEY) missingVars.push('VITE_GOOGLE_API_KEY');
+    throw new Error(`❌ Missing environment variables: ${missingVars.join(', ')}`);
+  }
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+
+  // --- Add abort timeout (helps fix infinite loading on Google API hangs)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      let errorData;
+      try { errorData = await response.json(); } catch { errorData = {}; }
+      const msg = errorData.error?.message || `API error: ${response.status} ${response.statusText}`;
+      throw new Error(msg);
+    }
+    const data = await response.json();
+
+    if (!data.values || data.values.length <= 1) {
+      throw new Error('No internship data found in the sheet. Please add data to the "Internships" tab.');
+    }
+    return parseInternshipsFromSheets(data);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
+// --- Enhanced data hook with instant cache fallback, tab visibility, etc.
 export const useInternships = () => {
   const [internships, setInternships] = useState<InternshipData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isMountedRef = useRef(true);
 
+  // --- Clean up on unmount
   useEffect(() => {
     isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
+    return () => { isMountedRef.current = false; };
   }, []);
 
+  // --- Tab visibility/background revalidation
   useEffect(() => {
-    const fetchInternships = async (): Promise<InternshipData[]> => {
-      // ✅ DETAILED ENVIRONMENT DEBUG
-      console.log('🔍 ========================================');
-      console.log('   ENVIRONMENT VARIABLES CHECK');
-      console.log('🔍 ========================================');
-      console.log('MODE:', import.meta.env.MODE);
-      console.log('DEV:', import.meta.env.DEV);
-      console.log('PROD:', import.meta.env.PROD);
-      console.log('---');
-      
-      const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
-      const SHEET_NAME = import.meta.env.VITE_INTERNSHIPS_SHEET_NAME || 'Internships';
-      const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-
-      console.log('VITE_GOOGLE_SHEET_ID:', SHEET_ID || '❌ MISSING');
-      console.log('VITE_INTERNSHIPS_SHEET_NAME:', SHEET_NAME);
-      console.log('VITE_GOOGLE_API_KEY:', API_KEY ? `✅ Present (${API_KEY.substring(0, 10)}...${API_KEY.substring(API_KEY.length - 4)})` : '❌ MISSING');
-      console.log('🔍 ========================================\n');
-
-      if (!SHEET_ID || !API_KEY) {
-        const missingVars = [];
-        if (!SHEET_ID) missingVars.push('VITE_GOOGLE_SHEET_ID');
-        if (!API_KEY) missingVars.push('VITE_GOOGLE_API_KEY');
-        
-        const errorMsg = `❌ Missing environment variables: ${missingVars.join(', ')}. Please check Netlify environment variables.`;
-        console.error(errorMsg);
-        throw new Error(errorMsg);
+    const handleFocus = () => {
+      if (!globalCache || Date.now() - globalCache.timestamp > CACHE_DURATION) {
+        void loadInternships(true);
       }
-
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
-      console.log('📊 Fetching from:', `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=***`);
-      
-      const response = await fetch(url);
-      console.log('📡 Response status:', response.status, response.statusText);
-
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please try again later.');
-        }
-        
-        let errorData;
-        try {
-          errorData = await response.json();
-          console.error('❌ API Error Response:', errorData);
-        } catch {
-          errorData = {};
-        }
-        
-        // Detailed error messages based on status
-        if (response.status === 403) {
-          throw new Error('Access denied. Check if: 1) Google Sheet is public, 2) API key is valid, 3) Google Sheets API is enabled');
-        } else if (response.status === 404) {
-          throw new Error(`Sheet not found. Check if sheet ID "${SHEET_ID}" and tab "${SHEET_NAME}" are correct`);
-        } else if (response.status === 400) {
-          throw new Error('Invalid request. Check if API key and Sheet ID are correct');
-        }
-        
-        throw new Error(errorData.error?.message || `API error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log('📄 Raw sheet data received');
-      console.log('- Rows:', data.values?.length || 0);
-      console.log('- First row (headers):', data.values?.[0]?.slice(0, 5));
-
-      if (!data.values || data.values.length <= 1) {
-        throw new Error('No internship data found in the sheet. Please add data to the "Internships" tab.');
-      }
-
-      const parsedInternships = parseInternshipsFromSheets(data);
-      console.log(`✅ Successfully parsed ${parsedInternships.length} internships`);
-      console.log('Sample internship:', parsedInternships[0] ? {
-        id: parsedInternships[0].id,
-        title: parsedInternships[0].title,
-        category: parsedInternships[0].category
-      } : 'None');
-
-      return parsedInternships;
     };
+    window.addEventListener("visibilitychange", handleFocus);
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("visibilitychange", handleFocus);
+      window.removeEventListener("focus", handleFocus);
+    };
+    // eslint-disable-next-line
+  }, []);
 
-    const loadInternships = async () => {
-      // ✅ Check if cache is valid
-      if (globalCache && Date.now() - globalCache.timestamp < CACHE_DURATION) {
-        if (!isMountedRef.current) return;
-        setInternships(globalCache.data);
-        setLoading(globalCache.loading);
-        setError(globalCache.error);
-        console.log('📦 Using cached internships data');
-        return;
-      }
-
-      // ✅ If already fetching, wait for that promise
-      if (fetchPromise) {
-        try {
-          const data = await fetchPromise;
-          if (!isMountedRef.current) return;
-          setInternships(data);
-          setLoading(false);
-          setError(null);
-        } catch (err) {
-          if (!isMountedRef.current) return;
-          const errorMessage = err instanceof Error ? err.message : 'Failed to fetch internships';
-          setError(errorMessage);
-          setLoading(false);
-        }
-        return;
-      }
-
-      // ✅ Start new fetch
+  const loadInternships = async (revalidate: boolean = false) => {
+    if (!revalidate && globalCache && Date.now() - globalCache.timestamp < CACHE_DURATION) {
+      if (!isMountedRef.current) return;
+      setInternships(globalCache.data);
+      setLoading(false);
+      setError(globalCache.error);
+      return;
+    }
+    if (fetchPromise) {
       try {
-        setLoading(true);
-        setError(null);
-        
-        globalCache = {
-          data: [],
-          timestamp: Date.now(),
-          loading: true,
-          error: null
-        };
-
-        fetchPromise = fetchInternships();
         const data = await fetchPromise;
-        
-        globalCache = {
-          data,
-          timestamp: Date.now(),
-          loading: false,
-          error: null
-        };
-
         if (!isMountedRef.current) return;
         setInternships(data);
         setLoading(false);
+        setError(null);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch internships';
-        console.error('❌ Error fetching internships:', errorMessage);
-        
-        globalCache = {
-          data: [],
-          timestamp: Date.now(),
-          loading: false,
-          error: errorMessage
-        };
-
         if (!isMountedRef.current) return;
-        setError(errorMessage);
         setLoading(false);
-      } finally {
-        fetchPromise = null;
+        setError(err instanceof Error ? err.message : 'Failed to fetch internships');
       }
-    };
+      return;
+    }
 
-    loadInternships();
+    try {
+      setLoading(true);
+      setError(null);
+      fetchPromise = fetchInternshipsAPI();
+      const data = await fetchPromise;
+      globalCache = { data, timestamp: Date.now(), loading: false, error: null };
+      if (!isMountedRef.current) return;
+      setInternships(data);
+      setLoading(false);
+    } catch (err) {
+      globalCache = {
+        data: [],
+        timestamp: Date.now(),
+        loading: false,
+        error: err instanceof Error ? err.message : 'Failed to fetch internships'
+      };
+      if (!isMountedRef.current) return;
+      setError(globalCache.error);
+      setLoading(false);
+    } finally {
+      fetchPromise = null;
+    }
+  };
+
+  // --- Use cached data immediately if available
+  useEffect(() => {
+    if (globalCache && globalCache.data.length > 0) {
+      setInternships(globalCache.data);
+      setLoading(globalCache.loading);
+      setError(globalCache.error);
+      // background refresh if cache expired
+      if (Date.now() - globalCache.timestamp > CACHE_DURATION) loadInternships(true);
+    } else {
+      loadInternships();
+    }
+    // eslint-disable-next-line
   }, []);
 
   return { internships, loading, error };
 };
 
-/**
- * Custom hook for fetching a single internship by ID
- */
+
+// === Internship by id hook (unchanged, uses global cache immediately) ===
 export const useInternship = (id: string | undefined) => {
   const { internships, loading: loadingAll, error: errorAll } = useInternships();
   const [internship, setInternship] = useState<InternshipData | null>(null);
@@ -201,45 +154,20 @@ export const useInternship = (id: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (loadingAll) {
-      setLoading(true);
-      return;
-    }
+    if (loadingAll) { setLoading(true); return; }
+    if (errorAll) { setError(errorAll); setLoading(false); return; }
+    if (!id) { setError('Internship ID not provided'); setLoading(false); return; }
 
-    if (errorAll) {
-      setError(errorAll);
-      setLoading(false);
-      return;
-    }
-
-    if (!id) {
-      setError('Internship ID not provided');
-      setLoading(false);
-      return;
-    }
-
-    // Find internship from cached data
     const found = internships.find((i) => i.id === id);
-
-    if (found) {
-      console.log('✅ Found internship:', found.title);
-      setInternship(found);
-      setError(null);
-    } else {
-      console.warn(`⚠️ Internship with ID "${id}" not found`);
-      setError(`Internship with ID "${id}" not found`);
-      setInternship(null);
-    }
-
+    if (found) { setInternship(found); setError(null); }
+    else { setError(`Internship with ID "${id}" not found`); setInternship(null); }
     setLoading(false);
   }, [id, internships, loadingAll, errorAll]);
 
   return { internship, loading, error };
 };
 
-/**
- * Custom hook for fetching internships with filters
- */
+// === Filtered Internships (unchanged except reliable source) ===
 export const useFilteredInternships = (
   category: string = 'All',
   searchTerm: string = '',
@@ -251,13 +179,7 @@ export const useFilteredInternships = (
   useEffect(() => {
     if (!loading && internships.length > 0) {
       let filtered = [...internships];
-
-      // Filter by category
-      if (category !== 'All') {
-        filtered = filtered.filter((i) => i.category === category);
-      }
-
-      // Filter by search term
+      if (category !== 'All') filtered = filtered.filter((i) => i.category === category);
       if (searchTerm) {
         const term = searchTerm.toLowerCase().trim();
         filtered = filtered.filter(
@@ -268,52 +190,32 @@ export const useFilteredInternships = (
             i.company.toLowerCase().includes(term)
         );
       }
-
-      // Filter by minimum rating
-      if (minRating > 0) {
-        filtered = filtered.filter((i) => i.rating >= minRating);
-      }
-
+      if (minRating > 0) filtered = filtered.filter((i) => i.rating >= minRating);
       setFilteredInternships(filtered);
-      console.log(`🔍 Filtered ${filtered.length} internships (category: ${category}, search: "${searchTerm}", minRating: ${minRating})`);
-    } else {
-      setFilteredInternships([]);
-    }
+    } else setFilteredInternships([]);
   }, [internships, loading, category, searchTerm, minRating]);
 
   return { internships: filteredInternships, loading, error };
 };
 
-/**
- * Custom hook for getting trending internships
- */
+// === Trending Internships (unchanged, robust with fast cache) ===
 export const useTrendingInternships = (minRating: number = 4.5, limit?: number) => {
   const { internships, loading, error } = useInternships();
   const [trendingInternships, setTrendingInternships] = useState<InternshipData[]>([]);
 
   useEffect(() => {
     if (!loading && internships.length > 0) {
-      let trending = internships
-        .filter((i) => i.rating >= minRating)
-        .sort((a, b) => b.rating - a.rating); // Sort by rating descending
-
-      if (limit && limit > 0) {
-        trending = trending.slice(0, limit);
-      }
-
+      let trending = internships.filter((i) => i.rating >= minRating)
+        .sort((a, b) => b.rating - a.rating);
+      if (limit && limit > 0) trending = trending.slice(0, limit);
       setTrendingInternships(trending);
-      console.log(`⭐ Found ${trending.length} trending internships (minRating: ${minRating})`);
-    } else {
-      setTrendingInternships([]);
-    }
+    } else setTrendingInternships([]);
   }, [internships, loading, minRating, limit]);
 
   return { internships: trendingInternships, loading, error };
 };
 
-/**
- * Custom hook for getting unique categories
- */
+// === Unique Categories ===
 export const useCategories = () => {
   const { internships, loading, error } = useInternships();
   const [categories, setCategories] = useState<string[]>(['All']);
@@ -322,16 +224,12 @@ export const useCategories = () => {
     if (!loading && internships.length > 0) {
       const uniqueCategories = Array.from(new Set(internships.map((i) => i.category))).sort();
       setCategories(['All', ...uniqueCategories]);
-      console.log(`📂 Found ${uniqueCategories.length} categories`);
     }
   }, [internships, loading]);
-
   return { categories, loading, error };
 };
 
-/**
- * Utility to manually clear cache
- */
+// === Manual cache clear ===
 export const clearInternshipsCache = () => {
   globalCache = null;
   fetchPromise = null;
