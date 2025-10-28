@@ -1,7 +1,6 @@
-// src/pages/UpcomingWebinars.tsx
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Loader2, Calendar, MapPin, UserCheck, AlertCircle, ExternalLink } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Calendar, MapPin, UserCheck, AlertCircle, ExternalLink, Info, Clock } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
 import { useWebinars } from '../components/hooks/useWebinars';
@@ -12,27 +11,46 @@ import {
   type Webinar 
 } from '../types/webinar';
 
+const statusIcons: Record<string, React.ReactNode> = {
+  Confirmed: <UserCheck className="text-green-500" size={20} />,
+  Waiting: <Clock className="text-yellow-500" size={20} />,
+  'Coming Soon': <Info className="text-blue-500" size={20} />,
+  'Not Fixed': <AlertCircle className="text-gray-400" size={20} />,
+};
+
 const UpcomingWebinars: React.FC = () => {
   const { webinars, loading, error } = useWebinars();
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-      },
-    }),
-  };
+  // Improved variants for cards
+// At the top of the component file:
+
+const cardVariants = {
+  hidden: (i: number) => ({
+    opacity: 0,
+    y: 24,
+    scale: 0.97,
+    transition: {
+      delay: i * 0.08,
+    },
+  }),
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: i * 0.08,
+      duration: 0.48,
+      type: "spring" as const, // required for strong typing
+      stiffness: 70,
+      damping: 15,
+    },
+  }),
+};
+;
 
   const getStatusColors = (status: string) => {
-    // Validate and normalize status
     const normalizedStatus = status.trim();
-    
     if (!isValidWebinarStatus(normalizedStatus)) {
-      console.warn(`Invalid webinar status: ${status}`);
       return {
         gradient: 'bg-gradient-to-r from-gray-500 to-gray-600',
         ring: 'ring-gray-200',
@@ -40,29 +58,13 @@ const UpcomingWebinars: React.FC = () => {
         bg: 'bg-gray-50'
       };
     }
-
     const baseColors = WEBINAR_STATUS_COLORS[normalizedStatus];
-    
-    // Map to gradient and ring styles
     const colorMap = {
-      'Confirmed': {
-        gradient: 'bg-gradient-to-r from-green-500 to-emerald-500',
-        ring: 'ring-green-200',
-      },
-      'Waiting': {
-        gradient: 'bg-gradient-to-r from-yellow-500 to-yellow-600',
-        ring: 'ring-yellow-200',
-      },
-      'Coming Soon': {
-        gradient: 'bg-gradient-to-r from-blue-500 to-blue-600',
-        ring: 'ring-blue-200',
-      },
-      'Not Fixed': {
-        gradient: 'bg-gradient-to-r from-gray-500 to-gray-600',
-        ring: 'ring-gray-200',
-      }
+      'Confirmed':    { gradient: 'bg-gradient-to-r from-green-500 to-emerald-500', ring: 'ring-green-200' },
+      'Waiting':      { gradient: 'bg-gradient-to-r from-yellow-500 to-yellow-600', ring: 'ring-yellow-200' },
+      'Coming Soon':  { gradient: 'bg-gradient-to-r from-blue-500 to-blue-600',   ring: 'ring-blue-200'   },
+      'Not Fixed':    { gradient: 'bg-gradient-to-r from-gray-500 to-gray-600',   ring: 'ring-gray-200'   }
     };
-
     return {
       ...colorMap[normalizedStatus],
       text: baseColors.text,
@@ -70,15 +72,10 @@ const UpcomingWebinars: React.FC = () => {
     };
   };
 
-  const isConfirmed = (status: string): boolean => {
-    return status.trim() === 'Confirmed';
-  };
+  const isConfirmed = (status: string) => status.trim() === 'Confirmed';
 
-  const hasValidRegistrationLink = (link?: string): boolean => {
-    if (!link) return false;
-    const trimmed = link.trim();
-    return trimmed.length > 0 && (trimmed.startsWith('http://') || trimmed.startsWith('https://'));
-  };
+  const hasValidRegistrationLink = (link?: string) =>
+    !!link && link.trim().length > 0 && (link.startsWith('http://') || link.startsWith('https://'));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50">
@@ -92,54 +89,47 @@ const UpcomingWebinars: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           {/* Loading State */}
           {loading && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <Loader2 className="w-12 h-12 animate-spin text-red-600 mb-4" />
-              <p className="text-gray-600 text-lg font-medium">Loading upcoming webinars...</p>
-              <p className="text-gray-500 text-sm mt-2">Please wait a moment</p>
+            <div className="flex flex-col items-center justify-center py-24">
+              <Loader2 className="w-14 h-14 animate-spin text-red-600 mb-4" />
+              <p className="text-gray-700 text-xl font-semibold">Loading webinars...</p>
+              <p className="text-gray-500 text-sm mt-2">Please wait</p>
             </div>
           )}
 
           {/* Error State */}
-          {error && !loading && (
-            <AnimatedSection>
-              <div className="text-center py-12 bg-white rounded-2xl shadow-lg border border-red-200 p-8 max-w-2xl mx-auto">
-                <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                    <AlertCircle className="w-8 h-8 text-red-600" />
+          <AnimatePresence>
+            {error && !loading && (
+              <AnimatedSection>
+                <div className="text-center py-12 bg-white rounded-2xl shadow-lg border border-red-200 p-10 max-w-2xl mx-auto">
+                  <div className="mb-5 flex flex-col items-center">
+                    <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                      <AlertCircle className="w-10 h-10 text-red-600" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Unable to Load Webinars</h2>
                   </div>
+                  <p className="text-gray-700 mb-6">{error}</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-8 py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl"
+                  >
+                    Retry Loading
+                  </button>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-3">Unable to Load Webinars</h2>
-                <p className="text-gray-600 mb-4">{error}</p>
-                <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Troubleshooting:</p>
-                  <ul className="text-xs text-gray-600 space-y-1">
-                    <li>✓ Check if Google Sheet is publicly accessible</li>
-                    <li>✓ Verify environment variables are set in Netlify</li>
-                    <li>✓ Ensure "Webinars" tab exists in the sheet</li>
-                    <li>✓ Check browser console for detailed errors</li>
-                  </ul>
-                </div>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 font-semibold shadow-md"
-                >
-                  Retry Loading
-                </button>
-              </div>
-            </AnimatedSection>
-          )}
+              </AnimatedSection>
+            )}
+          </AnimatePresence>
 
           {/* No Webinars */}
           {!loading && !error && webinars.length === 0 && (
             <AnimatedSection>
               <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-200 p-8 max-w-2xl mx-auto">
                 <div className="text-6xl mb-4">📅</div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-3">No Webinars Scheduled</h2>
-                <p className="text-gray-600 mb-2">
-                  We don't have any confirmed webinars scheduled at the moment.
+                <h2 className="text-3xl font-bold text-gray-800 mb-3">No Webinars Scheduled</h2>
+                <p className="text-gray-700 mb-2">
+                  We don't have any webinars scheduled right now.
                 </p>
                 <p className="text-gray-500 text-sm">
-                  Check back soon for exciting upcoming events!
+                  Check back soon for upcoming events!
                 </p>
               </div>
             </AnimatedSection>
@@ -148,82 +138,71 @@ const UpcomingWebinars: React.FC = () => {
           {/* Webinar Grid */}
           {!loading && !error && webinars.length > 0 && (
             <>
-              <div className="text-center mb-12">
-                <p className="text-gray-600 text-lg">
-                  Showing <span className="font-bold text-red-600">{webinars.length}</span> upcoming {webinars.length === 1 ? 'webinar' : 'webinars'}
+              <div className="text-center mb-10">
+                <p className="text-gray-700 text-lg font-medium">
+                  <span className="font-bold text-red-600">{webinars.length}</span> upcoming {webinars.length === 1 ? 'webinar' : 'webinars'}
                 </p>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {webinars.map((event: Webinar, index: number) => {
                   const colors = getStatusColors(event.status);
                   const showFullDetails = isConfirmed(event.status);
                   const hasRegistration = hasValidRegistrationLink(event.registrationLink);
-                  
+
                   return (
-                    <AnimatedSection key={event.id} delay={index * 0.1}>
-                      <motion.div
+                    <AnimatedSection key={event.id} delay={index * 0.08}>
+                      <motion.article
                         variants={cardVariants}
                         initial="hidden"
                         whileInView="visible"
-                        viewport={{ once: true, margin: "-50px" }}
+                        viewport={{ once: true }}
                         custom={index}
-                        whileHover={{ 
-                          y: -8, 
-                          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' 
-                        }}
-                        className={`bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 flex flex-col h-full ring-2 ${colors.ring}`}
+                        className={`flex flex-col justify-between bg-white rounded-3xl shadow-md border border-gray-100 ring-2 ${colors.ring} overflow-hidden transition-all`}
+                        aria-label={`Webinar: ${event.title}`}
                       >
                         {/* Status Banner */}
-                        <div className={`px-6 py-3 text-center text-sm font-bold text-white ${colors.gradient}`}>
-                          {event.status}
+                        <div className={`px-6 py-3 text-center text-base font-bold ${colors.gradient} flex items-center justify-center gap-3`}>
+                          {statusIcons[event.status.trim()] ?? <Info />}
+                          <span className="uppercase tracking-wider">{event.status}</span>
                         </div>
 
-                        <div className="p-6 flex flex-col flex-grow">
-                          {/* Event Title */}
-                          <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 min-h-[3.5rem]">
-                            {event.title}
-                          </h3>
+                        <div className="p-7 flex flex-col flex-1">
+                          {/* Title */}
+                          <h3 className="text-2xl font-bold text-gray-900 mb-3 line-clamp-2">{event.title}</h3>
 
-                          {/* Conditional Rendering based on Status */}
+                          {/* Confirmed: Details */}
                           {showFullDetails ? (
                             <>
-                              {/* Event Details for Confirmed */}
-                              <div className="space-y-3 mb-6 flex-grow">
+                              <div className="space-y-2 mb-6">
                                 {event.date && (
-                                  <div className="flex items-start text-gray-700">
-                                    <Calendar className="flex-shrink-0 mr-3 mt-0.5 text-red-500" size={18} />
-                                    <span className="text-sm font-medium">
-                                      <time dateTime={event.date}>{formatWebinarDate(event.date)}</time>
-                                    </span>
+                                  <div className="flex items-center gap-2 text-gray-700">
+                                    <Calendar className="text-red-500" size={18} aria-label="Date" />
+                                    <time dateTime={event.date}>{formatWebinarDate(event.date)}</time>
                                   </div>
                                 )}
-                                <div className="flex items-start text-gray-700">
-                                  <MapPin className="flex-shrink-0 mr-3 mt-0.5 text-red-500" size={18} />
-                                  <span className="text-sm font-medium">{event.location}</span>
+                                <div className="flex items-center gap-2 text-gray-700">
+                                  <MapPin className="text-blue-500" size={18} aria-label="Location" />
+                                  <span>{event.location}</span>
                                 </div>
                                 {event.description && (
-                                  <div className="mt-4 pt-4 border-t border-gray-100">
-                                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                                      {event.description}
-                                    </p>
-                                  </div>
+                                  <p className="text-gray-600 text-sm leading-relaxed mt-2">{event.description}</p>
                                 )}
                               </div>
-
-                              {/* Registration Link for Confirmed */}
                               {hasRegistration ? (
                                 <motion.a
                                   href={event.registrationLink!.trim()}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="mt-auto w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white font-semibold rounded-lg shadow-md hover:from-red-700 hover:to-orange-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                  className="mt-auto px-0 py-0"
+                                  aria-label="Register now"
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
                                 >
-                                  <UserCheck size={18} />
-                                  Register Now
-                                  <ExternalLink size={14} />
+                                  <div className="w-full flex items-center justify-center gap-2 px-0 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold rounded-lg shadow-md hover:from-red-700 hover:to-orange-700 transition-all focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                    <UserCheck size={18} />
+                                    Register Now
+                                    <ExternalLink size={14} />
+                                  </div>
                                 </motion.a>
                               ) : (
                                 <div className="mt-auto w-full text-center py-3 px-5 bg-yellow-50 border border-yellow-200 text-yellow-700 font-semibold rounded-lg text-sm">
@@ -233,33 +212,27 @@ const UpcomingWebinars: React.FC = () => {
                             </>
                           ) : (
                             <>
-                              {/* Minimal info for 'Waiting' or 'Coming Soon' */}
-                              <div className="flex-grow flex items-center justify-center py-12">
-                                <div className="text-center">
-                                  <div className="text-4xl mb-3">
-                                    {event.status === 'Waiting' ? '⏳' : '🔜'}
-                                  </div>
-                                  <p className="text-gray-500 text-sm">
-                                    {event.status === 'Waiting' 
-                                      ? 'Date and details will be confirmed soon'
-                                      : 'Event details coming soon'}
-                                  </p>
-                                  {event.description && (
-                                    <p className="text-gray-400 text-xs mt-2 line-clamp-2">
-                                      {event.description}
-                                    </p>
-                                  )}
-                                </div>
+                              {/* Not Confirmed */}
+                              <div className="flex flex-col items-center justify-center gap-2 py-10">
+                                <span className="text-5xl">{event.status === 'Waiting' ? '⏳' : event.status === 'Coming Soon' ? '🔜' : '📅'}</span>
+                                <span className="font-medium text-gray-700">
+                                  {event.status === 'Waiting'
+                                    ? 'Details coming soon.'
+                                    : 'Stay tuned for details.'}
+                                </span>
+                                {event.description && (
+                                  <p className="text-gray-400 text-xs mt-2">{event.description}</p>
+                                )}
                               </div>
-                              <div 
-                                className={`mt-auto w-full text-center py-3 px-5 rounded-lg text-sm font-semibold border ${colors.text} ${colors.bg} border-gray-200`}
+                              <div
+                                className={`mt-auto w-full text-center py-3 px-5 rounded-lg text-sm font-semibold border border-gray-200 ${colors.text} ${colors.bg}`}
                               >
                                 Stay Tuned
                               </div>
                             </>
                           )}
                         </div>
-                      </motion.div>
+                      </motion.article>
                     </AnimatedSection>
                   );
                 })}
