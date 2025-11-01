@@ -1,0 +1,692 @@
+/* src/components/common/Header.animation.css */
+
+/* =============================================================================
+   FESTIVAL & COMPANY EVENT HEADER ANIMATIONS
+   Complete animation system with festival-based navigation effects
+   ============================================================================= */
+
+/* --- Base Styles --- */
+
+.custom-toast-success::before { content: '🎉'; font-size: 20px; margin-right: 8px; }
+.custom-toast-error::before { content: '⚠️'; font-size: 20px; margin-right: 8px; }
+.custom-toast-info::before { content: '👋'; font-size: 20px; margin-right: 8px; }
+
+.header-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* =============================================================================
+   FESTIVAL-BASED NAVIGATION ANIMATIONS
+   ============================================================================= */
+
+/* Diwali - Sparkling Navigation */
+.festival-bg-diwali nav a,
+.festival-bg-diya-glow nav a {
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-bg-diwali nav a::before,
+.festival-bg-diya-glow nav a::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: nav-sparkle-diwali 3s ease-in-out infinite;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+.festival-bg-diwali nav a:hover::before,
+.festival-bg-diya-glow nav a:hover::before {
+  animation: nav-sparkle-diwali 1s ease-in-out infinite;
+  opacity: 1;
+}
+
+@keyframes nav-sparkle-diwali {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0.8;
+  }
+}
+
+/* Holi - Color Wave Navigation */
+.festival-bg-holi nav a,
+.festival-bg-color-burst nav a {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 107, 157, 0.1) 25%,
+    rgba(255, 217, 61, 0.1) 50%,
+    rgba(107, 203, 119, 0.1) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: nav-color-wave 3s linear infinite;
+}
+
+.festival-bg-holi nav a:hover,
+.festival-bg-color-burst nav a:hover {
+  animation: nav-color-wave 1.5s linear infinite;
+}
+
+@keyframes nav-color-wave {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Independence Day / Republic Day - Tricolor Pulse */
+.festival-bg-independence-day nav a,
+.festival-bg-republic-day nav a,
+.festival-bg-gandhi-jayanti nav a {
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, #FF9933, #FFFFFF, #138808) 1;
+  animation: nav-tricolor-pulse 3s ease-in-out infinite;
+}
+
+@keyframes nav-tricolor-pulse {
+  0%, 100% {
+    border-image: linear-gradient(90deg, #FF9933 0%, #FFFFFF 50%, #138808 100%) 1;
+    opacity: 0.6;
+  }
+  50% {
+    border-image: linear-gradient(90deg, #FF9933 30%, #FFFFFF 50%, #138808 70%) 1;
+    opacity: 1;
+  }
+}
+
+/* Navratri - Garba Spin */
+.festival-bg-navratri nav a,
+.festival-bg-durga-puja nav a,
+.festival-bg-garba-dance nav a {
+  position: relative;
+}
+
+.festival-bg-navratri nav a::after,
+.festival-bg-durga-puja nav a::after,
+.festival-bg-garba-dance nav a::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 107, 157, 0.2),
+    rgba(255, 217, 61, 0.2),
+    rgba(107, 203, 119, 0.2),
+    rgba(77, 150, 255, 0.2),
+    rgba(199, 36, 177, 0.2),
+    rgba(255, 107, 157, 0.2)
+  );
+  border-radius: inherit;
+  animation: nav-garba-spin 4s linear infinite;
+  z-index: -1;
+  opacity: 0;
+}
+
+.festival-bg-navratri nav a:hover::after,
+.festival-bg-durga-puja nav a:hover::after,
+.festival-bg-garba-dance nav a:hover::after {
+  opacity: 1;
+}
+
+@keyframes nav-garba-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Christmas - Snowflake Decoration */
+.festival-bg-christmas nav a,
+.festival-bg-festive-snow nav a {
+  position: relative;
+}
+
+.festival-bg-christmas nav a::before,
+.festival-bg-festive-snow nav a::before {
+  content: '❄️';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  opacity: 0;
+  animation: nav-snowflake-fall 3s ease-in-out infinite;
+}
+
+.festival-bg-christmas nav a:hover::before,
+.festival-bg-festive-snow nav a:hover::before {
+  animation: nav-snowflake-fall 2s ease-in-out infinite;
+  opacity: 1;
+}
+
+@keyframes nav-snowflake-fall {
+  0% {
+    top: -15px;
+    opacity: 0;
+    transform: translateX(-50%) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+    transform: translateX(-50%) rotate(360deg);
+  }
+}
+
+/* New Year - Firework Flash */
+.festival-bg-new-year nav a,
+.festival-bg-fireworks nav a {
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-bg-new-year nav a::before,
+.festival-bg-fireworks nav a::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.8) 0%,
+    rgba(255, 20, 147, 0.6) 30%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.festival-bg-new-year nav a:hover::before,
+.festival-bg-fireworks nav a:hover::before {
+  animation: nav-firework-burst 0.8s ease-out;
+}
+
+@keyframes nav-firework-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(8);
+    opacity: 0;
+  }
+}
+
+/* Pongal / Harvest - Golden Glow */
+.festival-bg-pongal nav a,
+.festival-bg-makar-sankranti nav a,
+.festival-bg-harvest-celebration nav a {
+  position: relative;
+}
+
+.festival-bg-pongal nav a:hover,
+.festival-bg-makar-sankranti nav a:hover,
+.festival-bg-harvest-celebration nav a:hover {
+  box-shadow: 0 0 20px rgba(247, 184, 1, 0.5);
+  animation: nav-harvest-glow 2s ease-in-out infinite;
+}
+
+@keyframes nav-harvest-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(247, 184, 1, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(247, 184, 1, 0.6);
+  }
+}
+
+/* Company Events - Tech Pulse */
+.festival-bg-product-launch nav a,
+.festival-bg-company-pulse nav a,
+.festival-bg-team-anniversary nav a,
+.festival-bg-success-celebration nav a,
+.festival-bg-milestone-glow nav a {
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-bg-product-launch nav a::after,
+.festival-bg-company-pulse nav a::after,
+.festival-bg-team-anniversary nav a::after,
+.festival-bg-success-celebration nav a::after,
+.festival-bg-milestone-glow nav a::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(99, 102, 241, 0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.festival-bg-product-launch nav a:hover::after,
+.festival-bg-company-pulse nav a:hover::after,
+.festival-bg-team-anniversary nav a:hover::after,
+.festival-bg-success-celebration nav a:hover::after,
+.festival-bg-milestone-glow nav a:hover::after {
+  left: 100%;
+}
+
+/* =============================================================================
+   ACTIVE NAVIGATION ANIMATIONS - Festival Specific
+   ============================================================================= */
+
+/* Diwali - Active with Sparkle */
+.festival-bg-diwali nav a[aria-current="page"],
+.festival-bg-diya-glow nav a[aria-current="page"] {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 107, 53, 0.15));
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  animation: nav-active-sparkle 2s ease-in-out infinite;
+}
+
+@keyframes nav-active-sparkle {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  }
+}
+
+/* Holi - Active with Color Shift */
+.festival-bg-holi nav a[aria-current="page"],
+.festival-bg-color-burst nav a[aria-current="page"] {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 107, 157, 0.15),
+    rgba(255, 217, 61, 0.15),
+    rgba(107, 203, 119, 0.15)
+  );
+  background-size: 200% 100%;
+  animation: nav-active-color-shift 3s linear infinite;
+}
+
+@keyframes nav-active-color-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Independence/Republic Day - Active with Tricolor Border */
+.festival-bg-independence-day nav a[aria-current="page"],
+.festival-bg-republic-day nav a[aria-current="page"],
+.festival-bg-gandhi-jayanti nav a[aria-current="page"] {
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, #FF9933, #FFFFFF, #138808) 1;
+  animation: nav-active-tricolor 2s ease-in-out infinite;
+}
+
+@keyframes nav-active-tricolor {
+  0%, 100% {
+    border-width: 2px;
+  }
+  50% {
+    border-width: 3px;
+  }
+}
+
+/* Christmas - Active with Snow Glow */
+.festival-bg-christmas nav a[aria-current="page"],
+.festival-bg-festive-snow nav a[aria-current="page"] {
+  background: linear-gradient(135deg, rgba(196, 30, 58, 0.1), rgba(15, 134, 68, 0.1));
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  animation: nav-active-snow-glow 3s ease-in-out infinite;
+}
+
+@keyframes nav-active-snow-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* =============================================================================
+   SIGN IN BUTTON FESTIVAL ANIMATIONS
+   ============================================================================= */
+
+/* Diwali - Sign In with Sparkle Effect */
+.festival-bg-diwali button.sign,
+.festival-bg-diya-glow button.sign {
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-bg-diwali button.sign::before,
+.festival-bg-diya-glow button.sign::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+  animation: signin-sparkle-rotate 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes signin-sparkle-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Holi - Sign In with Color Splash */
+.festival-bg-holi button.sign,
+.festival-bg-color-burst button.sign {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 107, 157, 1),
+    rgba(255, 217, 61, 1),
+    rgba(107, 203, 119, 1)
+  );
+  background-size: 200% 200%;
+  animation: signin-color-splash 3s ease infinite;
+}
+
+@keyframes signin-color-splash {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Christmas - Sign In with Snow Effect */
+.festival-bg-christmas button.sign,
+.festival-bg-festive-snow button.sign {
+  background: linear-gradient(135deg, #C41E3A, #0F8644);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  animation: signin-snow-glow 2s ease-in-out infinite;
+}
+
+@keyframes signin-snow-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* New Year - Sign In with Firework */
+.festival-bg-new-year button.sign,
+.festival-bg-fireworks button.sign {
+  background: linear-gradient(135deg, #FFD700, #FF1493);
+  animation: signin-firework-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes signin-firework-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+  }
+}
+
+/* =============================================================================
+   BACKGROUND FESTIVAL THEMES
+   ============================================================================= */
+
+/* Independence Day & Republic Day - Tricolor Theme */
+.festival-bg-independence-day::before,
+.festival-bg-republic-day::before,
+.festival-bg-gandhi-jayanti::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(255, 153, 51, 0.18) 0%,
+      rgba(255, 153, 51, 0.18) 33.33%,
+      rgba(255, 255, 255, 0.18) 33.33%,
+      rgba(255, 255, 255, 0.18) 66.66%,
+      rgba(19, 136, 8, 0.18) 66.66%,
+      rgba(19, 136, 8, 0.18) 100%
+    ),
+    linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  background-size: 200% 100%, 200% 100%;
+  animation: tricolor-wave 8s ease-in-out infinite, flag-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes tricolor-wave {
+  0%, 100% { 
+    background-position: 0% 50%, 0% 50%; 
+    opacity: 0.25;
+  }
+  50% { 
+    background-position: 100% 50%, 200% 50%; 
+    opacity: 0.4;
+  }
+}
+
+@keyframes flag-shimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.1); }
+}
+
+/* Diwali */
+.festival-bg-diwali::before,
+.festival-bg-diya-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 15% 25%, rgba(255, 215, 0, 0.22) 0%, transparent 40%),
+    radial-gradient(circle at 85% 35%, rgba(119, 39, 9, 0.22) 0%, transparent 40%),
+    radial-gradient(circle at 50% 70%, rgba(137, 105, 11, 0.22) 0%, transparent 40%),
+    radial-gradient(circle at 30% 80%, rgba(127, 6, 16, 0.22) 0%, transparent 40%),
+    radial-gradient(circle at 70% 15%, rgba(239, 204, 5, 0.22) 0%, transparent 40%);
+  animation: diya-glow 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes diya-glow {
+  0%, 100% { opacity: 0.6; filter: brightness(1); }
+  25% { opacity: 0.9; filter: brightness(1.15); }
+  50% { opacity: 0.7; filter: brightness(1.05); }
+  75% { opacity: 0.85; filter: brightness(1.1); }
+}
+
+/* Holi */
+.festival-bg-holi::before,
+.festival-bg-color-burst::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(255, 107, 157, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 90% 30%, rgba(255, 217, 61, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(107, 203, 119, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 30% 60%, rgba(77, 150, 255, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 70% 70%, rgba(199, 36, 177, 0.22) 0%, transparent 45%);
+  animation: holi-burst 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes holi-burst {
+  0%, 100% { opacity: 0.6; transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); }
+  25% { opacity: 0.85; transform: scale(1.05) rotate(5deg); filter: hue-rotate(5deg); }
+  50% { opacity: 0.7; transform: scale(1.03) rotate(-3deg); filter: hue-rotate(10deg); }
+  75% { opacity: 0.8; transform: scale(1.06) rotate(3deg); filter: hue-rotate(5deg); }
+}
+
+/* Navratri */
+.festival-bg-navratri::before,
+.festival-bg-durga-puja::before,
+.festival-bg-garba-dance::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(255, 107, 157, 0.18) 0%, transparent 40%),
+    radial-gradient(circle at 75% 25%, rgba(255, 217, 61, 0.18) 0%, transparent 40%),
+    radial-gradient(circle at 75% 75%, rgba(107, 203, 119, 0.18) 0%, transparent 40%),
+    radial-gradient(circle at 25% 75%, rgba(77, 150, 255, 0.18) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(199, 36, 177, 0.18) 0%, transparent 40%);
+  animation: garba-spin 10s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes garba-spin {
+  0% { transform: rotate(0deg) scale(1); opacity: 0.6; filter: hue-rotate(0deg); }
+  25% { opacity: 0.8; filter: hue-rotate(10deg); }
+  50% { transform: rotate(180deg) scale(1.05); opacity: 0.9; filter: hue-rotate(0deg); }
+  75% { opacity: 0.8; filter: hue-rotate(-10deg); }
+  100% { transform: rotate(360deg) scale(1); opacity: 0.6; filter: hue-rotate(0deg); }
+}
+
+/* Christmas */
+.festival-bg-christmas::before,
+.festival-bg-festive-snow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 40%, rgba(196, 30, 58, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 50% 70%, rgba(15, 134, 68, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(196, 30, 58, 0.15) 0%, transparent 40%);
+  animation: christmas-glow 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes christmas-glow {
+  0%, 100% { opacity: 0.6; filter: brightness(1); }
+  50% { opacity: 0.9; filter: brightness(1.2); }
+}
+
+.festival-bg-christmas::after,
+.festival-bg-festive-snow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(3px 3px at 20% 10%, white, transparent),
+    radial-gradient(2px 2px at 60% 30%, white, transparent),
+    radial-gradient(3px 3px at 50% 60%, white, transparent),
+    radial-gradient(2px 2px at 80% 40%, white, transparent);
+  background-size: 200px 200px;
+  animation: snowfall 25s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes snowfall {
+  0% { background-position: 0 0; opacity: 0.7; }
+  100% { background-position: 0 200px; opacity: 1; }
+}
+
+/* New Year */
+.festival-bg-new-year::before,
+.festival-bg-fireworks::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(255, 215, 0, 0.25) 0%, transparent 30%),
+    radial-gradient(circle at 75% 35%, rgba(255, 20, 147, 0.25) 0%, transparent 30%),
+    radial-gradient(circle at 50% 60%, rgba(0, 206, 209, 0.25) 0%, transparent 30%);
+  animation: firework-burst 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes firework-burst {
+  0% { opacity: 0; transform: scale(0.6); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1.8); }
+}
+
+/* Company Events */
+.festival-bg-product-launch::before,
+.festival-bg-company-pulse::before,
+.festival-bg-team-anniversary::before,
+.festival-bg-success-celebration::before,
+.festival-bg-milestone-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 30% 40%, rgba(99, 102, 241, 0.15) 0%, transparent 45%),
+    radial-gradient(circle at 70% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 45%);
+  animation: company-glow 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes company-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.06); }
+}
+
+/* Default */
+.festival-bg-default::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 25% 35%, rgba(239, 68, 68, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 75% 45%, rgba(249, 115, 22, 0.08) 0%, transparent 45%);
+  animation: default-pulse 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes default-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.02); }
+}

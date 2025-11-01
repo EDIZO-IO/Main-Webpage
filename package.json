@@ -1,0 +1,35 @@
+{
+  "name": "edizo-fullstack-app",
+  "version": "1.2.0",
+  "private": true,
+  "scripts": {
+    "client": "npm start --prefix frontend",
+    "server": "npm start --prefix server",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run dev"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1",
+    "framer-motion": "^12.23.24",
+    "googleapis": "^164.0.0",
+    "lucide-react": "^0.546.0",
+    "react": "^19.2.0",
+    "react-toastify": "^11.0.5"
+  }
+}

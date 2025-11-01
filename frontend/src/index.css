@@ -1,0 +1,119 @@
+@import "tailwindcss";
+@reference "tailwindcss";
+
+/* -----------------------------------
+   🌟 Base Layer (Colors + Typography)
+----------------------------------- */
+@layer base {
+  :root {
+    --color-primary: #DC2626;
+    --color-secondary-bg: #E5E7EB;
+    --color-dark-text: #1F2937;
+    --color-light-text: #4B5563;
+    --color-border: #D1D5DB;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-[var(--color-light-text)];
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-[var(--color-dark-text)];
+  }
+
+  h1 {
+    @apply text-4xl leading-tight;
+  }
+
+  h2 {
+    @apply text-3xl leading-tight;
+  }
+
+  h3 {
+    @apply text-2xl leading-snug;
+  }
+
+  p {
+    @apply text-base leading-relaxed text-[var(--color-light-text)];
+  }
+}
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* -----------------------------------
+   🎨 Components (Each Standalone)
+----------------------------------- */
+@layer components {
+.btn {
+  @apply font-semibold px-6 py-3 rounded-md bg-red-600 text-white;
+}
+
+
+  /* ✅ Use full @apply sets (no nested .btn usage) */
+  .btn-primary {
+    @apply px-6 py-3 rounded-md font-medium transition-all duration-300 ease-in-out text-white hover:opacity-90;
+    background: var(--color-primary);
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-md font-medium transition-all duration-300 ease-in-out hover:opacity-90;
+    background: var(--color-secondary-bg);
+    color: var(--color-dark-text);
+  }
+
+  .btn-outline {
+    @apply px-6 py-3 rounded-md font-medium transition-all duration-300 ease-in-out hover:text-white;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .btn-outline:hover {
+    background: var(--color-primary);
+  }
+
+  .container-custom {
+    @apply px-4 mx-auto max-w-7xl sm:px-6 lg:px-8;
+  }
+
+  .section {
+    @apply py-16 md:py-24;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg;
+  }
+
+  .input-field {
+    @apply w-full p-3 border rounded-md focus:outline-none focus:ring-2;
+    border-color: var(--color-border);
+  }
+
+  .input-field:focus {
+    --tw-ring-color: var(--color-primary);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background: linear-gradient(to right, var(--color-primary), var(--color-dark-text));
+  }
+}
+
+/* -----------------------------------
+   ⚙️ Utilities (Optional Overrides)
+----------------------------------- */
+@layer utilities {
+  body {
+    @apply bg-white text-gray-900;
+  }
+}
