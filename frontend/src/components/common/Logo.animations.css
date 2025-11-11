@@ -1,0 +1,360 @@
+/* Add to src/components/common/Logo.animations.css */
+
+/* =============================================================================
+   ENHANCED GOOGLE-STYLE LOGO ANIMATIONS - Never hide logo/text
+   ============================================================================= */
+
+/* Logo pulse */
+@keyframes logo-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+  }
+}
+
+/* Logo icon bounce */
+@keyframes logo-icon-bounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(5deg);
+  }
+}
+
+/* Letter bounce - smooth and gentle */
+@keyframes letter-bounce-smooth {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.08);
+  }
+}
+
+/* Floating emoji orbit */
+@keyframes float-emoji-orbit {
+  0%, 100% {
+    transform: translate(calc(-50%), calc(-50%)) scale(0.9) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(calc(-50%), calc(-50% - 8px)) scale(1.1) rotate(10deg);
+    opacity: 1;
+  }
+}
+
+/* Badge pulse glow */
+@keyframes badge-pulse-glow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4), 0 0 15px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.6), 0 0 25px rgba(239, 68, 68, 0.4);
+  }
+}
+
+/* Gentle particle float - stays inside circle */
+@keyframes particle-gentle-float {
+  0%, 100% {
+    transform: translate(0, 0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-3px, -3px);
+    opacity: 0.9;
+  }
+}
+
+/* Tricolor particle float */
+@keyframes tricolor-particle-float {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-15px);
+    opacity: 1;
+  }
+}
+
+/* Holi color splash */
+@keyframes holi-color-splash {
+  0% {
+    transform: scale(0.5) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3) rotate(180deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.8) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Snowfall gentle */
+@keyframes snowfall-gentle {
+  0% {
+    transform: translateY(-20px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120px) translateX(15px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Firework particle burst */
+@keyframes firework-particle-burst {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-25px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.5);
+  }
+}
+
+/* Flag 3D wave */
+@keyframes flag-wave-3d {
+  0%, 100% {
+    transform: perspective(500px) rotateY(0deg) rotateX(0deg);
+  }
+  25% {
+    transform: perspective(500px) rotateY(-15deg) rotateX(5deg);
+  }
+  50% {
+    transform: perspective(500px) rotateY(0deg) rotateX(0deg);
+  }
+  75% {
+    transform: perspective(500px) rotateY(15deg) rotateX(-5deg);
+  }
+}
+
+/* Diwali diya ring effect */
+@keyframes diya-ring {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.8;
+  }
+}
+
+/* Holi color gradient effect */
+@keyframes holi-gradient {
+  0% {
+    background: linear-gradient(45deg, #FF6B9D, #FFD93D, #6BCB77);
+    transform: scale(1);
+  }
+  50% {
+    background: linear-gradient(135deg, #FFD93D, #6BCB77, #4D96FF);
+    transform: scale(1.05);
+  }
+  100% {
+    background: linear-gradient(225deg, #6BCB77, #4D96FF, #C724B1);
+    transform: scale(1);
+  }
+}
+
+/* Independence day tricolor effect */
+@keyframes tricolor-wave {
+  0% {
+    background: conic-gradient(#FF9933, #FFFFFF, #138808, #FF9933);
+    transform: scale(1);
+  }
+  50% {
+    background: conic-gradient(#FFFFFF, #138808, #FF9933, #FFFFFF);
+    transform: scale(1.05);
+  }
+  100% {
+    background: conic-gradient(#138808, #FF9933, #FFFFFF, #138808);
+    transform: scale(1);
+  }
+}
+
+/* Christmas snow effect */
+@keyframes christmas-snow {
+  0% {
+    background: linear-gradient(135deg, #DC143C, #006400, #FFD700);
+    transform: scale(1);
+    box-shadow: 0 0 15px #DC143C40, 0 0 30px #00640030;
+  }
+  50% {
+    background: linear-gradient(45deg, #006400, #FFD700, #DC143C);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px #00640040, 0 0 35px #FFD70030;
+  }
+  100% {
+    background: linear-gradient(225deg, #FFD700, #DC143C, #006400);
+    transform: scale(1);
+    box-shadow: 0 0 15px #FFD70040, 0 0 30px #DC143C30;
+  }
+}
+
+/* New year fireworks effect */
+@keyframes new-year-fireworks {
+  0% {
+    background: radial-gradient(circle, #FF6B9D, #FFD93D, #6BCB77);
+    transform: scale(1);
+    box-shadow: 0 0 15px #FF6B9D40, 0 0 30px #FFD93D30;
+  }
+  50% {
+    background: radial-gradient(circle, #FFD93D, #6BCB77, #4D96FF);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px #FFD93D40, 0 0 35px #6BCB7730;
+  }
+  100% {
+    background: radial-gradient(circle, #6BCB77, #4D96FF, #C724B1);
+    transform: scale(1);
+    box-shadow: 0 0 15px #6BCB7740, 0 0 30px #4D96FF30;
+  }
+}
+
+/* Festival text glow effect */
+@keyframes festival-text-glow {
+  0% {
+    text-shadow: 0 2px 8px rgba(255, 107, 157, 0.4), 0 0 15px rgba(255, 107, 157, 0.2);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+  50% {
+    text-shadow: 0 4px 16px rgba(255, 107, 157, 0.6), 0 0 25px rgba(255, 107, 157, 0.4);
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+  }
+  100% {
+    text-shadow: 0 2px 8px rgba(255, 107, 157, 0.4), 0 0 15px rgba(255, 107, 157, 0.2);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+}
+
+/* Diwali text effect */
+@keyframes diya-text-effect {
+  0% {
+    text-shadow: 0 2px 8px rgba(255, 153, 51, 0.4), 0 0 15px rgba(255, 153, 51, 0.2);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+  50% {
+    text-shadow: 0 4px 16px rgba(255, 153, 51, 0.6), 0 0 25px rgba(255, 153, 51, 0.4);
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+  }
+  100% {
+    text-shadow: 0 2px 8px rgba(255, 153, 51, 0.4), 0 0 15px rgba(255, 153, 51, 0.2);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+}
+
+/* Holi text effect */
+@keyframes holi-text-effect {
+  0% {
+    text-shadow: 0 2px 8px rgba(255, 107, 157, 0.4), 0 0 15px rgba(255, 107, 157, 0.2);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+  50% {
+    text-shadow: 0 4px 16px rgba(255, 217, 61, 0.6), 0 0 25px rgba(107, 203, 119, 0.4);
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+  }
+  100% {
+    text-shadow: 0 2px 8px rgba(107, 203, 119, 0.4), 0 0 15px rgba(77, 150, 255, 0.2);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+}
+
+/* Cracker blast */
+@keyframes cracker-blast {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.2); 
+  }
+  10% { 
+    opacity: 1; 
+    transform: scale(1.5); 
+  }
+  20% { 
+    opacity: 1; 
+    transform: scale(2); 
+  }
+  40% { 
+    opacity: 0.6; 
+    transform: scale(3); 
+  }
+  100% { 
+    opacity: 0; 
+    transform: scale(4); 
+  }
+}
+/* Add these animations to src/components/common/Logo.animations.css */
+
+/* Festival Decorations for Footer */
+@keyframes diya-flicker {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes holi-color-splash {
+  0% { transform: scale(0.5) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.3) rotate(180deg); opacity: 0.8; }
+  100% { transform: scale(0.8) rotate(360deg); opacity: 0; }
+}
+
+@keyframes tricolor-particle-float {
+  0%, 100% { transform: translateY(0); opacity: 0.8; }
+  50% { transform: translateY(-15px); opacity: 1; }
+}
+
+@keyframes garland-sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+@keyframes sun-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes rakhi-heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes moon-glow {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes firework-particle-burst {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  50% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-40px) scale(0.5); }
+}
+
+@keyframes snowfall-gentle {
+  0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(120px) translateX(15px) rotate(360deg); opacity: 0; }
+}
