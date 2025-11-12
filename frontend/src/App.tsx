@@ -4,7 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 
 // Import your components
 import MainLayout from './layouts/MainLayout';
-import Home from './pages/Home';
+import Home from './pages/home/Home';
 import Services from './pages/Services';
 import ServiceDetails from './pages/ServiceDetails';
 import Internships from './pages/Internships';
