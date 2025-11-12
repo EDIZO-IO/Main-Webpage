@@ -59,7 +59,7 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
             variant="primary"
             size="sm"
             enableFestivalAnimation={false}
-            showFestivalEmoji={true}
+            showFestivalEmoji={false}
             iconRight={<ArrowRight className="w-4 h-4" />}
             className="w-full"
           >

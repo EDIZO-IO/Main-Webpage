@@ -1,9 +1,8 @@
 // src/components/common/Button.tsx
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useGoogleEvents } from '../hooks/useGoogleEvents'; // ✅ Updated import path
+import { useGoogleEvents } from '../hooks/useGoogleEvents';
 import { motion } from 'framer-motion';
-import './Button.css';
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -38,7 +37,7 @@ const Button: React.FC<ButtonProps> = ({
   iconRight,
   enableFestivalAnimation = true,
   showFestivalEmoji = true,
-  style, // Destructure style prop
+  style,
 }) => {
   const { getActiveEvent } = useGoogleEvents();
   const activeEvent = getActiveEvent();
@@ -51,15 +50,15 @@ const Button: React.FC<ButtonProps> = ({
     xl: 'px-10 py-4 text-xl',
   };
 
-  // Variant classes
+  // Variant classes - Updated with more specific styling
   const variantClasses = {
-    primary: 'bg-edizo-red text-white hover:bg-red-600 focus:ring-2 ring-offset-2 ring-edizo-red',
-    secondary: 'bg-gray-100 text-edizo-black hover:bg-gray-200 focus:ring-2 ring-offset-2 ring-gray-300',
-    outline: 'border-2 border-edizo-red text-edizo-red hover:bg-edizo-red hover:text-white focus:ring-2 ring-offset-2 ring-edizo-red',
-    ghost: 'text-edizo-red hover:text-red-600 hover:bg-red-50 focus:ring-2 ring-offset-2 ring-edizo-red',
+    primary: 'bg-red-600 text-white hover:bg-red-700 focus:ring-2 ring-offset-2 ring-red-500',
+    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-2 ring-offset-2 ring-gray-300',
+    outline: 'border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white focus:ring-2 ring-offset-2 ring-red-500',
+    ghost: 'text-red-600 hover:text-red-700 hover:bg-red-50 focus:ring-2 ring-offset-2 ring-red-500',
   };
 
-  // Memoize festival styles to prevent recalculation on every render
+  // Memoize festival styles
   const festivalStyles = useMemo(() => {
     if (!enableFestivalAnimation || !activeEvent) return {};
 
@@ -86,10 +85,11 @@ const Button: React.FC<ButtonProps> = ({
     };
 
     if (variant === 'primary' && colors.length > 0) {
-      // Return only background property to avoid conflict with backgroundSize
       return {
         background: festivalGradients[activeEvent.animation] || 
           `linear-gradient(135deg, ${colors[0]}, ${colors[1] || colors[0]}, ${colors[2] || colors[0]})`,
+        color: '#fff',
+        boxShadow: `0 4px 20px 0 rgba(${parseInt(colors[0].slice(1, 3), 16)}, ${parseInt(colors[0].slice(3, 5), 16)}, ${parseInt(colors[0].slice(5, 7), 16)}, 0.3)`,
       };
     }
 
@@ -97,89 +97,42 @@ const Button: React.FC<ButtonProps> = ({
       return {
         borderColor: colors[0],
         color: colors[0],
+        boxShadow: `0 4px 20px 0 rgba(${parseInt(colors[0].slice(1, 3), 16)}, ${parseInt(colors[0].slice(3, 5), 16)}, ${parseInt(colors[0].slice(5, 7), 16)}, 0.3)`,
       };
     }
 
     return {};
-  }, [enableFestivalAnimation, activeEvent, variant]); // Add dependencies
+  }, [enableFestivalAnimation, activeEvent, variant]);
 
-  // Get festival animation class - COMPREHENSIVE MAPPING
+  // Get festival animation class
   const getFestivalAnimationClass = () => {
     if (!enableFestivalAnimation || !activeEvent) return '';
 
     const animationClasses: Record<string, string> = {
-      // Diwali Celebrations
-      'diwali': 'button-diwali-glow',
-      'diya-glow': 'button-diya-flicker',
-      
-      // Holi Celebrations
-      'holi': 'button-holi-pulse',
-      'color-burst': 'button-color-burst',
-      
-      // Independence & Republic Day
-      'independence-day': 'button-tricolor-wave',
-      'republic-day': 'button-republic-pulse',
-      'tricolor-wave': 'button-tricolor-wave',
-      'gandhi-jayanti': 'button-gandhi-peace',
-      
-      // Navratri & Durga Puja
-      'navratri': 'button-garba-spin',
-      'garba-dance': 'button-garba-spin',
-      'durga-puja': 'button-durga-divine',
-      
-      // Christmas & New Year
-      'christmas': 'button-christmas-glow',
-      'festive-snow': 'button-festive-snow',
-      'new-year': 'button-firework-pulse',
-      'fireworks': 'button-fireworks-blast',
-      
-      // Harvest Festivals
-      'pongal': 'button-harvest-glow',
-      'makar-sankranti': 'button-kite-fly',
-      'harvest-celebration': 'button-harvest-celebration',
-      
-      // Regional New Years
-      'tamil-new-year': 'button-tamil-new-year',
-      'ugadi': 'button-ugadi-glow',
-      
-      // Krishna Celebrations
-      'janmashtami': 'button-krishna-divine',
-      'krishna-leela': 'button-krishna-leela',
-      
-      // Raksha Bandhan
-      'raksha-bandhan': 'button-raksha-thread',
-      'thread-sparkle': 'button-thread-sparkle',
-      
-      // Eid
-      'eid': 'button-eid-glow',
-      'moon-glow': 'button-moon-glow',
-      
-      // Other Regional Festivals
-      'onam': 'button-onam-floral',
-      'baisakhi': 'button-baisakhi-dance',
-      'lohri': 'button-lohri-bonfire',
-      'bonfire-glow': 'button-bonfire-glow',
-      
-      // Dussehra
-      'dussehra': 'button-dussehra-victory',
-      'victory-sparkle': 'button-victory-sparkle',
-      
-      // Corporate Events
-      'product-launch': 'button-product-launch',
-      'company-pulse': 'button-company-pulse',
-      'team-anniversary': 'button-team-anniversary',
-      'success-celebration': 'button-celebration-pulse',
-      'milestone-glow': 'button-milestone-glow',
-      
-      // Labour Day
-      'labour-day': 'button-labour-solidarity',
+      'diwali': 'animate-pulse',
+      'diya-glow': 'animate-pulse',
+      'holi': 'animate-bounce',
+      'color-burst': 'animate-bounce',
+      'independence-day': 'animate-pulse',
+      'republic-day': 'animate-pulse',
+      'tricolor-wave': 'animate-pulse',
+      'navratri': 'animate-spin',
+      'garba-dance': 'animate-spin',
+      'christmas': 'animate-pulse',
+      'festive-snow': 'animate-pulse',
+      'new-year': 'animate-bounce',
+      'fireworks': 'animate-bounce',
+      'pongal': 'animate-pulse',
+      'product-launch': 'animate-pulse',
+      'team-anniversary': 'animate-pulse',
+      'success-celebration': 'animate-pulse',
     };
 
-    return animationClasses[activeEvent.animation] || 'button-default-pulse';
+    return animationClasses[activeEvent.animation] || 'animate-pulse';
   };
 
   const combinedClasses = `
-    edizo-button
+    inline-flex items-center justify-center rounded-full font-bold transition-all duration-300 ease-in-out
     ${variantClasses[variant]} 
     ${sizeClasses[size]}
     ${fullWidth ? 'w-full' : ''}
@@ -196,65 +149,16 @@ const Button: React.FC<ButtonProps> = ({
     tap: { scale: 0.98, transition: { duration: 0.1 } }
   };
 
-  const shimmerVariant = {
-    initial: { x: '-100%' },
-    animate: {
-      x: '100%',
-      transition: {
-        repeat: Infinity,
-        duration: 2,
-        ease: "linear" as const
-      }
-    }
-  };
-
-  // Emoji animation variants
-  const emojiVariants = {
-    initial: { scale: 1, rotate: 0 },
-    animate: {
-      scale: [1, 1.1, 1],
-      rotate: [0, 5, -5, 0],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut" as const
-      }
-    }
-  };
-
   const ButtonContent = () => (
     <>
-      {/* Festival Shimmer Effect */}
-      {enableFestivalAnimation && activeEvent && variant === 'primary' && (
-        <motion.div
-          className="button-shimmer"
-          variants={shimmerVariant}
-          initial="initial"
-          animate="animate"
-        />
-      )}
-      
-      {/* Left Icon or Festival Emoji */}
-      {iconLeft ? (
-        <span className="button-icon-left">{iconLeft}</span>
-      ) : (
-        showFestivalEmoji && activeEvent && (
-          <motion.span 
-            className="button-emoji"
-            variants={emojiVariants}
-            initial="initial"
-            animate="animate"
-          >
-            {activeEvent.emoji}
-          </motion.span>
-        )
-      )}
+      {/* Left Icon */}
+      {iconLeft && <span className="mr-2">{iconLeft}</span>}
       
       {/* Button Text */}
-      <span className="button-text">{children}</span>
+      <span className="whitespace-nowrap">{children}</span>
       
       {/* Right Icon */}
-      {iconRight && <span className="button-icon-right">{iconRight}</span>}
+      {iconRight && <span className="ml-2">{iconRight}</span>}
     </>
   );
 
