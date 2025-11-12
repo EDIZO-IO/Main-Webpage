@@ -287,88 +287,107 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-200 rounded-full mb-6"
-            >
-              <Users className="w-4 h-4 text-purple-600" />
-              <span className="text-sm font-semibold text-purple-700">Our Team</span>
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6"
-            >
-              Meet Our Experts
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-xl text-gray-600 max-w-3xl mx-auto"
-            >
-              A passionate team of designers, developers, and strategists working together
-            </motion.p>
-          </div>
+{/* Team Section */}
+<section className="py-24 bg-gradient-to-br from-gray-50 to-white">
+  <div className="container mx-auto px-4 lg:px-8">
+    <div className="text-center mb-16">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-200 rounded-full mb-6"
+      >
+        <Users className="w-4 h-4 text-purple-600" />
+        <span className="text-sm font-semibold text-purple-700">Our Team</span>
+      </motion.div>
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6"
+      >
+        Meet Our Experts
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="text-xl text-gray-600 max-w-3xl mx-auto"
+      >
+        A passionate team of designers, developers, and strategists working together
+      </motion.p>
+    </div>
 
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-            </div>
-          ) : error ? (
-            <div className="text-center py-12">
-              <div className="text-red-500 text-6xl mb-4">⚠️</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Team</h3>
-              <p className="text-gray-600">{error}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {teamMembers.map((member, index) => (
-                <motion.div
-                  key={member.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="text-center"
+    {loading ? (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+      </div>
+    ) : error ? (
+      <div className="text-center py-12">
+        <div className="text-red-500 text-6xl mb-4">⚠️</div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Team</h3>
+        <p className="text-gray-600">{error}</p>
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        {teamMembers.map((member, index) => (
+          <motion.div
+            key={member.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+            className="relative bg-black flex flex-col items-center py-10 px-6 rounded-2xl shadow-xl overflow-visible"
+            style={{
+              borderRadius: "1.5rem",
+              // Custom clip path for cutted corner (top right)
+              clipPath: "polygon(0 0, calc(100% - 44px) 0, 100% 44px, 100% 100%, 0% 100%, 0% 0%)"
+            }}
+          >
+            {/* Orange Accent Cut Corner */}
+            <div className="absolute top-0 right-0 w-12 h-12 bg-orange-500" style={{clipPath:"polygon(100% 0, 0 0, 100% 100%)"}} />
+
+            <div className="flex flex-col items-center z-10">
+              <img
+                src={member.photo}
+                alt={member.name}
+                className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md mb-4"
+                onError={e => { e.target.src = '/assets/team/No-Dp-Pics.jpeg'; }}
+              />
+
+              <h3 className="text-2xl font-extrabold text-white mb-1">
+                <span className="font-bold">{member.name.split(" ")[0]}</span>
+                <span className="font-light"> {member.name.split(" ").slice(1).join(" ")}</span>
+              </h3>
+              <p className="text-orange-300 font-semibold mb-2">{member.role}</p>
+              
+              {member.email && (
+                <a
+                  href={`mailto:${member.email}`}
+                  className="text-blue-400 flex items-center gap-1 hover:underline transition"
                 >
-                  <div className="relative mb-4">
-                    <img
-                      src={member.photo}
-                      alt={member.name}
-                      className="w-32 h-32 rounded-full mx-auto object-cover shadow-lg"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/assets/team/No-Dp-Pics.jpeg';
-                      }}
-                    />
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-t from-black/20 to-transparent rounded-full"></div>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-red-600 font-semibold mb-2">{member.role}</p>
-                  <p className="text-gray-600 text-sm">
-                    {member.email && (
-                      <a href={`mailto:${member.email}`} className="text-blue-600 hover:underline flex items-center justify-center gap-1">
-                        <Mail className="w-4 h-4" /> Email
-                      </a>
-                    )}
-                  </p>
-                </motion.div>
-              ))}
+                  <Mail className="w-4 h-4" /> Email
+                </a>
+              )}
+
+
             </div>
-          )}
-        </div>
-      </section>
+
+            {/* Company website reference - vertical text, left side */}
+            <div className="absolute -left-14 top-1/2 transform -translate-y-1/2 rotate-[-90deg] text-xs text-gray-400 font-mono tracking-widest select-none">
+              www.edizo.com
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
+
 
       {/* CTA Section */}
       <section className="py-24 bg-gradient-to-br from-gray-900 via-red-900 to-orange-900 text-white">

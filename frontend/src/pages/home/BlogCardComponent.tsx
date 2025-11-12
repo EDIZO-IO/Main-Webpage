@@ -1,9 +1,12 @@
-// frontend/src/pages/home/BlogCardComponent.tsx
 import React, { memo } from 'react';
 import { AnimatedSection } from './AnimatedSection';
 import BlogCard from '../../components/widgets/Blogscard';
 
-interface BlogCardProps {
+import type { BlogData } from '../../types/blog.types';
+
+interface BlogCardComponentProps extends Partial<BlogData> {
+  // Only make fields optional for this card component usage
+  id: string;
   title: string;
   description: string;
   author: string;
@@ -12,33 +15,34 @@ interface BlogCardProps {
   thumbnail: string;
   rating: number;
   views: number;
-  id: string;
-  tags?: string[];
-  readTime?: number;
-  likes?: number;
-  comments?: number;
-  featured?: boolean;
-  content?: string;
 }
 
-const BlogCardComponent = memo<BlogCardProps>(({
-  title,
-  description,
-  author,
-  publishedDate,
-  category,
-  thumbnail,
-  rating,
-  views,
-  id,
-  tags = [],
-  readTime = 0,
-  likes = 0,
-  comments = 0,
-  featured = false,
-  content = ''
-}) => {
-  const blogData = {
+const BlogCardComponent = memo<BlogCardComponentProps>((props) => {
+  const {
+    id,
+    title,
+    description,
+    author,
+    publishedDate,
+    category,
+    thumbnail,
+    rating,
+    views,
+    tags = [],
+    readTime = 0,
+    likes = 0,
+    comments = 0,
+    featured = false,
+    content = '',
+    authorImage,
+    slug,
+    seoDescription,
+    keywords,
+    status,
+    updatedAt,
+  } = props;
+
+  const blogData: BlogData = {
     id,
     title,
     description,
@@ -54,21 +58,24 @@ const BlogCardComponent = memo<BlogCardProps>(({
     comments,
     featured,
     content,
-    authorImage: "",
-    slug: id,
-    seoDescription: description,
-    keywords: [],
-    status: "published" as const,
-    excerpt: description,
-    updatedAt: publishedDate
+    authorImage: authorImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}`,
+    slug: slug || id,
+    seoDescription: seoDescription || description,
+    keywords: keywords && keywords.length > 0 ? keywords : [
+      ...tags,
+      title,
+      author,
+      category,
+      (slug || id)
+    ].map(String)
+     .map(str => str.toLowerCase().replace(/ /g, '-')),
+    status: status || "published",
+    updatedAt: updatedAt || publishedDate,
   };
 
   return (
     <AnimatedSection>
-      <BlogCard 
-        blog={blogData} 
-        onClick={() => {}} 
-      />
+      <BlogCard blog={blogData} />
     </AnimatedSection>
   );
 });

@@ -1,4 +1,3 @@
-// frontend/src/pages/home/ServiceCard.tsx
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, ArrowRight } from 'lucide-react';
@@ -18,50 +17,53 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
   return (
     <AnimatedSection>
       <motion.div
-        className="group relative rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-red-200 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-        whileHover={{ y: -6 }}
+        whileHover={{ y: -7, scale: 1.03 }}
         transition={{ duration: 0.2 }}
+        className="group relative bg-white border border-gray-200 shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-all h-full"
+        style={{
+          borderRadius: "1.125rem", // uniform rounded
+        }}
       >
-        {/* Content Section */}
-        <div className="p-6 flex-grow">
-          <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300">
-            {title}
-          </h3>
-          <p className="text-gray-600 text-sm leading-relaxed mb-6">{desc}</p>
-          
-          {/* Features List */}
-          <div className="bg-white p-4 rounded-lg border-l-4 border-red-500 mb-6">
-            <div className="grid grid-cols-2 gap-4">
-              {features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-purple-600" />
-                  <span className="text-sm text-gray-700">{feature}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Image Section - Full Width */}
-        <div className="relative h-56 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+        {/* Flat, geometric image header section */}
+        <div className="relative h-44 overflow-hidden bg-gray-50">
           <LazyImage
             src={img}
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Optional decorative shadow or chip */}
+          <div className="absolute top-5 left-5 flex items-center justify-center w-12 h-12 bg-gray-50 border border-gray-200 rounded-lg shadow group-hover:bg-blue-50 transition-colors z-10">
+            <CheckCircle className="w-6 h-6 text-green-500" />
+          </div>
+          {/* Service Title Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 py-2 px-5 bg-gradient-to-t from-white/95 to-white/60 border-t border-gray-100 flex flex-col">
+            <span className="text-lg font-bold text-gray-900">{title}</span>
+          </div>
         </div>
 
-        {/* Button Section */}
-        <div className="p-6">
+        <div className="p-6 flex flex-col flex-grow">
+          <p className="text-gray-700 mb-4 leading-relaxed text-sm">{desc}</p>
+          {/* Feature list, pill style */}
+          <div className="mb-4 flex flex-wrap gap-2">
+            {features.slice(0, 3).map((feature, i) => (
+              <span key={i} className="text-xs bg-blue-50 text-blue-800 px-3 py-1 rounded font-medium border border-blue-100">
+                {feature}
+              </span>
+            ))}
+            {features.length > 3 && (
+              <span className="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded font-bold border border-gray-300">
+                +{features.length - 3} more
+              </span>
+            )}
+          </div>
           <Button
             to={link}
             variant="primary"
             size="sm"
+            iconRight={<ArrowRight className="w-4 h-4" />}
+            className="w-full mt-auto rounded-lg border-none font-bold shadow-none"
             enableFestivalAnimation={false}
             showFestivalEmoji={false}
-            iconRight={<ArrowRight className="w-4 h-4" />}
-            className="w-full"
           >
             Learn More
           </Button>

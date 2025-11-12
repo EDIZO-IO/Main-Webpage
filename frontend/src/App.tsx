@@ -1,4 +1,3 @@
-// src/App.tsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
@@ -14,7 +13,8 @@ import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 import InternshipApplication from './pages/InternshipApplication';
 import CertificateVerification from './pages/CertificateVerification';
-import Blogs from './pages/Blogs';      // <-- Blogs import here is correct!
+import Blogs from './pages/Blogs';
+import BlogView from './pages/BlogView'; // Must match new route!
 import UpcomingEvents from './pages/UpcomingEvents';
 import About from './pages/About';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -23,7 +23,6 @@ import TermsAndConditions from './pages/TermsAndConditions';
 const App: React.FC = () => {
   return (
     <Routes>
-      {/* Main routes within MainLayout. MainLayout will persist across these routes. */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="services" element={<Services />} />
@@ -34,14 +33,13 @@ const App: React.FC = () => {
         <Route path="projects" element={<Projects />} />
         <Route path="contact" element={<Contact />} />
         <Route path="events" element={<UpcomingEvents />} />
-        <Route path="blogs" element={<Blogs />} />  {/* <-- This is the Blogs route */}
+        <Route path="blogs" element={<Blogs />} />             {/* Blog listing */}
+        <Route path="blogs/:slugOrId" element={<BlogView />} />{/* Single blog by slug or ID */}
         <Route path="verify-certificate" element={<CertificateVerification />} />
-          <Route path="About" element={<About />} /> 
-          <Route path="privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="terms" element={<TermsAndConditions />} />
-        {/* Catch-all route for 404 within the main layout */}
+        <Route path="about" element={<About />} />
+        <Route path="privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="terms" element={<TermsAndConditions />} />
         <Route path="*" element={<NotFound />} />
-
       </Route>
     </Routes>
   );

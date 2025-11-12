@@ -48,101 +48,83 @@ const Hero = memo(() => {
         ))}
       </div>
 
-      <motion.div
+    <motion.div
         className="container mx-auto px-6 lg:px-12 relative z-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55 }}
       >
         <div className="max-w-5xl mx-auto">
-          <AnimatedSection delay={0.1}>
-            <div className="flex justify-center mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-red-200 rounded-full shadow-sm">
-                <Sparkles className="w-4 h-4 text-red-600" />
-                <span className="text-sm font-semibold text-gray-700">Design.Develop.Deliver</span>
-              </div>
+          {/* All content now appears together for best perceived speed */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-red-200 rounded-full shadow-sm">
+              <Sparkles className="w-4 h-4 text-red-600" />
+              <span className="text-sm font-semibold text-gray-700">Design.Develop.Deliver</span>
             </div>
-          </AnimatedSection>
-
-          <AnimatedSection delay={0.15}>
-            <h1 id="hero-title" className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-center mb-6 leading-tight">
-              <span className="text-gray-900">Welcome to </span>
-              <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">EDIZO</span>
-            </h1>
-          </AnimatedSection>
-
-          <AnimatedSection delay={0.2}>
-            <p className="text-xl md:text-2xl text-center text-gray-600 font-medium mb-4 max-w-3xl mx-auto">
-              Creative Services & Real-World Learning — All in One Place
-            </p>
-          </AnimatedSection>
-
-          <AnimatedSection delay={0.25}>
-            <p className="text-lg md:text-xl text-center text-gray-600 leading-relaxed mb-10 max-w-3xl mx-auto">
-              Empowering brands with{' '}
-              <span className="font-bold text-red-600">creative design</span>,{' '}
-              <span className="font-bold text-red-600">reliable development</span>, and{' '}
-              <span className="font-bold text-red-600">impactful digital solutions</span>{' '}
-              — built with precision, passion, and trust.
-              <br className="hidden md:block" />
-              Launch your career with our exclusive{' '}
-              <span className="font-bold text-red-600">internship programs</span>.
-            </p>
-          </AnimatedSection>
-
-          <AnimatedSection delay={0.3}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button 
-                to="/services" 
-                variant="primary" 
-                size="lg"
-                iconRight={<ArrowRight className="w-5 h-5" />}
-                enableFestivalAnimation={true}
-                showFestivalEmoji={true}
-                style={
-                  !activeEvent
-                    ? {
-                        background: "linear-gradient(90deg, #fbbf24 0%, #f43f5e 100%)",
-                        color: "#fff",
-                        boxShadow: "0 4px 20px 0 rgba(251,191,36,0.3),0 8px 24px 0 rgba(244,63,94,0.2)"
-                      }
-                    : undefined
-                }
-              >
-                Explore Services
-              </Button>
-
-              <Button 
-                to="/contact" 
-                variant="outline" 
-                size="lg"
-                enableFestivalAnimation={true}
-                showFestivalEmoji={false}
-              >
-                Get in Touch
-              </Button>
+          </div>
+          <h1 id="hero-title" className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-center mb-6 leading-tight">
+            <span className="text-gray-900">Welcome to </span>
+            <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">EDIZO</span>
+          </h1>
+          <p className="text-xl md:text-2xl text-center text-gray-600 font-medium mb-4 max-w-3xl mx-auto">
+            Creative Services & Real-World Learning — All in One Place
+          </p>
+          <p className="text-lg md:text-xl text-center text-gray-600 leading-relaxed mb-10 max-w-3xl mx-auto">
+            Empowering brands with{' '}
+            <span className="font-bold text-red-600">creative design</span>,{' '}
+            <span className="font-bold text-red-600">reliable development</span>, and{' '}
+            <span className="font-bold text-red-600">impactful digital solutions</span>
+            {' '}— built with precision, passion, and trust.
+            <br className="hidden md:block" />
+            Launch your career with our exclusive{' '}
+            <span className="font-bold text-red-600">internship programs</span>.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+            <Button
+              to="/services"
+              variant="primary"
+              size="lg"
+              iconRight={<ArrowRight className="w-5 h-5" />}
+              enableFestivalAnimation={true}
+              showFestivalEmoji={true}
+              style={
+                !activeEvent
+                  ? {
+                      background: "linear-gradient(90deg, #fbbf24 0%, #f43f5e 100%)",
+                      color: "#fff",
+                      boxShadow: "0 4px 20px 0 rgba(251,191,36,0.3),0 8px 24px 0 rgba(244,63,94,0.2)"
+                    }
+                  : undefined
+              }
+            >
+              Explore Services
+            </Button>
+            <Button
+              to="/contact"
+              variant="outline"
+              size="lg"
+              enableFestivalAnimation={true}
+              showFestivalEmoji={false}
+            >
+              Get in Touch
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-8 mt-6 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <span>10+ Happy Clients</span>
             </div>
-          </AnimatedSection>
-
-          <AnimatedSection delay={0.35}>
-            <div className="flex flex-wrap items-center justify-center gap-8 mt-12 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span>10+ Happy Clients</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span>25+ Projects Delivered</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span>5.0 Client Rating</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <span>25+ Projects Delivered</span>
             </div>
-          </AnimatedSection>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <span>5.0 Client Rating</span>
+            </div>
+          </div>
         </div>
       </motion.div>
-
       <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
         <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
           <path d="M0 120L60 105C120 90 240 60 360 52.5C480 45 600 60 720 67.5C840 75 960 75 1080 67.5C1200 60 1320 45 1380 37.5L1440 30V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white" fillOpacity="0.5"/>

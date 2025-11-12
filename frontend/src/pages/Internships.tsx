@@ -1,5 +1,5 @@
 import { useState, useMemo, memo, useCallback } from "react";
-import { Link } from "react-router-dom";
+
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
   Wifi,
@@ -10,9 +10,9 @@ import {
   Users,
   Zap,
   Award,
-  Tag,
+  
   Percent,
-  Loader2,
+ 
   AlertCircle,
   Sparkles,
   Filter,
@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useInternships } from "../components/hooks/useInternships";
 import { getHighestDiscount, hasDiscount } from "../utils/internship.utils";
+import Button from '../components/common/Button'; // Update path as needed
 
 // === Interfaces ===
 interface AnimatedSectionProps {
@@ -240,76 +241,90 @@ interface InternshipCardProps {
   index: number;
   showTrendingBadge?: boolean;
 }
+
+
 const InternshipCard = memo<InternshipCardProps>(({ internship, index, showTrendingBadge = false }) => {
   const maxDiscount = useMemo(() => getHighestDiscount(internship.discount), [internship.discount]);
   const hasDiscountBadge = useMemo(() => hasDiscount(internship.discount), [internship.discount]);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -5, scale: 1.02 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.02, duration: 0.25 }}
-      className="group bg-white rounded-xl shadow-md border border-gray-100 hover:border-red-300 hover:shadow-xl transition-all overflow-hidden h-full flex flex-col"
-    >
-      <Link to={`/internships/${internship.id}`} className="h-full flex flex-col">
-        <div className="relative h-40 overflow-hidden">
+    <AnimatedSection delay={index * 0.04}>
+      <motion.div
+        whileHover={{ y: -7, scale: 1.03 }}
+        transition={{ duration: 0.2 }}
+        className="group relative bg-white border border-gray-200 shadow-md overflow-hidden h-full flex flex-col hover:shadow-lg transition-all"
+        style={{
+          borderRadius: "1.125rem", // classic rounded
+        }}
+      >
+        {/* Flat geometric image section */}
+        <div className="relative h-48 overflow-hidden bg-gray-50">
           <img
             src={internship.image}
             alt={internship.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
             onError={(e) => {
-              e.currentTarget.src = "https://via.placeholder.com/300x200?text=No+Image";
+              e.currentTarget.src = "https://via.placeholder.com/400x300?text=No+Image";
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          {/* Category Badge */}
-          <div className="absolute top-3 left-3 bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg">{internship.category}</div>
-          {/* Trending Badge */}
-          {showTrendingBadge && (
-            <span className="absolute top-3 right-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1 shadow-lg animate-pulse">🔥 Trending</span>
-          )}
-          {/* Discount Badge */}
-          {!showTrendingBadge && hasDiscountBadge && maxDiscount > 0 && (
-            <div className="absolute top-3 right-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 shadow-lg">
-              <Percent size={12} />
-              {maxDiscount}%
-            </div>
-          )}
-        </div>
-        <div className="p-4 flex-grow flex flex-col">
-          <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors min-h-[3rem]">{internship.title}</h3>
-          <div className="flex items-center justify-between text-xs text-gray-600 mb-3">
-            <div className="flex items-center gap-1">
-              <Wifi className="text-red-600" size={14} />
-              <span className="font-medium">{internship.mode}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Star className="text-yellow-400 fill-current w-4 h-4" />
-              <span className="font-bold text-gray-900">{internship.rating}</span>
-            </div>
-          </div>
-          {hasDiscountBadge && maxDiscount > 0 && (
-            <div className="mb-3 bg-green-50 px-3 py-1.5 rounded-lg">
-              <span className="text-green-700 text-xs font-bold flex items-center gap-1">
-                <Tag size={12} />
-                Save up to {maxDiscount}%
-              </span>
-            </div>
-          )}
-          <div className="mt-auto pt-3 border-t border-gray-100">
-            <span className="text-red-600 text-sm font-bold flex items-center justify-between group-hover:gap-2 transition-all">
-              <span>Apply Now</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          {/* Category badge */}
+          <span className="absolute top-5 left-5 px-3 py-1.5 text-xs font-bold rounded bg-blue-500 text-white shadow backdrop-blur">
+            {internship.category}
+          </span>
+          {/* Trending or Discount Badge */}
+          {showTrendingBadge ? (
+            <span className="absolute top-5 right-5 px-2.5 py-1 text-xs rounded bg-orange-500 text-white font-bold shadow flex items-center gap-1">
+              <Sparkles className="w-4 h-4" /> Trending
             </span>
+          ) : (
+            hasDiscountBadge && maxDiscount > 0 && (
+              <span className="absolute top-5 right-5 px-2.5 py-1 text-xs rounded bg-green-500 text-white font-bold shadow flex items-center gap-1">
+                <Percent size={12} />
+                {maxDiscount}% OFF
+              </span>
+            )
+          )}
+          {/* Title Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 py-2 px-5 bg-gradient-to-t from-white/95 to-white/60 border-t border-gray-100 flex flex-col">
+            <span className="text-lg font-bold text-gray-900">{internship.title}</span>
+            <span className="text-xs text-gray-500 font-medium">{internship.mode}</span>
           </div>
         </div>
-      </Link>
-    </motion.div>
+
+        {/* Main Content */}
+        <div className="p-5 flex flex-col flex-grow">
+          <div className="flex items-center gap-2 mb-2 text-[13px]">
+            <span className="flex items-center gap-1 rounded px-2 py-0.5 bg-gray-100 text-orange-700 font-medium text-xs">
+              <Star className="w-4 h-4 text-yellow-400" /> {internship.rating}/5
+            </span>
+            {hasDiscountBadge && maxDiscount > 0 && (
+              <span className="flex items-center gap-1 bg-green-50 text-green-800 px-2 py-0.5 rounded text-xs font-bold border border-green-200">
+                <Percent size={12} /> {maxDiscount}% Off
+              </span>
+            )}
+          </div>
+          <p className="text-gray-700 text-xs mb-3 line-clamp-2">{internship.description}</p>
+          <Button
+            to={`/internships/${internship.id}`}
+            variant="primary"
+            size="sm"
+            iconRight={<ArrowRight className="w-4 h-4" />}
+            className="w-full mt-auto rounded-lg border-none font-bold shadow-none"
+            enableFestivalAnimation={true}
+            showFestivalEmoji={false}
+          >
+            Apply Now
+          </Button>
+        </div>
+      </motion.div>
+    </AnimatedSection>
   );
 });
 InternshipCard.displayName = "InternshipCard";
+
+
+
 
 // === Trending Section ===
 interface TrendingSectionProps { internships: Internship[]; }

@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import type { BlogData } from '../../types/blog.types';
 import { parseBlogsFromSheets } from '../../utils/blog.utils';
 
+
+// Add your deployed Apps Script endpoint below
+const BLOG_SHEET_UPDATE_ENDPOINT = import.meta.env.VITE_BLOGS_SHEET_UPDATE_URL || 'https://script.google.com/macros/s/XXXXX/exec';
+
 // --- Singleton cache
 interface CacheEntry {
   data: BlogData[];
@@ -13,7 +17,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 let globalCache: CacheEntry | null = null;
 let fetchPromise: Promise<BlogData[]> | null = null;
 
-// --- Main fetcher with timeout protection
+// --- Main fetcher
 const fetchBlogsAPI = async (): Promise<BlogData[]> => {
   const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
   const SHEET_NAME = import.meta.env.VITE_BLOGS_SHEET_NAME || 'Blogs';
@@ -27,7 +31,6 @@ const fetchBlogsAPI = async (): Promise<BlogData[]> => {
   }
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
 
-  // --- Add abort timeout (helps fix infinite loading on Google API hangs)
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
 
@@ -52,20 +55,20 @@ const fetchBlogsAPI = async (): Promise<BlogData[]> => {
   }
 };
 
-// --- Enhanced data hook with instant cache fallback, tab visibility, etc.
+// === Enhanced data hook & others, unchanged ===
 export const useBlogs = () => {
   const [blogs, setBlogs] = useState<BlogData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isMountedRef = useRef(true);
 
-  // --- Clean up on unmount
+
   useEffect(() => {
     isMountedRef.current = true;
     return () => { isMountedRef.current = false; };
   }, []);
 
-  // --- Tab visibility/background revalidation
+
   useEffect(() => {
     const handleFocus = () => {
       if (!globalCache || Date.now() - globalCache.timestamp > CACHE_DURATION) {
@@ -128,13 +131,11 @@ export const useBlogs = () => {
     }
   };
 
-  // --- Use cached data immediately if available
   useEffect(() => {
     if (globalCache && globalCache.data.length > 0) {
       setBlogs(globalCache.data);
       setLoading(globalCache.loading);
       setError(globalCache.error);
-      // background refresh if cache expired
       if (Date.now() - globalCache.timestamp > CACHE_DURATION) loadBlogs(true);
     } else {
       loadBlogs();
@@ -142,11 +143,10 @@ export const useBlogs = () => {
     // eslint-disable-next-line
   }, []);
 
-  return { blogs, loading, error };
+  return { blogs, loading, error, refresh: () => loadBlogs(true) };
 };
 
-
-// === Blog by id hook (unchanged, uses global cache immediately) ===
+// === Blog by id hook (uses global cache for instant UI)
 export const useBlog = (id: string | undefined) => {
   const { blogs, loading: loadingAll, error: errorAll } = useBlogs();
   const [blog, setBlog] = useState<BlogData | null>(null);
@@ -157,7 +157,6 @@ export const useBlog = (id: string | undefined) => {
     if (loadingAll) { setLoading(true); return; }
     if (errorAll) { setError(errorAll); setLoading(false); return; }
     if (!id) { setError('Blog ID not provided'); setLoading(false); return; }
-
     const found = blogs.find((b) => b.id === id);
     if (found) { setBlog(found); setError(null); }
     else { setError(`Blog with ID "${id}" not found`); setBlog(null); }
@@ -166,8 +165,51 @@ export const useBlog = (id: string | undefined) => {
 
   return { blog, loading, error };
 };
+// === UPDATE SHEET ENDPOINT CALLS ===
+async function updateBlogStat(idOrSlug: string, increment: "views" | "likes" | "comments") {
+  try {
+    await fetch(BLOG_SHEET_UPDATE_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idOrSlug, increment })
+    });
+  } catch (e) {
+    // Optionally: fallback, log, ignore
+    console.error(`Failed to update ${increment} in Google Sheets`, e);
+  }
+}
 
-// === Filtered Blogs (unchanged except reliable source) ===
+
+// === Update blog view count ===
+export const incrementBlogView = (idOrSlug: string) => {
+  if (globalCache) {
+    const blog = globalCache.data.find(b => b.id === idOrSlug || b.slug === idOrSlug);
+    if (blog) blog.views = (blog.views || 0) + 1;
+  }
+  updateBlogStat(idOrSlug, "views");
+};
+
+
+// === Update blog likes ===
+export const addBlogLike = (idOrSlug: string) => {
+  if (globalCache) {
+    const blog = globalCache.data.find(b => b.id === idOrSlug || b.slug === idOrSlug);
+    if (blog) blog.likes = (blog.likes || 0) + 1;
+  }
+  updateBlogStat(idOrSlug, "likes");
+};
+
+// === Update comment count ===
+export const addBlogComment = (idOrSlug: string) => {
+  if (globalCache) {
+    const blog = globalCache.data.find(b => b.id === idOrSlug || b.slug === idOrSlug);
+    if (blog) blog.comments = (blog.comments || 0) + 1;
+  }
+  updateBlogStat(idOrSlug, "comments");
+};
+
+
+// === Filtered Blogs
 export const useFilteredBlogs = (
   category: string = 'All',
   searchTerm: string = '',
@@ -199,7 +241,7 @@ export const useFilteredBlogs = (
   return { blogs: filteredBlogs, loading, error };
 };
 
-// === Trending Blogs (unchanged, robust with fast cache) ===
+// === Trending Blogs
 export const useTrendingBlogs = (minRating: number = 4.5, limit?: number) => {
   const { blogs, loading, error } = useBlogs();
   const [trendingBlogs, setTrendingBlogs] = useState<BlogData[]>([]);
@@ -216,7 +258,7 @@ export const useTrendingBlogs = (minRating: number = 4.5, limit?: number) => {
   return { blogs: trendingBlogs, loading, error };
 };
 
-// === Recent Blogs ===
+// === Recent Blogs
 export const useRecentBlogs = (limit: number = 5) => {
   const { blogs, loading, error } = useBlogs();
   const [recentBlogs, setRecentBlogs] = useState<BlogData[]>([]);
@@ -233,7 +275,7 @@ export const useRecentBlogs = (limit: number = 5) => {
   return { blogs: recentBlogs, loading, error };
 };
 
-// === Unique Categories ===
+// === Unique Categories
 export const useBlogCategories = () => {
   const { blogs, loading, error } = useBlogs();
   const [categories, setCategories] = useState<string[]>(['All']);
@@ -247,7 +289,7 @@ export const useBlogCategories = () => {
   return { categories, loading, error };
 };
 
-// === Manual cache clear ===
+// === Manual cache clear
 export const clearBlogsCache = () => {
   globalCache = null;
   fetchPromise = null;

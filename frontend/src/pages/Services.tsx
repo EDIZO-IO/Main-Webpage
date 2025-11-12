@@ -47,7 +47,7 @@ import seoImg from '../assets/services/seo.webp';
 import digitalMarketingImg from '../assets/services/digital-marketing.webp';
 
 // === TypeScript Interfaces ===
-interface Service {
+export interface Service {
   id: string;
   title: string;
   subtitle: string;
@@ -266,67 +266,65 @@ export const services: Service[] = [
 const ServiceCard = memo<ServiceCardProps>(({ service, index }) => (
   <AnimatedSection delay={index * 0.05}>
     <motion.div
-      whileHover={{ y: -8, scale: 1.02 }}
-      transition={{ duration: 0.3 }}
-      className="group relative bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden h-full flex flex-col hover:shadow-2xl hover:border-red-200"
+      whileHover={{ y: -7, scale: 1.03 }}
+      transition={{ duration: 0.2 }}
+      className="group relative bg-white border border-gray-200 shadow-md overflow-hidden h-full flex flex-col hover:shadow-lg transition-all"
+      style={{
+        borderRadius: "1.125rem", // regular rounded
+      }}
     >
-      <div className="relative h-56 overflow-hidden">
+      {/* Flat geometric image header */}
+      <div className="relative h-48 overflow-hidden">
         <LazyImage
           src={service.image}
           alt={service.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        
-        {/* Icon Badge */}
-        <motion.div
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          className="absolute top-4 left-4 p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg"
-        >
+        {/* Icon chip */}
+        <div className="absolute top-5 left-5 flex items-center justify-center w-12 h-12 bg-gray-50 border border-gray-200 rounded-lg shadow group-hover:bg-blue-50 transition-colors z-10">
           {service.icon}
-        </motion.div>
-
-        {/* Title Overlay */}
-        <div className="absolute bottom-4 left-4 right-4">
-          <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{service.title}</h3>
-          <p className="text-white/90 text-sm font-medium">{service.subtitle}</p>
+        </div>
+        {/* Service Title (flat overlay, solid background for contrast) */}
+        <div className="absolute bottom-0 left-0 right-0 py-2 px-5 bg-gradient-to-t from-white/95 to-white/40 border-t border-gray-100 flex flex-col">
+          <span className="text-lg font-bold text-gray-900">{service.title}</span>
+          <span className="text-xs text-gray-500 font-medium">{service.subtitle}</span>
         </div>
       </div>
 
       <div className="p-6 flex flex-col flex-grow">
-        <p className="text-gray-700 mb-6 flex-grow leading-relaxed">{service.description}</p>
-        
-        {/* Features Preview */}
-        <div className="mb-6 flex flex-wrap gap-2">
+        {/* Description */}
+        <p className="text-gray-700 mb-4 leading-relaxed">{service.description}</p>
+
+        {/* Features List - pills, flat look */}
+        <div className="mb-4 flex flex-wrap gap-2">
           {service.features.slice(0, 3).map((feature, i) => (
-            <span key={i} className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">
+            <span key={i} className="text-xs bg-blue-50 text-blue-800 px-3 py-1 rounded font-medium border border-blue-100">
               {feature}
             </span>
           ))}
           {service.features.length > 3 && (
-            <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold">
+            <span className="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded font-bold border border-gray-300">
               +{service.features.length - 3} more
             </span>
           )}
         </div>
 
-<Button
-  to={`/services/${service.id}`}
-  variant="outline"
-  size="sm"
-  enableFestivalAnimation={false}
-  showFestivalEmoji={true}
-  iconRight={<ArrowRight className="w-4 h-4" />}
-  className="w-full mt-auto"
->
-  Explore Details
-</Button>
-
+        {/* CTA Button - flat */}
+        <Button
+          to={`/services/${service.id}`}
+          variant="primary"
+          size="sm"
+          iconRight={<ArrowRight className="w-4 h-4" />}
+          className="w-full mt-auto rounded-lg border-none font-bold shadow-none bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+        >
+          Explore Details
+        </Button>
       </div>
     </motion.div>
   </AnimatedSection>
 ));
 ServiceCard.displayName = 'ServiceCard';
+
 
 // === Memoized Why Choose Item ===
 const WhyChooseItem = memo<{ title: string; description: string; icon: React.ReactNode; delay: number }>(

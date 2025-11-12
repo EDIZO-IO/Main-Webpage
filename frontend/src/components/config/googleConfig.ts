@@ -138,6 +138,10 @@ if (import.meta.env.DEV) {
     console.warn('⚠️ Google API configuration issues detected:', validation.errors);
   }
 }
+// Add this after your current GOOGLE_API_ENDPOINTS:
+export const BLOG_SHEET_UPDATE_ENDPOINT =
+  getEnvVar('VITE_BLOGS_SHEET_UPDATE_URL') || 'https://script.google.com/macros/s/XXXXXXXX/exec';
+
 
 // Export all configurations
 export default GOOGLE_CONFIG;
