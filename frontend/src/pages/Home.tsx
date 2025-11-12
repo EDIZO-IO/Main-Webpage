@@ -56,6 +56,7 @@ interface ServiceCardProps {
   title: string;
   desc: string;
   link: string;
+  features: string[];
 }
 
 interface PortfolioCardProps {
@@ -117,16 +118,37 @@ const AnimatedSection = memo<AnimatedSectionProps>(({ children, delay = 0 }) => 
 ));
 AnimatedSection.displayName = 'AnimatedSection';
 
-// ✅ Memoized Service Card
-const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link }) => {
+// ✅ Memoized Service Card - Updated Style (New UI)
+const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }) => {
   return (
     <AnimatedSection>
       <motion.div
-        className="group relative rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-red-200 shadow-sm hover:shadow-2xl transition-all duration-300"
+        className="group relative rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-red-200 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
         whileHover={{ y: -6 }}
         transition={{ duration: 0.2 }}
       >
-        <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+        {/* Content Section */}
+        <div className="p-6 flex-grow">
+          <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300">
+            {title}
+          </h3>
+          <p className="text-gray-600 text-sm leading-relaxed mb-6">{desc}</p>
+          
+          {/* Features List */}
+          <div className="bg-white p-4 rounded-lg border-l-4 border-red-500 mb-6">
+            <div className="grid grid-cols-2 gap-4">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm text-gray-700">{feature}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Image Section - Full Width */}
+        <div className="relative h-56 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
           <LazyImage
             src={img}
             alt={title}
@@ -135,15 +157,11 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
 
+        {/* Button Section */}
         <div className="p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300">
-            {title}
-          </h3>
-          <p className="text-gray-600 text-sm leading-relaxed mb-4">{desc}</p>
-
           <Button
             to={link}
-            variant="outline"
+            variant="primary"
             size="sm"
             enableFestivalAnimation={false}
             showFestivalEmoji={true}
@@ -159,7 +177,7 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link }) => {
 });
 ServiceCard.displayName = 'ServiceCard';
 
-// ✅ Memoized Portfolio Card
+// ✅ Memoized Portfolio Card - Updated Style
 const PortfolioCard = memo<PortfolioCardProps>(({ 
   img, 
   title, 
@@ -174,35 +192,20 @@ const PortfolioCard = memo<PortfolioCardProps>(({
 }) => {
   const CardContent = (
     <>
-      <div className="relative h-56 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
-        <LazyImage 
-          src={img} 
-          alt={title} 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-        />
-        
+      {/* Description Section */}
+      <div className="p-6 flex-grow">
         {category && (
-          <div className="absolute top-4 left-4 px-3 py-1.5 bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs font-bold rounded-full shadow-lg">
-            {category}
+          <div className="mb-3">
+            <span className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs font-bold rounded-full shadow-lg">
+              {category}
+            </span>
           </div>
         )}
-
-        {hasDiscount && maxDiscount && maxDiscount > 0 && (
-          <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 shadow-lg">
-            <Tag size={12} />
-            {maxDiscount}% OFF
-          </div>
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      </div>
-
-      <div className="p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors duration-300">
           {title}
         </h3>
         {shortDescription && (
-          <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-3">
+          <p className="text-gray-600 text-sm leading-relaxed mb-3">
             {shortDescription}
           </p>
         )}
@@ -226,7 +229,28 @@ const PortfolioCard = memo<PortfolioCardProps>(({
             )}
           </div>
         )}
+      </div>
 
+      {/* Image Section - Full Width */}
+      <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+        <LazyImage 
+          src={img} 
+          alt={title} 
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+        />
+        
+        {hasDiscount && maxDiscount && maxDiscount > 0 && (
+          <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 shadow-lg">
+            <Tag size={12} />
+            {maxDiscount}% OFF
+          </div>
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </div>
+
+      {/* Action Section */}
+      <div className="p-6">
         <div className="mt-4 inline-flex items-center text-red-600 font-semibold text-sm">
           <span className="mr-2">Explore</span>
           <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-2" />
@@ -235,7 +259,7 @@ const PortfolioCard = memo<PortfolioCardProps>(({
     </>
   );
 
-  const cardClasses = "group relative rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-red-200 shadow-sm hover:shadow-2xl transition-all duration-300";
+  const cardClasses = "group relative rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-red-200 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col h-full";
 
   if (isExternal) {
     return (
@@ -245,7 +269,7 @@ const PortfolioCard = memo<PortfolioCardProps>(({
           whileHover={{ y: -6 }}
           transition={{ duration: 0.2 }}
         >
-          <a href={link} target="_blank" rel="noopener noreferrer" className="block h-full">
+          <a href={link} target="_blank" rel="noopener noreferrer" className="block h-full flex flex-col">
             {CardContent}
           </a>
         </motion.div>
@@ -260,7 +284,7 @@ const PortfolioCard = memo<PortfolioCardProps>(({
         whileHover={{ y: -6 }}
         transition={{ duration: 0.2 }}
       >
-        <Link to={link} className="block h-full">
+        <Link to={link} className="block h-full flex flex-col">
           {CardContent}
         </Link>
       </motion.div>
@@ -336,7 +360,7 @@ const Hero = memo(() => {
         <div 
           className="absolute inset-0 opacity-[0.02]"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}
         />
 
@@ -513,7 +537,7 @@ const Home: React.FC = () => {
       img: ransomware,
       title: 'AI-Based Ransomware Detection System',
       category: 'Cybersecurity',
-      link: '  https://bytecode.edizo.in  ',
+      link: '    https://bytecode.edizo.in    ',
       shortDescription: 'An AI system for detecting and preventing ransomware attacks in real-time'
     },
     {
@@ -521,7 +545,7 @@ const Home: React.FC = () => {
       img: faceguard,
       title: 'FaceGuard-GAN Deepfake Detection',
       category: 'Computer Vision & AI',
-      link: 'https://bytecode.edizo.in  ',
+      link: 'https://bytecode.edizo.in    ',
       shortDescription: 'GAN-powered solution for detecting manipulated facial images and videos'
     },
     {
@@ -529,20 +553,34 @@ const Home: React.FC = () => {
       img: Epicnexus,
       title: 'Epic Nexus Gaming Community Platform',
       category: 'Web Development',
-      link: 'https://bytecode.edizo.in  ',
+      link: 'https://bytecode.edizo.in    ',
       shortDescription: 'Comprehensive gaming community platform with social features and reviews'
     }
   ], []);
 
+  // Only show 3 services on homepage with the new UI
   const featuredServices = useMemo(() => [
-    { img: webDevelopment, title: "Web Development", desc: "Fast, scalable websites with React & Next.js.", link: "/services/web-development" },
-    { img: uiuxImg, title: "UI/UX Design", desc: "Human-centered design that users love.", link: "/services/ui-ux" },
-    { img: appDesignImg, title: "App Development", desc: "Cross-platform apps with React Native & Flutter.", link: "/services/app-development" },
-    { img: videoEditingImg, title: "Video Editing", desc: "Engaging visuals for brand storytelling.", link: "/services/video-editing"},
-    { img: graphicDesignImg, title: "Graphic Design", desc: "Brand-aligned visuals that elevate identity.", link: "/services/graphic-design"},
-    { img: apiDevelopmentImg, title: "API Development", desc: "Robust, scalable APIs for seamless integration.", link: "/services/api-development"},
-    { img: seoImg, title: "SEO Optimization", desc: "Dominate search engine rankings organically.", link: "/services/seo"},
-    { img: digitalMarketingImg, title: "Digital Marketing", desc: "Reach & engage your audience across channels.", link: "/services/digital-marketing"},
+    { 
+      img: webDevelopment, 
+      title: "Web Development", 
+      desc: "Fast, scalable websites with React & Next.js.", 
+      link: "/services/web-development",
+      features: ["Blazing Fast Speeds", "Extensive Coverage", "Reliable Connectivity", "Uptime Guarantee"]
+    },
+    { 
+      img: uiuxImg, 
+      title: "UI/UX Design", 
+      desc: "Human-centered design that users love.", 
+      link: "/services/ui-ux",
+      features: ["Intuitive Interfaces", "User Testing", "Responsive Design", "Accessibility Compliance"]
+    },
+    { 
+      img: appDesignImg, 
+      title: "App Development", 
+      desc: "Cross-platform apps with React Native & Flutter.", 
+      link: "/services/app-development",
+      features: ["Native Performance", "Seamless Integration", "Scalable Architecture", "Push Notifications"]
+    }
   ], []);
 
   const whyChooseItems = useMemo(() => [
@@ -645,7 +683,7 @@ const Home: React.FC = () => {
             </AnimatedSection>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredServices.map((service) => (
               <ServiceCard key={service.title} {...service} />
             ))}
@@ -761,7 +799,7 @@ const Home: React.FC = () => {
 
           <div className="text-center">
             <Button 
-              href="https://bytecode.edizo.in  " 
+              href="https://bytecode.edizo.in    " 
               variant="primary"
               size="lg"
               enableFestivalAnimation={true}
@@ -886,7 +924,7 @@ const Home: React.FC = () => {
       <section className="py-24 bg-gradient-to-br from-gray-900 via-red-900 to-orange-900 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}
           />
         </div>
