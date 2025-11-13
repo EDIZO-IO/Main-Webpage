@@ -145,7 +145,6 @@ export const useInternships = () => {
   return { internships, loading, error };
 };
 
-
 // === Internship by id hook (unchanged, uses global cache immediately) ===
 export const useInternship = (id: string | undefined) => {
   const { internships, loading: loadingAll, error: errorAll } = useInternships();
@@ -227,6 +226,251 @@ export const useCategories = () => {
     }
   }, [internships, loading]);
   return { categories, loading, error };
+};
+
+// === Internships with coupon codes ===
+export const useInternshipsWithCoupons = () => {
+  const { internships, loading, error } = useInternships();
+  const [internshipsWithCoupons, setInternshipsWithCoupons] = useState<InternshipData[]>([]);
+
+  useEffect(() => {
+    if (!loading && internships.length > 0) {
+      // Filter internships that have available coupons
+      const internshipsWithValidCoupons = internships.filter(
+        i => i.availableCoupons && i.availableCoupons.some(coupon => coupon.isActive)
+      );
+      setInternshipsWithCoupons(internshipsWithValidCoupons);
+    } else {
+      setInternshipsWithCoupons([]);
+    }
+  }, [internships, loading]);
+
+  return { internships: internshipsWithCoupons, loading, error };
+};
+
+// === Get coupon by code ===
+export const useCouponByCode = (couponCode: string | undefined) => {
+  const { internships, loading, error } = useInternships();
+  const [coupon, setCoupon] = useState<{internshipId: string, coupon: any} | null>(null);
+
+  useEffect(() => {
+    if (!loading && internships.length > 0 && couponCode) {
+      for (const internship of internships) {
+        if (internship.availableCoupons) {
+          const foundCoupon = internship.availableCoupons.find(
+            c => c.code.toUpperCase() === couponCode.toUpperCase() && c.isActive
+          );
+          if (foundCoupon) {
+            setCoupon({
+              internshipId: internship.id,
+              coupon: foundCoupon
+            });
+            break;
+          }
+        }
+      }
+    } else {
+      setCoupon(null);
+    }
+  }, [internships, loading, couponCode]);
+
+  return { coupon, loading, error };
+};
+
+// === Internships by coupon availability ===
+export const useInternshipsByCouponAvailability = (hasCoupon: boolean = true) => {
+  const { internships, loading, error } = useInternships();
+  const [filteredInternships, setFilteredInternships] = useState<InternshipData[]>([]);
+
+  useEffect(() => {
+    if (!loading && internships.length > 0) {
+      if (hasCoupon) {
+        // Filter internships that have at least one active coupon
+        const internshipsWithCoupons = internships.filter(
+          i => i.availableCoupons && i.availableCoupons.some(coupon => coupon.isActive)
+        );
+        setFilteredInternships(internshipsWithCoupons);
+      } else {
+        // Filter internships that don't have any active coupons
+        const internshipsWithoutCoupons = internships.filter(
+          i => !i.availableCoupons || !i.availableCoupons.some(coupon => coupon.isActive)
+        );
+        setFilteredInternships(internshipsWithoutCoupons);
+      }
+    } else {
+      setFilteredInternships([]);
+    }
+  }, [internships, loading, hasCoupon]);
+
+  return { internships: filteredInternships, loading, error };
+};
+
+// === Internships with specific coupon type ===
+export const useInternshipsByCouponType = (couponType: 'percentage' | 'fixed' | 'all' = 'all') => {
+  const { internships, loading, error } = useInternships();
+  const [filteredInternships, setFilteredInternships] = useState<InternshipData[]>([]);
+
+  useEffect(() => {
+    if (!loading && internships.length > 0) {
+      if (couponType === 'all') {
+        // Return internships with any type of active coupon
+        const internshipsWithAnyCoupon = internships.filter(
+          i => i.availableCoupons && i.availableCoupons.some(coupon => coupon.isActive)
+        );
+        setFilteredInternships(internshipsWithAnyCoupon);
+      } else {
+        // Filter internships with specific coupon type
+        const internshipsWithSpecificCoupon = internships.filter(
+          i => i.availableCoupons && i.availableCoupons.some(
+            coupon => coupon.isActive && coupon.discountType === couponType
+          )
+        );
+        setFilteredInternships(internshipsWithSpecificCoupon);
+      }
+    } else {
+      setFilteredInternships([]);
+    }
+  }, [internships, loading, couponType]);
+
+  return { internships: filteredInternships, loading, error };
+};
+
+// === Internships with specific coupon code ===
+export const useInternshipsByCouponCode = (couponCode: string | undefined) => {
+  const { internships, loading, error } = useInternships();
+  const [filteredInternships, setFilteredInternships] = useState<InternshipData[]>([]);
+
+  useEffect(() => {
+    if (!loading && internships.length > 0 && couponCode) {
+      const internshipsWithSpecificCoupon = internships.filter(
+        i => i.availableCoupons && 
+        i.availableCoupons.some(
+          coupon => coupon.code.toUpperCase() === couponCode.toUpperCase() && coupon.isActive
+        )
+      );
+      setFilteredInternships(internshipsWithSpecificCoupon);
+    } else {
+      setFilteredInternships([]);
+    }
+  }, [internships, loading, couponCode]);
+
+  return { internships: filteredInternships, loading, error };
+};
+
+// === Internships with highest coupon discount ===
+export const useInternshipsWithHighestCouponDiscount = () => {
+  const { internships, loading, error } = useInternships();
+  const [filteredInternships, setFilteredInternships] = useState<InternshipData[]>([]);
+
+  useEffect(() => {
+    if (!loading && internships.length > 0) {
+      const internshipsWithCoupons = internships.filter(
+        i => i.availableCoupons && i.availableCoupons.some(coupon => coupon.isActive)
+      );
+      
+      // Sort by highest coupon discount
+      const sortedInternships = [...internshipsWithCoupons].sort((a, b) => {
+        const maxDiscountA = a.availableCoupons?.reduce((max, coupon) => 
+          coupon.isActive && coupon.discountValue > max ? coupon.discountValue : max, 0) || 0;
+        const maxDiscountB = b.availableCoupons?.reduce((max, coupon) => 
+          coupon.isActive && coupon.discountValue > max ? coupon.discountValue : max, 0) || 0;
+        return maxDiscountB - maxDiscountA;
+      });
+      
+      setFilteredInternships(sortedInternships);
+    } else {
+      setFilteredInternships([]);
+    }
+  }, [internships, loading]);
+
+  return { internships: filteredInternships, loading, error };
+};
+
+// === Internships with specific discount percentage from Google Sheets ===
+export const useInternshipsByDiscountPercentage = (discountPercentage: number) => {
+  const { internships, loading, error } = useInternships();
+  const [filteredInternships, setFilteredInternships] = useState<InternshipData[]>([]);
+
+  useEffect(() => {
+    if (!loading && internships.length > 0) {
+      // Filter internships that have at least one coupon with the specified discount percentage
+      const internshipsWithSpecificDiscount = internships.filter(
+        i => i.availableCoupons && 
+        i.availableCoupons.some(
+          coupon => coupon.discountValue === discountPercentage && coupon.isActive
+        )
+      );
+      setFilteredInternships(internshipsWithSpecificDiscount);
+    } else {
+      setFilteredInternships([]);
+    }
+  }, [internships, loading, discountPercentage]);
+
+  return { internships: filteredInternships, loading, error };
+};
+
+// === Internships with discount percentage range from Google Sheets ===
+export const useInternshipsByDiscountRange = (minDiscount: number, maxDiscount: number) => {
+  const { internships, loading, error } = useInternships();
+  const [filteredInternships, setFilteredInternships] = useState<InternshipData[]>([]);
+
+  useEffect(() => {
+    if (!loading && internships.length > 0) {
+      // Filter internships that have at least one coupon within the discount range
+      const internshipsInRange = internships.filter(
+        i => i.availableCoupons && 
+        i.availableCoupons.some(
+          coupon => coupon.discountValue >= minDiscount && 
+                   coupon.discountValue <= maxDiscount && 
+                   coupon.isActive
+        )
+      );
+      setFilteredInternships(internshipsInRange);
+    } else {
+      setFilteredInternships([]);
+    }
+  }, [internships, loading, minDiscount, maxDiscount]);
+
+  return { internships: filteredInternships, loading, error };
+};
+
+// === Internships with highest overall discount (base + coupon) ===
+export const useInternshipsWithHighestOverallDiscount = () => {
+  const { internships, loading, error } = useInternships();
+  const [filteredInternships, setFilteredInternships] = useState<InternshipData[]>([]);
+
+  useEffect(() => {
+    if (!loading && internships.length > 0) {
+      // Calculate total discount for each internship (base discount + highest coupon discount)
+      const internshipsWithTotalDiscount = internships.map(i => {
+        const baseDiscount = Math.max(
+          i.discount?.['15-days'] || 0,
+          i.discount?.['1-month'] || 0,
+          i.discount?.['2-months'] || 0,
+          i.discount?.['3-months'] || 0
+        );
+        
+        const couponDiscount = i.availableCoupons?.reduce((max, coupon) => 
+          coupon.isActive && coupon.discountValue > max ? coupon.discountValue : max, 0) || 0;
+        
+        return {
+          ...i,
+          totalDiscount: baseDiscount + couponDiscount
+        };
+      });
+      
+      // Sort by total discount (base + coupon)
+      const sortedInternships = internshipsWithTotalDiscount.sort((a, b) => 
+        b.totalDiscount - a.totalDiscount
+      );
+      
+      setFilteredInternships(sortedInternships);
+    } else {
+      setFilteredInternships([]);
+    }
+  }, [internships, loading]);
+
+  return { internships: filteredInternships, loading, error };
 };
 
 // === Manual cache clear ===

@@ -1,17 +1,7 @@
-// src/components/common/Header.tsx
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import {
-  Menu,
-  X,
-  Home,
-  Briefcase,
-  BookOpen,
-  Code,
-  Users,
-  Phone,
-  ChevronDown,
-  Sparkles,
+  Menu, X, Home, Briefcase, BookOpen, Code, Users, Phone,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './Logo';
@@ -31,27 +21,32 @@ const navLinks = [
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  
   const mobileNavRef = useRef<HTMLDivElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
 
   const { getActiveEvent } = useGoogleEvents();
   const activeEvent = getActiveEvent();
 
+  // Festival glass style map
+  const getFestivalTheme = () => {
+    if (!activeEvent) return '';
+    const themeMap: Record<string, string> = {
+      'diwali': 'bg-gradient-to-r from-yellow-100 via-white to-orange-100 bg-blend-hard-light',
+      'holi': 'bg-gradient-to-br from-pink-50 via-cyan-50 to-violet-100 bg-blend-hard-light',
+      // ... add any custom
+    };
+    return themeMap[activeEvent.animation] || '';
+  };
+  const festivalThemeClass = getFestivalTheme();
+
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    handleScroll();
+    const handleScroll = () => setIsScrolled(window.scrollY > 18);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsMenuOpen(false);
-        setIsProfileOpen(false);
-      }
+      if (e.key === 'Escape') setIsMenuOpen(false);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -62,71 +57,31 @@ const Header = () => {
       if (isMenuOpen && mobileNavRef.current && !mobileNavRef.current.contains(e.target as Node)) {
         setIsMenuOpen(false);
       }
-      if (isProfileOpen && profileRef.current && !profileRef.current.contains(e.target as Node)) {
-        setIsProfileOpen(false);
-      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isMenuOpen, isProfileOpen]);
-
-  const getFestivalTheme = () => {
-    if (!activeEvent) return 'festival-bg-default';
-    const themeMap: Record<string, string> = {
-      'diwali': 'festival-bg-diwali',
-      'diya-glow': 'festival-bg-diya-glow',
-      'holi': 'festival-bg-holi',
-      'color-burst': 'festival-bg-color-burst',
-      'navratri': 'festival-bg-navratri',
-      'durga-puja': 'festival-bg-durga-puja',
-      'garba-dance': 'festival-bg-garba-dance',
-      'independence-day': 'festival-bg-independence-day',
-      'republic-day': 'festival-bg-republic-day',
-      'gandhi-jayanti': 'festival-bg-gandhi-jayanti',
-      'pongal': 'festival-bg-pongal',
-      'makar-sankranti': 'festival-bg-makar-sankranti',
-      'harvest-celebration': 'festival-bg-harvest-celebration',
-      'tamil-new-year': 'festival-bg-tamil-new-year',
-      'ugadi': 'festival-bg-ugadi',
-      'janmashtami': 'festival-bg-janmashtami',
-      'krishna-leela': 'festival-bg-krishna-leela',
-      'raksha-bandhan': 'festival-bg-raksha-bandhan',
-      'thread-sparkle': 'festival-bg-thread-sparkle',
-      'eid': 'festival-bg-eid',
-      'moon-glow': 'festival-bg-moon-glow',
-      'onam': 'festival-bg-onam',
-      'baisakhi': 'festival-bg-baisakhi',
-      'lohri': 'festival-bg-lohri',
-      'bonfire-glow': 'festival-bg-bonfire-glow',
-      'dussehra': 'festival-bg-dussehra',
-      'victory-sparkle': 'festival-bg-victory-sparkle',
-      'christmas': 'festival-bg-christmas',
-      'festive-snow': 'festival-bg-festive-snow',
-      'new-year': 'festival-bg-new-year',
-      'fireworks': 'festival-bg-fireworks',
-      'product-launch': 'festival-bg-product-launch',
-      'company-pulse': 'festival-bg-company-pulse',
-      'team-anniversary': 'festival-bg-team-anniversary',
-      'success-celebration': 'festival-bg-success-celebration',
-      'milestone-glow': 'festival-bg-milestone-glow',
-      'labour-day': 'festival-bg-labour-day',
-    };
-    return themeMap[activeEvent.animation] || 'festival-bg-default';
-  };
-
-  const festivalThemeClass = getFestivalTheme();
+  }, [isMenuOpen]);
 
   return (
     <>
+      {/* GLASS HEADER */}
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed w-full top-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100'
-            : 'bg-white/80 backdrop-blur-md'
-        } ${festivalThemeClass}`}
+        className={`
+          fixed w-full top-0 z-50 transition-all duration-300 
+          ${isScrolled
+            ? 'bg-white/50 border-b border-gray-100 shadow-lg backdrop-blur-xl'
+            : 'bg-white/30 border-b border-white/20 shadow-sm backdrop-blur-3xl'}
+          ${festivalThemeClass}
+        `}
+        style={{
+          boxShadow: isScrolled
+            ? '0 8px 30px 0 rgba(31,41,55,0.08), 0 1.5px 0 0 rgba(244,63,94,0.11)'
+            : '0 1.5px 0 0 rgba(255,255,255,0.13)',
+          borderBottom: '1.5px solid rgba(200,200,255,0.085)'
+        }}
         role="banner"
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 header-content">
@@ -135,10 +90,9 @@ const Header = () => {
             <Link to="/" className="relative z-10" aria-label="Edizo Home">
               <Logo isScrolled={isScrolled} />
             </Link>
-
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-2">
-              {navLinks.map((link, index) => {
+            <nav className="hidden lg:flex items-center gap-1">
+              {navLinks.map((link) => {
                 const Icon = link.icon;
                 return (
                   <NavLink
@@ -146,14 +100,15 @@ const Header = () => {
                     to={link.path}
                     className={({ isActive }) =>
                       `
-                      relative font-medium text-sm px-4 py-2.5 rounded-xl 
-                      transition-all duration-300 flex items-center gap-2 group
+                      relative font-medium text-sm px-4 py-2.5 rounded-xl
+                      flex items-center gap-2 group transition-all ring-1 ring-inset ring-white/30 shadow backdrop-blur-2xl
                       ${isActive
-                        ? 'text-red-600 bg-red-50 shadow-sm'
-                        : 'text-gray-700 hover:text-red-600 hover:bg-gray-50'
-                      }
-                      `
-                    }
+                        ? 'text-orange-600 bg-white/70 ring-orange-300'
+                        : 'text-slate-700 hover:text-orange-500 hover:bg-white/60'}
+                      `}
+                    style={{
+                      backdropFilter: 'blur(7px) saturate(1.28)'
+                    }}
                   >
                     <Icon className="w-4 h-4" />
                     <span>{link.name}</span>
@@ -161,22 +116,19 @@ const Header = () => {
                 );
               })}
             </nav>
-
-            {/* Profile/Auth Controls - Removed */}
+            {/* Mobile menu button */}
             <div className="flex items-center gap-2">
-              {/* Mobile menu button */}
               <button
-                className="lg:hidden z-20 p-2.5 rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
+                className="lg:hidden z-20 p-2.5 rounded-xl hover:bg-white/70 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
               >
-                {isMenuOpen ? <X className="w-6 h-6 text-gray-900"/> : <Menu className="w-6 h-6 text-gray-900"/>}
+                {isMenuOpen ? <X className="w-6 h-6 text-gray-900" /> : <Menu className="w-6 h-6 text-gray-900" />}
               </button>
             </div>
           </div>
         </div>
       </motion.header>
-
       {/* Mobile Drawer */}
       <AnimatePresence>
         {isMenuOpen && (
@@ -185,7 +137,7 @@ const Header = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
               onClick={() => setIsMenuOpen(false)}
             />
             <motion.div
@@ -193,20 +145,31 @@ const Header = () => {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className={`fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-2xl z-50 flex flex-col ${festivalThemeClass}`}
+              transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+              className={`
+                fixed top-0 right-0 bottom-0 w-full max-w-sm
+                rounded-l-2xl
+                bg-white/60 border-l border-white/40
+                shadow-2xl z-50 flex flex-col
+                backdrop-blur-[25px] bg-opacity-80
+                ${festivalThemeClass}
+              `}
+              style={{
+                boxShadow:
+                  '0 10px 40px 0 rgba(244,100,63,0.15),0 2px 16px 0 rgba(65,65,65,0.08)'
+              }}
             >
-              <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white/50">
+              <div className="flex items-center justify-between p-6 border-b border-white/20 bg-white/50 backdrop-blur-xl">
                 <Logo isScrolled={true} />
                 <button
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                   onClick={() => setIsMenuOpen(false)}>
-                  <X className="w-6 h-6 text-gray-900"/>
+                  <X className="w-6 h-6 text-gray-900" />
                 </button>
               </div>
               <nav className="flex-1 overflow-y-auto p-6 relative z-10">
                 <ul className="space-y-2">
-                  {navLinks.map((link, index) => {
+                  {navLinks.map((link) => {
                     const Icon = link.icon;
                     return (
                       <li key={link.path}>
@@ -215,13 +178,15 @@ const Header = () => {
                           onClick={() => setIsMenuOpen(false)}
                           className={({ isActive }) =>
                             `
-                            flex items-center gap-4 w-full p-4 rounded-xl transition-all duration-200 font-medium ${
-                              isActive
-                                ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg'
-                                : 'text-gray-700 hover:bg-white/70 bg-white/50 backdrop-blur-sm'
-                            }
+                            flex items-center gap-4 w-full p-4 rounded-xl
+                            font-semibold transition-all
+                            ring-1 ring-inset ring-white/30 shadow backdrop-blur-xl
+                            ${isActive
+                              ? 'bg-gradient-to-r from-orange-400 to-red-400 text-white shadow-lg ring-0'
+                              : 'text-slate-700 hover:text-gray-900 hover:bg-white/40'}
                             `
                           }
+                          style={{ backdropFilter: 'blur(10px) saturate(1.26)' }}
                         >
                           <Icon className="w-5 h-5" />
                           <span>{link.name}</span>
@@ -231,8 +196,8 @@ const Header = () => {
                   })}
                 </ul>
               </nav>
-              <div className="p-6 border-t border-gray-200 bg-white/50">
-                <p className="text-sm text-gray-600 text-center">
+              <div className="p-6 border-t border-white/20 bg-white/40 backdrop-blur-xl">
+                <p className="text-sm text-gray-700 text-center font-mono">
                   © {new Date().getFullYear()} Edizo. All rights reserved.
                 </p>
               </div>

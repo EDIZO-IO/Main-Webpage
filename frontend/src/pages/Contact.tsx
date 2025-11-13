@@ -2,30 +2,10 @@
 import { useState, useEffect, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Mail,
-  Phone,
-  MapPin,
-  Send,
-  CheckCircle,
-  Loader2,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Instagram,
-  Youtube,
-  MessageCircle,
-  ArrowRight,
-  Clock,
-  Zap,
-  User,
-  Hash,
-  MessageSquare,
-  AlertCircle,
-  Globe,
-  HeadphonesIcon,
-  Sparkles,
-  X,
+  Mail, Phone, Send, CheckCircle, Loader2, Facebook, Twitter, Linkedin, Instagram,
+  Youtube, MessageCircle, ArrowRight, Clock, User, Hash, MessageSquare, AlertCircle, Globe, HeadphonesIcon, Sparkles, X,
 } from 'lucide-react';
+
 
 // === TypeScript Interfaces ===
 interface AnimatedSectionProps {
@@ -153,16 +133,16 @@ const ContactInfo = memo<ContactInfoProps>(({ icon, title, lines, gradientClass,
     initial={{ opacity: 0, y: 15 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    whileHover={{ y: -5, scale: 1.02 }}
+    whileHover={{ y: -5, scale: 1.025 }}
     transition={{ duration: 0.3, delay }}
-    className={`flex items-start space-x-4 p-6 rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl transition-all ${gradientClass} group`}
+    className={`flex items-start space-x-4 p-6 rounded-2xl shadow-md border-2 border-orange-100 hover:shadow-xl transition-all ${gradientClass} group`}
   >
-    <div className="bg-white/30 backdrop-blur-sm rounded-xl p-3 flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform">
+    <div className="rounded-xl p-3 flex items-center justify-center text-white text-lg bg-gradient-to-br from-red-400 to-orange-400 flex-shrink-0 group-hover:scale-110 transition-transform">
       {icon}
     </div>
     <div>
-      <h4 className="font-bold text-lg text-white mb-2">{title}</h4>
-      <div className="space-y-2 text-white/90 text-sm">
+      <h4 className="font-bold text-lg text-gray-900 mb-2">{title}</h4>
+      <div className="space-y-2 text-gray-700 text-sm">
         {lines.map((line, i) => (
           <div key={i} className="flex items-center gap-1">{line}</div>
         ))}
@@ -361,7 +341,6 @@ const Contact = () => {
     { platform: 'Instagram', url: 'https://www.instagram.com/e.d.i.z.o._official/', icon: Instagram },
     { platform: 'YouTube', url: 'https://www.youtube.com/@team-edizo', icon: Youtube }
   ], []);
-
   // Schema.org structured data
   useEffect(() => {
     const schema = {
@@ -399,37 +378,10 @@ const Contact = () => {
     };
   }, [socialMedia]);
 
-  return (
-    <div className="bg-gradient-to-b from-gray-50 via-white to-gray-50 min-h-screen">
-      {/* Enhanced Header Section */}
-      <header className="relative w-full bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 text-white pt-28 pb-40 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-orange-600/10"></div>
-        
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(4)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-white/5"
-              style={{
-                width: `${100 + i * 50}px`,
-                height: `${100 + i * 50}px`,
-                left: `${10 + i * 25}%`,
-                top: `${15 + i * 20}%`,
-              }}
-              animate={{
-                y: [0, -20, 0],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                duration: 5 + i * 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-        </div>
-        
+ return (
+    <div className="bg-gradient-to-b from-gray-50 via-white to-gray-100 min-h-screen">
+      <header className="relative w-full bg-gradient-to-br from-gray-900 via-blue-900 to-orange-900 text-white pt-28 pb-40 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-orange-600/10"></div>
         <motion.div
           className="text-center p-6 relative z-10"
           initial={{ opacity: 0, y: 30 }}
@@ -437,122 +389,108 @@ const Contact = () => {
           transition={{ duration: 0.6 }}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-5 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-6"
+            className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500 via-red-600 to-yellow-400 rounded-full mb-6"
           >
-            <Sparkles className="w-5 h-5 text-yellow-400" />
-            <span className="text-sm font-semibold">We're Here to Help</span>
+            <Sparkles className="w-5 h-5 text-white drop-shadow" />
+            <span className="text-base font-semibold text-white">We're Here to Help</span>
           </motion.div>
-          
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-2xl">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow">
             Let's Start a Conversation
           </h1>
-          <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
             Have a project in mind? Reach out to our team of experts. We're here to help bring your vision to life.
           </p>
         </motion.div>
       </header>
 
       {/* Main Content Section */}
-      <section className="relative -top-24 z-20">
+     <section className="relative -top-24 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-3xl p-8 md:p-12 shadow-2xl border border-gray-100">
-            {/* Section Header */}
+          <div className="bg-white rounded-3xl p-8 md:p-12 shadow-2xl border-2 border-orange-100">
             <div className="text-center mb-16 max-w-3xl mx-auto">
               <AnimatedSection>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-red-700 bg-clip-text text-transparent">
                   How Can We Help You?
                 </h2>
-                <p className="text-lg text-gray-600 leading-relaxed">
+                <p className="text-lg text-gray-700 leading-relaxed">
                   Whether you have questions, need a consultation, or want to discuss a project, we're just a message away.
                 </p>
               </AnimatedSection>
             </div>
 
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Contact Info Cards */}
               <div className="space-y-6 lg:col-span-1">
                 <AnimatedSection delay={0.1}>
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 shadow-lg border border-gray-100">
-                    <h3 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-                      <HeadphonesIcon className="w-6 h-6 text-red-600" />
-                      Get in Touch
-                    </h3>
-
-                    <div className="space-y-4">
-                      <ContactInfo
-                        icon={<Globe size={24} />}
-                        title="Location"
-                        lines={[
-                          <span key="loc1" className="font-medium">Global Remote Operations</span>,
-                          <span key="loc2" className="text-sm">Serving clients worldwide</span>
-                        ]}
-                        gradientClass="bg-gradient-to-br from-blue-500 to-blue-600"
-                        delay={0.2}
-                      />
-
-                      <ContactInfo
-                        icon={<Mail size={24} />}
-                        title="Email Us"
-                        lines={[
-                          <a key="email1" href="mailto:edizoofficial@gmail.com" className="hover:underline font-medium">
-                            edizoofficial@gmail.com
-                          </a>,
-                          <a key="email2" href="mailto:edizoteam@gmail.com" className="hover:underline font-medium">
-                            edizoteam@gmail.com
-                          </a>
-                        ]}
-                        gradientClass="bg-gradient-to-br from-purple-500 to-purple-600"
-                        delay={0.3}
-                      />
-
-                      <ContactInfo
-                        icon={<Phone size={24} />}
-                        title="Call Us"
-                        lines={[
-                          <a key="phone" href="tel:+919876543210" className="hover:underline font-medium">
-                            +91 9876543210
-                          </a>,
-                          <span key="hours" className="text-sm flex items-center gap-1">
-                            <Clock size={14} /> Mon-Sat: 9 AM - 6 PM IST
-                          </span>
-                        ]}
-                        gradientClass="bg-gradient-to-br from-green-500 to-green-600"
-                        delay={0.4}
-                      />
-                    </div>
-                  </div>
+                  <ContactInfo
+                    icon={<Globe size={24} />}
+                    title="Location"
+                    lines={[
+                      <span key="loc1" className="font-medium text-gray-900">Global Remote Operations</span>,
+                      <span key="loc2" className="text-sm text-gray-900">Serving clients worldwide</span>
+                    ]}
+                    gradientClass="bg-gradient-to-br from-orange-100 via-white to-red-100"
+                    delay={0.2}
+                  />
+                  <ContactInfo
+                    icon={<Mail size={24} />}
+                    title="Email Us"
+                    lines={[
+                      <a key="email1" href="mailto:edizoofficial@gmail.com" className="hover:underline font-medium text-red-800">
+                        edizoofficial@gmail.com
+                      </a>,
+                      <a key="email2" href="mailto:edizoteam@gmail.com" className="hover:underline font-medium text-orange-800">
+                        edizoteam@gmail.com
+                      </a>
+                    ]}
+                    gradientClass="bg-gradient-to-br from-orange-50 via-white to-yellow-100"
+                    delay={0.3}
+                  />
+                  <ContactInfo
+                    icon={<Phone size={24} />}
+                    title="Call Us"
+                    lines={[
+                      <a key="phone" href="tel:+919876543210" className="hover:underline font-medium text-green-800">
+                        +91 9876543210
+                      </a>,
+                      <span key="hours" className="text-sm flex items-center gap-1 text-gray-900">
+                        <Clock size={14} /> Mon-Sat: 9 AM - 6 PM IST
+                      </span>
+                    ]}
+                    gradientClass="bg-gradient-to-br from-green-100 via-white to-orange-50"
+                    delay={0.4}
+                  />
                 </AnimatedSection>
 
                 {/* Social Media Links */}
                 <AnimatedSection delay={0.5}>
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 shadow-lg border border-gray-100">
+                  <div className="bg-white rounded-3xl p-8 shadow-lg border-2 border-orange-100">
                     <h3 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
                       <MessageCircle className="w-6 h-6 text-red-600" />
                       Follow Us
                     </h3>
-
                     <div className="space-y-3">
                       {socialMedia.map((social, i) => (
-                        <SocialMediaLink key={social.platform} {...social} delay={0.1 * i} />
+                        <SocialMediaLink key={social.platform} {...social} delay={0.11 * i} />
                       ))}
                     </div>
                   </div>
                 </AnimatedSection>
               </div>
-
               {/* Contact Form */}
               <AnimatedSection delay={0.2}>
-                <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 md:p-10 shadow-xl border border-gray-200 lg:col-span-2">
+                <div className="bg-gradient-to-br from-white to-orange-50 rounded-3xl p-8 md:p-10 shadow-lg border-2 border-orange-100 lg:col-span-2">
                   <div className="flex items-center mb-8">
                     <div className="w-14 h-14 bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
-                      <Send className="w-7 h-7 text-white" />
+                      <Send className="w-7 h-7 text-white drop-shadow" />
                     </div>
                     <div>
                       <h3 className="text-3xl font-bold text-gray-900">Send a Message</h3>
-                      <p className="text-gray-600 text-sm mt-1">We'll respond within 24-48 hours</p>
+                      <p className="text-gray-700 text-sm mt-1">We'll respond within 24-48 hours</p>
                     </div>
                   </div>
 
@@ -714,7 +652,7 @@ const Contact = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 text-white">
+      <section className="py-16 bg-gradient-to-r from-orange-100 via-yellow-50 to-red-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
@@ -731,10 +669,10 @@ const Contact = () => {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="text-center"
               >
-                <div className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400 mb-2">
+                <div className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 mb-2">
                   {stat.value}
                 </div>
-                <div className="text-gray-300 text-sm md:text-base">{stat.label}</div>
+                <div className="text-gray-800 text-sm md:text-base">{stat.label}</div>
               </motion.div>
             ))}
           </div>

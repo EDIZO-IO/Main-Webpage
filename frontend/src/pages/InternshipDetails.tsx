@@ -4,12 +4,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   Wifi, Home, Check, Star, TrendingUp, ArrowLeft, Building2, Calendar, 
   Award, Users, Zap, Loader2, AlertCircle, Tag, Percent, Clock, Target, 
-  CheckCircle, Sparkles, BookOpen, Trophy, Shield, ArrowRight
+  CheckCircle, Sparkles, BookOpen, Trophy, Shield, ArrowRight, Tag as TagIcon, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInternship } from '../components/hooks/useInternships';
-import { getHighestDiscount, hasDiscount } from '../utils/internship.utils';
-
+import { getHighestDiscount, hasDiscount, findValidCoupon, calculatePriceWithCoupon } from '../utils/internship.utils';
+import type { AppliedCoupon, InternshipDuration, CouponCode } from '../types/internship.types';
 
 // Fallback image map
 const fallbackImages: Record<string, string> = {
@@ -17,7 +17,7 @@ const fallbackImages: Record<string, string> = {
   'frontend-development': '/assets/images/responsive-design.png',
   'backend-development': '/assets/images/back-end.png',
   'hr-management': '/assets/images/hr-manager.png',
-  'data-analytics': '/assets/images/data-Analytics.png',
+  'data-analytics': '/assets/images/data-Analystics.png',
   'java-development': '/assets/images/java.png',
   'python-development': '/assets/images/python.png',
   'digital-marketing': '/assets/images/content-strategy.png',
@@ -163,7 +163,8 @@ const PeriodButton = memo<{
   onClick: (period: string) => void;
   hasDiscount: boolean;
   discount: number;
-}>(({ period, isActive, onClick, hasDiscount, discount }) => {
+  couponDiscount: number;
+}>(({ period, isActive, onClick, hasDiscount, discount, couponDiscount }) => {
   const handleClick = useCallback(() => onClick(period), [period, onClick]);
   
   const displayPeriod = period
@@ -171,6 +172,8 @@ const PeriodButton = memo<{
     .replace('days', ' Days')
     .replace('month', ' Month')
     .replace('months', ' Months');
+
+  const totalDiscount = discount + couponDiscount;
 
   return (
     <motion.button
@@ -184,9 +187,9 @@ const PeriodButton = memo<{
       whileTap={{ scale: 0.98 }}
     >
       {displayPeriod}
-      {hasDiscount && discount > 0 && (
+      {totalDiscount > 0 && (
         <span className={`absolute -top-2 -right-2 ${isActive ? 'bg-yellow-400 text-gray-900' : 'bg-green-500 text-white'} text-xs px-2 py-0.5 rounded-full font-bold shadow-md`}>
-          -{discount}%
+          -{totalDiscount}%
         </span>
       )}
     </motion.button>
@@ -211,22 +214,100 @@ const BenefitItem = memo<{ item: string; index: number; color: string }>(({ item
 ));
 BenefitItem.displayName = 'BenefitItem';
 
+// ✅ Memoized Coupon Input
+const CouponInput = memo<{ 
+  couponCode: string; 
+  onApply: () => void; 
+  onInputChange: (value: string) => void;
+  onRemove: () => void;
+  isValid: boolean | null;
+  errorMessage: string | null;
+  appliedCoupon: AppliedCoupon | null;
+  disabled: boolean;
+}>(({ 
+  couponCode, 
+  onApply, 
+  onInputChange, 
+  onRemove, 
+  isValid, 
+  errorMessage, 
+  appliedCoupon,
+  disabled
+}) => {
+  return (
+    <div className="mt-4">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-grow">
+          <input
+            type="text"
+            value={couponCode}
+            onChange={(e) => onInputChange(e.target.value.toUpperCase())}
+            placeholder="Enter coupon code"
+            disabled={disabled || appliedCoupon !== null}
+            className={`w-full p-3 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-900 font-medium ${
+              appliedCoupon !== null 
+                ? 'border-green-300 bg-green-50' 
+                : isValid === false 
+                  ? 'border-red-300 bg-red-50' 
+                  : isValid === true 
+                    ? 'border-green-300 bg-green-50' 
+                    : 'border-gray-200'
+            }`}
+          />
+          {errorMessage && (
+            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+              <X size={14} />
+              {errorMessage}
+            </p>
+          )}
+        </div>
+        {appliedCoupon ? (
+          <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-3 rounded-xl border border-green-300">
+            <TagIcon size={16} />
+            <span className="font-medium">{appliedCoupon.code}</span>
+            <button 
+              onClick={onRemove}
+              className="ml-2 text-green-600 hover:text-green-800"
+              aria-label="Remove coupon"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        ) : (
+          <Button 
+            onClick={onApply} 
+            variant="primary" 
+            disabled={disabled || !couponCode.trim()}
+            className="whitespace-nowrap"
+          >
+            Apply
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+});
+CouponInput.displayName = 'CouponInput';
+
 // Main Component
 const InternshipDetails: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const [activePeriod, setActivePeriod] = useState<string>('15-days');
+  const [couponCode, setCouponCode] = useState<string>('');
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponValidation, setCouponValidation] = useState<{isValid: boolean | null, message: string | null}>({isValid: null, message: null});
 
   const { internship, loading, error } = useInternship(id);
 
   // ✅ Memoized calculations
   const maxDiscount = useMemo(() => 
-    internship ? getHighestDiscount(internship.discount) : 0,
+    internship ? getHighestDiscount(internship.discount, internship.couponDiscounts) : 0,
     [internship]
   );
 
   const hasDiscountBadge = useMemo(() => 
-    internship ? hasDiscount(internship.discount) : false,
+    internship ? hasDiscount(internship.discount, internship.couponDiscounts) : false,
     [internship]
   );
 
@@ -252,14 +333,72 @@ const InternshipDetails: React.FC = () => {
     [internship, activePeriod]
   );
 
+  const currentCouponDiscount = useMemo(() => 
+    internship?.couponDiscounts?.[activePeriod as keyof typeof internship.couponDiscounts] || 0,
+    [internship, activePeriod]
+  );
+
+  // ✅ Apply coupon to application link
+  const applicationLink = useMemo(() => {
+    let link = `/apply/${id}`;
+    if (appliedCoupon && appliedCoupon.isValid) {
+      const couponParam = encodeURIComponent(appliedCoupon.code);
+      link += `?coupon=${couponParam}`;
+    }
+    return link;
+  }, [id, appliedCoupon]);
+
   // ✅ Memoized callbacks
   const handlePeriodChange = useCallback((period: string) => {
     setActivePeriod(period);
-  }, []);
+    // Reset coupon validation when period changes
+    if (appliedCoupon) {
+      setCouponValidation({isValid: null, message: null});
+      setAppliedCoupon(null);
+      setCouponCode('');
+    }
+  }, [appliedCoupon]);
 
   const handleGoBack = useCallback(() => {
     navigate('/internships');
   }, [navigate]);
+
+  const handleCouponChange = useCallback((value: string) => {
+    setCouponCode(value);
+    if (value.trim() === '') {
+      setCouponValidation({isValid: null, message: null});
+    }
+  }, []);
+
+  const handleApplyCoupon = useCallback(() => {
+    if (!internship || !couponCode.trim()) return;
+    
+    const validCoupon = findValidCoupon(internship, couponCode.trim(), activePeriod as InternshipDuration);
+    
+    if (validCoupon) {
+      const couponApplied = calculatePriceWithCoupon(
+        internship.pricing?.[activePeriod as keyof typeof internship.pricing] || 0,
+        validCoupon
+      );
+      
+      if (couponApplied.isValid) {
+        setAppliedCoupon(couponApplied);
+        setCouponValidation({isValid: true, message: 'Coupon applied successfully!'});
+      } else {
+        setAppliedCoupon(null);
+        setCouponValidation({isValid: false, message: couponApplied.errorMessage || 'Invalid coupon code'});
+      }
+    } else {
+      setAppliedCoupon(null);
+      setCouponValidation({isValid: false, message: 'Invalid or expired coupon code'});
+    }
+  }, [internship, couponCode, activePeriod]);
+
+  const handleRemoveCoupon = useCallback(() => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponValidation({isValid: null, message: null});
+  }, []);
 
   // Set initial period when data loads
   useEffect(() => {
@@ -531,8 +670,23 @@ const InternshipDetails: React.FC = () => {
                   )}
                 </div>
 
+                {/* Coupon Input Section */}
                 <div className="mt-6 pt-6 border-t border-gray-200">
-                  <Button to={`/apply/${id}`} variant="primary" className="w-full text-lg py-4">
+                  <h4 className="font-bold text-gray-900 mb-3">Apply Coupon</h4>
+                  <CouponInput
+                    couponCode={couponCode}
+                    onInputChange={handleCouponChange}
+                    onApply={handleApplyCoupon}
+                    onRemove={handleRemoveCoupon}
+                    isValid={couponValidation.isValid}
+                    errorMessage={couponValidation.message}
+                    appliedCoupon={appliedCoupon}
+                    disabled={!internship}
+                  />
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <Button to={applicationLink} variant="primary" className="w-full text-lg py-4">
                     Apply Now
                     <ArrowRight size={20} />
                   </Button>
@@ -578,6 +732,7 @@ const InternshipDetails: React.FC = () => {
                         onClick={handlePeriodChange}
                         hasDiscount={internship.discount?.[period as keyof typeof internship.discount] > 0}
                         discount={internship.discount?.[period as keyof typeof internship.discount] || 0}
+                        couponDiscount={internship.couponDiscounts?.[period as keyof typeof internship.couponDiscounts] || 0}
                       />
                     ))}
                   </div>
@@ -686,7 +841,7 @@ const InternshipDetails: React.FC = () => {
                   
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button 
-                      to={`/apply/${id}`} 
+                      to={applicationLink} 
                       variant="primary"
                       className="bg-white text-red-600 hover:bg-gray-50 text-xl px-10 py-5 shadow-2xl"
                     >

@@ -27,6 +27,33 @@ export interface InternshipDiscount {
 }
 
 /**
+ * Coupon discount information for different durations (percentage 0-100)
+ */
+export interface CouponDiscounts {
+  '15-days': number;
+  '1-month': number;
+  '2-months': number;
+  '3-months': number;
+}
+
+/**
+ * Coupon code interface
+ */
+export interface CouponCode {
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  applicableDurations?: InternshipDuration[];
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+  validFrom?: string; // ISO date string
+  validUntil?: string; // ISO date string
+  usageLimit?: number;
+  usedCount?: number;
+  isActive: boolean;
+}
+
+/**
  * Internship basic information interface
  */
 export interface InternshipBasic {
@@ -41,6 +68,8 @@ export interface InternshipBasic {
   isTrending?: boolean;
   pricing?: InternshipPricing;
   discount?: InternshipDiscount;
+  couponDiscounts?: CouponDiscounts;
+  availableCoupons?: CouponCode[];
 }
 
 /**
@@ -122,6 +151,13 @@ export interface InternshipData {
     '2-months': number;
     '3-months': number;
   };
+  couponDiscounts?: {
+    '15-days': number;
+    '1-month': number;
+    '2-months': number;
+    '3-months': number;
+  };
+  availableCoupons?: CouponCode[];
 }
 
 /**
@@ -174,6 +210,15 @@ export interface InternshipSheetRow {
   discount1Month?: string;       // AF
   discount2Months?: string;      // AG
   discount3Months?: string;      // AH
+
+  // Coupon Code (AI)
+  couponCode?: string;
+
+  // Coupon Discount by Duration (AJ-AM: 35-38)
+  couponDiscount15Days?: string;
+  couponDiscount1Month?: string;
+  couponDiscount2Months?: string;
+  couponDiscount3Months?: string;
 }
 
 /**
@@ -231,6 +276,21 @@ export interface PricingTier {
   description: string;
   features: string[];
   isPopular?: boolean; // ✅ Unified to use isPopular
+  appliedCoupon?: AppliedCoupon;
+}
+
+/**
+ * Applied coupon information
+ */
+export interface AppliedCoupon {
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  appliedDiscountAmount: number;
+  originalPrice: number;
+  finalPrice: number;
+  isValid: boolean;
+  errorMessage?: string;
 }
 
 /**
@@ -274,6 +334,8 @@ export interface InternshipApplicationForm {
   selectedDiscount: number;
   selectedFinalPrice: number;
   selectedSavings: number;
+  appliedCoupon?: AppliedCoupon;
+  couponCode?: string;
 }
 
 /**
@@ -295,6 +357,16 @@ export interface ApplicationAPIResponse {
 }
 
 /**
+ * Coupon validation response
+ */
+export interface CouponValidationResponse {
+  success: boolean;
+  isValid: boolean;
+  appliedCoupon?: AppliedCoupon;
+  error?: string;
+}
+
+/**
  * Utility functions for price calculations
  */
 export const calculateFinalPrice = (originalPrice: number, discountPercent: number): number => {
@@ -307,6 +379,98 @@ export const calculateFinalPrice = (originalPrice: number, discountPercent: numb
 
 export const calculateSavings = (originalPrice: number, finalPrice: number): number => {
   return Math.max(0, originalPrice - finalPrice);
+};
+
+/**
+ * Calculate price with coupon discount
+ */
+export const calculatePriceWithCoupon = (
+  originalPrice: number,
+  coupon: CouponCode
+): AppliedCoupon => {
+  const now = new Date();
+  
+  // Check if coupon is active
+  if (!coupon.isActive) {
+    return {
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      appliedDiscountAmount: 0,
+      originalPrice,
+      finalPrice: originalPrice,
+      isValid: false,
+      errorMessage: 'Coupon is not active'
+    };
+  }
+
+  // Check validity dates if specified
+  if (coupon.validFrom && new Date(coupon.validFrom) > now) {
+    return {
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      appliedDiscountAmount: 0,
+      originalPrice,
+      finalPrice: originalPrice,
+      isValid: false,
+      errorMessage: 'Coupon is not yet valid'
+    };
+  }
+
+  if (coupon.validUntil && new Date(coupon.validUntil) < now) {
+    return {
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      appliedDiscountAmount: 0,
+      originalPrice,
+      finalPrice: originalPrice,
+      isValid: false,
+      errorMessage: 'Coupon has expired'
+    };
+  }
+
+  // Check usage limit
+  if (coupon.usageLimit && coupon.usedCount && coupon.usedCount >= coupon.usageLimit) {
+    return {
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      appliedDiscountAmount: 0,
+      originalPrice,
+      finalPrice: originalPrice,
+      isValid: false,
+      errorMessage: 'Coupon usage limit reached'
+    };
+  }
+
+  let discountAmount = 0;
+  let finalPrice = originalPrice;
+
+  if (coupon.discountType === 'percentage') {
+    discountAmount = Math.min(
+      originalPrice * (coupon.discountValue / 100),
+      coupon.maxDiscountAmount || Infinity
+    );
+  } else { // fixed
+    discountAmount = Math.min(coupon.discountValue, originalPrice);
+    if (coupon.maxDiscountAmount) {
+      discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+    }
+  }
+
+  finalPrice = Math.max(0, originalPrice - discountAmount);
+
+  return {
+    code: coupon.code,
+    discountType: coupon.discountType,
+    discountValue: coupon.discountValue,
+    appliedDiscountAmount: Math.round(discountAmount),
+    originalPrice,
+    finalPrice: Math.round(finalPrice),
+    isValid: true
+  };
 };
 
 /**
@@ -355,4 +519,39 @@ export const hasValidPricing = (internship: InternshipBasic): internship is Inte
  */
 export const hasValidDiscount = (internship: InternshipBasic): internship is InternshipBasic & { discount: InternshipDiscount } => {
   return internship.discount !== undefined;
+};
+
+/**
+ * Find valid coupon by code for a specific internship and duration
+ */
+export const findValidCoupon = (
+  internship: InternshipBasic,
+  couponCode: string,
+  duration: InternshipDuration
+): CouponCode | null => {
+  if (!internship.availableCoupons) return null;
+
+  const coupon = internship.availableCoupons.find(
+    c => c.code.toUpperCase() === couponCode.toUpperCase() && c.isActive
+  );
+
+  if (!coupon) return null;
+
+  // Check if coupon is valid for this duration
+  if (coupon.applicableDurations && !coupon.applicableDurations.includes(duration)) {
+    return null;
+  }
+
+  const now = new Date();
+  
+  // Check validity dates
+  if (coupon.validFrom && new Date(coupon.validFrom) > now) return null;
+  if (coupon.validUntil && new Date(coupon.validUntil) < now) return null;
+
+  // Check usage limit
+  if (coupon.usageLimit && coupon.usedCount && coupon.usedCount >= coupon.usageLimit) {
+    return null;
+  }
+
+  return coupon;
 };

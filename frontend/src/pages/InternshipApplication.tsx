@@ -3,16 +3,15 @@
 // At the top of the file, fix the import statement:
 
 import { useState, useEffect, useMemo, memo, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom'; // ✅ Fixed - import from react-router-dom, not react
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'; // ✅ Added useSearchParams
 import { 
   CheckCircle, XCircle, Loader2, Send, IndianRupee, Building2, ArrowLeft, 
   Check, Star, Tag, AlertCircle, Trophy, Zap, Shield, Clock, Users 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInternship } from '../components/hooks/useInternships';
-import { getPricingTiers } from '../utils/internship.utils';
-import type { CoursePeriod } from '../types/internship.types';
-
+import { getPricingTiers, calculatePriceWithCoupon, findValidCoupon } from '../utils/internship.utils';
+import type { CoursePeriod, AppliedCoupon } from '../types/internship.types';
 
 // === Interfaces ===
 interface FormData {
@@ -25,6 +24,12 @@ interface FormData {
   academicExperience: string;
   message: string;
   coursePeriod: string;
+  couponCode?: string;
+  selectedOriginalPrice: number;
+  selectedDiscount: number;
+  selectedFinalPrice: number;
+  selectedSavings: number;
+  appliedCoupon?: AppliedCoupon;
 }
 
 interface FormErrors {
@@ -271,6 +276,7 @@ StatBadge.displayName = 'StatBadge';
 const InternshipApplication: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams(); // ✅ Get coupon code from URL
   const [activePeriod, setActivePeriod] = useState<string>('1-month');
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [submissionMessage, setSubmissionMessage] = useState<string>('');
@@ -285,15 +291,22 @@ const InternshipApplication: React.FC = () => {
     academicExperience: '',
     message: '',
     coursePeriod: '1-month',
+    couponCode: searchParams.get('coupon') || undefined,
+    selectedOriginalPrice: 0,
+    selectedDiscount: 0,
+    selectedFinalPrice: 0,
+    selectedSavings: 0,
+    appliedCoupon: undefined
   });
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   const { internship, loading, error } = useInternship(id);
 
-  // ✅ Memoize pricing tiers
+  // ✅ Memoize pricing tiers with only base pricing (no sheet discounts)
   const coursePeriods = useMemo<CoursePeriod[]>(() => {
     if (!internship) return [];
+    // Calculate pricing with only base prices and base discounts (from columns AE-AH)
     return getPricingTiers(internship.pricing, internship.discount);
   }, [internship]);
 
@@ -302,6 +315,44 @@ const InternshipApplication: React.FC = () => {
     coursePeriods.find((period) => period.duration === formData.coursePeriod),
     [coursePeriods, formData.coursePeriod]
   );
+
+  // ✅ Update pricing when coupon is applied or period changes
+  useEffect(() => {
+    if (internship && formData.coursePeriod) {
+      const originalPrice = internship.pricing?.[formData.coursePeriod as keyof typeof internship.pricing] || 0;
+      const baseDiscount = internship.discount?.[formData.coursePeriod as keyof typeof internship.discount] || 0;
+      let finalPrice = originalPrice - (originalPrice * baseDiscount / 100);
+      let savings = originalPrice - finalPrice;
+      let totalDiscount = baseDiscount;
+      let appliedCouponInfo = undefined;
+
+      // If coupon code is provided, apply it
+      if (formData.couponCode) {
+        const validCoupon = findValidCoupon(internship, formData.couponCode, formData.coursePeriod as any);
+        
+        if (validCoupon) {
+          // Apply user coupon on top of base price
+          const couponApplied = calculatePriceWithCoupon(finalPrice, validCoupon);
+          
+          if (couponApplied.isValid) {
+            finalPrice = couponApplied.finalPrice;
+            savings = originalPrice - finalPrice;
+            totalDiscount = baseDiscount + (couponApplied.discountType === 'percentage' ? couponApplied.discountValue : 0);
+            appliedCouponInfo = couponApplied;
+          }
+        }
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        selectedOriginalPrice: originalPrice,
+        selectedDiscount: totalDiscount,
+        selectedFinalPrice: finalPrice,
+        selectedSavings: savings,
+        appliedCoupon: appliedCouponInfo
+      }));
+    }
+  }, [internship, formData.coursePeriod, formData.couponCode]);
 
   // Set default course period when internship loads
   useEffect(() => {
@@ -378,19 +429,18 @@ const InternshipApplication: React.FC = () => {
     setSubmissionStatus('processing');
     setSubmissionMessage('Submitting your application...');
 
-    const selectedPeriod = coursePeriods.find((period) => period.duration === formData.coursePeriod);
-
     try {
       const response = await fetch(`${API_BASE_URL}/api/submit-application`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          coursePeriod: selectedPeriod?.label,
-          originalPrice: selectedPeriod?.originalPrice,
-          discount: selectedPeriod?.discount,
-          finalPrice: selectedPeriod?.finalPrice,
-          savings: selectedPeriod?.savings,
+          coursePeriod: selectedPeriodDetails?.label,
+          originalPrice: formData.selectedOriginalPrice,
+          discount: formData.selectedDiscount,
+          finalPrice: formData.selectedFinalPrice,
+          savings: formData.selectedSavings,
+          appliedCoupon: formData.appliedCoupon,
           internshipTitle: internship?.title,
           company: internship?.company,
           internshipId: internship?.id,
@@ -418,6 +468,12 @@ const InternshipApplication: React.FC = () => {
         academicExperience: '',
         message: '',
         coursePeriod: '1-month',
+        couponCode: undefined,
+        selectedOriginalPrice: 0,
+        selectedDiscount: 0,
+        selectedFinalPrice: 0,
+        selectedSavings: 0,
+        appliedCoupon: undefined
       });
       setFormErrors({});
     } catch (error: any) {
@@ -431,7 +487,7 @@ const InternshipApplication: React.FC = () => {
       setSubmissionStatus('error');
       setSubmissionMessage(errorMessage);
     }
-  }, [validateForm, formData, coursePeriods, internship, API_BASE_URL]);
+  }, [validateForm, formData, selectedPeriodDetails, internship, API_BASE_URL]);
 
   if (loading) {
     return (
@@ -639,25 +695,35 @@ const InternshipApplication: React.FC = () => {
                               <span className="text-lg font-bold text-green-900 block">
                                 Selected: {selectedPeriodDetails.label}
                               </span>
-                              {selectedPeriodDetails.discount > 0 && (
+                              {formData.selectedDiscount > 0 && (
                                 <span className="text-sm text-green-700">
-                                  {selectedPeriodDetails.discount}% discount applied • Save ₹{selectedPeriodDetails.savings.toLocaleString()}
+                                  {formData.selectedDiscount}% discount applied • Save ₹{formData.selectedSavings.toLocaleString()}
                                 </span>
                               )}
                             </div>
                           </div>
                           <div className="text-right">
-                            {selectedPeriodDetails.discount > 0 && (
+                            {formData.selectedDiscount > 0 && (
                               <div className="text-sm text-gray-500 line-through">
-                                ₹{selectedPeriodDetails.originalPrice.toLocaleString()}
+                                ₹{formData.selectedOriginalPrice.toLocaleString()}
                               </div>
                             )}
                             <div className="flex items-center text-green-700 font-bold text-2xl">
                               <IndianRupee className="w-5 h-5 mr-1" />
-                              <span>{selectedPeriodDetails.finalPrice.toLocaleString()}</span>
+                              <span>{formData.selectedFinalPrice.toLocaleString()}</span>
                             </div>
                           </div>
                         </div>
+                        
+                        {/* Show applied coupon info */}
+                        {formData.appliedCoupon && formData.appliedCoupon.isValid && (
+                          <div className="mt-4 pt-4 border-t border-green-200 flex items-center gap-2 text-green-700">
+                            <Tag size={16} />
+                            <span className="font-medium">
+                              Coupon applied: {formData.appliedCoupon.code} ({formData.appliedCoupon.discountValue}{formData.appliedCoupon.discountType === 'percentage' ? '%' : '₹'})
+                            </span>
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </div>
@@ -824,11 +890,9 @@ const InternshipApplication: React.FC = () => {
                       <>
                         <Send size={24} />
                         Submit Application
-                        {selectedPeriodDetails && (
-                          <span className="ml-2 font-bold">
-                            (₹{selectedPeriodDetails.finalPrice.toLocaleString()})
-                          </span>
-                        )}
+                        <span className="ml-2 font-bold">
+                          (₹{formData.selectedFinalPrice.toLocaleString()})
+                        </span>
                       </>
                     )}
                   </Button>

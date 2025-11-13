@@ -6,7 +6,9 @@ import type {
   PricingTier,
   InternshipDuration,
   InternshipPricing,
-  InternshipDiscount
+  InternshipDiscount,
+  CouponCode,
+  AppliedCoupon
 } from '../types/internship.types'; // ✅ Fixed typo: intership -> internship
 
 /**
@@ -30,7 +32,7 @@ export const calculateSavings = (originalPrice: number, finalPrice: number): num
 
 /**
  * Transform Google Sheets row data to InternshipData format (with pricing and discount)
- * Column mapping: A-AH (33 columns)
+ * Column mapping: A-AN (39 columns including coupon discount per duration)
  */
 export const transformSheetRowToInternship = (row: string[]): InternshipData => {
   // Helper to safely parse float
@@ -43,6 +45,46 @@ export const transformSheetRowToInternship = (row: string[]): InternshipData => 
   const parseArray = (value: string | undefined): string[] => {
     if (!value || value.trim() === '') return [];
     return value.split(',').map((s: string) => s.trim()).filter(Boolean);
+  };
+
+  // Parse coupon codes from the coupon code column (AI = index 34)
+  const parseCouponCodes = (value: string | undefined): CouponCode[] => {
+    if (!value || value.trim() === '') return [];
+
+    // Handle the specific format from the sheet where coupon codes are stored as strings
+    // Example: "EDIZOCOP", "EDIZOCOP,SAVE10", etc.
+    const couponStrings = value.split(',').map(code => code.trim()).filter(Boolean);
+    
+    if (couponStrings.length === 0) return [];
+
+    // Map known coupon codes to their discount values
+    const couponMap: Record<string, number> = {
+      'EDIZOCOP': 20, // 20% discount for EDIZOCOP
+      'SAVE10': 10,   // 10% discount for SAVE10
+      'SAVE20': 20,   // 20% discount for SAVE20
+      'SAVE25': 25,   // 25% discount for SAVE25
+      'SAVE30': 30,   // 30% discount for SAVE30
+      'SAVE50': 50,   // 50% discount for SAVE50
+    };
+
+    return couponStrings.map(code => {
+      const upperCode = code.toUpperCase();
+      const discountValue = couponMap[upperCode] || 10; // Default to 10% if not found
+      
+      return {
+        code: upperCode,
+        discountType: 'percentage',
+        discountValue,
+        applicableDurations: undefined,
+        minOrderAmount: undefined,
+        maxDiscountAmount: undefined,
+        validFrom: undefined,
+        validUntil: undefined,
+        usageLimit: undefined,
+        usedCount: 0,
+        isActive: true
+      };
+    });
   };
 
   return {
@@ -90,6 +132,17 @@ export const transformSheetRowToInternship = (row: string[]): InternshipData => 
       '2-months': parseFloat(row[32]),
       '3-months': parseFloat(row[33]),
     },
+
+    // Coupon Codes (column AI: 34)
+    availableCoupons: parseCouponCodes(row[34]),
+
+    // Coupon Discount by Duration (columns AJ-AM: 35-38)
+    couponDiscounts: {
+      '15-days': parseFloat(row[35]),
+      '1-month': parseFloat(row[36]),
+      '2-months': parseFloat(row[37]),
+      '3-months': parseFloat(row[38]),
+    }
   };
 };
 
@@ -207,11 +260,140 @@ export const calculateDiscountPercent = (originalPrice: number, discountedPrice:
 };
 
 /**
- * Get pricing tier details with discount calculations
+ * Calculate price with coupon discount
+ */
+export const calculatePriceWithCoupon = (
+  originalPrice: number,
+  coupon: CouponCode
+): AppliedCoupon => {
+  const now = new Date();
+  
+  // Check if coupon is active
+  if (!coupon.isActive) {
+    return {
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      appliedDiscountAmount: 0,
+      originalPrice,
+      finalPrice: originalPrice,
+      isValid: false,
+      errorMessage: 'Coupon is not active'
+    };
+  }
+
+  // Check validity dates if specified
+  if (coupon.validFrom && new Date(coupon.validFrom) > now) {
+    return {
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      appliedDiscountAmount: 0,
+      originalPrice,
+      finalPrice: originalPrice,
+      isValid: false,
+      errorMessage: 'Coupon is not yet valid'
+    };
+  }
+
+  if (coupon.validUntil && new Date(coupon.validUntil) < now) {
+    return {
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      appliedDiscountAmount: 0,
+      originalPrice,
+      finalPrice: originalPrice,
+      isValid: false,
+      errorMessage: 'Coupon has expired'
+    };
+  }
+
+  // Check usage limit
+  if (coupon.usageLimit && coupon.usedCount && coupon.usedCount >= coupon.usageLimit) {
+    return {
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      appliedDiscountAmount: 0,
+      originalPrice,
+      finalPrice: originalPrice,
+      isValid: false,
+      errorMessage: 'Coupon usage limit reached'
+    };
+  }
+
+  let discountAmount = 0;
+  let finalPrice = originalPrice;
+
+  if (coupon.discountType === 'percentage') {
+    discountAmount = Math.min(
+      originalPrice * (coupon.discountValue / 100),
+      coupon.maxDiscountAmount || Infinity
+    );
+  } else { // fixed
+    discountAmount = Math.min(coupon.discountValue, originalPrice);
+    if (coupon.maxDiscountAmount) {
+      discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+    }
+  }
+
+  finalPrice = Math.max(0, originalPrice - discountAmount);
+
+  return {
+    code: coupon.code,
+    discountType: coupon.discountType,
+    discountValue: coupon.discountValue,
+    appliedDiscountAmount: Math.round(discountAmount),
+    originalPrice,
+    finalPrice: Math.round(finalPrice),
+    isValid: true
+  };
+};
+
+/**
+ * Find valid coupon by code for a specific internship and duration
+ */
+export const findValidCoupon = (
+  internship: InternshipData,
+  couponCode: string,
+  duration: InternshipDuration
+): CouponCode | null => {
+  if (!internship.availableCoupons) return null;
+
+  const coupon = internship.availableCoupons.find(
+    c => c.code.toUpperCase() === couponCode.toUpperCase() && c.isActive
+  );
+
+  if (!coupon) return null;
+
+  // Check if coupon is valid for this duration
+  if (coupon.applicableDurations && !coupon.applicableDurations.includes(duration)) {
+    return null;
+  }
+
+  const now = new Date();
+  
+  // Check validity dates
+  if (coupon.validFrom && new Date(coupon.validFrom) > now) return null;
+  if (coupon.validUntil && new Date(coupon.validUntil) < now) return null;
+
+  // Check usage limit
+  if (coupon.usageLimit && coupon.usedCount && coupon.usedCount >= coupon.usageLimit) {
+    return null;
+  }
+
+  return coupon;
+};
+
+/**
+ * Get pricing tier details with discount and coupon calculations
  */
 export const getPricingTiers = (
   pricing?: InternshipPricing,
-  discount?: InternshipDiscount
+  discount?: InternshipDiscount,
+  appliedCoupon?: AppliedCoupon,
+  couponDiscounts?: Record<InternshipDuration, number>
 ): PricingTier[] => {
   const durations: InternshipDuration[] = [
     '15-days',
@@ -244,8 +426,57 @@ export const getPricingTiers = (
   return durations.map((duration) => {
     const originalPrice = pricing?.[duration] || 0;
     const discountPercent = discount?.[duration] || 0;
-    const finalPrice = calculateFinalPrice(originalPrice, discountPercent);
-    const savings = calculateSavings(originalPrice, finalPrice);
+    const couponDiscountPercent = couponDiscounts?.[duration] || 0;
+    const baseFinalPrice = calculateFinalPrice(originalPrice, discountPercent);
+    const baseSavings = calculateSavings(originalPrice, baseFinalPrice);
+
+    // Apply coupon discount if available
+    let finalPrice = baseFinalPrice;
+    let savings = baseSavings;
+    let appliedCouponInfo = appliedCoupon;
+
+    if (appliedCoupon && appliedCoupon.isValid && appliedCoupon.code) {
+      const couponApplied = calculatePriceWithCoupon(baseFinalPrice, {
+        code: appliedCoupon.code,
+        discountType: appliedCoupon.discountType,
+        discountValue: appliedCoupon.discountValue,
+        applicableDurations: undefined,
+        minOrderAmount: appliedCoupon.originalPrice,
+        maxDiscountAmount: appliedCoupon.appliedDiscountAmount,
+        validFrom: undefined,
+        validUntil: undefined,
+        usageLimit: undefined,
+        usedCount: 0,
+        isActive: true
+      });
+
+      if (couponApplied.isValid) {
+        finalPrice = couponApplied.finalPrice;
+        savings = calculateSavings(originalPrice, finalPrice);
+        appliedCouponInfo = couponApplied;
+      }
+    } else if (couponDiscountPercent > 0) {
+      // Apply coupon discount from sheet data
+      const couponApplied = calculatePriceWithCoupon(baseFinalPrice, {
+        code: 'SHEET_COUPON',
+        discountType: 'percentage',
+        discountValue: couponDiscountPercent,
+        applicableDurations: undefined,
+        minOrderAmount: undefined,
+        maxDiscountAmount: undefined,
+        validFrom: undefined,
+        validUntil: undefined,
+        usageLimit: undefined,
+        usedCount: 0,
+        isActive: true
+      });
+
+      if (couponApplied.isValid) {
+        finalPrice = couponApplied.finalPrice;
+        savings = calculateSavings(originalPrice, finalPrice);
+        appliedCouponInfo = couponApplied;
+      }
+    }
 
     return {
       duration,
@@ -257,23 +488,54 @@ export const getPricingTiers = (
       description: descriptions[duration],
       features: featuresList[duration],
       isPopular: duration === '1-month',
+      appliedCoupon: appliedCouponInfo
     };
   });
 };
 
 /**
- * Filter by price range (using final price after discount)
+ * Filter by price range (using final price after discount and coupon)
  */
 export const filterByPriceRange = (
   internships: InternshipData[],
   minPrice: number = 0,
   maxPrice: number = Infinity,
-  duration: InternshipDuration = '1-month'
+  duration: InternshipDuration = '1-month',
+  appliedCoupon?: AppliedCoupon
 ): InternshipData[] => {
   return internships.filter((i) => {
     const originalPrice = i.pricing?.[duration] || 0;
     const discountPercent = i.discount?.[duration] || 0;
-    const finalPrice = calculateFinalPrice(originalPrice, discountPercent);
+    const couponDiscountPercent = i.couponDiscounts?.[duration] || 0;
+    let baseFinalPrice = calculateFinalPrice(originalPrice, discountPercent);
+
+    // Apply sheet coupon discount if no applied coupon
+    if (!appliedCoupon && couponDiscountPercent > 0) {
+      baseFinalPrice = calculateFinalPrice(baseFinalPrice, couponDiscountPercent);
+    }
+
+    // Apply user-applied coupon if provided
+    let finalPrice = baseFinalPrice;
+    if (appliedCoupon && appliedCoupon.isValid && appliedCoupon.code) {
+      const couponApplied = calculatePriceWithCoupon(baseFinalPrice, {
+        code: appliedCoupon.code,
+        discountType: appliedCoupon.discountType,
+        discountValue: appliedCoupon.discountValue,
+        applicableDurations: [duration],
+        minOrderAmount: appliedCoupon.originalPrice,
+        maxDiscountAmount: appliedCoupon.appliedDiscountAmount,
+        validFrom: undefined,
+        validUntil: undefined,
+        usageLimit: undefined,
+        usedCount: 0,
+        isActive: true
+      });
+
+      if (couponApplied.isValid) {
+        finalPrice = couponApplied.finalPrice;
+      }
+    }
+
     return finalPrice >= minPrice && finalPrice <= maxPrice;
   });
 };
@@ -281,16 +543,31 @@ export const filterByPriceRange = (
 /**
  * Format discount badge text
  */
-export const formatDiscountBadge = (discountPercent: number): string => {
+export const formatDiscountBadge = (discountPercent: number, appliedCoupon?: AppliedCoupon, couponDiscount?: number): string => {
+  if (appliedCoupon && appliedCoupon.isValid && appliedCoupon.code) {
+    return `COUPON APPLIED`;
+  }
+  if (couponDiscount && couponDiscount > 0) {
+    return `${couponDiscount}% OFF`;
+  }
   if (discountPercent <= 0) return '';
   return `${discountPercent}% OFF`;
 };
 
 /**
- * Format savings text
+ * Format savings text with coupon information
  */
-export const formatSavings = (savings: number, currency: CurrencyCode = 'INR'): string => {
+export const formatSavings = (
+  savings: number, 
+  currency: CurrencyCode = 'INR',
+  appliedCoupon?: AppliedCoupon
+): string => {
   if (savings <= 0) return '';
+  
+  if (appliedCoupon && appliedCoupon.isValid && appliedCoupon.code) {
+    return `Save ${formatPrice(savings, currency)} with ${appliedCoupon.code}`;
+  }
+  
   return `Save ${formatPrice(savings, currency)}`;
 };
 
@@ -298,9 +575,10 @@ export const formatSavings = (savings: number, currency: CurrencyCode = 'INR'): 
  * Get best discount duration (returns the duration with highest discount)
  */
 export const getBestDiscountDuration = (
-  discount?: InternshipDiscount
+  discount?: InternshipDiscount,
+  couponDiscounts?: Record<InternshipDuration, number>
 ): InternshipDuration => {
-  if (!discount) return '1-month';
+  if (!discount && !couponDiscounts) return '1-month';
 
   const durations: InternshipDuration[] = [
     '15-days',
@@ -313,9 +591,12 @@ export const getBestDiscountDuration = (
   let bestDuration: InternshipDuration = '1-month';
 
   durations.forEach(duration => {
-    const discountValue = discount[duration] || 0;
-    if (discountValue > maxDiscount) {
-      maxDiscount = discountValue;
+    const baseDiscount = discount?.[duration] || 0;
+    const couponDiscount = couponDiscounts?.[duration] || 0;
+    const totalDiscount = baseDiscount + couponDiscount;
+    
+    if (totalDiscount > maxDiscount) {
+      maxDiscount = totalDiscount;
       bestDuration = duration;
     }
   });
@@ -326,17 +607,30 @@ export const getBestDiscountDuration = (
 /**
  * Check if internship has any discount
  */
-export const hasDiscount = (discount?: InternshipDiscount): boolean => {
-  if (!discount) return false;
-  return Object.values(discount).some((d) => d > 0);
+export const hasDiscount = (discount?: InternshipDiscount, couponDiscounts?: Record<InternshipDuration, number>): boolean => {
+  if (!discount && !couponDiscounts) return false;
+  
+  if (discount) {
+    if (Object.values(discount).some((d) => d > 0)) return true;
+  }
+  
+  if (couponDiscounts) {
+    if (Object.values(couponDiscounts).some((d) => d > 0)) return true;
+  }
+  
+  return false;
 };
 
 /**
  * Get highest discount percentage
  */
-export const getHighestDiscount = (discount?: InternshipDiscount): number => {
-  if (!discount) return 0;
-  return Math.max(...Object.values(discount));
+export const getHighestDiscount = (discount?: InternshipDiscount, couponDiscounts?: Record<InternshipDuration, number>): number => {
+  if (!discount && !couponDiscounts) return 0;
+  
+  const baseMax = discount ? Math.max(...Object.values(discount)) : 0;
+  const couponMax = couponDiscounts ? Math.max(...Object.values(couponDiscounts)) : 0;
+  
+  return Math.max(baseMax, couponMax);
 };
 
 /**
@@ -347,8 +641,8 @@ export const sortByDiscount = (
   ascending = false
 ): InternshipData[] => {
   return [...internships].sort((a, b) => {
-    const discountA = getHighestDiscount(a.discount);
-    const discountB = getHighestDiscount(b.discount);
+    const discountA = getHighestDiscount(a.discount, a.couponDiscounts);
+    const discountB = getHighestDiscount(b.discount, b.couponDiscounts);
     return ascending ? discountA - discountB : discountB - discountA;
   });
 };
@@ -358,7 +652,9 @@ export const sortByDiscount = (
  */
 export const getCheapestPrice = (
   pricing?: InternshipPricing,
-  discount?: InternshipDiscount
+  discount?: InternshipDiscount,
+  couponDiscounts?: Record<InternshipDuration, number>,
+  appliedCoupon?: AppliedCoupon
 ): number => {
   if (!pricing) return 0;
 
@@ -373,7 +669,36 @@ export const getCheapestPrice = (
     .map(duration => {
       const original = pricing[duration] || 0;
       const disc = discount?.[duration] || 0;
-      return calculateFinalPrice(original, disc);
+      const couponDisc = couponDiscounts?.[duration] || 0;
+      let baseFinalPrice = calculateFinalPrice(original, disc);
+
+      // Apply sheet coupon discount if no applied coupon
+      if (!appliedCoupon && couponDisc > 0) {
+        baseFinalPrice = calculateFinalPrice(baseFinalPrice, couponDisc);
+      }
+
+      // Apply user-applied coupon if provided
+      if (appliedCoupon && appliedCoupon.isValid && appliedCoupon.code) {
+        const couponApplied = calculatePriceWithCoupon(baseFinalPrice, {
+          code: appliedCoupon.code,
+          discountType: appliedCoupon.discountType,
+          discountValue: appliedCoupon.discountValue,
+          applicableDurations: [duration],
+          minOrderAmount: appliedCoupon.originalPrice,
+          maxDiscountAmount: appliedCoupon.appliedDiscountAmount,
+          validFrom: undefined,
+          validUntil: undefined,
+          usageLimit: undefined,
+          usedCount: 0,
+          isActive: true
+        });
+
+        if (couponApplied.isValid) {
+          return couponApplied.finalPrice;
+        }
+      }
+
+      return baseFinalPrice;
     })
     .filter(p => p > 0);
 
@@ -385,11 +710,12 @@ export const getCheapestPrice = (
  */
 export const sortByPrice = (
   internships: InternshipData[],
-  ascending = true
+  ascending = true,
+  appliedCoupon?: AppliedCoupon
 ): InternshipData[] => {
   return [...internships].sort((a, b) => {
-    const priceA = getCheapestPrice(a.pricing, a.discount);
-    const priceB = getCheapestPrice(b.pricing, b.discount);
+    const priceA = getCheapestPrice(a.pricing, a.discount, a.couponDiscounts, appliedCoupon);
+    const priceB = getCheapestPrice(b.pricing, b.discount, b.couponDiscounts, appliedCoupon);
     return ascending ? priceA - priceB : priceB - priceA;
   });
 };
@@ -410,12 +736,12 @@ export const isValidInternship = (internship: Partial<InternshipData>): boolean 
 /**
  * Get most popular duration based on discount
  */
-export const getMostPopularDuration = (discount?: InternshipDiscount): InternshipDuration => {
+export const getMostPopularDuration = (discount?: InternshipDiscount, couponDiscounts?: Record<InternshipDuration, number>): InternshipDuration => {
   // Default popular duration is 1-month
-  if (!discount || !hasDiscount(discount)) return '1-month';
+  if (!discount && !couponDiscounts) return '1-month';
   
   // Return duration with highest discount
-  return getBestDiscountDuration(discount);
+  return getBestDiscountDuration(discount, couponDiscounts);
 };
 
 /**
@@ -430,4 +756,47 @@ export const getROIMessage = (duration: InternshipDuration): string => {
   };
   
   return messages[duration];
+};
+
+/**
+ * Check if coupon code is valid for a specific internship
+ */
+export const validateCouponForInternship = (
+  internship: InternshipData,
+  couponCode: string,
+  duration: InternshipDuration
+): boolean => {
+  return !!findValidCoupon(internship, couponCode, duration);
+};
+
+/**
+ * Get available coupon codes for an internship
+ */
+export const getAvailableCoupons = (
+  internship: InternshipData,
+  duration?: InternshipDuration
+): CouponCode[] => {
+  if (!internship.availableCoupons) return [];
+
+  if (duration) {
+    return internship.availableCoupons.filter(coupon => 
+      coupon.isActive && 
+      (!coupon.applicableDurations || coupon.applicableDurations.includes(duration))
+    );
+  }
+
+  return internship.availableCoupons.filter(coupon => coupon.isActive);
+};
+
+/**
+ * Format coupon discount display
+ */
+export const formatCouponDiscount = (coupon: AppliedCoupon): string => {
+  if (!coupon.isValid) return '';
+  
+  if (coupon.discountType === 'percentage') {
+    return `${coupon.discountValue}% OFF`;
+  } else {
+    return `${formatPrice(coupon.appliedDiscountAmount)} OFF`;
+  }
 };
