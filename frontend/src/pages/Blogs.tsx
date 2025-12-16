@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search,Star, 
-  TrendingUp, X
+  Search, Star, TrendingUp, X, Filter, Sparkles, BookOpen, ArrowRight
 } from 'lucide-react';
 
 import { useBlogs, useFilteredBlogs, useTrendingBlogs, useBlogCategories } from '../components/hooks/useBlogs';
@@ -14,31 +13,40 @@ const Blogs: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [minRating, setMinRating] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedBlog, setSelectedBlog] = useState<BlogData | null>(null);
 
   const { blogs, loading, error } = useBlogs();
   const { blogs: filteredBlogs } = useFilteredBlogs(selectedCategory, searchTerm, minRating);
   const { blogs: trendingBlogs } = useTrendingBlogs(4.0, 5);
   const { categories } = useBlogCategories();
 
-  // UI helpers
   const handleCategoryClick = (cat: string) => setSelectedCategory(cat);
+  const hasActiveFilters = searchTerm || selectedCategory !== 'All' || minRating !== 0;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 py-16 flex items-center justify-center">
-        <div className="animate-pulse w-full max-w-3xl">
-          <div className="h-12 bg-gray-200 rounded w-1/3 mb-8"></div>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pt-24 pb-16">
+        <div className="container mx-auto px-4">
+          {/* Skeleton Header */}
+          <div className="text-center mb-16">
+            <div className="h-12 bg-gray-200 rounded-xl w-1/3 mx-auto mb-4 animate-pulse" />
+            <div className="h-6 bg-gray-100 rounded-lg w-1/2 mx-auto animate-pulse" />
+          </div>
+          {/* Skeleton Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div className="h-48 bg-gray-200"></div>
-                <div className="p-6">
-                  <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                  <div className="flex gap-4">
-                    <div className="h-4 bg-gray-200 rounded w-16"></div>
-                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+              <div key={i} className="bg-white rounded-3xl shadow-lg overflow-hidden animate-pulse">
+                <div className="h-48 bg-gray-200" />
+                <div className="p-6 space-y-3">
+                  <div className="h-4 bg-gray-200 rounded w-1/4" />
+                  <div className="h-6 bg-gray-200 rounded w-3/4" />
+                  <div className="h-4 bg-gray-100 rounded w-full" />
+                  <div className="h-4 bg-gray-100 rounded w-2/3" />
+                  <div className="flex gap-2 pt-2">
+                    <div className="h-8 w-8 bg-gray-200 rounded-full" />
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-1/3 mb-1" />
+                      <div className="h-3 bg-gray-100 rounded w-1/4" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -51,184 +59,274 @@ const Blogs: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 py-16 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md mx-auto text-center">
-          <div className="text-red-500 text-6xl mb-5">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">Error Loading Blogs</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pt-24 pb-16 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-3xl shadow-2xl p-10 max-w-md mx-auto text-center"
+        >
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <X className="w-10 h-10 text-red-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Oops! Something went wrong</h2>
+          <p className="text-gray-600 mb-8">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+            className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-300"
           >
-            Retry
+            Try Again
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
       {/* Hero Header */}
-      <header className="relative w-full flex flex-col justify-center items-center pt-20 pb-12 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative text-center z-10"
-        >
-          <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-4 drop-shadow-lg">
-            Welcome to the <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500">Edizo Blog</span>
-          </h1>
-          <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-4">Tech, Business, and Stories from our teams. Discover insights and innovations every week.</p>
-        </motion.div>
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute left-0 top-[-60px] w-72 h-72 bg-red-200/50 rounded-full blur-3xl" />
-          <div className="absolute right-0 bottom-[-80px] w-80 h-80 bg-yellow-100/60 rounded-full blur-2xl" />
+      <header className="relative pt-28 pb-16 overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-40 -left-40 w-96 h-96 bg-orange-200/40 rounded-full blur-3xl" />
+          <div className="absolute top-20 right-0 w-80 h-80 bg-red-200/30 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-1/2 w-72 h-72 bg-yellow-200/40 rounded-full blur-3xl" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-full mb-8 shadow-lg shadow-orange-500/10"
+            >
+              <BookOpen className="w-4 h-4 text-orange-600" />
+              <span className="text-sm font-semibold text-gray-700">Insights & Knowledge</span>
+            </motion.div>
+
+            {/* Title */}
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight">
+              Explore Our{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-red-500 to-orange-600">
+                Blog
+              </span>
+            </h1>
+
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Discover tech insights, industry trends, and stories from our team.
+              Fresh content delivered every week.
+            </p>
+          </motion.div>
         </div>
       </header>
 
       {/* Search & Filters Section */}
-      <section className="container mx-auto px-4 mb-8">
-        <div className="bg-white/80 rounded-2xl shadow-lg p-6 sticky top-6 z-30">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            {/* Search */}
-            <div className="relative w-full md:max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <section className="container mx-auto px-4 mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100"
+        >
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+            {/* Search Input */}
+            <div className="relative w-full lg:max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search blogs…"
+                placeholder="Search articles..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent font-medium"
+                className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white font-medium transition-all duration-200"
               />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+                >
+                  <X className="w-4 h-4 text-gray-400" />
+                </button>
+              )}
             </div>
+
             {/* Category Pills */}
-            <div className="flex flex-wrap items-center gap-2 overflow-x-auto max-w-full">
+            <div className="flex flex-wrap items-center gap-2 flex-1">
               <motion.button
-                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition 
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200
                   ${selectedCategory === 'All'
-                  ? 'bg-red-600 text-white shadow'
-                  : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-red-50'}`}
+                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                 onClick={() => handleCategoryClick('All')}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                All
+                All Posts
               </motion.button>
-              {categories.map((cat: string) => (
+              {categories.slice(0, 5).map((cat: string) => (
                 <motion.button
                   key={cat}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition 
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200
                     ${selectedCategory === cat
-                    ? 'bg-gradient-to-r from-orange-400 to-yellow-500 text-white shadow'
-                    : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-yellow-50'}`}
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                   onClick={() => handleCategoryClick(cat)}
-                  whileTap={{ scale: 0.9 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   {cat}
                 </motion.button>
               ))}
-            </div>
-            {/* Rating Filter Pills */}
-            <div className="flex items-center gap-2 ml-auto">
-              {[0, 4, 3, 2].map((r) =>
+              {categories.length > 5 && (
                 <button
-                  key={r}
-                  onClick={() => setMinRating(r)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold border 
-                    ${minRating === r
-                      ? 'bg-orange-600 text-white border-orange-600'
-                      : 'bg-white text-orange-700 border-orange-200 hover:bg-orange-50'}
-                    flex items-center gap-1`}
-                  aria-label={r === 0 ? "All ratings" : `${r}+ stars`}
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="px-3 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-xl transition-colors flex items-center gap-1"
                 >
-                  <Star className={minRating === r ? "fill-current text-yellow-300" : "text-yellow-400"} size={14} />
-                  {r === 0 ? "All" : `${r}+`}
+                  <Filter className="w-4 h-4" />
+                  More
                 </button>
               )}
             </div>
+
+            {/* Rating Filter */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-500">Rating:</span>
+              <div className="flex gap-1">
+                {[0, 3, 4, 5].map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setMinRating(r)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200
+                      flex items-center gap-1
+                      ${minRating === r
+                        ? 'bg-yellow-400 text-yellow-900 shadow-md'
+                        : 'bg-gray-100 text-gray-600 hover:bg-yellow-100'}`}
+                  >
+                    <Star className={`w-3 h-3 ${minRating === r ? 'fill-current' : ''}`} />
+                    {r === 0 ? 'All' : `${r}+`}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+
+          {/* More Categories (expandable) */}
+          <AnimatePresence>
+            {showFilters && categories.length > 5 && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-wrap gap-2 pt-4 mt-4 border-t border-gray-100">
+                  {categories.slice(5).map((cat: string) => (
+                    <motion.button
+                      key={cat}
+                      className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200
+                        ${selectedCategory === cat
+                          ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      onClick={() => handleCategoryClick(cat)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {cat}
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </section>
+
+      {/* Trending Section */}
+      {!hasActiveFilters && trendingBlogs.length > 0 && (
+        <section className="container mx-auto px-4 mb-16">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2.5 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl shadow-lg shadow-orange-500/25">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Trending Now</h2>
+            <div className="h-px flex-1 bg-gradient-to-r from-orange-200 to-transparent" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {trendingBlogs.slice(0, 5).map((blog: BlogData, index: number) => (
+              <BlogCard key={blog.id} blog={blog} index={index} variant="compact" />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Blog Listing */}
-      <section className="container mx-auto px-4 mb-20">
-        <div className="mb-10 flex items-center justify-between">
-          <h2 className="text-3xl font-extrabold text-gray-900 flex items-center gap-2">
-            <TrendingUp className="w-7 h-7 text-orange-500" />
-            Trending & Recent
-          </h2>
-          {searchTerm || selectedCategory !== 'All' || minRating !== 0 ? (
-            <button
-              className="ml-3 px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200"
-              onClick={() => { setSearchTerm(''); setSelectedCategory('All'); setMinRating(0); }}
-            >
-              Reset Filters
-            </button>
-          ) : null}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {(filteredBlogs.length > 0 ? filteredBlogs : blogs).map((blog: BlogData, index: number) => (
-            <BlogCard
-              key={blog.id}
-              blog={blog}
-              index={index}
-              
-            />
-          ))}
-        </div>
-        {filteredBlogs.length === 0 && (
-          <div className="text-center py-28">
-            <p className="text-xl text-gray-600 mb-2">No blogs found for your filters/search.</p>
-            <button
-              className="px-6 py-2 text-white bg-gradient-to-r from-red-600 to-orange-500 rounded-lg font-semibold"
-              onClick={() => { setSearchTerm(''); setSelectedCategory('All'); setMinRating(0); }}
-            >Show All Blogs</button>
+      <section className="container mx-auto px-4 pb-20">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl shadow-lg shadow-blue-500/25">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {hasActiveFilters ? 'Search Results' : 'All Articles'}
+            </h2>
+            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">
+              {filteredBlogs.length || blogs.length} posts
+            </span>
           </div>
-        )}
-      </section>
 
-      {/* Blog Details Modal */}
-      <AnimatePresence>
-        {selectedBlog && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/55 backdrop-blur-lg z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedBlog(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.94, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.94, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={e => e.stopPropagation()}
+          {hasActiveFilters && (
+            <motion.button
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="px-4 py-2 text-sm font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors flex items-center gap-2"
+              onClick={() => { setSearchTerm(''); setSelectedCategory('All'); setMinRating(0); }}
             >
-              {selectedBlog.thumbnail && (
-                <img
-                  src={selectedBlog.thumbnail}
-                  alt={selectedBlog.title}
-                  className="w-full h-56 object-cover rounded-t-2xl"
-                />
-              )}
-              <button
-                onClick={() => setSelectedBlog(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-gray-200 transition"
-                aria-label="Close details"
-              >
-                <X className="w-6 h-6" />
-              </button>
-              <div className="p-6">
-                <BlogCard
-                  blog={selectedBlog}
-                
-                />
-              </div>
-            </motion.div>
+              <X className="w-4 h-4" />
+              Clear Filters
+            </motion.button>
+          )}
+        </div>
+
+        {filteredBlogs.length > 0 || !hasActiveFilters ? (
+          <motion.div
+            layout
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            <AnimatePresence mode="popLayout">
+              {(filteredBlogs.length > 0 ? filteredBlogs : blogs).map((blog: BlogData, index: number) => (
+                <BlogCard key={blog.id} blog={blog} index={index} />
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-20"
+          >
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Search className="w-10 h-10 text-gray-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">No articles found</h3>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              We couldn't find any blogs matching your criteria. Try adjusting your filters or search term.
+            </p>
+            <button
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-300"
+              onClick={() => { setSearchTerm(''); setSelectedCategory('All'); setMinRating(0); }}
+            >
+              Show All Articles
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </motion.div>
         )}
-      </AnimatePresence>
+      </section>
     </div>
   );
 };

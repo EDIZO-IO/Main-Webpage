@@ -8,6 +8,7 @@ import ProjectsSection from './ProjectSection';
 import WhyChooseSection from './WhyChooseSection';
 import InternshipsSection from './InternshipSection';
 import FinalCTA from './FinalCTA';
+import SocialMediaFab from '../../components/common/SocialMediaFab';
 
 const Home: React.FC = () => {
   return (
@@ -20,6 +21,7 @@ const Home: React.FC = () => {
       <WhyChooseSection />
       <InternshipsSection />
       <FinalCTA />
+      <SocialMediaFab />
     </div>
   );
 };
