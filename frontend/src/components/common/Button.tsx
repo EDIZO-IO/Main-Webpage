@@ -1,7 +1,5 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { useGoogleEvents } from '../hooks/useGoogleEvents';
-import { motion } from 'framer-motion';
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -16,8 +14,6 @@ interface ButtonProps {
   fullWidth?: boolean;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
-  enableFestivalAnimation?: boolean;
-  showFestivalEmoji?: boolean;
   style?: React.CSSProperties;
 }
 
@@ -34,13 +30,8 @@ const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
   iconLeft,
   iconRight,
-  enableFestivalAnimation = true,
-  showFestivalEmoji = true,
   style,
 }) => {
-  const { getActiveEvent } = useGoogleEvents();
-  const activeEvent = getActiveEvent();
-
   // Size classes
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
@@ -49,7 +40,7 @@ const Button: React.FC<ButtonProps> = ({
     xl: 'px-10 py-4 text-xl',
   };
 
-  // Updated variant classes
+  // Variant classes
   const variantClasses = {
     primary: `
       bg-gradient-to-r from-red-600 to-orange-500 text-white
@@ -81,41 +72,18 @@ const Button: React.FC<ButtonProps> = ({
       `
   };
 
-  // Memoize festival styles as before (unchanged, see your current logic)
-
-  // Animation classes (unchanged, but you may want to reduce animation for ghost/outline if clarity is top priority)
-
-  const getFestivalAnimationClass = () => {
-    if (!enableFestivalAnimation || !activeEvent) return '';
-    const animationClasses: Record<string, string> = {
-      'diwali': 'animate-pulse',
-      'holi': 'animate-bounce',
-      'christmas': 'animate-pulse',
-      'new-year': 'animate-bounce',
-      // ...etc, add more if desired
-    };
-    return animationClasses[activeEvent.animation] || '';
-  };
-
-  // Final Button class
+  // Final Button class - simplified without heavy animations
   const combinedClasses = [
     "inline-flex items-center justify-center",
-    "rounded-full", // change to rounded-xl if you want less rounded
-    "transition-all duration-300 ease-in-out",
+    "rounded-full",
+    "transition-all duration-200 ease-out",
+    "hover:scale-[1.02] active:scale-[0.98]",
     sizeClasses[size],
     variantClasses[variant],
     fullWidth ? "w-full" : "",
     disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
-    getFestivalAnimationClass(),
     className,
   ].join(' ');
-
-  const mergedStyles = { ...style }; // Only use dynamic/festival styles if you want
-
-  const buttonVariants = {
-    hover: { scale: 1.03, transition: { duration: 0.18 } },
-    tap: { scale: 0.97, transition: { duration: 0.09 } }
-  };
 
   const ButtonContent = () => (
     <>
@@ -127,54 +95,37 @@ const Button: React.FC<ButtonProps> = ({
 
   if (to) {
     return (
-      <motion.div
-        whileHover="hover"
-        whileTap="tap"
-        variants={buttonVariants}
-        className="inline-block"
-      >
-        <Link to={to} className={combinedClasses} style={mergedStyles}>
-          <ButtonContent />
-        </Link>
-      </motion.div>
+      <Link to={to} className={combinedClasses} style={style}>
+        <ButtonContent />
+      </Link>
     );
   }
 
   if (href) {
     return (
-      <motion.div
-        whileHover="hover"
-        whileTap="tap"
-        variants={buttonVariants}
-        className="inline-block"
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={combinedClasses}
+        style={style}
       >
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={combinedClasses}
-          style={mergedStyles}
-        >
-          <ButtonContent />
-        </a>
-      </motion.div>
+        <ButtonContent />
+      </a>
     );
   }
 
   return (
-    <motion.button
+    <button
       type={type}
       className={combinedClasses}
       onClick={onClick}
       disabled={disabled}
-      style={mergedStyles}
-      whileHover="hover"
-      whileTap="tap"
-      variants={buttonVariants}
+      style={style}
       aria-disabled={disabled}
     >
       <ButtonContent />
-    </motion.button>
+    </button>
   );
 };
 

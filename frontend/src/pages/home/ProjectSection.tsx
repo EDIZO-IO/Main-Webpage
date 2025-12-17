@@ -1,5 +1,5 @@
 // frontend/src/pages/home/ProjectsSection.tsx
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { AnimatedSection } from './AnimatedSection';
@@ -62,12 +62,10 @@ const ProjectsSection = memo(() => {
         </div>
 
         <div className="text-center">
-          <Button 
-            href="https://bytecode.edizo.in" 
+          <Button
+            href="https://bytecode.edizo.in"
             variant="primary"
             size="lg"
-            enableFestivalAnimation={true}
-            showFestivalEmoji={true}
             iconRight={<ArrowRight className="w-5 h-5" />}
           >
             View All Projects

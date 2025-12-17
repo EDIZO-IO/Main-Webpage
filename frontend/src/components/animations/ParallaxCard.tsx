@@ -1,5 +1,4 @@
-import React, { useRef, useEffect } from 'react';
-import { motion, useAnimation, useInView } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface ParallaxCardProps {
   children: React.ReactNode;
@@ -7,20 +6,34 @@ interface ParallaxCardProps {
   depth?: number;
 }
 
-export const ParallaxCard: React.FC<ParallaxCardProps> = ({ 
-  children, 
+// Simplified ParallaxCard with CSS transitions instead of framer-motion
+export const ParallaxCard: React.FC<ParallaxCardProps> = ({
+  children,
   className = "",
   depth = 20
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(cardRef, { once: true, margin: "-100px" });
-  const controls = useAnimation();
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (isInView) {
-      controls.start("visible");
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (cardRef.current) {
+            observer.unobserve(cardRef.current);
+          }
+        }
+      },
+      { threshold: 0.1, rootMargin: '-50px' }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
     }
-  }, [controls, isInView]);
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -32,29 +45,16 @@ export const ParallaxCard: React.FC<ParallaxCardProps> = ({
     const rotateX = (y - 0.5) * depth;
     const rotateY = (x - 0.5) * depth;
 
-    // Add parallax effect to child elements
-    const elements = cardRef.current.querySelectorAll('.parallax-element');
-    elements.forEach((element: Element, index) => {
-      const z = (index + 1) * 10;
-      (element as HTMLElement).style.transform = `translateZ(${z}px)`;
-    });
-
     cardRef.current.style.transform = `
       perspective(1000px)
       rotateX(${-rotateX}deg)
       rotateY(${rotateY}deg)
-      scale3d(1.05, 1.05, 1.05)
+      scale3d(1.02, 1.02, 1.02)
     `;
   };
 
   const handleMouseLeave = () => {
     if (!cardRef.current) return;
-
-    // Reset parallax elements
-    const elements = cardRef.current.querySelectorAll('.parallax-element');
-    elements.forEach((element: Element) => {
-      (element as HTMLElement).style.transform = 'translateZ(0)';
-    });
 
     cardRef.current.style.transform = `
       perspective(1000px)
@@ -65,32 +65,26 @@ export const ParallaxCard: React.FC<ParallaxCardProps> = ({
   };
 
   return (
-    <motion.div
+    <div
       ref={cardRef}
       className={`transition-all duration-300 ${className}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      variants={{
-        hidden: { opacity: 0, y: 50 },
-        visible: { 
-          opacity: 1, 
-          y: 0,
-          transition: {
-            type: "spring",
-            stiffness: 100,
-            damping: 20
-          }
-        }
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible
+          ? 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
+          : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(0.95, 0.95, 0.95) translateY(30px)',
+        transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
+        willChange: 'transform'
       }}
-      initial="hidden"
-      animate={controls}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };
 
-export const ParallaxElement: React.FC<{ 
+export const ParallaxElement: React.FC<{
   children: React.ReactNode;
   className?: string;
 }> = ({ children, className = "" }) => {

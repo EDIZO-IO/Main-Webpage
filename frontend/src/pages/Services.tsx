@@ -1,6 +1,6 @@
 // src/pages/Services.tsx
 import { useState, useMemo, useCallback, memo } from 'react';
-import { Link } from 'react-router-dom';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
@@ -35,7 +35,7 @@ import {
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
 import Button from '../components/common/Button';
-import { useGoogleEvents } from '../components/hooks/useGoogleEvents';
+
 
 import webDevelopmentImg from '../assets/services/website design.webp';
 import uiuxImg from '../assets/services/uiux.webp';
@@ -394,11 +394,10 @@ const CategoryButton = memo<{ category: string; isSelected: boolean; onClick: ()
   ({ category, isSelected, onClick }) => (
     <motion.button
       onClick={onClick}
-      className={`px-5 py-2.5 text-sm font-semibold rounded-xl transition-all shadow-sm ${
-        isSelected
-          ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg scale-105'
-          : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-red-300 hover:bg-gray-50'
-      }`}
+      className={`px-5 py-2.5 text-sm font-semibold rounded-xl transition-all shadow-sm ${isSelected
+        ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg scale-105'
+        : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-red-300 hover:bg-gray-50'
+        }`}
       whileHover={{ scale: 1.05, y: -2 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -412,8 +411,7 @@ CategoryButton.displayName = 'CategoryButton';
 const Services: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const { getActiveEvent } = useGoogleEvents();
-  const activeEvent = getActiveEvent();
+
 
   // ✅ Memoized categories
   const categories = useMemo(() => ['All', 'Development', 'Design', 'API', 'Marketing'], []);
@@ -421,7 +419,7 @@ const Services: React.FC = () => {
   // ✅ Memoized filtered services
   const filteredServices = useMemo(() => {
     const lowerSearch = searchTerm.toLowerCase();
-    
+
     return services.filter(service => {
       const matchesSearch =
         searchTerm === '' ||
@@ -500,7 +498,7 @@ const Services: React.FC = () => {
               </p>
             </div>
           </AnimatedSection>
-          
+
           {/* Search and Filter Section */}
           <div className="mb-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -625,40 +623,34 @@ const Services: React.FC = () => {
               <CheckCircle className="w-5 h-5" />
               <span className="text-sm font-semibold">Ready to Get Started?</span>
             </div>
-            
+
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
               Transform Your Business Today
             </h2>
             <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-white/90">
               Let's discuss how our services can help you achieve your goals and grow your business.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  to="/contact"
-                  variant="secondary"
-                  size="xl"
-                  enableFestivalAnimation={true}
-                  showFestivalEmoji={true}
-                  iconRight={<ArrowRight className="w-6 h-6" />}
-                  className="shadow-2xl hover:shadow-3xl"
-                >
-                  Start Your Project
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  to="/internships"
-                  variant="outline"
-                  size="xl"
-                  className="border-2 border-white/50 text-white hover:bg-white/10 backdrop-blur-sm"
-                >
-                  View Internships
-                </Button>
-              </motion.div>
+              <Button
+                to="/contact"
+                variant="secondary"
+                size="xl"
+                iconRight={<ArrowRight className="w-6 h-6" />}
+                className="shadow-2xl hover:shadow-3xl hover:scale-105 transition-transform"
+              >
+                Start Your Project
+              </Button>
+              <Button
+                to="/internships"
+                variant="outline"
+                size="xl"
+                className="border-2 border-white/50 text-white hover:bg-white/10 backdrop-blur-sm hover:scale-105 transition-transform"
+              >
+                View Internships
+              </Button>
             </div>
-            
+
             <div className="mt-8 flex items-center justify-center gap-8 text-sm text-white/80">
               <span className="flex items-center gap-2">
                 <CheckCircle size={16} />

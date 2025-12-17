@@ -10,9 +10,9 @@ import {
   Users,
   Zap,
   Award,
-  
+
   Percent,
- 
+
   AlertCircle,
   Sparkles,
   Filter,
@@ -311,8 +311,6 @@ const InternshipCard = memo<InternshipCardProps>(({ internship, index, showTrend
             size="sm"
             iconRight={<ArrowRight className="w-4 h-4" />}
             className="w-full mt-auto rounded-lg border-none font-bold shadow-none"
-            enableFestivalAnimation={true}
-            showFestivalEmoji={false}
           >
             Apply Now
           </Button>
@@ -365,11 +363,10 @@ const CategoryButton = memo<{ category: string; isSelected: boolean; onClick: ()
   ({ category, isSelected, onClick }) => (
     <motion.button
       onClick={onClick}
-      className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${
-        isSelected
+      className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${isSelected
           ? "bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-md"
           : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-      }`}
+        }`}
       whileHover={{ scale: 1.05, y: -2 }}
       whileTap={{ scale: 0.98 }}
     >

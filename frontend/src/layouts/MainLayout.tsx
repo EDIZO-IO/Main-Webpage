@@ -1,9 +1,9 @@
 // src/layouts/MainLayout.tsx
+// Simplified Layout - Removed page transition animations for better performance
 import React, { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import Header from '../components/common/Header'; // Updated Header that handles auth and location internally
+import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import ScrollToTop from '../components/common/ScrollToTop';
 
@@ -17,10 +17,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   useEffect(() => {
     // Scroll to top on route change
     window.scrollTo(0, 0);
-  }, [location.pathname]); // Add location.pathname as dependency to trigger on route changes
-
-  // Removed isLoading state and auth check from MainLayout.
-  // These are now handled by the Header component.
+  }, [location.pathname]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-blue-50">
@@ -31,26 +28,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       >
         Skip to main content
       </a>
-    
-      <Header /> {/* This is the updated Header that handles auth and location */}
+
+      <Header />
 
       <main id="main-content" role="main" className="flex-grow pt-14">
         <div className="w-full">
-          {children ? (
-            children
-          ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={location.pathname}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
-          )}
+          {children ? children : <Outlet />}
         </div>
       </main>
 

@@ -1,5 +1,4 @@
-import React, { memo } from 'react';
-import { motion } from 'framer-motion';
+import { memo } from 'react';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { LazyImage } from './LazyImage';
@@ -16,12 +15,10 @@ interface ServiceCardProps {
 const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }) => {
   return (
     <AnimatedSection>
-      <motion.div
-        whileHover={{ y: -7, scale: 1.03 }}
-        transition={{ duration: 0.2 }}
-        className="group relative bg-white border border-gray-200 shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-all h-full"
+      <div
+        className="group relative bg-white border border-gray-200 shadow-md overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 hover:scale-[1.02] transition-all duration-200 h-full"
         style={{
-          borderRadius: "1.125rem", // uniform rounded
+          borderRadius: "1.125rem",
         }}
       >
         {/* Flat, geometric image header section */}
@@ -29,7 +26,7 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
           <LazyImage
             src={img}
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           {/* Optional decorative shadow or chip */}
           <div className="absolute top-5 left-5 flex items-center justify-center w-12 h-12 bg-gray-50 border border-gray-200 rounded-lg shadow group-hover:bg-blue-50 transition-colors z-10">
@@ -62,13 +59,11 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
             size="sm"
             iconRight={<ArrowRight className="w-4 h-4" />}
             className="w-full mt-auto rounded-lg border-none font-bold shadow-none"
-            enableFestivalAnimation={false}
-            showFestivalEmoji={false}
           >
             Learn More
           </Button>
         </div>
-      </motion.div>
+      </div>
     </AnimatedSection>
   );
 });

@@ -1,7 +1,6 @@
 // frontend/src/pages/home/BlogsSection.tsx
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { ArrowRight, Loader2, BookOpen, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
 import Button from '../../components/common/Button';
 import { useFeaturedBlogs } from '../../components/hooks/useBlogs';
 import { AnimatedSection } from './AnimatedSection';
@@ -22,15 +21,10 @@ const BlogsSection = memo(() => {
         <div className="text-center mb-16 max-w-3xl mx-auto">
           <AnimatedSection>
             {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-100 to-red-100 border border-orange-200 rounded-full mb-6 shadow-sm"
-            >
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-100 to-red-100 border border-orange-200 rounded-full mb-6 shadow-sm">
               <BookOpen className="w-4 h-4 text-orange-600" />
               <span className="text-sm font-semibold text-orange-700">Insights & Updates</span>
-            </motion.div>
+            </div>
 
             {/* Title */}
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
@@ -49,23 +43,14 @@ const BlogsSection = memo(() => {
 
         {blogsLoading ? (
           <div className="text-center py-16">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              className="inline-block"
-            >
+            <div className="inline-block animate-spin">
               <Loader2 className="w-12 h-12 text-orange-500" />
-            </motion.div>
+            </div>
             <p className="text-gray-500 mt-4">Loading latest posts...</p>
           </div>
         ) : featuredBlogs.length > 0 ? (
           <>
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-14"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-14">
               {featuredBlogs.map((blog, index) => (
                 <BlogCard
                   key={blog.id}
@@ -74,34 +59,21 @@ const BlogsSection = memo(() => {
                   variant="featured"
                 />
               ))}
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
+            <div className="text-center">
               <Button
                 to="/blogs"
                 variant="primary"
                 size="lg"
-                enableFestivalAnimation={true}
-                showFestivalEmoji={true}
                 iconRight={<ArrowRight className="w-5 h-5" />}
               >
                 View All Articles
               </Button>
-            </motion.div>
+            </div>
           </>
         ) : (
-          <motion.div
-            className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-3xl border border-gray-100 shadow-sm"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-          >
+          <div className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-3xl border border-gray-100 shadow-sm">
             <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Sparkles className="w-10 h-10 text-orange-500" />
             </div>
@@ -113,7 +85,7 @@ const BlogsSection = memo(() => {
             >
               Visit Blog Section
             </Button>
-          </motion.div>
+          </div>
         )}
       </div>
     </section>

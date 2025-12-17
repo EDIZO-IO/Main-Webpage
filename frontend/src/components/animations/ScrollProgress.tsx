@@ -1,72 +1,82 @@
 import React, { useEffect, useState } from "react";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 
-// === Scroll Progress Bar ===
+// === Scroll Progress Bar - Simplified with CSS ===
 export const ScrollProgress: React.FC = () => {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 120,
-    damping: 30,
-    restDelta: 0.001,
-  });
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = totalHeight > 0 ? window.scrollY / totalHeight : 0;
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <motion.div
+    <div
       className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-gray-300 to-red-500 origin-left z-50"
-      style={{ scaleX }}
+      style={{
+        transform: `scaleX(${scrollProgress})`,
+        transformOrigin: 'left'
+      }}
     />
   );
 };
 
-// === Scroll Down Indicator ===
+// === Scroll Down Indicator - Simplified ===
 export const ScrollIndicator: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
-  const { scrollYProgress } = useScroll();
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.85]);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsVisible(window.scrollY < 100);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  if (!isVisible) return null;
+
   return (
-    <motion.div
-      className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40"
-      style={{ opacity, scale }}
-      initial={{ opacity: 1, y: 0 }}
-      animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-      transition={{ duration: 0.3 }}
+    <div
+      className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center transition-opacity duration-300"
+      style={{ opacity: isVisible ? 1 : 0 }}
     >
-      <motion.div
-        className="flex flex-col items-center"
-        animate={{ y: [0, 8, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+      <div className="w-6 h-10 border-2 border-white dark:border-gray-300 rounded-full p-1 mb-2">
+        <div
+          className="w-1 h-2 bg-white dark:bg-gray-300 rounded-full"
+          style={{
+            animation: 'scrollBounce 1.5s ease-in-out infinite'
+          }}
+        />
+      </div>
+      <span
+        className="text-white dark:text-gray-300 text-sm font-medium"
+        style={{
+          animation: 'pulse 1.5s ease-in-out infinite'
+        }}
       >
-        <div className="w-6 h-10 border-2 border-white dark:border-gray-300 rounded-full p-1 mb-2">
-          <motion.div
-            className="w-1 h-2 bg-white dark:bg-gray-300 rounded-full"
-            animate={{ y: [0, 12, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-          />
-        </div>
-        <motion.span
-          className="text-white dark:text-gray-300 text-sm font-medium"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-        >
-          Scroll
-        </motion.span>
-      </motion.div>
-    </motion.div>
+        Scroll
+      </span>
+      <style>{`
+        @keyframes scrollBounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(12px); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+      `}</style>
+    </div>
   );
 };
 
-// === Parallax Section ===
+// === Parallax Section - Simplified ===
 interface ParallaxSectionProps {
   children: React.ReactNode;
   offset?: number;
@@ -78,12 +88,29 @@ export const ParallaxSection: React.FC<ParallaxSectionProps> = ({
   offset = 50,
   direction = "vertical",
 }) => {
-  const { scrollYProgress } = useScroll();
-  const transformValue = useTransform(scrollYProgress, [0, 1], [0, offset]);
+  const [transform, setTransform] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = totalHeight > 0 ? window.scrollY / totalHeight : 0;
+      setTransform(progress * offset);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [offset]);
 
   return (
-    <motion.div style={direction === "vertical" ? { y: transformValue } : { x: transformValue }}>
+    <div
+      style={{
+        transform: direction === "vertical"
+          ? `translateY(${transform}px)`
+          : `translateX(${transform}px)`,
+        transition: 'transform 0.1s linear'
+      }}
+    >
       {children}
-    </motion.div>
+    </div>
   );
 };

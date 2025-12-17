@@ -1,14 +1,10 @@
 // frontend/src/pages/home/EventsSection.tsx
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { Calendar, TrendingUp } from 'lucide-react';
 import Button from '../../components/common/Button';
-import { useGoogleEvents } from '../../components/hooks/useGoogleEvents';
 import { AnimatedSection } from './AnimatedSection';
 
 const EventsSection = memo(() => {
-  const { getActiveEvent } = useGoogleEvents();
-  const activeEvent = getActiveEvent();
-  
   return (
     <section className="py-24 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 relative overflow-hidden">
       <div className="absolute inset-0 opacity-5 pointer-events-none">
@@ -37,21 +33,15 @@ const EventsSection = memo(() => {
             </p>
 
             <div className="flex justify-center mb-6">
-              <Button 
-                to="/events" 
+              <Button
+                to="/events"
                 variant="primary"
                 size="xl"
-                showFestivalEmoji={true}
-                enableFestivalAnimation={true}
-                style={
-                  !activeEvent
-                    ? {
-                        background: "linear-gradient(90deg, #fbbf24 0%, #f43f5e 100%)",
-                        color: "#fff",
-                        boxShadow: "0 4px 20px 0 rgba(251,191,36,0.3),0 8px 24px 0 rgba(244,63,94,0.2)"
-                      }
-                    : undefined
-                }
+                style={{
+                  background: "linear-gradient(90deg, #fbbf24 0%, #f43f5e 100%)",
+                  color: "#fff",
+                  boxShadow: "0 4px 20px 0 rgba(251,191,36,0.3),0 8px 24px 0 rgba(244,63,94,0.2)"
+                }}
                 className="shadow-2xl hover:shadow-3xl"
               >
                 View Events & Register

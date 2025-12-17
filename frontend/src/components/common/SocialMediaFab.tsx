@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 // Social media icons as SVG components
 const ShareIcon = () => (
@@ -67,7 +66,6 @@ interface SocialLink {
     url: string;
     icon: React.ReactNode;
     bgColor: string;
-    hoverColor: string;
 }
 
 const socialLinks: SocialLink[] = [
@@ -76,42 +74,36 @@ const socialLinks: SocialLink[] = [
         url: 'https://whatsapp.com/channel/0029VbAcqFjG3R3hEF6IsT2O',
         icon: <WhatsAppIcon />,
         bgColor: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-        hoverColor: '#25D366',
     },
     {
         name: 'Arattai',
         url: 'https://aratt.ai/@edizo_official',
         icon: <ArattaiIcon />,
         bgColor: 'linear-gradient(135deg, #00C853 0%, #1DE9B6 100%)',
-        hoverColor: '#00C853',
     },
     {
         name: 'YouTube',
         url: 'https://youtube.com/@edizo_official?si=EXnhLt8M6BmaCt3a',
         icon: <YouTubeIcon />,
         bgColor: 'linear-gradient(135deg, #FF0000 0%, #CC0000 100%)',
-        hoverColor: '#FF0000',
     },
     {
         name: 'Facebook',
         url: 'https://www.facebook.com/profile.php?id=61576742758066',
         icon: <FacebookIcon />,
         bgColor: 'linear-gradient(135deg, #1877F2 0%, #0D65D9 100%)',
-        hoverColor: '#1877F2',
     },
     {
         name: 'Instagram',
         url: 'https://www.instagram.com/edizo_official',
         icon: <InstagramIcon />,
         bgColor: 'linear-gradient(135deg, #F58529 0%, #DD2A7B 50%, #8134AF 100%)',
-        hoverColor: '#DD2A7B',
     },
     {
         name: 'X',
         url: 'https://x.com/edizo_official',
         icon: <XIcon />,
         bgColor: 'linear-gradient(135deg, #14171A 0%, #657786 100%)',
-        hoverColor: '#14171A',
     },
 ];
 
@@ -120,102 +112,53 @@ const SocialMediaFab: React.FC = () => {
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.08,
-                delayChildren: 0.1,
-            },
-        },
-        exit: {
-            opacity: 0,
-            transition: {
-                staggerChildren: 0.05,
-                staggerDirection: -1,
-            },
-        },
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20, scale: 0.8 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: {
-                type: 'spring' as const,
-                stiffness: 300,
-                damping: 20,
-            },
-        },
-        exit: {
-            opacity: 0,
-            y: 10,
-            scale: 0.8,
-            transition: {
-                duration: 0.15,
-            },
-        },
-    };
-
     return (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-center gap-3">
             {/* Social Media Links Container */}
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        className="flex flex-col-reverse gap-3 mb-2"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                    >
-                        {socialLinks.map((link) => (
-                            <motion.a
-                                key={link.name}
-                                href={link.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={`Connect with us on ${link.name}`}
-                                className="group relative flex items-center justify-center w-12 h-12 rounded-full text-white shadow-lg backdrop-blur-sm"
+            {isOpen && (
+                <div
+                    className="flex flex-col-reverse gap-3 mb-2"
+                    style={{
+                        animation: 'fadeInUp 0.2s ease-out forwards'
+                    }}
+                >
+                    {socialLinks.map((link, index) => (
+                        <a
+                            key={link.name}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Connect with us on ${link.name}`}
+                            className="group relative flex items-center justify-center w-12 h-12 rounded-full text-white shadow-lg backdrop-blur-sm hover:scale-110 transition-transform duration-200"
+                            style={{
+                                background: link.bgColor,
+                                boxShadow: `0 4px 20px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(255, 255, 255, 0.1) inset`,
+                                animation: `fadeInUp 0.2s ease-out ${index * 0.05}s forwards`,
+                                opacity: 0,
+                            }}
+                        >
+                            {link.icon}
+                            {/* Tooltip */}
+                            <span
+                                className="absolute right-full mr-3 px-3 py-1.5 bg-gray-900/95 text-white text-sm font-medium rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none backdrop-blur-md transition-opacity duration-200"
                                 style={{
-                                    background: link.bgColor,
-                                    boxShadow: `0 4px 20px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(255, 255, 255, 0.1) inset`,
+                                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
                                 }}
-                                variants={itemVariants}
-                                whileHover={{
-                                    scale: 1.15,
-                                    boxShadow: `0 8px 30px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(255, 255, 255, 0.2) inset`,
-                                }}
-                                whileTap={{ scale: 0.95 }}
                             >
-                                {link.icon}
-                                {/* Tooltip */}
-                                <motion.span
-                                    className="absolute right-full mr-3 px-3 py-1.5 bg-gray-900/95 text-white text-sm font-medium rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none backdrop-blur-md"
-                                    style={{
-                                        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
-                                    }}
-                                    initial={{ x: 10, opacity: 0 }}
-                                    whileHover={{ x: 0, opacity: 1 }}
-                                >
-                                    {link.name}
-                                    <span
-                                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full border-8 border-transparent border-l-gray-900/95"
-                                    />
-                                </motion.span>
-                            </motion.a>
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                                {link.name}
+                                <span
+                                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full border-8 border-transparent border-l-gray-900/95"
+                                />
+                            </span>
+                        </a>
+                    ))}
+                </div>
+            )}
 
             {/* Main FAB Button */}
-            <motion.button
+            <button
                 onClick={toggleMenu}
-                className="relative flex items-center justify-center w-14 h-14 rounded-full text-white shadow-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-transparent"
+                className="relative flex items-center justify-center w-14 h-14 rounded-full text-white shadow-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-transparent hover:scale-110 active:scale-95 transition-transform duration-200"
                 style={{
                     background: isOpen
                         ? 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)'
@@ -224,65 +167,40 @@ const SocialMediaFab: React.FC = () => {
                         ? '0 6px 25px rgba(239, 68, 68, 0.5), 0 0 0 3px rgba(255, 255, 255, 0.15) inset'
                         : '0 6px 25px rgba(249, 115, 22, 0.5), 0 0 0 3px rgba(255, 255, 255, 0.15) inset',
                 }}
-                whileHover={{
-                    scale: 1.1,
-                    boxShadow: isOpen
-                        ? '0 8px 35px rgba(239, 68, 68, 0.6), 0 0 0 4px rgba(255, 255, 255, 0.2) inset'
-                        : '0 8px 35px rgba(249, 115, 22, 0.6), 0 0 0 4px rgba(255, 255, 255, 0.2) inset',
-                }}
-                whileTap={{ scale: 0.95 }}
-                animate={{ rotate: isOpen ? 180 : 0 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 aria-label={isOpen ? 'Close social media menu' : 'Open social media menu'}
                 aria-expanded={isOpen}
             >
-                <motion.div
-                    animate={{ opacity: isOpen ? 0 : 1, scale: isOpen ? 0.5 : 1 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute"
+                <div
+                    style={{
+                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease-out',
+                    }}
                 >
-                    <ShareIcon />
-                </motion.div>
-                <motion.div
-                    animate={{ opacity: isOpen ? 1 : 0, scale: isOpen ? 1 : 0.5 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute"
-                >
-                    <CloseIcon />
-                </motion.div>
-
-                {/* Pulse effect when closed */}
-                {!isOpen && (
-                    <motion.div
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                            background: 'linear-gradient(135deg, #F97316 0%, #DC2626 100%)',
-                        }}
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.5, 0, 0.5],
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: 'easeInOut',
-                        }}
-                    />
-                )}
-            </motion.button>
+                    {isOpen ? <CloseIcon /> : <ShareIcon />}
+                </div>
+            </button>
 
             {/* Background overlay when menu is open */}
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        className="fixed inset-0 -z-10"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={toggleMenu}
-                    />
-                )}
-            </AnimatePresence>
+            {isOpen && (
+                <div
+                    className="fixed inset-0 -z-10"
+                    onClick={toggleMenu}
+                />
+            )}
+
+            {/* CSS for animations */}
+            <style>{`
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `}</style>
         </div>
     );
 };

@@ -1,5 +1,5 @@
 // frontend/src/pages/home/InternshipsSection.tsx
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { useTrendingInternships } from '../../components/hooks/useInternships';
@@ -36,8 +36,8 @@ const InternshipsSection = memo(() => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
               {trendingInternships.map((item) => (
-                <PortfolioCard 
-                  key={item.id} 
+                <PortfolioCard
+                  key={item.id}
                   img={item.image}
                   title={item.title}
                   category={item.category}
@@ -53,12 +53,10 @@ const InternshipsSection = memo(() => {
             </div>
 
             <div className="text-center">
-              <Button 
-                to="/internships" 
+              <Button
+                to="/internships"
                 variant="primary"
                 size="lg"
-                enableFestivalAnimation={true}
-                showFestivalEmoji={true}
                 iconRight={<ArrowRight className="w-5 h-5" />}
               >
                 Explore All Internships
@@ -68,8 +66,8 @@ const InternshipsSection = memo(() => {
         ) : (
           <div className="text-center py-12">
             <p className="text-gray-600 mb-6">No trending internships available at the moment.</p>
-            <Button 
-              to="/internships" 
+            <Button
+              to="/internships"
               variant="outline"
               size="lg"
             >
