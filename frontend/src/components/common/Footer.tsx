@@ -80,6 +80,7 @@ const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Follow us on ${label}`}
+                  title={`Visit our ${label} page`}
                   className="text-gray-300 hover:text-orange-400 bg-white/15 backdrop-blur-lg hover:bg-gradient-to-br hover:from-orange-400/90 hover:to-red-500/80 transition-all duration-200 p-2.5 rounded-lg border border-white/20 hover:border-orange-400/50 shadow-sm hover:scale-105"
                 >
                   <Icon size={22} />
@@ -98,6 +99,7 @@ const Footer: React.FC = () => {
                 <li key={label} className="hover:translate-x-1 transition-transform duration-200">
                   <Link
                     to={to}
+                    title={`Navigate to ${label} page`}
                     className="text-gray-300 hover:text-white font-medium flex items-center group transition duration-200"
                   >
                     <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2 group-hover:bg-red-400 transition" />
@@ -118,7 +120,7 @@ const Footer: React.FC = () => {
                 <li key={i} className={`flex items-start space-x-2 ${href ? 'hover:translate-x-1' : ''} transition-transform duration-200`}>
                   <Icon className="text-orange-400 mt-0.5 flex-shrink-0" size={17} aria-hidden="true" />
                   {href
-                    ? <a href={href} className="text-gray-200 hover:text-white text-sm break-all">{content}</a>
+                    ? <a href={href} title={`Contact us at ${content}`} className="text-gray-200 hover:text-white text-sm break-all">{content}</a>
                     : <span className="text-gray-300 text-sm">{content}</span>}
                 </li>
               ))}
@@ -159,6 +161,7 @@ const Footer: React.FC = () => {
                 <Link
                   key={label}
                   to={to}
+                  title={`Read our ${label}`}
                   className="text-gray-400 hover:text-orange-400 text-xs md:text-sm transition-colors duration-200 relative group hover:-translate-y-0.5"
                 >
                   {label}
