@@ -114,76 +114,11 @@ const TestimonialsSection = memo(() => {
                 if (data.success && data.data.length > 0) {
                     setTestimonials(data.data);
                 } else {
-                    // Fallback testimonials if API fails
-                    setTestimonials([
-                        {
-                            _id: '1',
-                            name: 'Rahul Sharma',
-                            role: 'Startup Founder',
-                            company: 'TechVenture Labs',
-                            image: '',
-                            rating: 5,
-                            review: 'Edizo transformed our vision into a stunning website. Their team understood our needs perfectly and delivered beyond expectations.',
-                            service: 'Web Development'
-                        },
-                        {
-                            _id: '2',
-                            name: 'Priya Patel',
-                            role: 'Marketing Director',
-                            company: 'GrowthHub India',
-                            image: '',
-                            rating: 5,
-                            review: 'Working with Edizo on our UI/UX redesign was a game-changer. They brought fresh, innovative ideas that significantly improved our user engagement.',
-                            service: 'UI/UX Design'
-                        },
-                        {
-                            _id: '3',
-                            name: 'Arjun Mehta',
-                            role: 'Product Manager',
-                            company: 'InnovateTech',
-                            image: '',
-                            rating: 5,
-                            review: 'The mobile app Edizo developed for us exceeded all expectations. Smooth performance, beautiful interface, and delivered right on schedule.',
-                            service: 'App Development'
-                        }
-                    ]);
+                    setError('No testimonials available');
                 }
             } catch (err) {
                 console.error('Error fetching testimonials:', err);
                 setError('Unable to load testimonials');
-                // Set fallback data
-                setTestimonials([
-                    {
-                        _id: '1',
-                        name: 'Rahul Sharma',
-                        role: 'Startup Founder',
-                        company: 'TechVenture Labs',
-                        image: '',
-                        rating: 5,
-                        review: 'Edizo transformed our vision into a stunning website. Their team understood our needs perfectly and delivered beyond expectations.',
-                        service: 'Web Development'
-                    },
-                    {
-                        _id: '2',
-                        name: 'Priya Patel',
-                        role: 'Marketing Director',
-                        company: 'GrowthHub India',
-                        image: '',
-                        rating: 5,
-                        review: 'Working with Edizo on our UI/UX redesign was a game-changer. They brought fresh, innovative ideas that significantly improved our user engagement.',
-                        service: 'UI/UX Design'
-                    },
-                    {
-                        _id: '3',
-                        name: 'Arjun Mehta',
-                        role: 'Product Manager',
-                        company: 'InnovateTech',
-                        image: '',
-                        rating: 5,
-                        review: 'The mobile app Edizo developed for us exceeded all expectations. Smooth performance, beautiful interface, and delivered right on schedule.',
-                        service: 'App Development'
-                    }
-                ]);
             } finally {
                 setLoading(false);
             }
