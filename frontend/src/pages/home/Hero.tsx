@@ -1,8 +1,79 @@
 // frontend/src/pages/home/Hero.tsx
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../../components/common/Button';
 import { AnimatedSection } from './AnimatedSection';
+
+// Typewriter phrases
+const phrases = [
+  "Creative Services & Real-World Learning",
+  "Design Excellence & Innovation",
+  "Web Development & App Solutions",
+  "UI/UX Design & Digital Marketing",
+  "Professional Internships & Training"
+];
+
+// Typewriter Component
+const TypewriterText = memo(() => {
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [text, setText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    const currentPhrase = phrases[phraseIndex];
+
+    // Typing speed
+    const typeSpeed = isDeleting ? 30 : 80;
+    const pauseDuration = 2000;
+
+    if (isPaused) {
+      const pauseTimeout = setTimeout(() => {
+        setIsPaused(false);
+        setIsDeleting(true);
+      }, pauseDuration);
+      return () => clearTimeout(pauseTimeout);
+    }
+
+    const typeTimeout = setTimeout(() => {
+      if (!isDeleting) {
+        // Typing
+        if (text.length < currentPhrase.length) {
+          setText(currentPhrase.slice(0, text.length + 1));
+        } else {
+          // Finished typing, pause before deleting
+          setIsPaused(true);
+        }
+      } else {
+        // Deleting
+        if (text.length > 0) {
+          setText(text.slice(0, -1));
+        } else {
+          // Finished deleting, move to next phrase
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % phrases.length);
+        }
+      }
+    }, typeSpeed);
+
+    return () => clearTimeout(typeTimeout);
+  }, [text, isDeleting, isPaused, phraseIndex]);
+
+  return (
+    <span className="inline-block min-h-[1.5em]">
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">
+        {text}
+      </span>
+      <motion.span
+        animate={{ opacity: [1, 0] }}
+        transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+        className="inline-block w-[3px] h-[1em] bg-red-600 ml-1 align-middle"
+      />
+    </span>
+  );
+});
+TypewriterText.displayName = 'TypewriterText';
 
 const Hero = memo(() => {
   return (
@@ -32,9 +103,13 @@ const Hero = memo(() => {
               <span className="text-gray-900">Welcome to </span>
               <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">EDIZO</span>
             </h1>
-            <p className="text-xl md:text-2xl text-center text-gray-600 font-medium mb-4 max-w-3xl mx-auto">
-              Creative Services & Real-World Learning — All in One Place
-            </p>
+
+            {/* Typewriter Animation */}
+            <div className="text-xl md:text-2xl text-center text-gray-600 font-medium mb-4 max-w-3xl mx-auto">
+              <TypewriterText />
+              <span className="text-gray-600"> — All in One Place</span>
+            </div>
+
             <p className="text-lg md:text-xl text-center text-gray-600 leading-relaxed mb-10 max-w-3xl mx-auto">
               Empowering brands with{' '}
               <span className="font-bold text-red-600">creative design</span>,{' '}

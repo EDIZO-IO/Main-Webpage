@@ -21,6 +21,7 @@ app.set('trust proxy', 1);
 // ✅ CORS Configuration
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5174',
   'http://localhost:3000',
   'https://edizo-intern.netlify.app',
   'https://edizo-io.netlify.app',

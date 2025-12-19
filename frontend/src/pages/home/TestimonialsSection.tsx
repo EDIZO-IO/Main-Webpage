@@ -108,7 +108,7 @@ const TestimonialsSection = memo(() => {
     useEffect(() => {
         const fetchTestimonials = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/testimonials?featured=true&limit=6`);
+                const response = await fetch(`${API_BASE_URL}/api/testimonials?limit=10`);
                 const data = await response.json();
 
                 if (data.success && data.data.length > 0) {
