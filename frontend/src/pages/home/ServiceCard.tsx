@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { CheckCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight, IndianRupee } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { LazyImage } from './LazyImage';
 import { AnimatedSection } from './AnimatedSection';
@@ -10,9 +10,10 @@ interface ServiceCardProps {
   desc: string;
   link: string;
   features: string[];
+  startingPrice: number;
 }
 
-const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }) => {
+const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features, startingPrice }) => {
   return (
     <AnimatedSection>
       <div
@@ -40,6 +41,19 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
 
         <div className="p-6 flex flex-col flex-grow">
           <p className="text-gray-700 mb-4 leading-relaxed text-sm">{desc}</p>
+
+          {/* Starting Price Badge */}
+          <div className="mb-4">
+            <div className="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+              <span className="text-xs text-gray-600 font-medium">Starts from</span>
+              <div className="flex items-center text-green-700 font-bold">
+                <IndianRupee className="w-4 h-4" />
+                <span>{startingPrice.toLocaleString('en-IN')}</span>
+              </div>
+              <span className="text-xs text-gray-500 ml-1">*</span>
+            </div>
+          </div>
+
           {/* Feature list, pill style */}
           <div className="mb-4 flex flex-wrap gap-2">
             {features.slice(0, 3).map((feature, i) => (
@@ -70,3 +84,4 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
 
 ServiceCard.displayName = 'ServiceCard';
 export default ServiceCard;
+

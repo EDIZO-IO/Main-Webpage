@@ -1,5 +1,5 @@
 // frontend/src/pages/home/ServicesSection.tsx
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { AnimatedSection } from './AnimatedSection';
 import ServiceCard from './ServiceCard';
 
@@ -10,26 +10,29 @@ import appDesignImg from '../../assets/services/app design.webp';
 
 const ServicesSection = memo(() => {
   const featuredServices = useMemo(() => [
-    { 
-      img: webDevelopment, 
-      title: "Web Development", 
-      desc: "Fast, scalable websites with React & Next.js.", 
+    {
+      img: webDevelopment,
+      title: "Web Development",
+      desc: "Fast, scalable websites with React & Next.js.",
       link: "/services/web-development",
-      features: ["Blazing Fast Speeds", "Extensive Coverage", "Reliable Connectivity", "Uptime Guarantee"]
+      features: ["Blazing Fast Speeds", "Extensive Coverage", "Reliable Connectivity", "Uptime Guarantee"],
+      startingPrice: 15000
     },
-    { 
-      img: uiuxImg, 
-      title: "UI/UX Design", 
-      desc: "Human-centered design that users love.", 
+    {
+      img: uiuxImg,
+      title: "UI/UX Design",
+      desc: "Human-centered design that users love.",
       link: "/services/ui-ux",
-      features: ["Intuitive Interfaces", "User Testing", "Responsive Design", "Accessibility Compliance"]
+      features: ["Intuitive Interfaces", "User Testing", "Responsive Design", "Accessibility Compliance"],
+      startingPrice: 7000
     },
-    { 
-      img: appDesignImg, 
-      title: "App Development", 
-      desc: "Cross-platform apps with React Native & Flutter.", 
+    {
+      img: appDesignImg,
+      title: "App Development",
+      desc: "Cross-platform apps with React Native & Flutter.",
       link: "/services/app-development",
-      features: ["Native Performance", "Seamless Integration", "Scalable Architecture", "Push Notifications"]
+      features: ["Native Performance", "Seamless Integration", "Scalable Architecture", "Push Notifications"],
+      startingPrice: 25000
     }
   ], []);
 

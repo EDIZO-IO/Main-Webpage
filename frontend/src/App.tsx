@@ -5,6 +5,7 @@ import MainLayout from './layouts/MainLayout';
 import Home from './pages/home/Home';
 import Services from './pages/Services';
 import ServiceDetails from './pages/ServiceDetails';
+import MultiServiceApplication from './pages/MultiServiceApplication';
 import Internships from './pages/Internships';
 import InternshipDetails from './pages/InternshipDetails';
 import Projects from './pages/Projects';
@@ -25,6 +26,7 @@ const App: React.FC = () => {
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="services" element={<Services />} />
+        <Route path="services/apply-multiple" element={<MultiServiceApplication />} />
         <Route path="services/:id" element={<ServiceDetails />} />
         <Route path="internships" element={<Internships />} />
         <Route path="internships/:id" element={<InternshipDetails />} />

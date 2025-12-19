@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, AlertCircle, Star, Award, CheckCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Star, Award, CheckCircle, IndianRupee, Mail, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import AnimatedSection from '../components/common/AnimatedSection';
@@ -151,18 +151,22 @@ const ServiceDetails: React.FC = () => {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Button to="/contact" variant="primary" size="lg" iconRight={<ArrowRight size={20} />}>
-              Get Started Now
-            </Button>
-            <Button
-              to="/services"
-              variant="secondary"
-              size="lg"
-              iconLeft={<ArrowLeft size={20} />}
-              className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+            <a
+              href={`https://wa.me/917092435729?text=${encodeURIComponent(`Hi! I'm interested in your ${service.title} service. Please share more details.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              All Services
-            </Button>
+              <MessageCircle size={20} />
+              <span>WhatsApp Us</span>
+            </a>
+            <a
+              href={`mailto:edizo5491@gmail.com?subject=Inquiry: ${encodeURIComponent(service.title)}`}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300"
+            >
+              <Mail size={20} />
+              <span>Email Us</span>
+            </a>
           </motion.div>
         </div>
       </div>
@@ -229,16 +233,46 @@ const ServiceDetails: React.FC = () => {
                   </div>
                   <div className="p-6">
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{service.title}</h3>
-                    <p className="text-gray-600 mb-6">{service.subtitle}</p>
-                    <Button
-                      to="/contact"
-                      variant="primary"
-                      size="lg"
-                      iconRight={<ArrowRight size={18} />}
-                      className="w-full shadow-lg"
-                    >
-                      Request Quote
-                    </Button>
+                    <p className="text-gray-600 mb-4">{service.subtitle}</p>
+
+                    {/* Starting Price Display */}
+                    <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl">
+                      <p className="text-sm text-gray-600 mb-1">Starting from</p>
+                      <div className="flex items-center gap-1 text-2xl font-bold text-green-700">
+                        <IndianRupee className="w-6 h-6" />
+                        <span>{service.startingPrice.toLocaleString('en-IN')}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">* Final pricing varies based on project scope and features</p>
+                    </div>
+
+                    {/* Direct Contact Options */}
+                    <div className="space-y-3">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">Get a Quote - Contact Us Directly</p>
+
+                      {/* Email Button */}
+                      <a
+                        href={`mailto:edizo5491@gmail.com?subject=Service Inquiry: ${encodeURIComponent(service.title)}&body=${encodeURIComponent(`Hi Edizo Team,\n\nI am interested in your ${service.title} service.\n\nService Details:\n- Service: ${service.title}\n- Starting Price: ₹${service.startingPrice.toLocaleString('en-IN')}\n\nMy Details:\n- Name: \n- Company/Project: \n- Contact Number: \n- Requirements: \n\nPlease provide a detailed quote for my requirements.\n\nThank you!`)}`}
+                        className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300"
+                      >
+                        <Mail className="w-5 h-5" />
+                        <span>Email Us</span>
+                      </a>
+
+                      {/* WhatsApp Button */}
+                      <a
+                        href={`https://wa.me/917092435729?text=${encodeURIComponent(`Hi Edizo Team!\n\nI am interested in your *${service.title}* service.\n\n*Service Details:*\n• Service: ${service.title}\n• Starting Price: ₹${service.startingPrice.toLocaleString('en-IN')}\n\n*My Details:*\n• Name: \n• Project/Company: \n• Requirements: \n\nPlease share more details and a quote.`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-green-600 hover:to-green-700 transition-all duration-300"
+                      >
+                        <MessageCircle className="w-5 h-5" />
+                        <span>WhatsApp Us</span>
+                      </a>
+
+                      <p className="text-xs text-center text-gray-500 mt-3">
+                        📧 edizo5491@gmail.com | 📱 +91 7092435729
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               </AnimatedSection>

@@ -31,6 +31,10 @@ import {
   X,
   Sparkles,
   CheckCircle,
+  IndianRupee,
+  Mail,
+  MessageCircle,
+  Package,
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
@@ -62,6 +66,7 @@ export interface Service {
   whyChoose: { title: string; icon: React.ReactNode }[];
   relatedServices: string[];
   ctaText: string;
+  startingPrice: number; // Starting price in INR, flexible based on features
 }
 
 interface LazyImageProps {
@@ -111,7 +116,8 @@ export const services: Service[] = [
       { title: 'Scalable Solutions', icon: <BarChart2 className="text-purple-500" size={20} /> }
     ],
     relatedServices: ['ui-ux', 'app-development', 'seo'],
-    ctaText: 'Build Your Dream Website'
+    ctaText: 'Build Your Dream Website',
+    startingPrice: 15000 // Custom pricing based on project scope
   },
   {
     id: 'ui-ux',
@@ -132,7 +138,8 @@ export const services: Service[] = [
       { title: 'Iterative Process', icon: <RefreshCw className="text-green-500" size={20} /> }
     ],
     relatedServices: ['web-development', 'app-development'],
-    ctaText: 'Design Better Experiences'
+    ctaText: 'Design Better Experiences',
+    startingPrice: 7000 // Starting price, varies by complexity
   },
   {
     id: 'app-development',
@@ -153,7 +160,8 @@ export const services: Service[] = [
       { title: 'Post-Launch Support', icon: <Headphones className="text-green-500" size={20} /> }
     ],
     relatedServices: ['web-development', 'ui-ux'],
-    ctaText: 'Launch Your App Idea'
+    ctaText: 'Launch Your App Idea',
+    startingPrice: 25000 // Full app development, pricing varies
   },
   {
     id: 'video-editing',
@@ -174,7 +182,8 @@ export const services: Service[] = [
       { title: 'Multiple Formats', icon: <Layers className="text-purple-500" size={20} /> }
     ],
     relatedServices: ['graphic-design', 'digital-marketing'],
-    ctaText: 'Tell Your Story Visually'
+    ctaText: 'Tell Your Story Visually',
+    startingPrice: 3000 // Per video, pricing varies by duration
   },
   {
     id: 'graphic-design',
@@ -195,7 +204,8 @@ export const services: Service[] = [
       { title: 'Print & Digital Ready', icon: <Monitor className="text-gray-500" size={20} /> }
     ],
     relatedServices: ['video-editing', 'web-development', 'digital-marketing'],
-    ctaText: 'Elevate Your Brand Visually'
+    ctaText: 'Elevate Your Brand Visually',
+    startingPrice: 2500 // Per design, package pricing available
   },
   {
     id: 'api-development',
@@ -216,7 +226,8 @@ export const services: Service[] = [
       { title: 'Developer-Friendly', icon: <Code className="text-green-500" size={20} /> }
     ],
     relatedServices: ['web-development', 'app-development'],
-    ctaText: 'Connect Your Systems'
+    ctaText: 'Connect Your Systems',
+    startingPrice: 12000 // Custom API, pricing based on endpoints
   },
   {
     id: 'seo',
@@ -237,7 +248,8 @@ export const services: Service[] = [
       { title: 'Transparent Reporting', icon: <BarChart2 className="text-yellow-500" size={20} /> }
     ],
     relatedServices: ['web-development', 'digital-marketing'],
-    ctaText: 'Rank Higher on Google'
+    ctaText: 'Rank Higher on Google',
+    startingPrice: 5000 // Monthly SEO, custom packages available
   },
   {
     id: 'digital-marketing',
@@ -258,7 +270,8 @@ export const services: Service[] = [
       { title: 'Measurable ROI', icon: <Target className="text-yellow-500" size={20} /> }
     ],
     relatedServices: ['seo', 'graphic-design', 'video-editing'],
-    ctaText: 'Boost Your Online Presence'
+    ctaText: 'Boost Your Online Presence',
+    startingPrice: 8000 // Monthly, flexible based on channels
   }
 ];
 
@@ -294,6 +307,18 @@ const ServiceCard = memo<ServiceCardProps>(({ service, index }) => (
       <div className="p-6 flex flex-col flex-grow">
         {/* Description */}
         <p className="text-gray-700 mb-4 leading-relaxed">{service.description}</p>
+
+        {/* Starting Price Badge */}
+        <div className="mb-4">
+          <div className="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+            <span className="text-xs text-gray-600 font-medium">Starts from</span>
+            <div className="flex items-center text-green-700 font-bold">
+              <IndianRupee className="w-4 h-4" />
+              <span>{service.startingPrice.toLocaleString('en-IN')}</span>
+            </div>
+            <span className="text-xs text-gray-500 ml-1">*</span>
+          </div>
+        </div>
 
         {/* Features List - pills, flat look */}
         <div className="mb-4 flex flex-wrap gap-2">
@@ -602,6 +627,47 @@ const Services: React.FC = () => {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Multiple Service Application Card */}
+          <AnimatedSection>
+            <div className="mt-12">
+              <motion.div
+                whileHover={{ y: -5, scale: 1.01 }}
+                className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-8 shadow-xl overflow-hidden relative"
+              >
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute inset-0" style={{
+                    backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                    backgroundSize: '30px 30px'
+                  }} />
+                </div>
+
+                <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
+                      <Package className="w-10 h-10 text-white" />
+                    </div>
+                    <div className="text-white">
+                      <h3 className="text-2xl font-bold mb-1">Need Multiple Services?</h3>
+                      <p className="text-white/80 text-lg">
+                        Select multiple services and get a combined quote with special package pricing!
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    to="/services/apply-multiple"
+                    variant="secondary"
+                    size="lg"
+                    iconRight={<ArrowRight className="w-5 h-5" />}
+                    className="bg-white text-indigo-700 hover:bg-gray-100 shadow-lg font-bold whitespace-nowrap"
+                  >
+                    Apply for Multiple Services
+                  </Button>
+                </div>
+              </motion.div>
+            </div>
+          </AnimatedSection>
         </div>
       </section>
 
@@ -632,36 +698,46 @@ const Services: React.FC = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                to="/contact"
-                variant="secondary"
-                size="xl"
-                iconRight={<ArrowRight className="w-6 h-6" />}
-                className="shadow-2xl hover:shadow-3xl hover:scale-105 transition-transform"
+              <a
+                href={`https://wa.me/917092435729?text=${encodeURIComponent('Hi Edizo Team! I am interested in your services. Please share more details.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-green-600 font-bold rounded-xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300"
               >
-                Start Your Project
-              </Button>
-              <Button
-                to="/internships"
-                variant="outline"
-                size="xl"
-                className="border-2 border-white/50 text-white hover:bg-white/10 backdrop-blur-sm hover:scale-105 transition-transform"
+                <MessageCircle className="w-6 h-6" />
+                <span>WhatsApp Us</span>
+              </a>
+              <a
+                href="mailto:edizo5491@gmail.com?subject=Service Inquiry&body=Hi Edizo Team,%0A%0AI am interested in your services. Please share more details.%0A%0AMy Details:%0A- Name: %0A- Company/Project: %0A- Contact Number: %0A- Requirements: %0A%0AThank you!"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/50 text-white font-bold rounded-xl hover:bg-white/10 backdrop-blur-sm hover:scale-105 transition-all duration-300"
               >
-                View Internships
-              </Button>
+                <Mail className="w-6 h-6" />
+                <span>Email Us</span>
+              </a>
             </div>
 
-            <div className="mt-8 flex items-center justify-center gap-8 text-sm text-white/80">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-white/90">
               <span className="flex items-center gap-2">
-                <CheckCircle size={16} />
+                <Mail size={16} />
+                edizo5491@gmail.com
+              </span>
+              <span className="flex items-center gap-2">
+                <MessageCircle size={16} />
+                +91 7092435729
+              </span>
+            </div>
+
+            <div className="mt-6 flex items-center justify-center gap-6 text-xs text-white/70">
+              <span className="flex items-center gap-1">
+                <CheckCircle size={14} />
                 Free Consultation
               </span>
-              <span className="flex items-center gap-2">
-                <CheckCircle size={16} />
+              <span className="flex items-center gap-1">
+                <CheckCircle size={14} />
                 No Obligation
               </span>
-              <span className="flex items-center gap-2">
-                <CheckCircle size={16} />
+              <span className="flex items-center gap-1">
+                <CheckCircle size={14} />
                 Expert Advice
               </span>
             </div>

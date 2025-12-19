@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, IndianRupee } from 'lucide-react';
 
 // Adjust type import if needed
 import type { Service } from '../Services';
@@ -39,7 +39,19 @@ const RelatedServiceCard = memo<RelatedServiceCardProps>(({ service, index }) =>
           </div>
         </div>
         <div className="p-5 flex flex-col flex-grow">
-          <p className="text-gray-700 text-sm mb-2 line-clamp-2">{service.description}</p>
+          <p className="text-gray-700 text-sm mb-3 line-clamp-2">{service.description}</p>
+
+          {/* Starting Price Badge */}
+          <div className="mb-3">
+            <div className="inline-flex items-center gap-1 px-2 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-md">
+              <span className="text-xs text-gray-600 font-medium">From</span>
+              <div className="flex items-center text-green-700 font-bold text-sm">
+                <IndianRupee className="w-3.5 h-3.5" />
+                <span>{service.startingPrice.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-center mt-auto text-blue-600 font-semibold text-sm group-hover:gap-2 transition-all">
             <span>Learn More</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform ml-1" />
@@ -52,3 +64,4 @@ const RelatedServiceCard = memo<RelatedServiceCardProps>(({ service, index }) =>
 RelatedServiceCard.displayName = 'RelatedServiceCard';
 
 export default RelatedServiceCard;
+
