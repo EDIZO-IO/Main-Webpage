@@ -19,6 +19,7 @@ import UpcomingEvents from './pages/UpcomingEvents';
 import About from './pages/About';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
+import WriteReview from './pages/WriteReview';
 
 const App: React.FC = () => {
   return (
@@ -40,6 +41,7 @@ const App: React.FC = () => {
         <Route path="about" element={<About />} />
         <Route path="privacy-policy" element={<PrivacyPolicy />} />
         <Route path="terms" element={<TermsAndConditions />} />
+        <Route path="write-review" element={<WriteReview />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
