@@ -17,7 +17,7 @@
   
   # ✅ Sheet Names
   VITE_INTERNSHIPS_SHEET_NAME = "Internships"
-  VITE_EVENTS_SHEET_NAME = "Events"
+
   VITE_WEBINAR_SHEET_NAME = "Webinars"
   VITE_TEAM_SHEET_NAME = "Our Team"
   

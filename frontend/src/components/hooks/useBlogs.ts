@@ -1,143 +1,127 @@
-import { useState, useEffect, useMemo } from 'react';
-import type { BlogData } from '../../types/blog.types';
-import { blogsData } from '../../data/blogs.data';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
-// --- Singleton cache for stat updates (views, likes, comments)
-interface StatUpdates {
-  [blogId: string]: {
-    views?: number;
-    likes?: number;
-    comments?: number;
-  };
+// Blog interface matching MongoDB schema
+export interface BlogData {
+  _id: string;
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  content: string;
+  author: string;
+  authorImage: string;
+  thumbnail: string;
+  category: string;
+  tags: string[];
+  readTime: number;
+  featured: boolean;
+  status: 'published' | 'draft' | 'archived';
+  rating: number;
+  views: number;
+  likes: number;
+  comments: number;
+  seoDescription: string;
+  keywords: string[];
+  publishedDate: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-let statUpdates: StatUpdates = {};
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-// Load stat updates from localStorage
-const loadStatUpdates = (): StatUpdates => {
-  try {
-    const stored = localStorage.getItem('blogStatUpdates');
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-};
-
-// Save stat updates to localStorage
-const saveStatUpdates = (updates: StatUpdates) => {
-  try {
-    localStorage.setItem('blogStatUpdates', JSON.stringify(updates));
-  } catch (e) {
-    console.warn('Failed to save stat updates:', e);
-  }
-};
-
-// Initialize stat updates from localStorage
-statUpdates = loadStatUpdates();
-
-// Merge static data with stat updates
-const getMergedBlogs = (): BlogData[] => {
-  return blogsData.map(blog => {
-    const updates = statUpdates[blog.id] || {};
-    return {
-      ...blog,
-      views: blog.views + (updates.views || 0),
-      likes: blog.likes + (updates.likes || 0),
-      comments: blog.comments + (updates.comments || 0),
-    };
-  });
-};
-
-// === Main blogs hook ===
+// === Main blogs hook - fetches from MongoDB ===
 export const useBlogs = () => {
   const [blogs, setBlogs] = useState<BlogData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Simulate async loading for smooth UX
-    const timer = setTimeout(() => {
-      try {
-        const mergedBlogs = getMergedBlogs();
-        // Sort by date (newest first)
-        mergedBlogs.sort((a, b) =>
-          new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime()
-        );
-        setBlogs(mergedBlogs);
-        setLoading(false);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load blogs');
-        setLoading(false);
-      }
-    }, 100);
+  const fetchBlogs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/blogs?limit=50`);
+      const data = await response.json();
 
-    return () => clearTimeout(timer);
+      if (data.success && data.data) {
+        // Map _id to id for compatibility
+        const mappedBlogs = data.data.map((blog: BlogData) => ({
+          ...blog,
+          id: blog._id || blog.id
+        }));
+        setBlogs(mappedBlogs);
+        setError(null);
+      } else {
+        setError('Failed to fetch blogs');
+      }
+    } catch (err) {
+      console.error('Error fetching blogs:', err);
+      setError('Unable to load blogs');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const refresh = () => {
-    const mergedBlogs = getMergedBlogs();
-    mergedBlogs.sort((a, b) =>
-      new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime()
-    );
-    setBlogs(mergedBlogs);
-  };
+  useEffect(() => {
+    fetchBlogs();
+  }, [fetchBlogs]);
 
-  return { blogs, loading, error, refresh };
+  return { blogs, loading, error, refresh: fetchBlogs };
 };
 
 // === Blog by id/slug hook ===
 export const useBlog = (idOrSlug: string | undefined) => {
-  const { blogs, loading: loadingAll, error: errorAll } = useBlogs();
   const [blog, setBlog] = useState<BlogData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (loadingAll) { setLoading(true); return; }
-    if (errorAll) { setError(errorAll); setLoading(false); return; }
-    if (!idOrSlug) { setError('Blog ID not provided'); setLoading(false); return; }
-
-    const found = blogs.find((b) => b.id === idOrSlug || b.slug === idOrSlug);
-    if (found) {
-      setBlog(found);
-      setError(null);
-    } else {
-      setError(`Blog with ID "${idOrSlug}" not found`);
-      setBlog(null);
+    if (!idOrSlug) {
+      setError('Blog ID not provided');
+      setLoading(false);
+      return;
     }
-    setLoading(false);
-  }, [idOrSlug, blogs, loadingAll, errorAll]);
+
+    const fetchBlog = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_BASE_URL}/api/blogs/${idOrSlug}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          setBlog({
+            ...data.data,
+            id: data.data._id || data.data.id
+          });
+          setError(null);
+        } else {
+          setError(data.message || 'Blog not found');
+          setBlog(null);
+        }
+      } catch (err) {
+        console.error('Error fetching blog:', err);
+        setError('Unable to load blog');
+        setBlog(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlog();
+  }, [idOrSlug]);
 
   return { blog, loading, error };
 };
 
-// === Update blog view count ===
-export const incrementBlogView = (idOrSlug: string) => {
-  const blog = blogsData.find(b => b.id === idOrSlug || b.slug === idOrSlug);
-  if (blog) {
-    if (!statUpdates[blog.id]) statUpdates[blog.id] = {};
-    statUpdates[blog.id].views = (statUpdates[blog.id].views || 0) + 1;
-    saveStatUpdates(statUpdates);
-  }
-};
-
-// === Update blog likes ===
-export const addBlogLike = (idOrSlug: string) => {
-  const blog = blogsData.find(b => b.id === idOrSlug || b.slug === idOrSlug);
-  if (blog) {
-    if (!statUpdates[blog.id]) statUpdates[blog.id] = {};
-    statUpdates[blog.id].likes = (statUpdates[blog.id].likes || 0) + 1;
-    saveStatUpdates(statUpdates);
-  }
-};
-
-// === Update comment count ===
-export const addBlogComment = (idOrSlug: string) => {
-  const blog = blogsData.find(b => b.id === idOrSlug || b.slug === idOrSlug);
-  if (blog) {
-    if (!statUpdates[blog.id]) statUpdates[blog.id] = {};
-    statUpdates[blog.id].comments = (statUpdates[blog.id].comments || 0) + 1;
-    saveStatUpdates(statUpdates);
+// === Like a blog ===
+export const likeBlog = async (blogId: string): Promise<number | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/blogs/${blogId}/like`, {
+      method: 'POST'
+    });
+    const data = await response.json();
+    return data.success ? data.likes : null;
+  } catch (err) {
+    console.error('Error liking blog:', err);
+    return null;
   }
 };
 
@@ -147,7 +131,7 @@ export const useFilteredBlogs = (
   searchTerm: string = '',
   minRating: number = 0
 ) => {
-  const { blogs, loading, error } = useBlogs();
+  const { blogs, loading, error, refresh } = useBlogs();
 
   const filteredBlogs = useMemo(() => {
     if (loading || blogs.length === 0) return [];
@@ -177,7 +161,7 @@ export const useFilteredBlogs = (
     return filtered;
   }, [blogs, loading, category, searchTerm, minRating]);
 
-  return { blogs: filteredBlogs, loading, error };
+  return { blogs: filteredBlogs, loading, error, refresh };
 };
 
 // === Trending Blogs ===
@@ -239,14 +223,29 @@ export const useFeaturedBlogs = (limit?: number) => {
 
 // === Unique Categories ===
 export const useBlogCategories = () => {
-  const { blogs, loading, error } = useBlogs();
+  const [categories, setCategories] = useState<string[]>(['All']);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const categories = useMemo(() => {
-    if (loading || blogs.length === 0) return ['All'];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/blog-categories`);
+        const data = await response.json();
 
-    const uniqueCategories = Array.from(new Set(blogs.map((b) => b.category))).sort();
-    return ['All', ...uniqueCategories];
-  }, [blogs, loading]);
+        if (data.success && data.data) {
+          setCategories(data.data);
+        }
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setError('Failed to load categories');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return { categories, loading, error };
 };
@@ -256,14 +255,14 @@ export const useRelatedBlogs = (currentBlogId: string, limit: number = 3) => {
   const { blogs, loading, error } = useBlogs();
 
   const relatedBlogs = useMemo(() => {
-    if (loading || blogs.length === 0) return [];
+    if (loading || blogs.length === 0 || !currentBlogId) return [];
 
-    const currentBlog = blogs.find(b => b.id === currentBlogId || b.slug === currentBlogId);
+    const currentBlog = blogs.find(b => b.id === currentBlogId || b._id === currentBlogId || b.slug === currentBlogId);
     if (!currentBlog) return [];
 
     // Find blogs with matching category or tags
     const related = blogs
-      .filter(b => b.id !== currentBlog.id)
+      .filter(b => b.id !== currentBlog.id && b._id !== currentBlog._id)
       .map(b => {
         let score = 0;
         if (b.category === currentBlog.category) score += 3;
@@ -282,9 +281,25 @@ export const useRelatedBlogs = (currentBlogId: string, limit: number = 3) => {
   return { blogs: relatedBlogs, loading, error };
 };
 
-// === Clear stat updates (for testing) ===
+// === Increment blog view (API call) ===
+export const incrementBlogView = async (idOrSlug: string): Promise<void> => {
+  // View is already incremented when fetching a single blog via the API
+  // This is a no-op now but kept for backwards compatibility
+  console.log('📊 View tracked for:', idOrSlug);
+};
+
+// === Like a blog (alias for likeBlog) ===
+export const addBlogLike = async (idOrSlug: string): Promise<number | null> => {
+  return likeBlog(idOrSlug);
+};
+
+// === Add comment count (placeholder - can be extended) ===
+export const addBlogComment = async (idOrSlug: string): Promise<void> => {
+  // In a full implementation, this would POST to an API endpoint
+  console.log('💬 Comment tracked for:', idOrSlug);
+};
+
+// === Clear cache (for testing) ===
 export const clearBlogsCache = () => {
-  statUpdates = {};
-  localStorage.removeItem('blogStatUpdates');
-  console.log('🗑️ Blog stats cleared');
+  console.log('🗑️ Blog cache cleared');
 };

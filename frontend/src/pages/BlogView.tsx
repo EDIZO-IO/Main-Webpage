@@ -9,9 +9,9 @@ const BlogView: React.FC = () => {
   const navigate = useNavigate();
   const { blogs, loading, error } = useBlogs();
 
-  // Find by either slug or id for robust navigation
+  // Find by either slug, id, or _id for robust navigation
   const blog: BlogData | undefined = blogs.find(
-    b => b.id === slugOrId || b.slug === slugOrId
+    b => b.id === slugOrId || b.slug === slugOrId || b._id === slugOrId
   );
 
   const [viewed, setViewed] = useState(false);

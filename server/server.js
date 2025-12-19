@@ -22,6 +22,7 @@ app.set('trust proxy', 1);
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
+  'http://localhost:5175',
   'http://localhost:3000',
   'https://edizo-intern.netlify.app',
   'https://edizo-io.netlify.app',
@@ -98,6 +99,45 @@ const testimonialSchema = new mongoose.Schema({
 });
 
 const Testimonial = mongoose.model('Testimonial', testimonialSchema);
+
+// ✅ Blog Schema
+const blogSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  slug: { type: String, required: true, unique: true },
+  description: { type: String, required: true },
+  content: { type: String, required: true },
+  author: { type: String, required: true },
+  authorImage: { type: String, default: '' },
+  thumbnail: { type: String, default: '' },
+  category: { type: String, required: true },
+  tags: [{ type: String }],
+  readTime: { type: Number, default: 5 },
+  featured: { type: Boolean, default: false },
+  status: { type: String, enum: ['published', 'draft', 'archived'], default: 'draft' },
+  rating: { type: Number, default: 0, min: 0, max: 5 },
+  views: { type: Number, default: 0 },
+  likes: { type: Number, default: 0 },
+  comments: { type: Number, default: 0 },
+  seoDescription: { type: String, default: '' },
+  keywords: [{ type: String }],
+  publishedDate: { type: Date },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
+
+// Create slug from title
+blogSchema.pre('save', function (next) {
+  if (this.isModified('title') && !this.slug) {
+    this.slug = this.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
+  this.updatedAt = new Date();
+  next();
+});
+
+const Blog = mongoose.model('Blog', blogSchema);
 
 // ✅ Health Check
 app.get('/', (req, res) => {
@@ -361,6 +401,382 @@ app.post('/api/admin/testimonials/seed', async (req, res) => {
   } catch (error) {
     console.error('❌ Error seeding testimonials:', error.message);
     res.status(500).json({ success: false, message: 'Failed to seed testimonials' });
+  }
+});
+
+// ========================================
+// ✅ BLOG API ENDPOINTS
+// ========================================
+
+// GET: Fetch all published blogs (public)
+app.get('/api/blogs', async (req, res) => {
+  try {
+    const { category, featured, limit = 20, page = 1, search } = req.query;
+
+    let query = { status: 'published' };
+
+    if (category && category !== 'All') {
+      query.category = category;
+    }
+
+    if (featured === 'true') {
+      query.featured = true;
+    }
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } }
+      ];
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const [blogs, total] = await Promise.all([
+      Blog.find(query)
+        .sort({ featured: -1, publishedDate: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .select('-content'),
+      Blog.countDocuments(query)
+    ]);
+
+    res.json({
+      success: true,
+      count: blogs.length,
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
+      data: blogs
+    });
+  } catch (error) {
+    console.error('❌ Error fetching blogs:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch blogs' });
+  }
+});
+
+// GET: Fetch single blog by slug or ID (public)
+app.get('/api/blogs/:slugOrId', async (req, res) => {
+  try {
+    const { slugOrId } = req.params;
+
+    let blog = await Blog.findOne({
+      $or: [{ slug: slugOrId }, { _id: slugOrId }],
+      status: 'published'
+    });
+
+    if (!blog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+
+    // Increment view count
+    blog.views += 1;
+    await blog.save();
+
+    res.json({
+      success: true,
+      data: blog
+    });
+  } catch (error) {
+    console.error('❌ Error fetching blog:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch blog' });
+  }
+});
+
+// POST: Like a blog (public)
+app.post('/api/blogs/:id/like', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+
+    blog.likes += 1;
+    await blog.save();
+
+    res.json({
+      success: true,
+      likes: blog.likes
+    });
+  } catch (error) {
+    console.error('❌ Error liking blog:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to like blog' });
+  }
+});
+
+// GET: Fetch blog categories (public)
+app.get('/api/blog-categories', async (req, res) => {
+  try {
+    const categories = await Blog.distinct('category', { status: 'published' });
+    res.json({
+      success: true,
+      data: ['All', ...categories.sort()]
+    });
+  } catch (error) {
+    console.error('❌ Error fetching categories:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch categories' });
+  }
+});
+
+// GET: Fetch all blogs (admin - includes drafts)
+app.get('/api/admin/blogs', async (req, res) => {
+  try {
+    const blogs = await Blog.find()
+      .sort({ createdAt: -1 })
+      .select('-content');
+
+    res.json({
+      success: true,
+      count: blogs.length,
+      data: blogs
+    });
+  } catch (error) {
+    console.error('❌ Error fetching all blogs:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch blogs' });
+  }
+});
+
+// POST: Create new blog (admin)
+app.post('/api/admin/blogs', async (req, res) => {
+  try {
+    const blogData = req.body;
+
+    // Validation
+    if (!blogData.title || !blogData.content || !blogData.author || !blogData.category) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title, content, author, and category are required'
+      });
+    }
+
+    // Generate slug if not provided
+    if (!blogData.slug) {
+      blogData.slug = blogData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
+
+    // Check if slug exists
+    const existingBlog = await Blog.findOne({ slug: blogData.slug });
+    if (existingBlog) {
+      blogData.slug = `${blogData.slug}-${Date.now()}`;
+    }
+
+    // Set published date if status is published
+    if (blogData.status === 'published' && !blogData.publishedDate) {
+      blogData.publishedDate = new Date();
+    }
+
+    // Calculate read time if not provided
+    if (!blogData.readTime) {
+      const wordsPerMinute = 200;
+      const words = blogData.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+      blogData.readTime = Math.ceil(words / wordsPerMinute);
+    }
+
+    const blog = new Blog(blogData);
+    await blog.save();
+
+    console.log('✅ Blog created:', blog.title);
+
+    res.status(201).json({
+      success: true,
+      message: 'Blog created successfully',
+      data: blog
+    });
+  } catch (error) {
+    console.error('❌ Error creating blog:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to create blog' });
+  }
+});
+
+// PUT: Update blog (admin)
+app.put('/api/admin/blogs/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    // Set published date if status is being set to published
+    if (updates.status === 'published') {
+      const currentBlog = await Blog.findById(id);
+      if (currentBlog && currentBlog.status !== 'published' && !updates.publishedDate) {
+        updates.publishedDate = new Date();
+      }
+    }
+
+    updates.updatedAt = new Date();
+
+    const blog = await Blog.findByIdAndUpdate(id, updates, { new: true });
+
+    if (!blog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+
+    console.log('✅ Blog updated:', blog.title);
+
+    res.json({
+      success: true,
+      message: 'Blog updated successfully',
+      data: blog
+    });
+  } catch (error) {
+    console.error('❌ Error updating blog:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to update blog' });
+  }
+});
+
+// DELETE: Delete blog (admin)
+app.delete('/api/admin/blogs/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const blog = await Blog.findByIdAndDelete(id);
+
+    if (!blog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+
+    console.log('✅ Blog deleted:', blog.title);
+
+    res.json({
+      success: true,
+      message: 'Blog deleted successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error deleting blog:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to delete blog' });
+  }
+});
+
+// POST: Seed sample blogs (admin)
+app.post('/api/admin/blogs/seed', async (req, res) => {
+  try {
+    // Clear existing blogs
+    await Blog.deleteMany({});
+
+    const sampleBlogs = [
+      {
+        title: 'The Future of Web Development in 2025',
+        slug: 'future-of-web-development-2025',
+        description: 'Explore the cutting-edge technologies and trends shaping the future of web development, from AI-powered tools to new frameworks.',
+        content: `<h2>Introduction</h2><p>The web development landscape is evolving rapidly. In 2025, we're seeing unprecedented changes in how websites and applications are built.</p><h2>Key Trends</h2><h3>1. AI-Powered Development</h3><p>Artificial intelligence is revolutionizing how developers write code, test applications, and optimize user experiences.</p><h3>2. Edge Computing</h3><p>With edge computing becoming mainstream, websites are faster and more responsive than ever before.</p><h3>3. WebAssembly Growth</h3><p>WebAssembly continues to grow, enabling high-performance applications directly in the browser.</p><h2>Conclusion</h2><p>Staying ahead in web development requires continuous learning and adaptation to new technologies.</p>`,
+        author: 'Edizo Team',
+        authorImage: '/assets/team/edizo-team.jpg',
+        thumbnail: '/assets/blogs/web-development-future.jpg',
+        category: 'Technology',
+        tags: ['Web Development', 'AI', 'Technology', 'Future Trends'],
+        readTime: 8,
+        featured: true,
+        status: 'published',
+        rating: 4.8,
+        views: 1250,
+        likes: 89,
+        comments: 12,
+        seoDescription: 'Discover the latest trends and technologies shaping web development in 2025.',
+        keywords: ['web development', 'AI', 'future', '2025', 'technology trends'],
+        publishedDate: new Date('2024-12-15')
+      },
+      {
+        title: 'Why UI/UX Design Matters for Business Success',
+        slug: 'why-ui-ux-design-matters',
+        description: 'Learn how great UI/UX design can dramatically improve user engagement, conversions, and overall business performance.',
+        content: `<h2>The Power of Good Design</h2><p>In today's competitive digital landscape, having great products isn't enough. The way users interact with your digital products can make or break your business.</p><h2>Key Benefits of Good UI/UX</h2><h3>1. Increased Conversions</h3><p>Well-designed interfaces guide users towards desired actions, significantly improving conversion rates.</p><h3>2. Better User Retention</h3><p>Users stay longer and return more frequently to platforms that are easy and enjoyable to use.</p><h3>3. Reduced Support Costs</h3><p>Intuitive designs mean fewer confused users and less burden on your support team.</p><h2>Best Practices</h2><p>Focus on user research, maintain consistency, and always test your designs with real users.</p>`,
+        author: 'Edizo Design Team',
+        authorImage: '/assets/team/design-team.jpg',
+        thumbnail: '/assets/blogs/ui-ux-matters.jpg',
+        category: 'Design',
+        tags: ['UI/UX', 'Design', 'User Experience', 'Business'],
+        readTime: 6,
+        featured: true,
+        status: 'published',
+        rating: 4.9,
+        views: 980,
+        likes: 76,
+        comments: 8,
+        seoDescription: 'Understand the importance of UI/UX design for business success and user engagement.',
+        keywords: ['UI/UX', 'design', 'user experience', 'business', 'conversion'],
+        publishedDate: new Date('2024-12-10')
+      },
+      {
+        title: 'Getting Started with Mobile App Development',
+        slug: 'getting-started-mobile-app-development',
+        description: 'A comprehensive guide for beginners looking to build their first mobile application using modern frameworks.',
+        content: `<h2>Choosing Your Path</h2><p>Mobile app development offers multiple approaches: native, hybrid, or cross-platform. Each has its pros and cons.</p><h2>Popular Frameworks</h2><h3>React Native</h3><p>Facebook's framework allows you to build native apps using JavaScript and React.</p><h3>Flutter</h3><p>Google's toolkit provides excellent performance and beautiful UI components.</p><h3>Native Development</h3><p>Swift for iOS and Kotlin for Android offer the best performance but require separate codebases.</p><h2>Getting Started</h2><p>Begin with a simple project, learn the basics, and gradually tackle more complex features.</p>`,
+        author: 'Edizo Development Team',
+        authorImage: '/assets/team/dev-team.jpg',
+        thumbnail: '/assets/blogs/mobile-app-dev.jpg',
+        category: 'Development',
+        tags: ['Mobile Development', 'React Native', 'Flutter', 'Apps'],
+        readTime: 10,
+        featured: false,
+        status: 'published',
+        rating: 4.7,
+        views: 756,
+        likes: 54,
+        comments: 6,
+        seoDescription: 'Learn how to start building mobile apps with this comprehensive beginner guide.',
+        keywords: ['mobile app', 'development', 'React Native', 'Flutter', 'beginner'],
+        publishedDate: new Date('2024-12-05')
+      },
+      {
+        title: 'SEO Best Practices for 2025',
+        slug: 'seo-best-practices-2025',
+        description: 'Master the latest SEO strategies to boost your website visibility and drive organic traffic.',
+        content: `<h2>SEO in 2025</h2><p>Search engine optimization continues to evolve. Staying updated with the latest practices is crucial for online success.</p><h2>Core Web Vitals</h2><p>Google's page experience signals remain important. Focus on loading speed, interactivity, and visual stability.</p><h2>Content Quality</h2><p>High-quality, helpful content that satisfies user intent is more important than ever.</p><h2>AI and Search</h2><p>With AI-powered search features, optimizing for conversational queries and featured snippets is essential.</p>`,
+        author: 'Edizo Marketing Team',
+        authorImage: '/assets/team/marketing-team.jpg',
+        thumbnail: '/assets/blogs/seo-2025.jpg',
+        category: 'Marketing',
+        tags: ['SEO', 'Digital Marketing', 'Content', 'Google'],
+        readTime: 7,
+        featured: false,
+        status: 'published',
+        rating: 4.6,
+        views: 620,
+        likes: 42,
+        comments: 5,
+        seoDescription: 'Stay ahead with the latest SEO strategies and best practices for 2025.',
+        keywords: ['SEO', 'search engine optimization', '2025', 'digital marketing'],
+        publishedDate: new Date('2024-11-28')
+      },
+      {
+        title: 'Building a Successful Startup: Lessons Learned',
+        slug: 'building-successful-startup-lessons',
+        description: 'Real insights and lessons from the journey of building and growing a tech startup.',
+        content: `<h2>The Startup Journey</h2><p>Building a startup is challenging but incredibly rewarding. Here are key lessons from our experience.</p><h2>Focus on the Problem</h2><p>Don't fall in love with your solution. Fall in love with the problem you're solving.</p><h2>Build MVP First</h2><p>Launch with a minimum viable product and iterate based on real user feedback.</p><h2>Team Matters</h2><p>Surround yourself with passionate, skilled people who believe in your vision.</p><h2>Stay Resilient</h2><p>Expect setbacks. Success comes to those who persist through challenges.</p>`,
+        author: 'Edizo Founders',
+        authorImage: '/assets/team/founders.jpg',
+        thumbnail: '/assets/blogs/startup-lessons.jpg',
+        category: 'Business',
+        tags: ['Startup', 'Entrepreneurship', 'Business', 'Growth'],
+        readTime: 9,
+        featured: true,
+        status: 'published',
+        rating: 4.9,
+        views: 1100,
+        likes: 95,
+        comments: 15,
+        seoDescription: 'Learn valuable lessons from real startup experiences and growth strategies.',
+        keywords: ['startup', 'entrepreneurship', 'business growth', 'lessons'],
+        publishedDate: new Date('2024-11-20')
+      }
+    ];
+
+    await Blog.insertMany(sampleBlogs);
+
+    console.log('✅ Blogs seeded successfully');
+
+    res.json({
+      success: true,
+      message: `${sampleBlogs.length} blogs seeded successfully`
+    });
+  } catch (error) {
+    console.error('❌ Error seeding blogs:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to seed blogs' });
   }
 });
 
