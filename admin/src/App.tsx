@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import BlogsManager from './pages/BlogsManager';
 import BlogEditor from './pages/BlogEditor';
 import TestimonialsManager from './pages/TestimonialsManager';
+import CertificatesManager from './pages/CertificatesManager';
 import Layout from './components/Layout';
 import './index.css';
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="blogs/new" element={<BlogEditor />} />
           <Route path="blogs/edit/:id" element={<BlogEditor />} />
           <Route path="testimonials" element={<TestimonialsManager />} />
+          <Route path="certificates" element={<CertificatesManager />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

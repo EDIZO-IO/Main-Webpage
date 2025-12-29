@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, MessageSquare, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FileText, MessageSquare, LogOut, Menu, X, Award } from 'lucide-react';
 import { useState } from 'react';
 
 interface LayoutProps {
@@ -14,6 +14,7 @@ export default function Layout({ onLogout }: LayoutProps) {
         { path: '/', label: 'Dashboard', icon: LayoutDashboard },
         { path: '/blogs', label: 'Blogs', icon: FileText },
         { path: '/testimonials', label: 'Testimonials', icon: MessageSquare },
+        { path: '/certificates', label: 'Certificates', icon: Award },
     ];
 
     const isActive = (path: string) => {

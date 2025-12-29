@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, MessageSquare, Eye, ThumbsUp, Plus, RefreshCw } from 'lucide-react';
+import { FileText, MessageSquare, Eye, ThumbsUp, Plus, RefreshCw, Award } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface Stats {
     blogs: { total: number; published: number; draft: number };
     testimonials: { total: number; approved: number; pending: number };
+    certificates: { total: number; completed: number };
 }
 
 export default function Dashboard() {
@@ -18,16 +19,19 @@ export default function Dashboard() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [blogsRes, testimonialsRes] = await Promise.all([
+            const [blogsRes, testimonialsRes, certificatesRes] = await Promise.all([
                 fetch(`${API_URL}/api/admin/blogs`),
-                fetch(`${API_URL}/api/admin/testimonials`)
+                fetch(`${API_URL}/api/admin/testimonials`),
+                fetch(`${API_URL}/api/admin/certificates`)
             ]);
 
             const blogsData = await blogsRes.json();
             const testimonialsData = await testimonialsRes.json();
+            const certificatesData = await certificatesRes.json();
 
             const blogs = blogsData.data || [];
             const testimonials = testimonialsData.data || [];
+            const certificates = certificatesData.data || [];
 
             setStats({
                 blogs: {
@@ -39,6 +43,10 @@ export default function Dashboard() {
                     total: testimonials.length,
                     approved: testimonials.filter((t: any) => t.isApproved).length,
                     pending: testimonials.filter((t: any) => !t.isApproved).length
+                },
+                certificates: {
+                    total: certificates.length,
+                    completed: certificates.filter((c: any) => c.status === 'Completed').length
                 }
             });
 
@@ -116,6 +124,16 @@ export default function Dashboard() {
                         <div className="stat-label">Pending Review</div>
                     </div>
                 </div>
+
+                <div className="stat-card">
+                    <div className="stat-icon" style={{ background: 'rgba(168, 85, 247, 0.2)' }}>
+                        <Award size={24} color="#a855f7" />
+                    </div>
+                    <div>
+                        <div className="stat-value">{stats?.certificates.total || 0}</div>
+                        <div className="stat-label">Total Certificates</div>
+                    </div>
+                </div>
             </div>
 
             {/* Quick Actions */}
@@ -127,6 +145,9 @@ export default function Dashboard() {
                     </Link>
                     <Link to="/testimonials" className="btn btn-secondary">
                         <MessageSquare size={18} /> Manage Testimonials
+                    </Link>
+                    <Link to="/certificates" className="btn btn-secondary">
+                        <Award size={18} /> Manage Certificates
                     </Link>
                 </div>
             </div>

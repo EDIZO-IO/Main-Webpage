@@ -327,6 +327,7 @@ tr:hover {
 .gap-4 { gap: 1rem; }
 .grid { display: grid; }
 .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.span-2 { grid-column: span 2; }
 
 @media (max-width: 768px) {
   .grid-cols-2 { grid-template-columns: 1fr; }

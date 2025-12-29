@@ -1237,6 +1237,300 @@ app.post('/api/submit-contact', limiter, async (req, res) => {
   }
 });
 
+// ========================================
+// ✅ CERTIFICATE VERIFICATION API ENDPOINTS
+// ========================================
+
+// Sheet ID for Certificates (add CERTIFICATE_SHEET_ID to your .env)
+const CERTIFICATE_SHEET_ID = process.env.CERTIFICATE_SHEET_ID || process.env.GOOGLE_SHEET_ID;
+
+// ✅ Helper: Initialize All Required Sheets
+async function initializeAllSheets() {
+  if (!sheets) {
+    console.log('⚠️ Google Sheets API not initialized yet. Retrying in 5s...');
+    setTimeout(initializeAllSheets, 5000);
+    return;
+  }
+
+  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+  const APPLICATIONS_SHEET = process.env.APPLICATIONS_SHEET_NAME || 'Applications';
+  const CONTACTS_SHEET = 'Contacts';
+  const CERTIFICATES_SHEET = 'Certificates';
+
+  const requiredSheets = [
+    {
+      title: APPLICATIONS_SHEET,
+      headers: ['Timestamp', 'Name', 'Email', 'Phone', 'University', 'Year', 'Education', 'Program', 'Company', 'Duration', 'Original Price', 'Discount', 'Final Price', 'Savings', 'Academic Exp', 'Cover Letter', 'Status']
+    },
+    {
+      title: CONTACTS_SHEET,
+      headers: ['Timestamp', 'Name', 'Email', 'Phone', 'Subject', 'Message', 'Status']
+    },
+    {
+      title: CERTIFICATES_SHEET,
+      headers: ['Certificate ID', 'Intern Name', 'Program Name', 'Start Date', 'End Date', 'Issue Date', 'Status', 'Email']
+    }
+  ];
+
+  try {
+    const sheetInfo = await sheets.spreadsheets.get({
+      spreadsheetId: SHEET_ID
+    });
+
+    const existingSheets = sheetInfo.data.sheets.map(s => s.properties.title);
+
+    for (const sheet of requiredSheets) {
+      if (!existingSheets.includes(sheet.title)) {
+        console.log(`⚠️ Sheet '${sheet.title}' missing. Creating...`);
+
+        // Create Sheet
+        await sheets.spreadsheets.batchUpdate({
+          spreadsheetId: SHEET_ID,
+          resource: {
+            requests: [{
+              addSheet: {
+                properties: { title: sheet.title }
+              }
+            }]
+          }
+        });
+
+        // Add Headers
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SHEET_ID,
+          range: `${sheet.title}!A1`,
+          valueInputOption: 'USER_ENTERED',
+          resource: {
+            values: [sheet.headers]
+          }
+        });
+
+        console.log(`✅ Sheet '${sheet.title}' created with headers.`);
+      }
+    }
+    console.log('✅ All Google Sheets tables verified.');
+  } catch (error) {
+    console.error('❌ Error initializing Google Sheets tables:', error.message);
+  }
+}
+
+// Initialize on load
+setTimeout(initializeAllSheets, 3000);
+
+
+// GET: Verify a certificate by ID (public)
+app.get('/api/certificates/:certificateId', async (req, res) => {
+  try {
+    const { certificateId } = req.params;
+    const trimmedId = certificateId.trim().toUpperCase();
+
+    if (!trimmedId) {
+      return res.status(400).json({
+        isValid: false,
+        message: 'Certificate ID is required'
+      });
+    }
+
+    // Fetch data from Google Sheets
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: CERTIFICATE_SHEET_ID,
+      range: 'Certificates!A:H', // Columns: CertificateID, InternName, ProgramName, StartDate, EndDate, IssueDate, Status, Email
+    });
+
+    const rows = response.data.values || [];
+
+    if (rows.length <= 1) {
+      return res.status(404).json({
+        isValid: false,
+        message: 'No certificates found in the system'
+      });
+    }
+
+    // Find the certificate (skip header row)
+    const certificate = rows.slice(1).find(row =>
+      row[0] && row[0].trim().toUpperCase() === trimmedId
+    );
+
+    if (certificate) {
+      console.log('✅ Certificate verified:', trimmedId);
+      return res.json({
+        isValid: true,
+        data: {
+          certificateId: certificate[0] || '',
+          internName: certificate[1] || '',
+          programName: certificate[2] || '',
+          startDate: certificate[3] || '',
+          endDate: certificate[4] || '',
+          issueDate: certificate[5] || '',
+          status: certificate[6] || 'Completed',
+          email: certificate[7] || ''
+        }
+      });
+    } else {
+      console.log('❌ Certificate not found:', trimmedId);
+      return res.status(404).json({
+        isValid: false,
+        message: 'Certificate not found. Please check the ID and try again.'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Certificate verification error:', error.message);
+    res.status(500).json({
+      isValid: false,
+      message: 'Error verifying certificate. Please try again later.'
+    });
+  }
+});
+
+// GET: Fetch all certificates (admin)
+app.get('/api/admin/certificates', async (req, res) => {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: CERTIFICATE_SHEET_ID,
+      range: 'Certificates!A:H',
+    });
+
+    const rows = response.data.values || [];
+
+    if (rows.length <= 1) {
+      return res.json({
+        success: true,
+        count: 0,
+        data: []
+      });
+    }
+
+    const headers = rows[0];
+    const certificates = rows.slice(1).map((row, index) => ({
+      id: index + 1,
+      certificateId: row[0] || '',
+      internName: row[1] || '',
+      programName: row[2] || '',
+      startDate: row[3] || '',
+      endDate: row[4] || '',
+      issueDate: row[5] || '',
+      status: row[6] || 'Completed',
+      email: row[7] || ''
+    }));
+
+    console.log(`✅ Fetched ${certificates.length} certificates`);
+
+    res.json({
+      success: true,
+      count: certificates.length,
+      data: certificates
+    });
+  } catch (error) {
+    console.error('❌ Error fetching certificates:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch certificates'
+    });
+  }
+});
+
+// POST: Add a new certificate (admin)
+app.post('/api/admin/certificates', async (req, res) => {
+  try {
+    const { certificateId, internName, programName, startDate, endDate, issueDate, status, email } = req.body;
+
+    // Validation
+    if (!certificateId || !internName || !programName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Certificate ID, Intern Name, and Program Name are required'
+      });
+    }
+
+    // Add to Google Sheet
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: CERTIFICATE_SHEET_ID,
+      range: 'Certificates!A:H',
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [[
+          certificateId.trim().toUpperCase(),
+          internName,
+          programName,
+          startDate || '',
+          endDate || '',
+          issueDate || new Date().toISOString().split('T')[0],
+          status || 'Completed',
+          email || ''
+        ]]
+      }
+    });
+
+    console.log('✅ Certificate added:', certificateId);
+
+    res.status(201).json({
+      success: true,
+      message: 'Certificate added successfully',
+      data: { certificateId: certificateId.trim().toUpperCase() }
+    });
+  } catch (error) {
+    console.error('❌ Error adding certificate:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add certificate'
+    });
+  }
+});
+
+// DELETE: Delete a certificate (admin)
+app.delete('/api/admin/certificates/:rowIndex', async (req, res) => {
+  try {
+    const { rowIndex } = req.params;
+    const rowNum = parseInt(rowIndex) + 1; // +1 for header row
+
+    // Get sheet ID first
+    const sheetInfo = await sheets.spreadsheets.get({
+      spreadsheetId: CERTIFICATE_SHEET_ID,
+    });
+
+    const certificatesSheet = sheetInfo.data.sheets.find(s =>
+      s.properties.title === 'Certificates'
+    );
+
+    if (!certificatesSheet) {
+      return res.status(404).json({
+        success: false,
+        message: 'Certificates sheet not found'
+      });
+    }
+
+    // Delete the row
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: CERTIFICATE_SHEET_ID,
+      resource: {
+        requests: [{
+          deleteDimension: {
+            range: {
+              sheetId: certificatesSheet.properties.sheetId,
+              dimension: 'ROWS',
+              startIndex: rowNum,
+              endIndex: rowNum + 1
+            }
+          }
+        }]
+      }
+    });
+
+    console.log('✅ Certificate deleted at row:', rowNum);
+
+    res.json({
+      success: true,
+      message: 'Certificate deleted successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error deleting certificate:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete certificate'
+    });
+  }
+});
+
 // ✅ Global Error Handler
 app.use((err, req, res, next) => {
   console.error('❌ Global error:', err.stack);

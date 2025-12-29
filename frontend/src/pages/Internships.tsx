@@ -1,4 +1,5 @@
 import { useState, useMemo, memo, useCallback } from "react";
+import { Link } from "react-router-dom";
 
 import { motion } from "framer-motion";
 import {
@@ -77,8 +78,9 @@ InternshipCardSkeleton.displayName = "InternshipCardSkeleton";
 interface PageHeaderProps {
   title: string;
   subtitle?: string | React.ReactNode;
+  showVerifyButton?: boolean;
 }
-const PageHeader = memo<PageHeaderProps>(({ title, subtitle }) => {
+const PageHeader = memo<PageHeaderProps>(({ title, subtitle, showVerifyButton }) => {
   return (
     <section
       className="relative text-white h-72 md:h-80 lg:h-96 flex items-center justify-center overflow-hidden"
@@ -211,6 +213,25 @@ const PageHeader = memo<PageHeaderProps>(({ title, subtitle }) => {
             >
               {subtitle}
             </motion.p>
+          )}
+
+          {/* Verify Certificate Button */}
+          {showVerifyButton && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-8 flex justify-center"
+            >
+              <Link
+                to="/verify-certificate"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white font-semibold hover:bg-white/20 hover:scale-105 transition-all group shadow-lg"
+              >
+                <Award className="w-5 h-5 text-yellow-400 group-hover:rotate-12 transition-transform" />
+                <span>Verify Your Certificate</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </motion.div>
           )}
 
           {/* Skill category icons */}
@@ -530,6 +551,8 @@ const Internships: React.FC = () => {
       <PageHeader
         title="Our Internships"
         subtitle="Kickstart your career with hands-on experience and expert mentorship."
+        // @ts-ignore
+        showVerifyButton={true}
       />
       <WhyChooseUs />
       <TrendingSection internships={trendingInternships} />
