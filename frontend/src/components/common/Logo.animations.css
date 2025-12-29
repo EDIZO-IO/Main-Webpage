@@ -1,0 +1,11 @@
+/* src/components/common/Logo.animations.css */
+/* Simplified - All heavy festival animations removed for performance */
+
+/* Keep only minimal hover effect */
+.logo-hover-effect {
+  transition: transform 0.2s ease-out;
+}
+
+.logo-hover-effect:hover {
+  transform: scale(1.05);
+}

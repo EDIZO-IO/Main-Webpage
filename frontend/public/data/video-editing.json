@@ -1,0 +1,44 @@
+[
+  {
+    "id": "promo-video",
+    "title": "RedCap Promo Video",
+    "category": "Promotional Video",
+    "client": "RedCap",
+    "year": "2024",
+    "description": "A dynamic promotional video showcasing RedCap's logistics services with engaging visuals and motion graphics.",
+    "thumbnail": "https://drive.google.com/uc?export=view&id=6fGhIjKlMnOpQrStUvWxYz78901234",
+    "duration": "1:30",
+    "resolution": "1920x1080",
+    "tools": ["Adobe Premiere Pro", "After Effects"],
+    "videoLink": "https://drive.google.com/file/d/6fGhIjKlMnOpQrStUvWxYz78901234/view",
+    "type": "promotional"
+  },
+  {
+    "id": "tutorial-video",
+    "title": "Cybersecurity Tutorial",
+    "category": "Educational Video",
+    "client": "TechCorp",
+    "year": "2024",
+    "description": "An informative tutorial video on cybersecurity best practices for enterprise users.",
+    "thumbnail": "https://drive.google.com/uc?export=view&id=7gHiJkLmNoPqRsTuVwXyZ123456789",
+    "duration": "3:45",
+    "resolution": "1920x1080",
+    "tools": ["Adobe Premiere Pro", "Audacity"],
+    "videoLink": "https://drive.google.com/file/d/7gHiJkLmNoPqRsTuVwXyZ123456789/view",
+    "type": "tutorial"
+  },
+  {
+    "id": "event-recap",
+    "title": "Tech Summit Recap",
+    "category": "Event Video",
+    "client": "InnovateTech",
+    "year": "2024",
+    "description": "A vibrant recap video of the annual Tech Summit, capturing key moments and highlights.",
+    "thumbnail": "https://drive.google.com/uc?export=view&id=8hIjKlMnOpQrStUvWxYz789012345",
+    "duration": "2:15",
+    "resolution": "1920x1080",
+    "tools": ["Adobe Premiere Pro", "After Effects", "DaVinci Resolve"],
+    "videoLink": "https://drive.google.com/file/d/8hIjKlMnOpQrStUvWxYz789012345/view",
+    "type": "event"
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "title": "Introduction to Generative AI",
+    "date": "2025-10-15",
+    "status": "Not Fixed",
+    "location": "Online",
+    "description": "A comprehensive overview of generative models like LLMs and diffusion models.",
+    "registrationLink": "https://forms.gle/your-form-link-1"
+  },
+  {
+    "id": 2,
+    "title": "React Hooks Deep Dive",
+    "date": "2025-11-05",
+    "status": "Waiting",
+    "location": "Online",
+    "description": "Learn advanced patterns and best practices for using React Hooks.",
+    "registrationLink": ""
+  },
+  {
+    "id": 3,
+    "title": "Building Scalable APIs with Node.js",
+    "date": "",
+    "status": "Not Fixed",
+    "location": "Online",
+    "description": "Explore microservices architecture and efficient API design with Node.js.",
+    "registrationLink": ""
+  },
+  {
+    "id": 4,
+    "title": "Advanced CSS Techniques",
+    "date": "2025-12-01",
+    "status": "Waiting",
+    "location": "Hybrid (Online & Offline)",
+    "description": "Master modern CSS layout methods and animation techniques.",
+    "registrationLink": "https://forms.gle/your-form-link-3"
+  },
+  {
+    "id": 5,
+    "title": "Cloud Deployment Strategies",
+    "date": "",
+    "status": "Coming Soon",
+    "location": "Online",
+    "description": "Learn how to deploy applications effectively on AWS, GCP, and Azure.",
+    "registrationLink": ""
+  }
+]

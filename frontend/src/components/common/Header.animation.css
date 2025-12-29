@@ -1,0 +1,35 @@
+/* src/components/common/Header.animation.css */
+/* Simplified - All heavy festival animations removed for performance */
+
+/* Base Styles */
+.custom-toast-success::before {
+  content: '🎉';
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.custom-toast-error::before {
+  content: '⚠️';
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.custom-toast-info::before {
+  content: '👋';
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.header-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Simple nav link hover effect */
+nav a {
+  transition: color 0.2s ease-out;
+}
+
+nav a:hover {
+  color: #ef4444;
+}
