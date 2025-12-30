@@ -38,6 +38,7 @@ const App: React.FC = () => {
         {/* <Route path="blogs" element={<Blogs />} />
         <Route path="blogs/:slugOrId" element={<BlogView />} /> */}
         <Route path="verify-certificate" element={<CertificateVerification />} />
+        <Route path="verification" element={<CertificateVerification />} />
         <Route path="about" element={<About />} />
         <Route path="privacy-policy" element={<PrivacyPolicy />} />
         <Route path="terms" element={<TermsAndConditions />} />

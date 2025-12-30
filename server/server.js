@@ -1531,6 +1531,216 @@ app.delete('/api/admin/certificates/:rowIndex', async (req, res) => {
   }
 });
 
+// ========================================
+// ✅ INTERNSHIPS MANAGEMENT API (Admin)
+// ========================================
+
+const INTERNSHIPS_SHEET_NAME = process.env.INTERNSHIPS_SHEET_NAME || 'Internships';
+
+// GET: Fetch all internships (raw sheet data)
+app.get('/api/admin/internships', async (req, res) => {
+  try {
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${INTERNSHIPS_SHEET_NAME}!A:AN`, // Covers all columns up to 39
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('❌ Error fetching internships:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch internships' });
+  }
+});
+
+// POST: Add new internship (expects row array)
+app.post('/api/admin/internships', async (req, res) => {
+  try {
+    const { values } = req.body;
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
+    if (!values || !Array.isArray(values)) {
+      return res.status(400).json({ success: false, message: 'Invalid values' });
+    }
+
+    const response = await sheets.spreadsheets.values.append({
+      spreadsheetId: SHEET_ID,
+      range: `${INTERNSHIPS_SHEET_NAME}!A:A`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values: [values] },
+    });
+
+    console.log('✅ Internship added');
+    res.json(response.data);
+  } catch (error) {
+    console.error('❌ Error adding internship:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to add internship' });
+  }
+});
+
+// PUT: Update internship row
+app.put('/api/admin/internships/:rowIndex', async (req, res) => {
+  try {
+    const { rowIndex } = req.params;
+    const { values } = req.body;
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
+    const rowNum = parseInt(rowIndex) + 1; // 0-based index from frontend, 1-based in sheet
+
+    const response = await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `${INTERNSHIPS_SHEET_NAME}!A${rowNum}`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values: [values] },
+    });
+
+    console.log('✅ Internship updated at row:', rowNum);
+    res.json(response.data);
+  } catch (error) {
+    console.error('❌ Error updating internship:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to update internship' });
+  }
+});
+
+// DELETE: Delete internship row
+app.delete('/api/admin/internships/:rowIndex', async (req, res) => {
+  try {
+    const { rowIndex } = req.params;
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
+    // Get sheetId for "Internships"
+    const sheetInfo = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+    const sheet = sheetInfo.data.sheets.find(s => s.properties.title === INTERNSHIPS_SHEET_NAME);
+
+    if (!sheet) throw new Error('Internships sheet not found');
+
+    const rowNum = parseInt(rowIndex); // 0-based index for batchUpdate deleteDimension
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SHEET_ID,
+      resource: {
+        requests: [{
+          deleteDimension: {
+            range: {
+              sheetId: sheet.properties.sheetId,
+              dimension: 'ROWS',
+              startIndex: rowNum,
+              endIndex: rowNum + 1
+            }
+          }
+        }]
+      }
+    });
+
+    console.log('✅ Internship deleted at index:', rowNum);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Error deleting internship:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to delete internship' });
+  }
+});
+
+// ========================================
+// ✅ APPLICATIONS MANAGEMENT API (Admin)
+// ========================================
+
+const APPLICATIONS_SHEET_NAME = process.env.APPLICATIONS_SHEET_NAME || 'Applications';
+
+// GET: Fetch all applications
+app.get('/api/admin/applications', async (req, res) => {
+  try {
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${APPLICATIONS_SHEET_NAME}!A:Q`, // A to Q (Status)
+    });
+
+    const rows = response.data.values || [];
+    const headers = rows[0];
+    const data = rows.slice(1).map((row, index) => ({
+      id: index, // Use index as ID
+      timestamp: row[0],
+      name: row[1],
+      email: row[2],
+      phone: row[3],
+      university: row[4],
+      year: row[5],
+      education: row[6],
+      program: row[7],
+      company: row[8],
+      duration: row[9],
+      price: row[12], // Final Price
+      status: row[16] || 'Pending'
+    }));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('❌ Error fetching applications:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch applications' });
+  }
+});
+
+// PUT: Update Application Status
+app.put('/api/admin/applications/:rowIndex/status', async (req, res) => {
+  try {
+    const { rowIndex } = req.params;
+    const { status } = req.body;
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
+    const rowNum = parseInt(rowIndex) + 2; // +1 for header, +1 because 0-based index is from data slice
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `${APPLICATIONS_SHEET_NAME}!Q${rowNum}`, // Column Q is status
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values: [[status]] },
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Error updating application status:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to update status' });
+  }
+});
+
+// DELETE: Delete Application
+app.delete('/api/admin/applications/:rowIndex', async (req, res) => {
+  try {
+    const { rowIndex } = req.params;
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
+    const sheetInfo = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+    const sheet = sheetInfo.data.sheets.find(s => s.properties.title === APPLICATIONS_SHEET_NAME);
+
+    if (!sheet) throw new Error('Applications sheet not found');
+
+    const rowNum = parseInt(rowIndex) + 1; // +1 to skip header? 
+    // Wait, client sends index from the data array (which skipped header).
+    // Sheet Row Index (0-based) = data_index + 1 (header).
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SHEET_ID,
+      resource: {
+        requests: [{
+          deleteDimension: {
+            range: {
+              sheetId: sheet.properties.sheetId,
+              dimension: 'ROWS',
+              startIndex: rowNum,
+              endIndex: rowNum + 1
+            }
+          }
+        }]
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Error deleting application:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to delete application' });
+  }
+});
+
 // ✅ Global Error Handler
 app.use((err, req, res, next) => {
   console.error('❌ Global error:', err.stack);

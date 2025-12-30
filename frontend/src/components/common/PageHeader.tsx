@@ -260,7 +260,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           >
             <Zap className="w-4 h-4 text-yellow-400" />
           </motion.div>
-          <span className="text-sm font-semibold text-white/90">EDIZO • Design.Develop.Deliver</span>
+          <span className="text-sm font-semibold text-white/90">EDIZO • Design.Develop.Learn</span>
           <motion.div
             animate={{ scale: [1, 1.2, 1] }}
             transition={{ duration: 2, repeat: Infinity }}

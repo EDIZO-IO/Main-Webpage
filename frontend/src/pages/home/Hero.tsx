@@ -166,7 +166,7 @@ const Hero = memo(() => {
               {/* Brand Badge with glass effect */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 backdrop-blur-xl bg-white/70 border border-white/50 rounded-full mb-8 shadow-lg">
                 <Sparkles className="w-5 h-5 text-red-500" />
-                <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Design.Develop.Deliver</span>
+                <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Design.Develop.Learn</span>
               </div>
 
               {/* Original Title with brand colors */}

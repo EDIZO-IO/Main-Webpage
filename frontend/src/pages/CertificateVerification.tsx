@@ -1,9 +1,7 @@
 // frontend/src/pages/CertificateVerification.tsx
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import {
     CheckCircle,
     XCircle,
@@ -16,8 +14,10 @@ import {
     Shield,
     Sparkles,
     ArrowLeft,
-    Download,
-    Share2
+    Eye,
+    Share2,
+    X,
+    ExternalLink
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import logo from '../assets/images/logo.png';
@@ -49,45 +49,27 @@ const CertificateVerification: React.FC = () => {
     const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const certificateRef = useRef<HTMLDivElement>(null);
+    const [showCertificateModal, setShowCertificateModal] = useState(false);
+    const [searchParams] = useSearchParams();
 
     const navigate = useNavigate();
 
-    const handleDownloadPDF = async () => {
-        if (!certificateRef.current || !verificationResult?.data) return;
-
-        try {
-            const canvas = await html2canvas(certificateRef.current, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            });
-
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF({
-                orientation: 'landscape',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`EDIZO_Certificate_${verificationResult.data.certificateId}.pdf`);
-        } catch (err) {
-            console.error("PDF generation failed:", err);
-            alert("Failed to generate PDF. Please try again.");
+    // Auto-verify if ID is provided in URL
+    useEffect(() => {
+        const idFromUrl = searchParams.get('id');
+        if (idFromUrl) {
+            setCertificateId(idFromUrl.toUpperCase());
+            // Trigger verification after setting the ID
+            verifyById(idFromUrl);
         }
-    };
+    }, [searchParams]);
 
-    const handleVerify = async () => {
+    const verifyById = async (id: string) => {
         setVerificationResult(null);
         setError('');
         setIsLoading(true);
 
-        const trimmedId = certificateId.trim();
+        const trimmedId = id.trim();
 
         if (!trimmedId) {
             setError('Please enter a certificate ID.');
@@ -122,10 +104,22 @@ const CertificateVerification: React.FC = () => {
         }
     };
 
+    const handleVerify = async () => {
+        verifyById(certificateId);
+    };
+
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             handleVerify();
         }
+    };
+
+    const handleShareLink = () => {
+        if (!verificationResult?.data) return;
+
+        const shareUrl = `${window.location.origin}/verification?id=${encodeURIComponent(verificationResult.data.certificateId)}`;
+        navigator.clipboard.writeText(shareUrl);
+        alert('Verification link copied to clipboard!');
     };
 
     const formatDate = (dateStr: string) => {
@@ -342,19 +336,16 @@ const CertificateVerification: React.FC = () => {
                                                             whileHover={{ scale: 1.02 }}
                                                             whileTap={{ scale: 0.98 }}
                                                             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors"
-                                                            onClick={handleDownloadPDF}
+                                                            onClick={() => setShowCertificateModal(true)}
                                                         >
-                                                            <Download className="w-4 h-4" />
-                                                            Download Certificate
+                                                            <Eye className="w-4 h-4" />
+                                                            View Certificate
                                                         </motion.button>
                                                         <motion.button
                                                             whileHover={{ scale: 1.02 }}
                                                             whileTap={{ scale: 0.98 }}
                                                             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
-                                                            onClick={() => {
-                                                                navigator.clipboard.writeText(window.location.href + '?id=' + verificationResult.data?.certificateId);
-                                                                alert('Verification link copied!');
-                                                            }}
+                                                            onClick={handleShareLink}
                                                         >
                                                             <Share2 className="w-4 h-4" />
                                                             Share Link
@@ -406,211 +397,286 @@ const CertificateVerification: React.FC = () => {
                 </div>
             </section>
 
-            {/* Hidden Certificate Template for PDF Generation */}
-            <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-                <div
-                    ref={certificateRef}
-                    style={{
-                        width: '1123px',
-                        height: '794px', // A4 Landscape
-                        backgroundColor: '#ffffff',
-                        fontFamily: "'Inter', 'Segoe UI', sans-serif",
-                        color: '#333',
-                        position: 'relative',
-                        overflow: 'hidden'
-                    }}
-                >
-                    {/* --- Top & Bottom Red Borders --- */}
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '24px', backgroundColor: '#ef4444', zIndex: 10 }}></div>
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '24px', backgroundColor: '#ef4444', zIndex: 10 }}></div>
+            {/* Certificate View Modal */}
+            <AnimatePresence>
+                {showCertificateModal && verificationResult?.data && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        onClick={() => setShowCertificateModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25 }}
+                            className="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-auto"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setShowCertificateModal(false)}
+                                className="absolute top-4 right-4 z-10 p-2 bg-white/90 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                            >
+                                <X className="w-5 h-5 text-gray-700" />
+                            </button>
 
-                    {/* --- Right Side Graphic (Abstract Shapes) --- */}
-                    <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        right: 0,
-                        width: '350px',
-                        height: '100%',
-                        zIndex: 1,
-                        overflow: 'hidden'
-                    }}>
-                        {/* Large Red Blob on Right */}
-                        <div style={{
-                            position: 'absolute',
-                            top: '50%',
-                            right: '-140px',
-                            transform: 'translateY(-50%)',
-                            width: '450px',
-                            height: '700px',
-                            backgroundColor: '#ef4444', // Red color
-                            borderRadius: '100px 0 0 100px / 50% 0 0 50%', // Asymmetric curve
-                            zIndex: 2,
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }}>
-                            {/* White Circle Cutout inside the red blob (Top) */}
-                            <div style={{
-                                position: 'absolute',
-                                top: '25%',
-                                left: '40px',
-                                width: '180px',
-                                height: '180px',
-                                backgroundColor: '#ffffff',
-                                borderRadius: '50%',
-                                zIndex: 3,
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}>
-                                {/* Inner Red Ring/Dot */}
+                            {/* Certificate Content - Exact Template Match */}
+                            <div
+                                style={{
+                                    width: '100%',
+                                    aspectRatio: '1.414 / 1',
+                                    backgroundColor: '#ffffff',
+                                    fontFamily: "'Inter', 'Segoe UI', sans-serif",
+                                    color: '#333',
+                                    position: 'relative',
+                                    overflow: 'hidden'
+                                }}
+                            >
+                                {/* --- Top & Bottom Red Borders --- */}
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '12px', backgroundColor: '#ef4444', zIndex: 10 }}></div>
+                                <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '12px', backgroundColor: '#ef4444', zIndex: 10 }}></div>
+
+                                {/* --- Right Side EDIZO Logo --- */}
                                 <div style={{
-                                    width: '90px',
-                                    height: '90px',
-                                    border: '20px solid #ef4444',
-                                    borderRadius: '50%',
-                                }}></div>
-                            </div>
-
-                            {/* White Circle Cutout inside the red blob (Bottom) */}
-                            <div style={{
-                                position: 'absolute',
-                                bottom: '-30px',
-                                left: '70px',
-                                width: '120px',
-                                height: '120px',
-                                backgroundColor: '#ffffff',
-                                borderRadius: '50%',
-                                zIndex: 3
-                            }}></div>
-                        </div>
-                    </div>
-
-                    {/* --- Watermark --- */}
-                    <div style={{
-                        position: 'absolute',
-                        top: '55%',
-                        left: '45%',
-                        transform: 'translate(-50%, -50%)',
-                        opacity: 0.04,
-                        zIndex: 0
-                    }}>
-                        <img src={logo} alt="Watermark" style={{ width: '500px', height: 'auto', filter: 'grayscale(100%)' }} />
-                    </div>
-
-
-                    {/* --- Main Content Container --- */}
-                    <div style={{
-                        position: 'relative',
-                        zIndex: 5,
-                        padding: '70px 60px 0px 80px', // Adjusted padding
-                        height: '100%',
-                        boxSizing: 'border-box',
-                        display: 'flex',
-                        flexDirection: 'column',
-                    }}>
-
-                        {/* Header: Logos */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px', paddingRight: '250px' }}>
-                            {/* Edizo Logo */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                <img src={logo} alt="Edizo Logo" style={{ height: '70px', objectFit: 'contain' }} />
-                                <img src={brandName} alt="Edizo Text" style={{ height: '35px', objectFit: 'contain' }} />
-                            </div>
-
-                            {/* MSME & QR */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                <div style={{ textAlign: 'center' }}>
-                                    {/* MSME Logo Simulator */}
-                                    <div style={{ fontWeight: '900', fontSize: '24px', lineHeight: '1', color: '#1f2937', fontFamily: 'Arial, sans-serif', letterSpacing: '-1px' }}>IIISIIIE</div>
-                                    <div style={{ fontSize: '7px', fontWeight: 'bold' }}>सूक्ष्म, लघु एवं मध्यम उद्यम</div>
-                                    <div style={{ fontSize: '6px', fontWeight: 'bold' }}>MICRO, SMALL & MEDIUM ENTERPRISES</div>
+                                    position: 'absolute',
+                                    top: '50%',
+                                    right: '5%',
+                                    transform: 'translateY(-50%)',
+                                    zIndex: 1,
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+                                    <img
+                                        src={logo}
+                                        alt="EDIZO Logo"
+                                        style={{
+                                            width: 'clamp(250px, 25vw, 480px)',
+                                            height: 'auto',
+                                            opacity: 0.9
+                                        }}
+                                    />
                                 </div>
-                                {/* QR Code */}
-                                <div style={{ width: '45px', height: '45px', border: '2px solid #333', padding: '2px' }}>
-                                    <div style={{ width: '100%', height: '100%', backgroundColor: '#000', opacity: 0.8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <div style={{ width: '10px', height: '10px', backgroundColor: '#fff' }}></div>
+
+                                {/* --- Watermark (Light red EDIZO logo in center) --- */}
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '35%',
+                                    transform: 'translate(-50%, -50%)',
+                                    opacity: 0.06,
+                                    zIndex: 0,
+                                    pointerEvents: 'none'
+                                }}>
+                                    <img src={logo} alt="Watermark" style={{ width: '400px', height: 'auto' }} />
+                                </div>
+
+                                {/* --- Main Content Container --- */}
+                                <div style={{
+                                    position: 'relative',
+                                    zIndex: 5,
+                                    padding: '35px 30px 30px 50px',
+                                    height: '100%',
+                                    boxSizing: 'border-box',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                }}>
+
+                                    {/* Header: EDIZO Logo on Left, MSME + QR on Right */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px', paddingRight: '40%' }}>
+                                        {/* Edizo Logo + PVT LTD */}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <img src={logo} alt="Edizo Logo" style={{ height: '55px', objectFit: 'contain' }} />
+                                            <div>
+                                                <div style={{
+                                                    fontSize: 'clamp(24px, 4vw, 32px)',
+                                                    fontWeight: '900',
+                                                    color: '#ef4444',
+                                                    letterSpacing: '2px',
+                                                    lineHeight: 1
+                                                }}>EDIZO</div>
+                                                <div style={{
+                                                    fontSize: 'clamp(12px, 2vw, 16px)',
+                                                    fontWeight: '700',
+                                                    color: '#ef4444',
+                                                    letterSpacing: '3px'
+                                                }}>PVT LTD</div>
+                                            </div>
+                                        </div>
+
+                                        {/* MSME & QR */}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <div style={{ textAlign: 'center' }}>
+                                                <div style={{
+                                                    fontWeight: '900',
+                                                    fontSize: 'clamp(14px, 2vw, 18px)',
+                                                    lineHeight: '1',
+                                                    color: '#1f2937',
+                                                    fontFamily: 'Arial Black, sans-serif',
+                                                    letterSpacing: '0px'
+                                                }}>MSME</div>
+                                                <div style={{ fontSize: '5px', fontWeight: 'bold', color: '#333' }}>सूक्ष्म, लघु एवं मध्यम उद्यम</div>
+                                                <div style={{ fontSize: '4px', fontWeight: 'bold', color: '#333' }}>MICRO, SMALL & MEDIUM ENTERPRISES</div>
+                                            </div>
+                                            {/* QR Code Placeholder */}
+                                            <div style={{
+                                                width: '35px',
+                                                height: '35px',
+                                                border: '1px solid #333',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                background: 'linear-gradient(45deg, #000 25%, transparent 25%), linear-gradient(-45deg, #000 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #000 75%), linear-gradient(-45deg, transparent 75%, #000 75%)',
+                                                backgroundSize: '6px 6px',
+                                                backgroundPosition: '0 0, 0 3px, 3px -3px, -3px 0px'
+                                            }}>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Content Body */}
+                                    <div style={{ flex: 1, paddingLeft: '5px', maxWidth: '60%' }}>
+                                        {/* CERTIFICATE Title - Red Italic Style */}
+                                        <h1 style={{
+                                            fontSize: 'clamp(36px, 6vw, 56px)',
+                                            fontFamily: "'Times New Roman', Georgia, serif",
+                                            fontStyle: 'italic',
+                                            fontWeight: 'normal',
+                                            color: '#ef4444',
+                                            margin: '0 0 0 0',
+                                            letterSpacing: '3px',
+                                            textShadow: '1px 1px 0px rgba(0,0,0,0.1)'
+                                        }}>
+                                            CERTIFICATE
+                                        </h1>
+
+                                        {/* of Completion - Red Cursive */}
+                                        <h2 style={{
+                                            fontSize: 'clamp(16px, 2.5vw, 22px)',
+                                            fontFamily: "'Times New Roman', Georgia, serif",
+                                            fontStyle: 'italic',
+                                            fontWeight: '400',
+                                            color: '#ef4444',
+                                            margin: '0 0 20px 0',
+                                        }}>
+                                            of Completion
+                                        </h2>
+
+                                        {/* This is to certify that */}
+                                        <p style={{
+                                            fontSize: 'clamp(11px, 1.5vw, 14px)',
+                                            color: '#333',
+                                            marginBottom: '8px',
+                                            fontWeight: '400'
+                                        }}>
+                                            This is to certify that
+                                        </p>
+
+                                        {/* Candidate Name */}
+                                        <div style={{
+                                            fontSize: 'clamp(22px, 4vw, 36px)',
+                                            fontWeight: '800',
+                                            color: '#000',
+                                            margin: '5px 0 15px 0',
+                                            fontFamily: "'Times New Roman', Georgia, serif",
+                                        }}>
+                                            {verificationResult.data.internName}
+                                        </div>
+
+                                        {/* Description */}
+                                        <p style={{
+                                            fontSize: 'clamp(10px, 1.4vw, 13px)',
+                                            color: '#333',
+                                            lineHeight: '1.6',
+                                            marginBottom: '15px',
+                                            maxWidth: '100%'
+                                        }}>
+                                            has successfully completed the <strong>{verificationResult.data.programName}</strong> webinar conducted by EDIZO on <strong>{formatDate(verificationResult.data.issueDate)}</strong> via Zoom.
+                                        </p>
+
+                                        {/* Certificate ID and Date */}
+                                        <div style={{ fontSize: 'clamp(8px, 1.1vw, 10px)', color: '#ef4444', marginBottom: '20px' }}>
+                                            <p style={{ margin: '2px 0', fontWeight: '600' }}>CERTIFICATE ID: {verificationResult.data.certificateId}</p>
+                                            <p style={{ margin: '2px 0', fontWeight: '600' }}>DATE: {formatDate(verificationResult.data.issueDate)}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Footer: Signatures */}
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'flex-end',
+                                        maxWidth: '55%',
+                                        paddingLeft: '10px',
+                                        marginBottom: '25px'
+                                    }}>
+                                        {/* Mentor Signature */}
+                                        <div style={{ textAlign: 'center', width: '100px' }}>
+                                            <div style={{ width: '100%', height: '1px', backgroundColor: '#333', marginBottom: '5px' }}></div>
+                                            <p style={{ fontSize: '10px', fontWeight: '600', color: '#333', margin: 0, letterSpacing: '1px' }}>MENTOR</p>
+                                        </div>
+
+                                        {/* CEO Signature */}
+                                        <div style={{ textAlign: 'center', width: '100px' }}>
+                                            {/* Signature Image - handwritten style */}
+                                            <div style={{
+                                                height: '25px',
+                                                marginBottom: '0px',
+                                                display: 'flex',
+                                                alignItems: 'flex-end',
+                                                justifyContent: 'center',
+                                                fontFamily: "'Brush Script MT', cursive",
+                                                fontSize: '18px',
+                                                color: '#333'
+                                            }}>
+                                                <img src={signature} alt="CEO Signature" style={{ height: '25px', objectFit: 'contain' }} />
+                                            </div>
+                                            <div style={{ width: '100%', height: '1px', backgroundColor: '#333', marginBottom: '5px', marginTop: '3px' }}></div>
+                                            <p style={{ fontSize: '10px', fontWeight: '600', color: '#333', margin: 0, letterSpacing: '1px' }}>CEO</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Footer URL */}
+                                    <div style={{
+                                        width: '100%',
+                                        textAlign: 'center',
+                                        position: 'absolute',
+                                        bottom: '18px',
+                                        left: 0,
+                                        zIndex: 10
+                                    }}>
+                                        <p style={{
+                                            fontSize: '12px',
+                                            fontWeight: '900',
+                                            color: '#000',
+                                            letterSpacing: '2px',
+                                            margin: 0
+                                        }}>WWW.EDIZO.IN</p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Content Body */}
-                        <div style={{ flex: 1, paddingLeft: '10px', maxWidth: '650px' }}>
-                            {/* Title */}
-                            <h1 style={{
-                                fontSize: '64px',
-                                fontFamily: "'Times New Roman', serif", // Serif for "CERTIFICATE"
-                                textTransform: 'uppercase',
-                                fontWeight: 'normal',
-                                color: '#333',
-                                margin: '0',
-                                letterSpacing: '4px',
-                                // Trying to simulate the outline/fancy look
-                                textShadow: '2px 2px 0px #e5e7eb'
-                            }}>
-                                CERTIFICATE
-                            </h1>
-                            <h2 style={{
-                                fontSize: '32px',
-                                fontFamily: "sans-serif",
-                                fontWeight: '700',
-                                color: '#4b5563',
-                                margin: '-10px 0 40px 5px',
-                            }}>
-                                of Completion
-                            </h2>
-
-                            <p style={{ fontSize: '20px', color: '#444', marginBottom: '15px' }}>
-                                This is to certify that
-                            </p>
-
-                            {/* Candidate Name */}
-                            <div style={{
-                                fontSize: '50px',
-                                fontWeight: '800',
-                                color: '#111827',
-                                margin: '10px 0 25px 0',
-                                textTransform: 'uppercase',
-                                letterSpacing: '1px'
-                            }}>
-                                {verificationResult?.data?.internName || '{{NAME}}'}
+                            {/* Modal Footer */}
+                            <div className="p-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                                <div className="flex items-center gap-2 text-green-600">
+                                    <CheckCircle className="w-5 h-5" />
+                                    <span className="font-medium text-sm">Verified Certificate</span>
+                                </div>
+                                <button
+                                    onClick={handleShareLink}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-gray-700 font-medium text-sm"
+                                >
+                                    <ExternalLink className="w-4 h-4" />
+                                    Copy Share Link
+                                </button>
                             </div>
-
-                            {/* Description */}
-                            <p style={{ fontSize: '18px', color: '#374151', lineHeight: '1.6', marginBottom: '30px', maxWidth: '600px' }}>
-                                has successfully completed the <strong>{verificationResult?.data?.programName}</strong> internship conducted by <strong>EDIZO</strong> from <strong>{formatDate(verificationResult?.data?.startDate || '')}</strong> to <strong>{formatDate(verificationResult?.data?.endDate || '')}</strong> via Online Mode.
-                            </p>
-
-                            <div style={{ fontSize: '12px', color: '#4b5563', marginBottom: '40px' }}>
-                                <p style={{ margin: '4px 0' }}><strong>CERTIFICATE ID:</strong> {verificationResult?.data?.certificateId}</p>
-                                <p style={{ margin: '4px 0' }}><strong>DATE:</strong> {formatDate(verificationResult?.data?.issueDate || '')}</p>
-                            </div>
-                        </div>
-
-                        {/* Footer: Signatures */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '50px', maxWidth: '600px', paddingLeft: '20px' }}>
-                            {/* Mentor Signature */}
-                            <div style={{ textAlign: 'center', width: '150px' }}>
-                                <div style={{ width: '100%', height: '1px', backgroundColor: '#333', marginBottom: '8px' }}></div>
-                                <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#444' }}>MENTOR</p>
-                            </div>
-
-                            {/* CEO Signature */}
-                            <div style={{ textAlign: 'center', width: '150px' }}>
-                                <img src={signature} alt="Signature" style={{ height: '40px', marginBottom: '0px', marginLeft: 'auto', marginRight: 'auto', display: 'block' }} />
-                                <div style={{ width: '100%', height: '1px', backgroundColor: '#333', marginBottom: '8px', marginTop: '5px' }}></div>
-                                <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#444' }}>CEO</p>
-                            </div>
-                        </div>
-
-                        {/* Footer URL */}
-                        <div style={{ width: '100%', textAlign: 'center', position: 'absolute', bottom: '30px', left: 0 }}>
-                            <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', letterSpacing: '2px' }}>WWW.EDIZO.IN</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     );
 };
