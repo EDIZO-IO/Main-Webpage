@@ -75,8 +75,8 @@ export default function Dashboard() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700' }}>Dashboard</h1>
-                    <p style={{ color: '#94a3b8' }}>Welcome to Edizo Admin Panel</p>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b' }}>Dashboard</h1>
+                    <p style={{ color: '#64748b' }}>Welcome to Edizo Admin Panel</p>
                 </div>
                 <button className="btn btn-secondary" onClick={fetchData}>
                     <RefreshCw size={18} /> Refresh
@@ -86,7 +86,7 @@ export default function Dashboard() {
             {/* Stats Grid */}
             <div className="stats-grid">
                 <div className="stat-card">
-                    <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.2)' }}>
+                    <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.15)' }}>
                         <FileText size={24} color="#3b82f6" />
                     </div>
                     <div>
@@ -96,7 +96,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="stat-card">
-                    <div className="stat-icon" style={{ background: 'rgba(34, 197, 94, 0.2)' }}>
+                    <div className="stat-icon" style={{ background: 'rgba(34, 197, 94, 0.15)' }}>
                         <Eye size={24} color="#22c55e" />
                     </div>
                     <div>
@@ -106,7 +106,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="stat-card">
-                    <div className="stat-icon" style={{ background: 'rgba(249, 115, 22, 0.2)' }}>
+                    <div className="stat-icon" style={{ background: 'rgba(249, 115, 22, 0.15)' }}>
                         <MessageSquare size={24} color="#f97316" />
                     </div>
                     <div>
@@ -116,7 +116,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="stat-card">
-                    <div className="stat-icon" style={{ background: 'rgba(239, 68, 68, 0.2)' }}>
+                    <div className="stat-icon" style={{ background: 'rgba(239, 68, 68, 0.15)' }}>
                         <ThumbsUp size={24} color="#ef4444" />
                     </div>
                     <div>
@@ -126,7 +126,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="stat-card">
-                    <div className="stat-icon" style={{ background: 'rgba(168, 85, 247, 0.2)' }}>
+                    <div className="stat-icon" style={{ background: 'rgba(168, 85, 247, 0.15)' }}>
                         <Award size={24} color="#a855f7" />
                     </div>
                     <div>
@@ -138,7 +138,7 @@ export default function Dashboard() {
 
             {/* Quick Actions */}
             <div className="card" style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>Quick Actions</h2>
+                <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#1e293b' }}>Quick Actions</h2>
                 <div className="flex gap-4" style={{ flexWrap: 'wrap' }}>
                     <Link to="/blogs/new" className="btn btn-primary">
                         <Plus size={18} /> New Blog Post
@@ -157,8 +157,8 @@ export default function Dashboard() {
                 {/* Recent Blogs */}
                 <div className="card">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Recent Blogs</h2>
-                        <Link to="/blogs" style={{ color: '#f97316', fontSize: '0.875rem', textDecoration: 'none' }}>
+                        <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1e293b' }}>Recent Blogs</h2>
+                        <Link to="/blogs" style={{ color: '#f97316', fontSize: '0.875rem', textDecoration: 'none', fontWeight: '500' }}>
                             View All →
                         </Link>
                     </div>
@@ -171,17 +171,32 @@ export default function Dashboard() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '0.75rem',
-                                    padding: '0.75rem',
-                                    background: '#1a1a2e',
-                                    borderRadius: '0.5rem'
+                                    padding: '0.875rem 1rem',
+                                    background: 'rgba(255, 255, 255, 0.35)',
+                                    backdropFilter: 'blur(12px)',
+                                    borderRadius: '0.75rem',
+                                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                                    transition: 'all 0.2s',
+                                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.4)'
                                 }}>
-                                    <FileText size={18} color="#64748b" />
+                                    <div style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        borderRadius: '0.5rem',
+                                        background: 'rgba(59, 130, 246, 0.1)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
+                                        <FileText size={18} color="#3b82f6" />
+                                    </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <p style={{
                                             fontWeight: '500',
                                             whiteSpace: 'nowrap',
                                             overflow: 'hidden',
-                                            textOverflow: 'ellipsis'
+                                            textOverflow: 'ellipsis',
+                                            color: '#1e293b'
                                         }}>
                                             {blog.title}
                                         </p>
@@ -199,8 +214,8 @@ export default function Dashboard() {
                 {/* Recent Testimonials */}
                 <div className="card">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Recent Testimonials</h2>
-                        <Link to="/testimonials" style={{ color: '#f97316', fontSize: '0.875rem', textDecoration: 'none' }}>
+                        <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1e293b' }}>Recent Testimonials</h2>
+                        <Link to="/testimonials" style={{ color: '#f97316', fontSize: '0.875rem', textDecoration: 'none', fontWeight: '500' }}>
                             View All →
                         </Link>
                     </div>
@@ -213,24 +228,30 @@ export default function Dashboard() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '0.75rem',
-                                    padding: '0.75rem',
-                                    background: '#1a1a2e',
-                                    borderRadius: '0.5rem'
+                                    padding: '0.875rem 1rem',
+                                    background: 'rgba(255, 255, 255, 0.35)',
+                                    backdropFilter: 'blur(12px)',
+                                    borderRadius: '0.75rem',
+                                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                                    transition: 'all 0.2s',
+                                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.4)'
                                 }}>
                                     <div style={{
-                                        width: '36px',
-                                        height: '36px',
+                                        width: '40px',
+                                        height: '40px',
                                         borderRadius: '50%',
                                         background: 'linear-gradient(135deg, #f97316, #ea580c)',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        fontWeight: '600'
+                                        fontWeight: '600',
+                                        color: 'white',
+                                        fontSize: '0.875rem'
                                     }}>
                                         {t.name?.charAt(0)?.toUpperCase()}
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <p style={{ fontWeight: '500' }}>{t.name}</p>
+                                        <p style={{ fontWeight: '500', color: '#1e293b' }}>{t.name}</p>
                                         <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{t.service}</span>
                                     </div>
                                     <span className={`badge ${t.isApproved ? 'badge-success' : 'badge-warning'}`}>
@@ -245,3 +266,4 @@ export default function Dashboard() {
         </div>
     );
 }
+

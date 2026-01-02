@@ -1,9 +1,9 @@
 // InternshipDetails.tsx
 import { useState, useEffect, useMemo, memo, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { 
-  Wifi, Home, Check, Star, TrendingUp, ArrowLeft, Building2, Calendar, 
-  Award, Users, Zap, Loader2, AlertCircle, Tag, Percent, Clock, Target, 
+import {
+  Wifi, Home, Check, Star, TrendingUp, ArrowLeft, Building2, Calendar,
+  Award, Users, Zap, Loader2, AlertCircle, Tag, Percent, Clock, Target,
   CheckCircle, Sparkles, BookOpen, Trophy, Shield, ArrowRight, Tag as TagIcon, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -50,14 +50,14 @@ interface ButtonProps {
   icon?: React.ReactNode;
 }
 
-const Button = memo<ButtonProps>(({ 
-  children, 
-  onClick, 
-  to, 
-  variant = 'default', 
-  className = '', 
+const Button = memo<ButtonProps>(({
+  children,
+  onClick,
+  to,
+  variant = 'default',
+  className = '',
   disabled = false,
-  icon 
+  icon
 }) => {
   const variants: Record<string, string> = {
     primary: 'bg-gradient-to-r from-red-600 to-orange-500 text-white hover:from-red-700 hover:to-orange-600 focus:ring-red-500 shadow-lg hover:shadow-xl',
@@ -103,70 +103,75 @@ const AnimatedSection = memo<AnimatedSectionProps>(({ children, delay = 0 }) => 
 ));
 AnimatedSection.displayName = 'AnimatedSection';
 
-// ✅ Memoized Info Card
+// ✅ Memoized Info Card with Glass Effect
 const InfoCard = memo<{ icon: React.ReactNode; title: string; value: string; color?: string }>(
   ({ icon, title, value, color = 'red' }) => (
-    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-      <div className={`p-2 bg-${color}-100 rounded-lg text-${color}-600`}>
+    <div className={`flex items-center gap-4 p-4 bg-gradient-to-br from-white to-${color}-50/30 rounded-xl border border-${color}-100/50 hover:border-${color}-200 hover:shadow-lg hover:shadow-${color}-100/30 transition-all duration-300 group backdrop-blur-sm`}>
+      <div className={`p-3 bg-gradient-to-br from-${color}-500 to-${color}-600 rounded-xl text-white shadow-lg shadow-${color}-200/50 group-hover:scale-110 transition-transform duration-300`}>
         {icon}
       </div>
       <div>
-        <h4 className="font-semibold text-gray-800 text-sm">{title}</h4>
-        <p className="text-gray-600 text-sm">{value}</p>
+        <h4 className="font-bold text-gray-900 text-sm">{title}</h4>
+        <p className={`text-${color}-600 font-semibold`}>{value}</p>
       </div>
     </div>
   )
 );
 InfoCard.displayName = 'InfoCard';
 
-// ✅ Memoized Stat Badge
+// ✅ Memoized Stat Badge with Glass Effect
 const StatBadge = memo<{ icon: React.ReactNode; value: string; label: string; color: string }>(
   ({ icon, value, label, color }) => (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      whileHover={{ scale: 1.05 }}
-      className={`bg-gradient-to-br from-${color}-50 to-${color}-100 p-6 rounded-2xl border border-${color}-200 text-center shadow-sm hover:shadow-md transition-all`}
+      whileHover={{ scale: 1.05, y: -5 }}
+      className={`relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-white shadow-xl hover:shadow-2xl transition-all duration-300 text-center overflow-hidden group`}
     >
-      <div className={`flex justify-center mb-2 text-${color}-600`}>
-        {icon}
+      {/* Gradient overlay */}
+      <div className={`absolute inset-0 bg-gradient-to-br from-${color}-50/50 to-${color}-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+      <div className={`relative z-10 flex justify-center mb-3`}>
+        <div className={`p-3 bg-gradient-to-br from-${color}-500 to-${color}-600 rounded-xl text-white shadow-lg shadow-${color}-200/50 group-hover:scale-110 transition-transform duration-300`}>
+          {icon}
+        </div>
       </div>
-      <div className={`text-2xl font-bold text-${color}-700 mb-1`}>{value}</div>
-      <div className="text-sm text-gray-600">{label}</div>
+      <div className={`relative z-10 text-2xl font-bold text-gray-900 mb-1`}>{value}</div>
+      <div className={`relative z-10 text-sm font-medium text-${color}-600`}>{label}</div>
     </motion.div>
   )
 );
 StatBadge.displayName = 'StatBadge';
 
-// ✅ Memoized Syllabus Item
+// ✅ Memoized Syllabus Item with Enhanced Design
 const SyllabusItem = memo<{ topic: string; index: number }>(({ topic, index }) => (
   <motion.li
     initial={{ opacity: 0, x: -10 }}
     whileInView={{ opacity: 1, x: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.2, delay: index * 0.03 }}
-    className="flex items-start text-gray-700 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group"
+    className="flex items-start text-gray-700 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-100 hover:border-red-200 hover:shadow-lg hover:shadow-red-100/30 transition-all duration-300 group"
   >
-    <div className="bg-gradient-to-br from-red-600 to-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 text-sm font-bold shadow-md group-hover:scale-110 transition-transform">
+    <div className="bg-gradient-to-br from-red-500 to-orange-500 text-white rounded-xl w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0 text-sm font-bold shadow-lg shadow-red-200/50 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
       {index + 1}
     </div>
-    <span className="pt-1">{topic}</span>
+    <span className="pt-2 font-medium">{topic}</span>
   </motion.li>
 ));
 SyllabusItem.displayName = 'SyllabusItem';
 
 // ✅ Memoized Period Button
-const PeriodButton = memo<{ 
-  period: string; 
-  isActive: boolean; 
+const PeriodButton = memo<{
+  period: string;
+  isActive: boolean;
   onClick: (period: string) => void;
   hasDiscount: boolean;
   discount: number;
   couponDiscount: number;
 }>(({ period, isActive, onClick, hasDiscount, discount, couponDiscount }) => {
   const handleClick = useCallback(() => onClick(period), [period, onClick]);
-  
+
   const displayPeriod = period
     .replace('-', ' ')
     .replace('days', ' Days')
@@ -178,11 +183,10 @@ const PeriodButton = memo<{
   return (
     <motion.button
       onClick={handleClick}
-      className={`relative px-6 py-3 rounded-xl text-sm font-medium capitalize transition-all duration-200 ${
-        isActive
-          ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg'
-          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm'
-      }`}
+      className={`relative px-6 py-3 rounded-xl text-sm font-medium capitalize transition-all duration-200 ${isActive
+        ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg'
+        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm'
+        }`}
       whileHover={{ scale: 1.03, y: -2 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -197,40 +201,40 @@ const PeriodButton = memo<{
 });
 PeriodButton.displayName = 'PeriodButton';
 
-// ✅ Memoized Benefit Item
+// ✅ Memoized Benefit Item with Modern Design
 const BenefitItem = memo<{ item: string; index: number; color: string }>(({ item, index, color }) => (
   <motion.li
     initial={{ opacity: 0, x: -10 }}
     whileInView={{ opacity: 1, x: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.2, delay: index * 0.03 }}
-    className={`flex items-start text-gray-700 p-4 bg-gradient-to-r from-${color}-50 to-${color}-100 rounded-xl hover:shadow-md transition-all group`}
+    className={`flex items-start text-gray-700 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-${color}-100/50 hover:border-${color}-200 hover:shadow-lg hover:shadow-${color}-100/30 transition-all duration-300 group`}
   >
-    <div className={`bg-${color}-600 text-white rounded-full w-7 h-7 flex items-center justify-center mr-3 flex-shrink-0 group-hover:scale-110 transition-transform shadow-md`}>
+    <div className={`bg-gradient-to-br from-${color}-500 to-${color}-600 text-white rounded-xl w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-${color}-200/50`}>
       <Check size={16} strokeWidth={3} />
     </div>
-    <span className="pt-0.5">{item}</span>
+    <span className="pt-1 font-medium">{item}</span>
   </motion.li>
 ));
 BenefitItem.displayName = 'BenefitItem';
 
 // ✅ Memoized Coupon Input
-const CouponInput = memo<{ 
-  couponCode: string; 
-  onApply: () => void; 
+const CouponInput = memo<{
+  couponCode: string;
+  onApply: () => void;
   onInputChange: (value: string) => void;
   onRemove: () => void;
   isValid: boolean | null;
   errorMessage: string | null;
   appliedCoupon: AppliedCoupon | null;
   disabled: boolean;
-}>(({ 
-  couponCode, 
-  onApply, 
-  onInputChange, 
-  onRemove, 
-  isValid, 
-  errorMessage, 
+}>(({
+  couponCode,
+  onApply,
+  onInputChange,
+  onRemove,
+  isValid,
+  errorMessage,
   appliedCoupon,
   disabled
 }) => {
@@ -244,15 +248,14 @@ const CouponInput = memo<{
             onChange={(e) => onInputChange(e.target.value.toUpperCase())}
             placeholder="Enter coupon code"
             disabled={disabled || appliedCoupon !== null}
-            className={`w-full p-3 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-900 font-medium ${
-              appliedCoupon !== null 
-                ? 'border-green-300 bg-green-50' 
-                : isValid === false 
-                  ? 'border-red-300 bg-red-50' 
-                  : isValid === true 
-                    ? 'border-green-300 bg-green-50' 
-                    : 'border-gray-200'
-            }`}
+            className={`w-full p-3 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-900 font-medium ${appliedCoupon !== null
+              ? 'border-green-300 bg-green-50'
+              : isValid === false
+                ? 'border-red-300 bg-red-50'
+                : isValid === true
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-200'
+              }`}
           />
           {errorMessage && (
             <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
@@ -265,7 +268,7 @@ const CouponInput = memo<{
           <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-3 rounded-xl border border-green-300">
             <TagIcon size={16} />
             <span className="font-medium">{appliedCoupon.code}</span>
-            <button 
+            <button
               onClick={onRemove}
               className="ml-2 text-green-600 hover:text-green-800"
               aria-label="Remove coupon"
@@ -274,9 +277,9 @@ const CouponInput = memo<{
             </button>
           </div>
         ) : (
-          <Button 
-            onClick={onApply} 
-            variant="primary" 
+          <Button
+            onClick={onApply}
+            variant="primary"
             disabled={disabled || !couponCode.trim()}
             className="whitespace-nowrap"
           >
@@ -296,44 +299,44 @@ const InternshipDetails: React.FC = () => {
   const [activePeriod, setActivePeriod] = useState<string>('15-days');
   const [couponCode, setCouponCode] = useState<string>('');
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
-  const [couponValidation, setCouponValidation] = useState<{isValid: boolean | null, message: string | null}>({isValid: null, message: null});
+  const [couponValidation, setCouponValidation] = useState<{ isValid: boolean | null, message: string | null }>({ isValid: null, message: null });
 
   const { internship, loading, error } = useInternship(id);
 
   // ✅ Memoized calculations
-  const maxDiscount = useMemo(() => 
+  const maxDiscount = useMemo(() =>
     internship ? getHighestDiscount(internship.discount, internship.couponDiscounts) : 0,
     [internship]
   );
 
-  const hasDiscountBadge = useMemo(() => 
+  const hasDiscountBadge = useMemo(() =>
     internship ? hasDiscount(internship.discount, internship.couponDiscounts) : false,
     [internship]
   );
 
-  const isTrending = useMemo(() => 
+  const isTrending = useMemo(() =>
     internship ? internship.rating >= 4.5 : false,
     [internship]
   );
 
-  const syllabusPeriods = useMemo(() => 
+  const syllabusPeriods = useMemo(() =>
     internship ? Object.keys(internship.syllabus).filter(
       period => internship.syllabus[period as keyof typeof internship.syllabus].length > 0
     ) : [],
     [internship]
   );
 
-  const currentSyllabus = useMemo(() => 
+  const currentSyllabus = useMemo(() =>
     internship?.syllabus[activePeriod as keyof typeof internship.syllabus] || [],
     [internship, activePeriod]
   );
 
-  const currentDiscount = useMemo(() => 
+  const currentDiscount = useMemo(() =>
     internship?.discount?.[activePeriod as keyof typeof internship.discount] || 0,
     [internship, activePeriod]
   );
 
-  const currentCouponDiscount = useMemo(() => 
+  const currentCouponDiscount = useMemo(() =>
     internship?.couponDiscounts?.[activePeriod as keyof typeof internship.couponDiscounts] || 0,
     [internship, activePeriod]
   );
@@ -353,7 +356,7 @@ const InternshipDetails: React.FC = () => {
     setActivePeriod(period);
     // Reset coupon validation when period changes
     if (appliedCoupon) {
-      setCouponValidation({isValid: null, message: null});
+      setCouponValidation({ isValid: null, message: null });
       setAppliedCoupon(null);
       setCouponCode('');
     }
@@ -366,38 +369,38 @@ const InternshipDetails: React.FC = () => {
   const handleCouponChange = useCallback((value: string) => {
     setCouponCode(value);
     if (value.trim() === '') {
-      setCouponValidation({isValid: null, message: null});
+      setCouponValidation({ isValid: null, message: null });
     }
   }, []);
 
   const handleApplyCoupon = useCallback(() => {
     if (!internship || !couponCode.trim()) return;
-    
+
     const validCoupon = findValidCoupon(internship, couponCode.trim(), activePeriod as InternshipDuration);
-    
+
     if (validCoupon) {
       const couponApplied = calculatePriceWithCoupon(
         internship.pricing?.[activePeriod as keyof typeof internship.pricing] || 0,
         validCoupon
       );
-      
+
       if (couponApplied.isValid) {
         setAppliedCoupon(couponApplied);
-        setCouponValidation({isValid: true, message: 'Coupon applied successfully!'});
+        setCouponValidation({ isValid: true, message: 'Coupon applied successfully!' });
       } else {
         setAppliedCoupon(null);
-        setCouponValidation({isValid: false, message: couponApplied.errorMessage || 'Invalid coupon code'});
+        setCouponValidation({ isValid: false, message: couponApplied.errorMessage || 'Invalid coupon code' });
       }
     } else {
       setAppliedCoupon(null);
-      setCouponValidation({isValid: false, message: 'Invalid or expired coupon code'});
+      setCouponValidation({ isValid: false, message: 'Invalid or expired coupon code' });
     }
   }, [internship, couponCode, activePeriod]);
 
   const handleRemoveCoupon = useCallback(() => {
     setAppliedCoupon(null);
     setCouponCode('');
-    setCouponValidation({isValid: null, message: null});
+    setCouponValidation({ isValid: null, message: null });
   }, []);
 
   // Set initial period when data loads
@@ -498,7 +501,7 @@ const InternshipDetails: React.FC = () => {
             e.currentTarget.src = fallbackImages.default;
           }}
         />
-        
+
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-5">
           {[...Array(3)].map((_, i) => (
@@ -544,7 +547,7 @@ const InternshipDetails: React.FC = () => {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-5 drop-shadow-2xl leading-tight">
               {internship.title}
             </h1>
-            
+
             <div className="flex items-center gap-3 flex-wrap justify-center mb-6">
               <span className="inline-flex items-center gap-2 bg-blue-600/90 backdrop-blur-sm text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg">
                 <Building2 size={18} />
@@ -570,9 +573,9 @@ const InternshipDetails: React.FC = () => {
 
             <div className="flex items-center justify-center gap-2 text-yellow-400">
               {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  size={24} 
+                <Star
+                  key={i}
+                  size={24}
                   fill={i < Math.floor(internship.rating) ? 'currentColor' : 'none'}
                   className="drop-shadow-lg"
                 />
@@ -612,60 +615,72 @@ const InternshipDetails: React.FC = () => {
           {/* Sticky Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             <AnimatedSection delay={0.1}>
-              <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 sticky top-24">
-                <div className="flex items-center mb-6 pb-6 border-b border-gray-200">
-                  <img
-                    src={getImageSrc(id, internship.image)}
-                    alt={`${internship.title} thumbnail`}
-                    className="w-20 h-20 object-cover rounded-xl shadow-md mr-4"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = fallbackImages.default;
-                    }}
-                  />
+              <div className="bg-white/70 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-white sticky top-24">
+                <div className="flex items-center mb-6 pb-6 border-b border-gray-100">
+                  <div className="relative">
+                    <img
+                      src={getImageSrc(id, internship.image)}
+                      alt={`${internship.title} thumbnail`}
+                      className="w-20 h-20 object-cover rounded-xl shadow-lg mr-4"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = fallbackImages.default;
+                      }}
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                      <Check size={14} className="text-white" strokeWidth={3} />
+                    </div>
+                  </div>
                   <div>
                     <h3 className="font-bold text-gray-900 text-lg">{internship.category}</h3>
-                    <p className="text-gray-600 text-sm">Program</p>
+                    <p className="text-red-600 font-medium text-sm">Professional Program</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
-                  <InfoCard 
-                    icon={<Building2 size={20} />} 
-                    title="Company" 
+                  <InfoCard
+                    icon={<Building2 size={20} />}
+                    title="Company"
                     value={internship.company}
                     color="blue"
                   />
-                  <InfoCard 
+                  <InfoCard
                     icon={internship.mode === 'Online' ? <Wifi size={20} /> : <Home size={20} />}
-                    title="Mode" 
+                    title="Mode"
                     value={internship.mode}
                     color="purple"
                   />
-                  <InfoCard 
+                  <InfoCard
                     icon={<Star size={20} fill="currentColor" />}
-                    title="Rating" 
+                    title="Rating"
                     value={`${internship.rating} / 5.0`}
                     color="yellow"
                   />
-                  <InfoCard 
+                  <InfoCard
                     icon={<Award size={20} />}
-                    title="Certification" 
+                    title="Certification"
                     value="Guaranteed"
                     color="green"
                   />
-                  
+
                   {hasDiscountBadge && maxDiscount > 0 && (
-                    <div className="pt-4 border-t border-gray-200">
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Percent className="text-green-600" size={20} />
-                          <h4 className="font-bold text-green-800 text-sm">Limited Time Offer</h4>
+                    <div className="mt-4">
+                      <motion.div
+                        className="bg-gradient-to-br from-green-50 to-emerald-100 p-5 rounded-xl border border-green-200 shadow-lg shadow-green-100/50 overflow-hidden relative"
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-300/30 to-transparent rounded-bl-full" />
+                        <div className="flex items-center gap-2 mb-2 relative z-10">
+                          <div className="p-2 bg-green-500 rounded-lg text-white shadow-md">
+                            <Percent size={18} />
+                          </div>
+                          <h4 className="font-bold text-green-800">Limited Time Offer</h4>
                         </div>
-                        <p className="text-green-700 text-2xl font-bold">
+                        <p className="text-green-700 text-3xl font-bold relative z-10">
                           Up to {maxDiscount}% OFF
                         </p>
-                      </div>
+                        <p className="text-green-600 text-sm mt-1">Don't miss this opportunity!</p>
+                      </motion.div>
                     </div>
                   )}
                 </div>
@@ -703,12 +718,15 @@ const InternshipDetails: React.FC = () => {
           <div className="lg:col-span-3 space-y-10">
             {/* About Section */}
             <AnimatedSection>
-              <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                  <BookOpen className="text-red-600" size={32} />
+              <div className="bg-white/70 backdrop-blur-xl p-8 rounded-2xl shadow-xl border border-white overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-100/50 to-transparent rounded-bl-full" />
+                <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3 relative z-10">
+                  <div className="p-3 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl text-white shadow-lg shadow-red-200/50">
+                    <BookOpen size={24} />
+                  </div>
                   About This Program
                 </h2>
-                <p className="text-gray-700 text-lg leading-relaxed">
+                <p className="text-gray-700 text-lg leading-relaxed relative z-10">
                   {internship.description}
                 </p>
               </div>
@@ -717,12 +735,15 @@ const InternshipDetails: React.FC = () => {
             {/* Syllabus Section */}
             {syllabusPeriods.length > 0 && (
               <AnimatedSection delay={0.1}>
-                <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                    <Calendar className="text-red-600" size={32} />
+                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-2xl shadow-xl border border-white overflow-hidden relative">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-orange-100/50 to-transparent rounded-bl-full" />
+                  <h3 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3 relative z-10">
+                    <div className="p-3 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl text-white shadow-lg shadow-orange-200/50">
+                      <Calendar size={24} />
+                    </div>
                     Program Syllabus
                   </h3>
-                  
+
                   <div className="flex flex-wrap gap-3 mb-8">
                     {syllabusPeriods.map((period) => (
                       <PeriodButton
@@ -779,12 +800,15 @@ const InternshipDetails: React.FC = () => {
             {/* Why Choose Section */}
             {internship.whyChooseEdizo && internship.whyChooseEdizo.length > 0 && (
               <AnimatedSection delay={0.2}>
-                <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                    <Users className="text-red-600" size={32} />
+                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-2xl shadow-xl border border-white overflow-hidden relative">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-100/50 to-transparent rounded-bl-full" />
+                  <h3 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3 relative z-10">
+                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-200/50">
+                      <Users size={24} />
+                    </div>
                     Why Choose {internship.company}?
                   </h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
                     {internship.whyChooseEdizo.map((item, index) => (
                       <BenefitItem key={index} item={item} index={index} color="blue" />
                     ))}
@@ -796,12 +820,15 @@ const InternshipDetails: React.FC = () => {
             {/* Benefits Section */}
             {internship.benefits && internship.benefits.length > 0 && (
               <AnimatedSection delay={0.3}>
-                <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                    <Zap className="text-red-600" size={32} />
+                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-2xl shadow-xl border border-white overflow-hidden relative">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-100/50 to-transparent rounded-bl-full" />
+                  <h3 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3 relative z-10">
+                    <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl text-white shadow-lg shadow-green-200/50">
+                      <Zap size={24} />
+                    </div>
                     Career Benefits
                   </h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
                     {internship.benefits.map((item, index) => (
                       <BenefitItem key={index} item={item} index={index} color="green" />
                     ))}
@@ -822,14 +849,14 @@ const InternshipDetails: React.FC = () => {
                     backgroundSize: '40px 40px'
                   }} />
                 </div>
-                
+
                 <div className="relative z-10 text-center text-white">
                   <Trophy className="w-16 h-16 mx-auto mb-4" />
                   <h3 className="text-3xl md:text-4xl font-bold mb-4">Ready to Transform Your Career?</h3>
                   <p className="text-xl mb-6 text-white/90 max-w-2xl mx-auto">
                     Join thousands of successful students. Start your journey today!
                   </p>
-                  
+
                   {hasDiscountBadge && maxDiscount > 0 && (
                     <div className="bg-white/20 backdrop-blur-sm border-2 border-white/30 rounded-2xl p-4 mb-6 inline-block">
                       <p className="text-yellow-300 font-bold text-2xl flex items-center gap-2 justify-center">
@@ -838,17 +865,17 @@ const InternshipDetails: React.FC = () => {
                       </p>
                     </div>
                   )}
-                  
+
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button 
-                      to={applicationLink} 
+                    <Button
+                      to={applicationLink}
                       variant="primary"
                       className="bg-white text-red-600 hover:bg-gray-50 text-xl px-10 py-5 shadow-2xl"
                     >
                       Apply Now
                       <ArrowRight size={24} />
                     </Button>
-                    <Button 
+                    <Button
                       to="/contact"
                       variant="outline"
                       className="border-2 border-white/50 text-white hover:bg-white/10 text-xl px-10 py-5"
@@ -856,7 +883,7 @@ const InternshipDetails: React.FC = () => {
                       Contact Us
                     </Button>
                   </div>
-                  
+
                   <div className="mt-6 flex items-center justify-center gap-6 text-sm">
                     <span className="flex items-center gap-1">
                       <CheckCircle size={18} />

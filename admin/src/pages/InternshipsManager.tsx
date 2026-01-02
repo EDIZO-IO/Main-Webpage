@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Search, RefreshCw, Edit2, X, AlertCircle, FileText, DollarSign, List, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Search, RefreshCw, Edit2, X, FileText, DollarSign, List, Image as ImageIcon } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -296,8 +296,8 @@ export default function InternshipsManager() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold">Internships</h1>
-                    <p className="text-gray-400">Manage internship opportunities</p>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b' }}>Internships</h1>
+                    <p style={{ color: '#64748b' }}>Manage internship opportunities</p>
                 </div>
                 <button
                     className="btn btn-primary"
@@ -354,29 +354,29 @@ export default function InternshipsManager() {
                         </thead>
                         <tbody>
                             {filteredInternships.map((internship) => (
-                                <tr key={internship.rowIndex} className="border-b border-gray-800 hover:bg-gray-800/50">
-                                    <td className="p-4 font-mono text-sm text-gray-400">{internship.id}</td>
-                                    <td className="p-4 font-medium">{internship.title}</td>
-                                    <td className="p-4">
-                                        <span className="px-2 py-1 rounded-full bg-blue-900/30 text-blue-400 text-xs border border-blue-900">
+                                <tr key={internship.rowIndex} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.15)' }}>
+                                    <td style={{ padding: '1rem', fontFamily: 'monospace', fontSize: '0.875rem', color: '#64748b' }}>{internship.id}</td>
+                                    <td style={{ padding: '1rem', fontWeight: '500', color: '#1e293b' }}>{internship.title}</td>
+                                    <td style={{ padding: '1rem' }}>
+                                        <span className="badge badge-primary">
                                             {internship.category}
                                         </span>
                                     </td>
-                                    <td className="p-4">{internship.mode}</td>
-                                    <td className="p-4">₹{internship.price1Month}</td>
-                                    <td className="p-4 text-right">
+                                    <td style={{ padding: '1rem', color: '#334155' }}>{internship.mode}</td>
+                                    <td style={{ padding: '1rem', color: '#1e293b', fontWeight: '500' }}>₹{internship.price1Month}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'right' }}>
                                         <div className="flex justify-end gap-2">
                                             <button
-                                                className="p-2 hover:bg-gray-700 rounded-lg text-blue-400 transition-colors"
+                                                className="btn btn-secondary btn-sm"
                                                 onClick={() => handleEditClick(internship)}
                                             >
-                                                <Edit2 size={16} />
+                                                <Edit2 size={14} />
                                             </button>
                                             <button
-                                                className="p-2 hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
+                                                className="btn btn-danger btn-sm"
                                                 onClick={() => setDeleteIndex(internship.rowIndex)}
                                             >
-                                                <Trash2 size={16} />
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
                                     </td>
@@ -389,120 +389,410 @@ export default function InternshipsManager() {
 
             {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowModal(false)}>
-                    <div className="bg-[#1e293b] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl border border-gray-700" onClick={e => e.stopPropagation()}>
-                        <div className="p-6 border-b border-gray-700 flex justify-between items-center bg-[#0f172a] rounded-t-2xl">
-                            <h2 className="text-xl font-bold">{modalMode === 'add' ? 'New Internship' : 'Edit Internship'}</h2>
-                            <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white">
-                                <X size={24} />
+                <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                    <div className="modal" style={{ maxWidth: '900px' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3 style={{ fontWeight: '600', color: '#1e293b' }}>{modalMode === 'add' ? 'New Internship' : 'Edit Internship'}</h3>
+                            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
+                                <X size={20} />
                             </button>
                         </div>
 
                         {/* Tabs */}
-                        <div className="flex border-b border-gray-700 bg-[#0f172a]">
+                        <div style={{ display: 'flex', borderBottom: '1px solid rgba(148, 163, 184, 0.2)', padding: '0 1rem' }}>
                             <button
-                                className={`px-6 py-3 font-medium text-sm flex gap-2 items-center ${activeTab === 'general' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-400 hover:text-gray-200'}`}
+                                style={{
+                                    padding: '0.875rem 1.25rem',
+                                    fontWeight: '500',
+                                    fontSize: '0.875rem',
+                                    display: 'flex',
+                                    gap: '0.5rem',
+                                    alignItems: 'center',
+                                    color: activeTab === 'general' ? '#f97316' : '#64748b',
+                                    borderBottom: activeTab === 'general' ? '2px solid #f97316' : '2px solid transparent',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                }}
                                 onClick={() => setActiveTab('general')}
                             >
                                 <FileText size={16} /> General Info
                             </button>
                             <button
-                                className={`px-6 py-3 font-medium text-sm flex gap-2 items-center ${activeTab === 'pricing' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-400 hover:text-gray-200'}`}
+                                style={{
+                                    padding: '0.875rem 1.25rem',
+                                    fontWeight: '500',
+                                    fontSize: '0.875rem',
+                                    display: 'flex',
+                                    gap: '0.5rem',
+                                    alignItems: 'center',
+                                    color: activeTab === 'pricing' ? '#f97316' : '#64748b',
+                                    borderBottom: activeTab === 'pricing' ? '2px solid #f97316' : '2px solid transparent',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                }}
                                 onClick={() => setActiveTab('pricing')}
                             >
                                 <DollarSign size={16} /> Pricing & Coupons
                             </button>
                             <button
-                                className={`px-6 py-3 font-medium text-sm flex gap-2 items-center ${activeTab === 'content' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-400 hover:text-gray-200'}`}
+                                style={{
+                                    padding: '0.875rem 1.25rem',
+                                    fontWeight: '500',
+                                    fontSize: '0.875rem',
+                                    display: 'flex',
+                                    gap: '0.5rem',
+                                    alignItems: 'center',
+                                    color: activeTab === 'content' ? '#f97316' : '#64748b',
+                                    borderBottom: activeTab === 'content' ? '2px solid #f97316' : '2px solid transparent',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                }}
                                 onClick={() => setActiveTab('content')}
                             >
                                 <List size={16} /> Content & Syllabus
                             </button>
                         </div>
 
-                        <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-6">
+                        <form onSubmit={handleFormSubmit} className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
 
                             {activeTab === 'general' && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-4">
-                                        <div><label className="text-sm text-gray-400">ID</label><input className="form-input w-full" value={formData.id} onChange={e => setFormData({ ...formData, id: e.target.value })} /></div>
-                                        <div><label className="text-sm text-gray-400">Title</label><input className="form-input w-full" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} /></div>
-                                        <div><label className="text-sm text-gray-400">Company</label><input className="form-input w-full" value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} /></div>
-                                        <div><label className="text-sm text-gray-400">Category</label>
-                                            <select className="form-input w-full" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}>
-                                                <option>Development</option><option>Design</option><option>Data Science</option><option>Marketing</option><option>Management</option>
-                                            </select>
-                                        </div>
-                                        <div><label className="text-sm text-gray-400">Mode</label>
-                                            <select className="form-input w-full" value={formData.mode} onChange={e => setFormData({ ...formData, mode: e.target.value })}>
-                                                <option>Online</option><option>Offline</option>
-                                            </select>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    {/* Basic Info Section */}
+                                    <div style={{
+                                        background: 'rgba(148, 163, 184, 0.06)',
+                                        borderRadius: '1rem',
+                                        padding: '1.25rem',
+                                        border: '1px solid rgba(148, 163, 184, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            fontSize: '0.75rem',
+                                            fontWeight: '600',
+                                            color: '#f97316',
+                                            marginBottom: '1rem',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}>
+                                            <FileText size={14} /> Basic Information
+                                        </h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div className="form-group" style={{ margin: 0 }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Internship ID</label>
+                                                <input className="form-input" value={formData.id} onChange={e => setFormData({ ...formData, id: e.target.value })} placeholder="INT-2024-001" />
+                                            </div>
+                                            <div className="form-group" style={{ margin: 0 }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Company</label>
+                                                <input className="form-input" value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} placeholder="EDIZO" />
+                                            </div>
+                                            <div className="form-group" style={{ margin: 0, gridColumn: 'span 2' }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Title *</label>
+                                                <input className="form-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="Web Development Internship" style={{ fontWeight: '500' }} />
+                                            </div>
+                                            <div className="form-group" style={{ margin: 0 }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Category</label>
+                                                <select className="form-select" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}>
+                                                    <option>Development</option>
+                                                    <option>Design</option>
+                                                    <option>Data Science</option>
+                                                    <option>Marketing</option>
+                                                    <option>Management</option>
+                                                </select>
+                                            </div>
+                                            <div className="form-group" style={{ margin: 0 }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Mode</label>
+                                                <select className="form-select" value={formData.mode} onChange={e => setFormData({ ...formData, mode: e.target.value })}>
+                                                    <option>Online</option>
+                                                    <option>Offline</option>
+                                                    <option>Hybrid</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="space-y-4">
-                                        <div><label className="text-sm text-gray-400">Rating</label><input type="number" step="0.1" className="form-input w-full" value={formData.rating} onChange={e => setFormData({ ...formData, rating: e.target.value })} /></div>
-                                        <div><label className="text-sm text-gray-400">Image URL</label><input className="form-input w-full" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} /></div>
-                                        <div><label className="text-sm text-gray-400">Description</label><textarea className="form-input w-full h-32" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} /></div>
+
+                                    {/* Details Section */}
+                                    <div style={{
+                                        background: 'rgba(148, 163, 184, 0.06)',
+                                        borderRadius: '1rem',
+                                        padding: '1.25rem',
+                                        border: '1px solid rgba(148, 163, 184, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            fontSize: '0.75rem',
+                                            fontWeight: '600',
+                                            color: '#f97316',
+                                            marginBottom: '1rem',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}>
+                                            <ImageIcon size={14} /> Media & Details
+                                        </h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div className="form-group" style={{ margin: 0 }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Rating</label>
+                                                <input type="number" step="0.1" min="0" max="5" className="form-input" value={formData.rating} onChange={e => setFormData({ ...formData, rating: e.target.value })} placeholder="4.5" />
+                                            </div>
+                                            <div className="form-group" style={{ margin: 0 }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Image URL</label>
+                                                <input className="form-input" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} placeholder="https://..." />
+                                            </div>
+                                            <div className="form-group" style={{ margin: 0, gridColumn: 'span 2' }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Description</label>
+                                                <textarea className="form-input" style={{ minHeight: '100px', resize: 'vertical' }} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Enter a compelling description for this internship..." />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'pricing' && (
-                                <div className="space-y-6">
-                                    <div className="grid grid-cols-5 gap-4 text-sm text-gray-400 mb-2">
-                                        <div>Duration</div>
-                                        <div>Price</div>
-                                        <div>Discount (%)</div>
-                                        <div>Coupon Disc (%)</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    {/* Pricing Cards */}
+                                    <div style={{
+                                        background: 'rgba(148, 163, 184, 0.06)',
+                                        borderRadius: '1rem',
+                                        padding: '1.25rem',
+                                        border: '1px solid rgba(148, 163, 184, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            fontSize: '0.75rem',
+                                            fontWeight: '600',
+                                            color: '#f97316',
+                                            marginBottom: '1rem',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}>
+                                            <DollarSign size={14} /> Pricing Plans
+                                        </h4>
+
+                                        {/* Header */}
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '140px 1fr 1fr 1fr',
+                                            gap: '0.75rem',
+                                            marginBottom: '0.75rem',
+                                            padding: '0.5rem 0.75rem',
+                                            background: 'rgba(148, 163, 184, 0.08)',
+                                            borderRadius: '0.5rem'
+                                        }}>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase' }}>Duration</div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase' }}>Price (₹)</div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase' }}>Discount %</div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase' }}>Coupon Disc %</div>
+                                        </div>
+
+                                        {/* Pricing Rows */}
+                                        {[
+                                            { l: '15 Days', p: 'price15d', d: 'disc15d', c: 'cdisc15d', color: '#94a3b8' },
+                                            { l: '1 Month', p: 'price1m', d: 'disc1m', c: 'cdisc1m', color: '#22c55e' },
+                                            { l: '2 Months', p: 'price2m', d: 'disc2m', c: 'cdisc2m', color: '#3b82f6' },
+                                            { l: '3 Months', p: 'price3m', d: 'disc3m', c: 'cdisc3m', color: '#f97316' }
+                                        ].map((row, i) => (
+                                            <div key={i} style={{
+                                                display: 'grid',
+                                                gridTemplateColumns: '140px 1fr 1fr 1fr',
+                                                gap: '0.75rem',
+                                                alignItems: 'center',
+                                                padding: '0.75rem',
+                                                background: i % 2 === 0 ? 'transparent' : 'rgba(148, 163, 184, 0.04)',
+                                                borderRadius: '0.5rem'
+                                            }}>
+                                                <div style={{
+                                                    fontWeight: '600',
+                                                    color: '#1e293b',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.5rem'
+                                                }}>
+                                                    <span style={{
+                                                        width: '8px',
+                                                        height: '8px',
+                                                        borderRadius: '50%',
+                                                        background: row.color
+                                                    }} />
+                                                    {row.l}
+                                                </div>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    style={{ padding: '0.625rem 0.75rem' }}
+                                                    value={(formData as any)[row.p]}
+                                                    onChange={e => setFormData({ ...formData, [row.p]: e.target.value })}
+                                                    placeholder="0"
+                                                />
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    style={{ padding: '0.625rem 0.75rem' }}
+                                                    value={(formData as any)[row.d]}
+                                                    onChange={e => setFormData({ ...formData, [row.d]: e.target.value })}
+                                                    placeholder="0"
+                                                />
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    style={{ padding: '0.625rem 0.75rem' }}
+                                                    value={(formData as any)[row.c]}
+                                                    onChange={e => setFormData({ ...formData, [row.c]: e.target.value })}
+                                                    placeholder="0"
+                                                />
+                                            </div>
+                                        ))}
                                     </div>
 
-                                    {[
-                                        { l: '15 Days', p: 'price15d', d: 'disc15d', c: 'cdisc15d' },
-                                        { l: '1 Month', p: 'price1m', d: 'disc1m', c: 'cdisc1m' },
-                                        { l: '2 Months', p: 'price2m', d: 'disc2m', c: 'cdisc2m' },
-                                        { l: '3 Months', p: 'price3m', d: 'disc3m', c: 'cdisc3m' }
-                                    ].map((row, i) => (
-                                        <div key={i} className="grid grid-cols-5 gap-4 items-center">
-                                            <div className="font-medium text-white">{row.l}</div>
-                                            <input type="number" className="form-input" value={(formData as any)[row.p]} onChange={e => setFormData({ ...formData, [row.p]: e.target.value })} />
-                                            <input type="number" className="form-input" value={(formData as any)[row.d]} onChange={e => setFormData({ ...formData, [row.d]: e.target.value })} />
-                                            <input type="number" className="form-input" value={(formData as any)[row.c]} onChange={e => setFormData({ ...formData, [row.c]: e.target.value })} />
+                                    {/* Coupons Section */}
+                                    <div style={{
+                                        background: 'rgba(148, 163, 184, 0.06)',
+                                        borderRadius: '1rem',
+                                        padding: '1.25rem',
+                                        border: '1px solid rgba(148, 163, 184, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            fontSize: '0.75rem',
+                                            fontWeight: '600',
+                                            color: '#f97316',
+                                            marginBottom: '1rem',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em'
+                                        }}>
+                                            🎟️ Coupon Codes
+                                        </h4>
+                                        <div className="form-group" style={{ margin: 0 }}>
+                                            <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Available Coupons (Comma Separated)</label>
+                                            <input
+                                                className="form-input"
+                                                value={formData.coupons}
+                                                onChange={e => setFormData({ ...formData, coupons: e.target.value })}
+                                                placeholder="SAVE10, SAVE20, WELCOME50"
+                                            />
+                                            <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem' }}>
+                                                These codes will apply the Coupon Discount % from the pricing table above
+                                            </p>
                                         </div>
-                                    ))}
-
-                                    <div className="pt-4 border-t border-gray-700">
-                                        <label className="text-sm text-gray-400">Coupons (Comma Separated)</label>
-                                        <input className="form-input w-full mt-1" value={formData.coupons} onChange={e => setFormData({ ...formData, coupons: e.target.value })} placeholder="SAVE10, SAVE20" />
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'content' && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-4">
-                                        <h3 className="text-blue-400 font-semibold">Features & Benefits</h3>
-                                        <div>
-                                            <label className="text-sm text-gray-400">Why Choose Edizo (One per line)</label>
-                                            <textarea className="form-input w-full h-32" value={formData.whyChoose} onChange={e => setFormData({ ...formData, whyChoose: e.target.value })} placeholder="Feature 1&#10;Feature 2" />
-                                        </div>
-                                        <div>
-                                            <label className="text-sm text-gray-400">Benefits (One per line)</label>
-                                            <textarea className="form-input w-full h-32" value={formData.benefits} onChange={e => setFormData({ ...formData, benefits: e.target.value })} placeholder="Benefit 1&#10;Benefit 2" />
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    {/* Features Section */}
+                                    <div style={{
+                                        background: 'rgba(148, 163, 184, 0.06)',
+                                        borderRadius: '1rem',
+                                        padding: '1.25rem',
+                                        border: '1px solid rgba(148, 163, 184, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            fontSize: '0.75rem',
+                                            fontWeight: '600',
+                                            color: '#f97316',
+                                            marginBottom: '1rem',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}>
+                                            ✨ Features & Benefits
+                                        </h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div className="form-group" style={{ margin: 0 }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Why Choose EDIZO</label>
+                                                <textarea
+                                                    className="form-input"
+                                                    style={{ minHeight: '140px', resize: 'vertical' }}
+                                                    value={formData.whyChoose}
+                                                    onChange={e => setFormData({ ...formData, whyChoose: e.target.value })}
+                                                    placeholder="Enter one feature per line:&#10;Expert mentors&#10;Real projects&#10;Certificate"
+                                                />
+                                                <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.375rem' }}>One feature per line (max 7)</p>
+                                            </div>
+                                            <div className="form-group" style={{ margin: 0 }}>
+                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Benefits</label>
+                                                <textarea
+                                                    className="form-input"
+                                                    style={{ minHeight: '140px', resize: 'vertical' }}
+                                                    value={formData.benefits}
+                                                    onChange={e => setFormData({ ...formData, benefits: e.target.value })}
+                                                    placeholder="Enter one benefit per line:&#10;Industry recognition&#10;Career growth&#10;Networking"
+                                                />
+                                                <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.375rem' }}>One benefit per line (max 7)</p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="space-y-4">
-                                        <h3 className="text-blue-400 font-semibold">Syllabus (Comma Separated Topics)</h3>
-                                        <div><label className="text-sm text-gray-400">15 Days</label><input className="form-input w-full" value={formData.syl15d} onChange={e => setFormData({ ...formData, syl15d: e.target.value })} /></div>
-                                        <div><label className="text-sm text-gray-400">1 Month</label><input className="form-input w-full" value={formData.syl1m} onChange={e => setFormData({ ...formData, syl1m: e.target.value })} /></div>
-                                        <div><label className="text-sm text-gray-400">2 Months</label><input className="form-input w-full" value={formData.syl2m} onChange={e => setFormData({ ...formData, syl2m: e.target.value })} /></div>
-                                        <div><label className="text-sm text-gray-400">3 Months</label><input className="form-input w-full" value={formData.syl3m} onChange={e => setFormData({ ...formData, syl3m: e.target.value })} /></div>
+
+                                    {/* Syllabus Section */}
+                                    <div style={{
+                                        background: 'rgba(148, 163, 184, 0.06)',
+                                        borderRadius: '1rem',
+                                        padding: '1.25rem',
+                                        border: '1px solid rgba(148, 163, 184, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            fontSize: '0.75rem',
+                                            fontWeight: '600',
+                                            color: '#f97316',
+                                            marginBottom: '1rem',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}>
+                                            <List size={14} /> Syllabus by Duration
+                                        </h4>
+                                        <div style={{ display: 'grid', gap: '1rem' }}>
+                                            {[
+                                                { label: '15 Days Program', key: 'syl15d', color: '#94a3b8' },
+                                                { label: '1 Month Program', key: 'syl1m', color: '#22c55e' },
+                                                { label: '2 Months Program', key: 'syl2m', color: '#3b82f6' },
+                                                { label: '3 Months Program', key: 'syl3m', color: '#f97316' }
+                                            ].map((item, i) => (
+                                                <div key={i} className="form-group" style={{ margin: 0 }}>
+                                                    <label className="form-label" style={{
+                                                        color: '#475569',
+                                                        fontSize: '0.8125rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '0.5rem'
+                                                    }}>
+                                                        <span style={{
+                                                            width: '8px',
+                                                            height: '8px',
+                                                            borderRadius: '50%',
+                                                            background: item.color
+                                                        }} />
+                                                        {item.label}
+                                                    </label>
+                                                    <input
+                                                        className="form-input"
+                                                        value={(formData as any)[item.key]}
+                                                        onChange={e => setFormData({ ...formData, [item.key]: e.target.value })}
+                                                        placeholder="HTML, CSS, JavaScript, React, Node.js"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.75rem' }}>
+                                            Enter comma-separated topics for each duration
+                                        </p>
                                     </div>
                                 </div>
                             )}
 
                         </form>
 
-                        <div className="p-6 border-t border-gray-700 bg-[#0f172a] rounded-b-2xl flex justify-end gap-4">
+                        <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
                             <button type="button" className="btn btn-primary" onClick={handleFormSubmit} disabled={submitting}>{submitting ? 'Saving...' : 'Save Internship'}</button>
                         </div>
@@ -511,11 +801,15 @@ export default function InternshipsManager() {
             )}
 
             {deleteIndex !== null && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-[#1e293b] rounded-2xl max-w-md p-6 border border-gray-700 shadow-2xl">
-                        <h3 className="text-xl font-bold mb-4">Confirm Delete</h3>
-                        <p className="text-gray-300 mb-6">Are you sure? This cannot be undone.</p>
-                        <div className="flex justify-end gap-4">
+                <div className="modal-overlay">
+                    <div className="modal" style={{ maxWidth: '400px' }}>
+                        <div className="modal-header">
+                            <h3 style={{ fontWeight: '600', color: '#1e293b' }}>Confirm Delete</h3>
+                        </div>
+                        <div className="modal-body">
+                            <p style={{ color: '#334155' }}>Are you sure? This cannot be undone.</p>
+                        </div>
+                        <div className="modal-footer">
                             <button className="btn btn-secondary" onClick={() => setDeleteIndex(null)}>Cancel</button>
                             <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
                         </div>

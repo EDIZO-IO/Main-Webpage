@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Search, RefreshCw, Copy, Check, X, Award } from 'lucide-react';
+import { Plus, Trash2, Search, RefreshCw, Copy, X, Award } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -128,8 +128,8 @@ export default function CertificatesManager() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700' }}>Certificates</h1>
-                    <p style={{ color: '#94a3b8' }}>Manage internship certificates</p>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b' }}>Certificates</h1>
+                    <p style={{ color: '#64748b' }}>Manage internship certificates</p>
                 </div>
                 <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
                     <Plus size={18} /> New Certificate
@@ -181,7 +181,7 @@ export default function CertificatesManager() {
                                     <tr key={cert.id}>
                                         <td>
                                             <div className="flex items-center gap-2">
-                                                <span style={{ fontFamily: 'monospace', fontWeight: '500' }}>
+                                                <span style={{ fontFamily: 'monospace', fontWeight: '500', color: '#1e293b' }}>
                                                     {cert.certificateId}
                                                 </span>
                                                 <button
@@ -196,12 +196,12 @@ export default function CertificatesManager() {
                                         <td>{cert.internName}</td>
                                         <td>{cert.programName}</td>
                                         <td>
-                                            <span style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
+                                            <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
                                                 {cert.startDate} - {cert.endDate}
                                             </span>
                                         </td>
                                         <td>
-                                            <span style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
+                                            <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
                                                 {cert.issueDate}
                                             </span>
                                         </td>
@@ -354,7 +354,7 @@ export default function CertificatesManager() {
                             <h3 style={{ fontWeight: '600' }}>Delete Certificate</h3>
                         </div>
                         <div className="modal-body">
-                            <p>Are you sure you want to delete this certificate? This action cannot be undone and will remove the row from Google Sheets.</p>
+                            <p style={{ color: '#334155' }}>Are you sure you want to delete this certificate? This action cannot be undone and will remove the row from Google Sheets.</p>
                         </div>
                         <div className="modal-footer">
                             <button className="btn btn-secondary" onClick={() => setDeleteId(null)}>Cancel</button>

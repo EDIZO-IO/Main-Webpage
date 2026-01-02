@@ -161,7 +161,7 @@ const ServiceDetails: React.FC = () => {
               <span>WhatsApp Us</span>
             </a>
             <a
-              href={`mailto:edizo5491@gmail.com?subject=Inquiry: ${encodeURIComponent(service.title)}`}
+              href={`mailto:edizoofficial@gmail.com?subject=Inquiry: ${encodeURIComponent(service.title)}`}
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300"
             >
               <Mail size={20} />
@@ -217,7 +217,7 @@ const ServiceDetails: React.FC = () => {
               <AnimatedSection>
                 <motion.div
                   whileHover={{ y: -5 }}
-                  className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl shadow-lg border border-red-100 overflow-hidden sticky top-24"
+                  className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white overflow-hidden sticky top-24"
                 >
                   <div className="relative h-48">
                     <LazyImage
@@ -225,28 +225,31 @@ const ServiceDetails: React.FC = () => {
                       alt={`${service.title} illustration`}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    <div className="absolute top-4 left-4 bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
                       <Star size={14} className="fill-current" />
                       <span>TOP SERVICE</span>
                     </div>
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <h3 className="text-xl font-bold text-white drop-shadow-lg">{service.title}</h3>
+                    </div>
                   </div>
                   <div className="p-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{service.title}</h3>
-                    <p className="text-gray-600 mb-4">{service.subtitle}</p>
-
-
+                    <p className="text-gray-600 mb-6">{service.subtitle}</p>
 
                     {/* Direct Contact Options */}
                     <div className="space-y-3">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">Get a Quote - Contact Us Directly</p>
+                      <p className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        Get a Quote - Contact Us Directly
+                      </p>
 
                       {/* Email Button */}
                       <a
-                        href={`mailto:edizo5491@gmail.com?subject=Service Inquiry: ${encodeURIComponent(service.title)}&body=${encodeURIComponent(`Hi Edizo Team,\n\nI am interested in your ${service.title} service.\n\nMy Details:\n- Name: \n- Company/Project: \n- Contact Number: \n- Requirements: \n\nPlease provide more details about this service.\n\nThank you!`)}`}
-                        className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300"
+                        href={`mailto:edizoofficial@gmail.com?subject=Service Inquiry: ${encodeURIComponent(service.title)}&body=${encodeURIComponent(`Hi Edizo Team,\n\nI am interested in your ${service.title} service.\n\nMy Details:\n- Name: \n- Company/Project: \n- Contact Number: \n- Requirements: \n\nPlease provide more details about this service.\n\nThank you!`)}`}
+                        className="flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-blue-200/50 hover:shadow-xl hover:shadow-blue-300/50 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 group"
                       >
-                        <Mail className="w-5 h-5" />
+                        <Mail className="w-5 h-5 group-hover:scale-110 transition-transform" />
                         <span>Email Us</span>
                       </a>
 
@@ -255,15 +258,20 @@ const ServiceDetails: React.FC = () => {
                         href={`https://wa.me/917092435729?text=${encodeURIComponent(`Hi Edizo Team!\n\nI am interested in your *${service.title}* service.\n\n*My Details:*\n• Name: \n• Project/Company: \n• Requirements: \n\nPlease share more details.`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-green-600 hover:to-green-700 transition-all duration-300"
+                        className="flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg shadow-green-200/50 hover:shadow-xl hover:shadow-green-300/50 hover:from-green-600 hover:to-emerald-700 transition-all duration-300 group"
                       >
-                        <MessageCircle className="w-5 h-5" />
+                        <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
                         <span>WhatsApp Us</span>
                       </a>
 
-                      <p className="text-xs text-center text-gray-500 mt-3">
-                        📧 edizo5491@gmail.com | 📱 +91 7092435729
-                      </p>
+                      <div className="pt-4 mt-4 border-t border-gray-100 text-center">
+                        <p className="text-xs text-gray-500">
+                          📧 edizoofficial@gmail.com
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          📱 +91 7092435729
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

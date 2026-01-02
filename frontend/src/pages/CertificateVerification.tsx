@@ -143,7 +143,6 @@ const CertificateVerification: React.FC = () => {
             <PageHeader
                 title="Certificate Verification"
                 subtitle="Verify the authenticity of internship certificates issued by EDIZO"
-                variant="internships"
             />
 
             <section className="py-16 bg-gradient-to-b from-white to-gray-50 min-h-[60vh]">

@@ -106,8 +106,8 @@ export default function BlogsManager() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700' }}>Blogs</h1>
-                    <p style={{ color: '#94a3b8' }}>Manage your blog posts</p>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b' }}>Blogs</h1>
+                    <p style={{ color: '#64748b' }}>Manage your blog posts</p>
                 </div>
                 <div className="flex gap-2">
                     <button className="btn btn-secondary" onClick={handleSeed}>
@@ -167,7 +167,7 @@ export default function BlogsManager() {
                                     <tr key={blog._id}>
                                         <td>
                                             <div style={{ maxWidth: '300px' }}>
-                                                <p style={{ fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                <p style={{ fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#1e293b' }}>
                                                     {blog.title}
                                                 </p>
                                                 <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{blog.slug}</span>
@@ -193,7 +193,7 @@ export default function BlogsManager() {
                                                 onClick={() => toggleFeatured(blog)}
                                             />
                                         </td>
-                                        <td style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
+                                        <td style={{ fontSize: '0.875rem', color: '#64748b' }}>
                                             {new Date(blog.publishedDate || blog.createdAt).toLocaleDateString()}
                                         </td>
                                         <td>
@@ -233,7 +233,7 @@ export default function BlogsManager() {
                             <h3 style={{ fontWeight: '600' }}>Delete Blog</h3>
                         </div>
                         <div className="modal-body">
-                            <p>Are you sure you want to delete this blog? This action cannot be undone.</p>
+                            <p style={{ color: '#334155' }}>Are you sure you want to delete this blog? This action cannot be undone.</p>
                         </div>
                         <div className="modal-footer">
                             <button className="btn btn-secondary" onClick={() => setDeleteId(null)}>Cancel</button>

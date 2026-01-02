@@ -495,7 +495,6 @@ const Services: React.FC = () => {
       <PageHeader
         title="Our Services"
         subtitle="Comprehensive digital solutions tailored to your business needs"
-        variant="services"
       />
 
       <section className="py-20 bg-gradient-to-b from-white to-gray-50">
@@ -699,7 +698,7 @@ const Services: React.FC = () => {
                 <span>WhatsApp Us</span>
               </a>
               <a
-                href="mailto:edizo5491@gmail.com?subject=Service Inquiry&body=Hi Edizo Team,%0A%0AI am interested in your services. Please share more details.%0A%0AMy Details:%0A- Name: %0A- Company/Project: %0A- Contact Number: %0A- Requirements: %0A%0AThank you!"
+                href="mailto:edizoofficial@gmail.com?subject=Service Inquiry&body=Hi Edizo Team,%0A%0AI am interested in your services. Please share more details.%0A%0AMy Details:%0A- Name: %0A- Company/Project: %0A- Contact Number: %0A- Requirements: %0A%0AThank you!"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/50 text-white font-bold rounded-xl hover:bg-white/10 backdrop-blur-sm hover:scale-105 transition-all duration-300"
               >
                 <Mail className="w-6 h-6" />
@@ -710,7 +709,7 @@ const Services: React.FC = () => {
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-white/90">
               <span className="flex items-center gap-2">
                 <Mail size={16} />
-                edizo5491@gmail.com
+                edizoofficial@gmail.com
               </span>
               <span className="flex items-center gap-2">
                 <MessageCircle size={16} />

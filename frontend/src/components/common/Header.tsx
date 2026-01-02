@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import {
-  Menu, X, Home, Briefcase, BookOpen, Code, Users, Phone, ChevronRight, Sparkles,
+  Menu, X, Home, Briefcase, Code, Users, Phone, ChevronRight, Sparkles,
 } from 'lucide-react';
 import Logo from './Logo';
 import './Header.animation.css';
@@ -158,34 +158,57 @@ const Header = () => {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
+            className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 transition-opacity duration-300"
             onClick={() => setIsMenuOpen(false)}
           />
 
-          {/* Drawer */}
+          {/* Drawer with Glass Effect - More Transparent */}
           <div
             ref={mobileNavRef}
-            className={`
-              fixed top-0 right-0 bottom-0 w-full max-w-sm
-              bg-white/95 backdrop-blur-2xl
-              shadow-2xl z-50 flex flex-col
-              border-l border-gray-200/50
-              transform transition-transform duration-300
-            `}
+            className="fixed top-0 right-0 bottom-0 w-full max-w-sm z-50 flex flex-col transform transition-transform duration-300 overflow-hidden"
+            style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(40px) saturate(1.8)',
+              WebkitBackdropFilter: 'blur(40px) saturate(1.8)',
+              borderLeft: '1px solid rgba(255, 255, 255, 0.25)',
+              boxShadow: '-20px 0 60px rgba(0, 0, 0, 0.15)',
+            }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <Logo isScrolled={true} />
-              <button
-                className="p-2.5 rounded-xl bg-gray-100 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-500 hover:text-white transition-all duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </button>
+            {/* Decorative gradient overlays */}
+            <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-orange-400/20 via-red-300/10 to-transparent rounded-bl-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white/20 to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-red-300/20 to-transparent rounded-tr-full pointer-events-none" />
+
+            {/* Header - Very Transparent Glass */}
+            <div
+              className="relative z-10 m-4 mb-2 p-5 rounded-2xl"
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <Logo isScrolled={true} />
+                <button
+                  className="p-3 rounded-xl transition-all duration-200 group hover:scale-105"
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
+                  }}
+                >
+                  <X className="w-5 h-5 text-gray-700 group-hover:text-orange-600 transition-colors" />
+                </button>
+              </div>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto p-6">
+            {/* Navigation - Slightly more opaque for readability */}
+            <nav className="flex-1 overflow-y-auto px-4 py-2 relative z-10">
               <ul className="space-y-2">
                 {navLinks.map((link) => {
                   const Icon = link.icon;
@@ -199,21 +222,28 @@ const Header = () => {
                           flex items-center justify-between w-full p-4 rounded-2xl
                           font-semibold transition-all duration-200
                           ${isActive
-                            ? 'bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 text-white shadow-lg shadow-orange-500/25'
-                            : 'text-slate-700 hover:bg-gray-100 hover:text-orange-600'}
+                            ? 'bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 text-white shadow-lg shadow-orange-500/30'
+                            : 'text-slate-800 hover:text-orange-600'}
                           `
                         }
+                        style={({ isActive }) => !isActive ? {
+                          background: 'rgba(255, 255, 255, 0.5)',
+                          backdropFilter: 'blur(16px)',
+                          WebkitBackdropFilter: 'blur(16px)',
+                          border: '1px solid rgba(255, 255, 255, 0.4)',
+                          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+                        } : undefined}
                       >
                         {({ isActive }) => (
                           <>
                             <div className="flex items-center gap-4">
                               <div className={`
-                                p-2 rounded-xl
+                                p-2.5 rounded-xl shadow-lg
                                 ${isActive
-                                  ? 'bg-white/20'
-                                  : 'bg-gradient-to-br from-orange-100 to-red-100'}
+                                  ? 'bg-white/25 shadow-white/10'
+                                  : 'bg-gradient-to-br from-orange-500 to-red-500 shadow-orange-300/50'}
                               `}>
-                                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-orange-600'}`} />
+                                <Icon className="w-5 h-5 text-white" />
                               </div>
                               <span>{link.name}</span>
                             </div>
@@ -227,15 +257,26 @@ const Header = () => {
               </ul>
             </nav>
 
-            {/* Footer */}
-            <div className="p-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-orange-50/30">
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <div className="h-1 w-8 bg-gradient-to-r from-orange-400 to-red-400 rounded-full" />
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Edizo</span>
-                <div className="h-1 w-8 bg-gradient-to-r from-red-400 to-orange-400 rounded-full" />
+            {/* Footer - Very Transparent Glass */}
+            <div
+              className="relative z-10 m-4 mt-2 p-5 rounded-2xl"
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0 -4px 32px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+              }}
+            >
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <div className="h-[3px] w-10 bg-gradient-to-r from-orange-400 to-red-500 rounded-full shadow-sm" />
+                <div className="px-3 py-1 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
+                  <span className="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 uppercase tracking-widest">Edizo</span>
+                </div>
+                <div className="h-[3px] w-10 bg-gradient-to-r from-red-500 to-orange-400 rounded-full shadow-sm" />
               </div>
-              <p className="text-sm text-gray-500 text-center">
-                © {new Date().getFullYear()} Edizo. All rights reserved.
+              <p className="text-sm text-gray-600 text-center font-medium">
+                © {new Date().getFullYear()} All rights reserved
               </p>
             </div>
           </div>

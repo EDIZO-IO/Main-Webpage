@@ -30,7 +30,7 @@ const Footer = memo(() => {
   const contactInfo = [
     { Icon: MapPin, content: "Virtual Office, India", href: null },
     { Icon: Phone, content: "+91 70924 35729", href: "tel:+917092435729" },
-    { Icon: Mail, content: "edizo5491@gmail.com", href: "mailto:edizo5491@gmail.com" },
+    { Icon: Mail, content: "edizoteam@gmail.com", href: "mailto:edizoteam@gmail.com" },
   ];
 
   return (

@@ -131,8 +131,8 @@ export default function TestimonialsManager() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700' }}>Testimonials</h1>
-                    <p style={{ color: '#94a3b8' }}>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b' }}>Testimonials</h1>
+                    <p style={{ color: '#64748b' }}>
                         Manage client reviews {pendingCount > 0 && <span className="badge badge-warning" style={{ marginLeft: '0.5rem' }}>{pendingCount} pending</span>}
                     </p>
                 </div>
@@ -199,12 +199,13 @@ export default function TestimonialsManager() {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     fontWeight: '700',
-                                    fontSize: '1rem'
+                                    fontSize: '1rem',
+                                    color: 'white'
                                 }}>
                                     {t.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
-                                    <p style={{ fontWeight: '600' }}>{t.name}</p>
+                                    <p style={{ fontWeight: '600', color: '#1e293b' }}>{t.name}</p>
                                     <p style={{ fontSize: '0.75rem', color: '#64748b' }}>
                                         {t.role} {t.company && `• ${t.company}`}
                                     </p>
@@ -229,7 +230,7 @@ export default function TestimonialsManager() {
                             {/* Review Preview */}
                             <p style={{
                                 fontSize: '0.875rem',
-                                color: '#94a3b8',
+                                color: '#64748b',
                                 marginBottom: '1rem',
                                 display: '-webkit-box',
                                 WebkitLineClamp: 3,
@@ -240,7 +241,7 @@ export default function TestimonialsManager() {
                             </p>
 
                             {/* Actions */}
-                            <div className="flex gap-2" style={{ borderTop: '1px solid #334155', paddingTop: '1rem', marginTop: 'auto' }}>
+                            <div className="flex gap-2" style={{ borderTop: '1px solid rgba(148, 163, 184, 0.2)', paddingTop: '1rem', marginTop: 'auto' }}>
                                 <button
                                     className="btn btn-secondary btn-sm"
                                     onClick={() => setViewTestimonial(t)}
@@ -301,12 +302,13 @@ export default function TestimonialsManager() {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     fontWeight: '700',
-                                    fontSize: '1.25rem'
+                                    fontSize: '1.25rem',
+                                    color: 'white'
                                 }}>
                                     {viewTestimonial.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
-                                    <p style={{ fontWeight: '600', fontSize: '1.125rem' }}>{viewTestimonial.name}</p>
+                                    <p style={{ fontWeight: '600', fontSize: '1.125rem', color: '#1e293b' }}>{viewTestimonial.name}</p>
                                     <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
                                         {viewTestimonial.role} {viewTestimonial.company && `• ${viewTestimonial.company}`}
                                     </p>
@@ -325,7 +327,7 @@ export default function TestimonialsManager() {
                                 <span style={{ marginLeft: '0.5rem', color: '#94a3b8' }}>{viewTestimonial.service}</span>
                             </div>
 
-                            <p style={{ lineHeight: '1.6', marginBottom: '1rem' }}>"{viewTestimonial.review}"</p>
+                            <p style={{ lineHeight: '1.6', marginBottom: '1rem', color: '#334155' }}>"{viewTestimonial.review}"</p>
 
                             <p style={{ fontSize: '0.75rem', color: '#64748b' }}>
                                 Submitted: {new Date(viewTestimonial.createdAt).toLocaleString()}

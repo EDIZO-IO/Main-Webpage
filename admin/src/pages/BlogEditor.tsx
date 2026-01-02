@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save, Eye } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -152,10 +152,10 @@ export default function BlogEditor() {
                     <ArrowLeft size={18} />
                 </button>
                 <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700' }}>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b' }}>
                         {isEditing ? 'Edit Blog' : 'New Blog Post'}
                     </h1>
-                    <p style={{ color: '#94a3b8' }}>
+                    <p style={{ color: '#64748b' }}>
                         {isEditing ? 'Update your blog post' : 'Create a new blog post'}
                     </p>
                 </div>
@@ -164,11 +164,12 @@ export default function BlogEditor() {
             {error && (
                 <div style={{
                     background: 'rgba(239, 68, 68, 0.1)',
-                    border: '1px solid #ef4444',
-                    borderRadius: '0.5rem',
-                    padding: '0.75rem',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.75rem',
+                    padding: '0.875rem 1rem',
                     marginBottom: '1.5rem',
-                    color: '#ef4444'
+                    color: '#dc2626',
+                    fontWeight: '500'
                 }}>
                     {error}
                 </div>
@@ -176,7 +177,7 @@ export default function BlogEditor() {
 
             <form onSubmit={handleSubmit}>
                 <div className="card mb-6">
-                    <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem' }}>Content</h2>
+                    <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem', color: '#1e293b' }}>Content</h2>
 
                     <div className="form-group">
                         <label className="form-label">Title *</label>
@@ -227,7 +228,7 @@ export default function BlogEditor() {
                 </div>
 
                 <div className="card mb-6">
-                    <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem' }}>Details</h2>
+                    <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem', color: '#1e293b' }}>Details</h2>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="form-group">
@@ -303,7 +304,7 @@ export default function BlogEditor() {
                 </div>
 
                 <div className="card mb-6">
-                    <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem' }}>SEO</h2>
+                    <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem', color: '#1e293b' }}>SEO</h2>
 
                     <div className="form-group">
                         <label className="form-label">SEO Description</label>

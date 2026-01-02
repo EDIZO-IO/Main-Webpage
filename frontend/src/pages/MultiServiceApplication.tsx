@@ -229,7 +229,6 @@ Please share a combined quote!`;
             <PageHeader
                 title="Multiple Service Application"
                 subtitle="Select multiple services and apply for a combined quote"
-                variant="services"
             />
 
             <section className="py-16 bg-gradient-to-b from-white to-gray-50 min-h-screen relative overflow-hidden">
@@ -393,7 +392,7 @@ Please share a combined quote!`;
                                         {/* Contact Buttons */}
                                         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                                             <motion.a
-                                                href={`mailto:edizo5491@gmail.com?subject=Multiple Service Inquiry (${selectedServices.length} Services)&body=${encodeURIComponent(emailContent)}`}
+                                                href={`mailto:edizoofficial@gmail.com?subject=Multiple Service Inquiry (${selectedServices.length} Services)&body=${encodeURIComponent(emailContent)}`}
                                                 whileHover={{ scale: 1.03, y: -2 }}
                                                 whileTap={{ scale: 0.98 }}
                                                 className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
@@ -442,7 +441,7 @@ Please share a combined quote!`;
                                     whileHover={{ scale: 1.05 }}
                                 >
                                     <Mail className="w-4 h-4 text-red-600" />
-                                    edizo5491@gmail.com
+                                    edizoofficial@gmail.com
                                 </motion.span>
                                 <motion.span
                                     className="flex items-center gap-2 text-gray-700"

@@ -78,7 +78,6 @@ const UpcomingWebinars: React.FC = () => {
       <PageHeader
         title="Upcoming Webinars"
         subtitle="Join our free sessions led by industry experts. Register now and elevate your skills!"
-        variant="default"
       />
 
       <section className="py-16 px-4 sm:px-6 lg:px-8">

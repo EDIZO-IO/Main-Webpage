@@ -97,10 +97,10 @@ export default function InternshipApplicationsManager() {
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case 'Accepted': return <span className="bg-green-900/30 text-green-400 px-2 py-1 rounded text-xs border border-green-900">Accepted</span>;
-            case 'Rejected': return <span className="bg-red-900/30 text-red-400 px-2 py-1 rounded text-xs border border-red-900">Rejected</span>;
+            case 'Accepted': return <span className="badge badge-success">Accepted</span>;
+            case 'Rejected': return <span className="badge badge-danger">Rejected</span>;
             case 'Pending':
-            default: return <span className="bg-yellow-900/30 text-yellow-500 px-2 py-1 rounded text-xs border border-yellow-900">Pending</span>;
+            default: return <span className="badge badge-warning">Pending</span>;
         }
     };
 
@@ -110,8 +110,8 @@ export default function InternshipApplicationsManager() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold">Internship Applications</h1>
-                    <p className="text-gray-400">Manage incoming applications</p>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b' }}>Internship Applications</h1>
+                    <p style={{ color: '#64748b' }}>Manage incoming applications</p>
                 </div>
             </div>
 
@@ -147,32 +147,32 @@ export default function InternshipApplicationsManager() {
                         </thead>
                         <tbody>
                             {filteredApps.map((app) => (
-                                <tr key={app.id} className="border-b border-gray-800 hover:bg-gray-800/50">
-                                    <td className="p-4 text-sm text-gray-400">{app.timestamp.split(',')[0]}</td>
-                                    <td className="p-4">
-                                        <div className="font-medium">{app.name}</div>
-                                        <div className="text-xs text-gray-500">{app.email}</div>
+                                <tr key={app.id} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.15)' }}>
+                                    <td style={{ padding: '1rem', fontSize: '0.875rem', color: '#64748b' }}>{app.timestamp.split(',')[0]}</td>
+                                    <td style={{ padding: '1rem' }}>
+                                        <div style={{ fontWeight: '500', color: '#1e293b' }}>{app.name}</div>
+                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{app.email}</div>
                                     </td>
-                                    <td className="p-4">
-                                        <div>{app.program}</div>
-                                        <div className="text-xs text-gray-500">{app.duration}</div>
+                                    <td style={{ padding: '1rem' }}>
+                                        <div style={{ color: '#334155' }}>{app.program}</div>
+                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{app.duration}</div>
                                     </td>
-                                    <td className="p-4">{getStatusBadge(app.status)}</td>
-                                    <td className="p-4 text-right">
+                                    <td style={{ padding: '1rem' }}>{getStatusBadge(app.status)}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'right' }}>
                                         <div className="flex justify-end gap-2">
                                             <button
-                                                className="p-2 hover:bg-gray-700 rounded-lg text-blue-400 transition-colors"
+                                                className="btn btn-secondary btn-sm"
                                                 onClick={() => setSelectedApp(app)}
                                                 title="View Details"
                                             >
-                                                <Eye size={16} />
+                                                <Eye size={14} />
                                             </button>
                                             <button
-                                                className="p-2 hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
+                                                className="btn btn-danger btn-sm"
                                                 onClick={() => setDeleteIndex(app.id)}
                                                 title="Delete"
                                             >
-                                                <Trash2 size={16} />
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
                                     </td>
@@ -192,93 +192,96 @@ export default function InternshipApplicationsManager() {
 
             {/* Details Modal */}
             {selectedApp && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedApp(null)}>
-                    <div className="bg-[#1e293b] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700" onClick={e => e.stopPropagation()}>
-                        <div className="sticky top-0 bg-[#1e293b] p-6 border-b border-gray-700 flex justify-between items-center">
-                            <h2 className="text-xl font-bold">Application Details</h2>
-                            <button onClick={() => setSelectedApp(null)} className="text-gray-400 hover:text-white">
-                                <XCircle size={24} />
+                <div className="modal-overlay" onClick={() => setSelectedApp(null)}>
+                    <div className="modal" style={{ maxWidth: '700px' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3 style={{ fontWeight: '600', color: '#1e293b' }}>Application Details</h3>
+                            <button onClick={() => setSelectedApp(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
+                                <XCircle size={20} />
                             </button>
                         </div>
 
-                        <div className="p-6 space-y-6">
+                        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
                             {/* Header Info */}
-                            <div className="flex justify-between items-start">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <h3 className="text-2xl font-bold text-white">{selectedApp.name}</h3>
-                                    <p className="text-blue-400">{selectedApp.program} ({selectedApp.duration})</p>
+                                    <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>{selectedApp.name}</h3>
+                                    <p style={{ color: '#f97316', fontWeight: '500' }}>{selectedApp.program} ({selectedApp.duration})</p>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-sm text-gray-400 mb-1">{selectedApp.timestamp}</div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>{selectedApp.timestamp}</div>
                                     {getStatusBadge(selectedApp.status)}
                                 </div>
                             </div>
 
                             {/* Contact Info */}
-                            <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
-                                <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Contact Information</h4>
+                            <div style={{ background: 'rgba(148, 163, 184, 0.08)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(148, 163, 184, 0.15)' }}>
+                                <h4 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Contact Information</h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-xs text-gray-500">Email</p>
-                                        <p className="text-gray-200">{selectedApp.email}</p>
+                                        <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Email</p>
+                                        <p style={{ color: '#334155' }}>{selectedApp.email}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500">Phone</p>
-                                        <p className="text-gray-200">{selectedApp.phone || 'N/A'}</p>
+                                        <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Phone</p>
+                                        <p style={{ color: '#334155' }}>{selectedApp.phone || 'N/A'}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Academic Info */}
-                            <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
-                                <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Academic Background</h4>
-                                <div className="space-y-3">
+                            <div style={{ background: 'rgba(148, 163, 184, 0.08)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(148, 163, 184, 0.15)' }}>
+                                <h4 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Academic Background</h4>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                     <div>
-                                        <p className="text-xs text-gray-500">University</p>
-                                        <p className="text-gray-200">{selectedApp.university}</p>
+                                        <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>University</p>
+                                        <p style={{ color: '#334155' }}>{selectedApp.university}</p>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <p className="text-xs text-gray-500">Degree/Branch</p>
-                                            <p className="text-gray-200">{selectedApp.education}</p>
+                                            <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Degree/Branch</p>
+                                            <p style={{ color: '#334155' }}>{selectedApp.education}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Year</p>
-                                            <p className="text-gray-200">{selectedApp.year}</p>
+                                            <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Year</p>
+                                            <p style={{ color: '#334155' }}>{selectedApp.year}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Pricing Info */}
-                            <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
-                                <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Payment Details</h4>
+                            <div style={{ background: 'rgba(148, 163, 184, 0.08)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(148, 163, 184, 0.15)' }}>
+                                <h4 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Payment Details</h4>
                                 <div>
-                                    <p className="text-xs text-gray-500">Final Price Agreed</p>
-                                    <p className="text-xl font-bold text-green-400">{selectedApp.price}</p>
+                                    <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Final Price Agreed</p>
+                                    <p style={{ fontSize: '1.25rem', fontWeight: '700', color: '#16a34a' }}>{selectedApp.price}</p>
                                 </div>
                             </div>
 
                             {/* Actions */}
-                            <div className="pt-4 border-t border-gray-700 flex justify-between items-center">
-                                <p className="text-sm text-gray-400">Update Status:</p>
-                                <div className="flex gap-3">
+                            <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(148, 163, 184, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Update Status:</p>
+                                <div className="flex gap-2">
                                     <button
-                                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${selectedApp.status === 'Pending' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-yellow-900/50'}`}
+                                        className={`btn btn-sm ${selectedApp.status === 'Pending' ? 'btn-warning' : 'btn-secondary'}`}
                                         onClick={() => handleStatusUpdate(selectedApp.id, 'Pending')}
+                                        style={{ opacity: selectedApp.status === 'Pending' ? 1 : 0.8 }}
                                     >
                                         Pending
                                     </button>
                                     <button
-                                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${selectedApp.status === 'Accepted' ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-green-900/50'}`}
+                                        className={`btn btn-sm ${selectedApp.status === 'Accepted' ? 'btn-success' : 'btn-secondary'}`}
                                         onClick={() => handleStatusUpdate(selectedApp.id, 'Accepted')}
+                                        style={{ opacity: selectedApp.status === 'Accepted' ? 1 : 0.8 }}
                                     >
                                         Accept
                                     </button>
                                     <button
-                                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${selectedApp.status === 'Rejected' ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-red-900/50'}`}
+                                        className={`btn btn-sm ${selectedApp.status === 'Rejected' ? 'btn-danger' : 'btn-secondary'}`}
                                         onClick={() => handleStatusUpdate(selectedApp.id, 'Rejected')}
+                                        style={{ opacity: selectedApp.status === 'Rejected' ? 1 : 0.8 }}
                                     >
                                         Reject
                                     </button>
@@ -292,11 +295,15 @@ export default function InternshipApplicationsManager() {
 
             {/* Delete Confirmation */}
             {deleteIndex !== null && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-[#1e293b] rounded-2xl max-w-md p-6 border border-gray-700 shadow-2xl">
-                        <h3 className="text-xl font-bold mb-4">Confirm Delete</h3>
-                        <p className="text-gray-300 mb-6">Are you sure you want to delete this application? This cannot be undone.</p>
-                        <div className="flex justify-end gap-4">
+                <div className="modal-overlay">
+                    <div className="modal" style={{ maxWidth: '400px' }}>
+                        <div className="modal-header">
+                            <h3 style={{ fontWeight: '600', color: '#1e293b' }}>Confirm Delete</h3>
+                        </div>
+                        <div className="modal-body">
+                            <p style={{ color: '#334155' }}>Are you sure you want to delete this application? This cannot be undone.</p>
+                        </div>
+                        <div className="modal-footer">
                             <button className="btn btn-secondary" onClick={() => setDeleteIndex(null)}>Cancel</button>
                             <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
                         </div>

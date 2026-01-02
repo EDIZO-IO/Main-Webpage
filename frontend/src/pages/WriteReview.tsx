@@ -53,8 +53,8 @@ const StarRatingInput: React.FC<{ rating: number; onRatingChange: (rating: numbe
                 >
                     <Star
                         className={`w-8 h-8 ${star <= (hoverRating || rating)
-                                ? 'text-yellow-400 fill-yellow-400'
-                                : 'text-gray-300'
+                            ? 'text-yellow-400 fill-yellow-400'
+                            : 'text-gray-300'
                             }`}
                     />
                 </motion.button>
@@ -253,7 +253,6 @@ const WriteReview: React.FC = () => {
                 <PageHeader
                     title="Thank You!"
                     subtitle="Your review has been submitted successfully"
-                    variant="services"
                 />
                 <section className="py-20 bg-gradient-to-b from-white to-gray-50 min-h-[60vh]">
                     <div className="max-w-2xl mx-auto px-4">
@@ -297,7 +296,6 @@ const WriteReview: React.FC = () => {
             <PageHeader
                 title="Share Your Experience"
                 subtitle="Help other clients by sharing your feedback about working with Edizo"
-                variant="services"
             />
 
             <section className="py-16 bg-gradient-to-b from-white to-gray-50">
@@ -420,8 +418,8 @@ const WriteReview: React.FC = () => {
                                             placeholder="Share your experience working with Edizo. What did you like? How did we help your business?"
                                             rows={5}
                                             className={`w-full px-4 py-3 pl-11 bg-white border-2 ${formErrors.review
-                                                    ? 'border-red-300 focus:border-red-500'
-                                                    : 'border-gray-200 focus:border-orange-500'
+                                                ? 'border-red-300 focus:border-red-500'
+                                                : 'border-gray-200 focus:border-orange-500'
                                                 } rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 ${formErrors.review ? 'focus:ring-red-200' : 'focus:ring-orange-200'
                                                 } transition-all resize-none`}
                                         />
@@ -459,8 +457,8 @@ const WriteReview: React.FC = () => {
                                     whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                                     whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                                     className={`w-full py-4 px-6 flex items-center justify-center gap-2 text-white font-bold rounded-xl shadow-lg transition-all ${isSubmitting
-                                            ? 'bg-gray-400 cursor-not-allowed'
-                                            : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-xl'
+                                        ? 'bg-gray-400 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-xl'
                                         }`}
                                 >
                                     {isSubmitting ? (
