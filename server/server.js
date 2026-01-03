@@ -139,6 +139,16 @@ blogSchema.pre('save', function (next) {
 
 const Blog = mongoose.model('Blog', blogSchema);
 
+// ✅ Site Stats Schema (Manual Stats)
+const statSchema = new mongoose.Schema({
+  key: { type: String, required: true, unique: true },
+  value: { type: String, required: true },
+  label: { type: String, required: true },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const SiteStat = mongoose.model('SiteStat', statSchema);
+
 // ✅ Health Check
 app.get('/', (req, res) => {
   res.json({
@@ -1738,6 +1748,126 @@ app.delete('/api/admin/applications/:rowIndex', async (req, res) => {
   } catch (error) {
     console.error('❌ Error deleting application:', error.message);
     res.status(500).json({ success: false, message: 'Failed to delete application' });
+  }
+});
+
+// ========================================
+// ✅ SITE STATS API ENDPOINTS
+// ========================================
+
+// GET: Fetch all stats (Combines manual + dynamic from Testimonials)
+app.get('/api/stats', async (req, res) => {
+  try {
+    // 1. Fetch manual stats from MongoDB
+    const manualStats = await SiteStat.find();
+    const statsMap = {};
+    manualStats.forEach(stat => {
+      statsMap[stat.key] = { key: stat.key, value: stat.value, label: stat.label };
+    });
+
+    // 2. Fetch testimonials to calculate average rating
+    const testimonials = await Testimonial.find({ isApproved: true });
+    let avgRating = 5.0;
+    let ratingCount = testimonials.length;
+
+    if (ratingCount > 0) {
+      const totalRating = testimonials.reduce((sum, t) => sum + (Number(t.rating) || 0), 0);
+      avgRating = Number((totalRating / ratingCount).toFixed(1));
+      console.log(`📊 Stats Calculation: ${ratingCount} reviews. Total rating: ${totalRating}. Avg: ${avgRating}`);
+    } else {
+      console.log('📊 Stats Calculation: No approved testimonials found. Defaulting to 5.0');
+    }
+
+    // 3. Override/Add dynamic stats
+
+    // Dynamic: Rating Score (e.g. "4.9")
+    statsMap['rating_score'] = {
+      key: 'rating_score',
+      value: avgRating.toString(),
+      label: statsMap['rating_score']?.label || 'Average Rating'
+    };
+
+    // Dynamic: Client Rating (e.g. "4.9/5")
+    statsMap['client_rating'] = {
+      key: 'client_rating',
+      value: `${avgRating}/5`,
+      label: statsMap['client_rating']?.label || 'Client Rating'
+    };
+
+    // Dynamic: Happy Clients (update if manual stat exists, otherwise calculated)
+    // If the user hasn't manually set a "happy_clients" value (or if it's default), 
+    // we could optionally dynamically update it based on review count, but sticking to manual for now
+    // unless explicitly requested to purely count reviews. user said "calculate by testimonial data" for rating specifically.
+
+    res.json({
+      success: true,
+      data: statsMap
+    });
+  } catch (error) {
+    console.error('❌ Error fetching stats:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch stats' });
+  }
+});
+
+// POST: Update or Create a Stat (Admin)
+app.post('/api/admin/stats', async (req, res) => {
+  try {
+    const { key, value, label } = req.body;
+
+    if (!key || !value) {
+      return res.status(400).json({ success: false, message: 'Key and Value are required' });
+    }
+
+    const stat = await SiteStat.findOneAndUpdate(
+      { key },
+      { value, label: label || key, updatedAt: new Date() },
+      { upsert: true, new: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Stat updated successfully',
+      data: stat
+    });
+  } catch (error) {
+    console.error('❌ Error updating stat:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to update stat' });
+  }
+});
+
+// POST: Seed Initial Stats
+app.post('/api/admin/stats/seed', async (req, res) => {
+  try {
+    const initialStats = [
+      { key: 'projects_delivered', value: '100+', label: 'Projects Done' },
+      { key: 'client_rating', value: '4.9/5', label: 'Client Rating' },
+      { key: 'on_time_delivery', value: 'On Time', label: 'Delivery' },
+      { key: 'satisfaction_rate', value: '100%', label: 'Satisfaction' },
+      { key: 'happy_clients', value: '10+', label: 'Happy Clients' },
+      { key: 'years_experience', value: '2+', label: 'Years Experience' },
+      { key: 'clients_count', value: '10+', label: 'Clients' },
+      { key: 'projects_count', value: '25+', label: 'Projects' },
+      { key: 'rating_score', value: '5.0', label: 'Rating' },
+      { key: 'students_trained', value: '500+', label: 'Students Trained' },
+      { key: 'programs_count', value: '15+', label: 'Programs' },
+      { key: 'certification_rate', value: '100%', label: 'Certification' }
+    ];
+
+    // Bulk write to avoid duplicates/errors
+    const operations = initialStats.map(stat => ({
+      updateOne: {
+        filter: { key: stat.key },
+        update: { $set: stat },
+        upsert: true
+      }
+    }));
+
+    await SiteStat.bulkWrite(operations);
+
+    res.json({ success: true, message: 'Stats seeded successfully' });
+  } catch (error) {
+    console.error('❌ Error seeding stats:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to seed stats' });
   }
 });
 

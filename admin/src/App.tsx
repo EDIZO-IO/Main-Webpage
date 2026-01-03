@@ -8,6 +8,7 @@ import TestimonialsManager from './pages/TestimonialsManager';
 import CertificatesManager from './pages/CertificatesManager';
 import InternshipsManager from './pages/InternshipsManager';
 import InternshipApplicationsManager from './pages/InternshipApplicationsManager';
+import StatsManager from './pages/StatsManager';
 import Layout from './components/Layout';
 import './index.css';
 
@@ -47,6 +48,7 @@ function App() {
           <Route path="certificates" element={<CertificatesManager />} />
           <Route path="internships" element={<InternshipsManager />} />
           <Route path="internship-applications" element={<InternshipApplicationsManager />} />
+          <Route path="stats" element={<StatsManager />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

@@ -10,6 +10,7 @@ import {
 import { useTeamMembers } from '../components/hooks/useTeamMembers';
 import Button from '../components/common/Button';
 import PageHeader from '../components/common/PageHeader';
+import { useStats } from '../components/hooks/useStats';
 
 // Glass Card Component
 const GlassCard = memo<{
@@ -53,12 +54,13 @@ AnimatedSection.displayName = 'AnimatedSection';
 
 const About: React.FC = () => {
   const { teamMembers, loading, error } = useTeamMembers();
+  const { stats: statsData } = useStats();
 
-  const stats = [
-    { number: '25+', label: 'Projects Delivered', icon: Award, gradient: 'from-orange-400 to-red-500' },
-    { number: '10+', label: 'Happy Clients', icon: Users, gradient: 'from-blue-400 to-cyan-500' },
-    { number: '5.0', label: 'Client Rating', icon: Star, gradient: 'from-yellow-400 to-amber-500' },
-    { number: '2+', label: 'Years Experience', icon: Calendar, gradient: 'from-purple-400 to-pink-500' },
+  const statsConfig = [
+    { key: 'projects_delivered', icon: Award, gradient: 'from-orange-400 to-red-500' },
+    { key: 'happy_clients', icon: Users, gradient: 'from-blue-400 to-cyan-500' },
+    { key: 'client_rating', icon: Star, gradient: 'from-yellow-400 to-amber-500' },
+    { key: 'years_experience', icon: Calendar, gradient: 'from-purple-400 to-pink-500' },
   ];
 
   const values = [
@@ -86,9 +88,9 @@ const About: React.FC = () => {
         badge="Our Story"
         showStats
         stats={[
-          { value: '10+', label: 'Clients' },
-          { value: '25+', label: 'Projects' },
-          { value: '5.0', label: 'Rating' },
+          { value: statsData.happy_clients?.value || '10+', label: 'Clients' },
+          { value: statsData.projects_delivered?.value || '25+', label: 'Projects' },
+          { value: statsData.client_rating?.value || '5.0', label: 'Rating' },
         ]}
       />
 
@@ -96,19 +98,22 @@ const About: React.FC = () => {
       <section className="relative -mt-12 z-20 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, i) => (
-              <AnimatedSection key={i} delay={i * 0.1}>
-                <GlassCard className="p-6 text-center">
-                  <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
-                    <stat.icon className="w-7 h-7 text-white" />
-                  </div>
-                  <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-700 mb-1">
-                    {stat.number}
-                  </div>
-                  <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
-                </GlassCard>
-              </AnimatedSection>
-            ))}
+            {statsConfig.map((stat, i) => {
+              const data = statsData[stat.key] || { value: '...', label: 'Loading...' };
+              return (
+                <AnimatedSection key={i} delay={i * 0.1}>
+                  <GlassCard className="p-6 text-center">
+                    <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
+                      <stat.icon className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-700 mb-1">
+                      {data.value}
+                    </div>
+                    <div className="text-sm text-gray-600 font-medium">{data.label}</div>
+                  </GlassCard>
+                </AnimatedSection>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -413,7 +418,7 @@ const About: React.FC = () => {
             </h2>
 
             <p className="text-xl text-white/70 mb-10 max-w-2xl mx-auto">
-              Join 10+ clients who trust us with their digital transformation. Let's create something amazing together.
+              Join {statsData.happy_clients?.value || '10+'} clients who trust us with their digital transformation. Let's create something amazing together.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">

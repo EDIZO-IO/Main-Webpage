@@ -7,6 +7,7 @@ import {
   Sparkles, X, MapPin, Zap, HeadphonesIcon
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
+import { useStats } from '../components/hooks/useStats';
 
 // === TypeScript Interfaces ===
 interface FormData {
@@ -147,6 +148,7 @@ SocialButton.displayName = 'SocialButton';
 
 // === Main Component ===
 const Contact = () => {
+  const { stats } = useStats();
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -654,8 +656,8 @@ const Contact = () => {
             {[
               { value: '24/7', label: 'Support Available', icon: HeadphonesIcon },
               { value: '<24h', label: 'Response Time', icon: Clock },
-              { value: '100%', label: 'Satisfaction', icon: CheckCircle },
-              { value: '500+', label: 'Happy Clients', icon: User }
+              { value: stats.satisfaction_rate?.value || '100%', label: stats.satisfaction_rate?.label || 'Satisfaction', icon: CheckCircle },
+              { value: stats.happy_clients?.value || '500+', label: stats.happy_clients?.label || 'Happy Clients', icon: User }
             ].map((stat, i) => (
               <motion.div
                 key={i}

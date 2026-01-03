@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Quote, ChevronLeft, ChevronRight, Sparkles, PenLine } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AnimatedSection from '../../components/common/AnimatedSection';
+import { useTestimonials } from '../../components/hooks/useTestimonials';
 
 // ORIGINAL INTERFACE - UNCHANGED
 interface Testimonial {

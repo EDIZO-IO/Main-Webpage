@@ -28,6 +28,7 @@ import {
 import { useInternships } from "../components/hooks/useInternships";
 import { getHighestDiscount, hasDiscount } from "../utils/internship.utils";
 import Button from '../components/common/Button'; // Update path as needed
+import { useStats } from '../components/hooks/useStats';
 
 // === Interfaces ===
 interface AnimatedSectionProps {
@@ -81,6 +82,8 @@ interface PageHeaderProps {
   showVerifyButton?: boolean;
 }
 const PageHeader = memo<PageHeaderProps>(({ title, subtitle, showVerifyButton }) => {
+  const { stats: statsData } = useStats();
+
   return (
     <section
       className="relative text-white min-h-[420px] md:min-h-[480px] lg:min-h-[520px] flex items-center justify-center overflow-hidden py-16"
@@ -280,9 +283,9 @@ const PageHeader = memo<PageHeaderProps>(({ title, subtitle, showVerifyButton })
               transition={{ duration: 0.6, delay: 0.6 }}
             >
               {[
-                { value: '500+', label: 'Students Trained' },
-                { value: '15+', label: 'Programs' },
-                { value: '100%', label: 'Certification' },
+                { value: statsData.students_trained?.value || '500+', label: 'Students Trained' },
+                { value: statsData.programs_count?.value || '15+', label: 'Programs' },
+                { value: statsData.certification_rate?.value || '100%', label: 'Certification' },
               ].map((stat, i) => (
                 <motion.div
                   key={i}
