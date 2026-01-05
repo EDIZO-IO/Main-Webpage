@@ -39,7 +39,7 @@ const Footer = memo(() => {
       role="contentinfo"
     >
       {/* Background with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950" />
 
       {/* Animated Gradient Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -160,7 +160,7 @@ const Footer = memo(() => {
                       <a
                         href={href}
                         title={`Contact us at ${content}`}
-                        className="text-gray-400 hover:text-white text-sm transition-colors duration-300 group-hover:translate-x-1 transition-transform break-all"
+                        className="text-gray-400 hover:text-white text-sm transition-colors duration-300 group-hover:translate-x-1 break-all"
                       >
                         {content}
                       </a>
@@ -172,54 +172,6 @@ const Footer = memo(() => {
               </ul>
             </div>
 
-            {/* Newsletter */}
-            <div className="space-y-6">
-              <div className="relative">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Send className="w-4 h-4 text-orange-400" />
-                  Stay Updated
-                </h3>
-                <div className="mt-2 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-red-500 rounded-full" />
-              </div>
-              <p className="text-gray-400 text-sm">
-                Subscribe to our newsletter for latest updates and insights.
-              </p>
-
-              {/* Newsletter Input - Glass Style */}
-              <div className="space-y-3">
-                <div className="relative">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="
-                      w-full px-4 py-3 
-                      bg-white/[0.05] backdrop-blur-md
-                      border border-white/[0.1] rounded-xl
-                      text-white text-sm placeholder-gray-500
-                      focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20
-                      transition-all duration-300
-                    "
-                    aria-label="Email for newsletter"
-                  />
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-500/5 to-red-500/5 pointer-events-none" />
-                </div>
-                <button
-                  className="
-                    w-full px-4 py-3
-                    bg-gradient-to-r from-orange-500 to-red-500
-                    text-white text-sm font-bold rounded-xl
-                    hover:from-orange-600 hover:to-red-600
-                    transition-all duration-300
-                    shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40
-                    hover:scale-[1.02] active:scale-[0.98]
-                    flex items-center justify-center gap-2
-                  "
-                >
-                  <Send className="w-4 h-4" />
-                  Subscribe Now
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -231,7 +183,7 @@ const Footer = memo(() => {
           <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              © {new Date().getFullYear()} <span className="text-white font-semibold">Edizo</span>. All rights reserved.
+              © {new Date().getFullYear()} <span className="text-red-700 font-stretch-100%">EDIZO</span> All rights reserved.
             </p>
 
             <div className="flex flex-wrap justify-center gap-6">

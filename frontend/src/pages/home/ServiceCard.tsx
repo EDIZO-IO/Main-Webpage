@@ -23,7 +23,7 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
         {/* Check badge */}
         <div className="absolute top-4 left-4 flex items-center justify-center w-10 h-10 bg-white/90 border border-gray-200 rounded-lg shadow-sm z-10">
@@ -31,10 +31,11 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
         </div>
 
         {/* Service Title Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 py-2 px-4 bg-gradient-to-t from-white via-white/95 to-transparent">
-          <span className="text-lg font-bold text-gray-900">{title}</span>
+        <div className="absolute bottom-0 left-0 right-0 py-2 px-5 bg-gradient-to-t from-white/10 via-white/10 border border-gray-300 flex flex-col">
+          <span className="text-lg font-bold text-gray-600 hover:text-white">{title}</span>
         </div>
       </div>
+
 
       <div className="p-5 flex flex-col flex-grow">
         <p className="text-gray-600 mb-4 leading-relaxed text-sm">{desc}</p>
@@ -42,7 +43,7 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
         {/* Feature list */}
         <div className="mb-5 flex flex-wrap gap-1.5">
           {features.slice(0, 3).map((feature, i) => (
-            <span key={i} className="text-xs bg-red-50 text-red-700 px-2 py-1 rounded-md font-medium border border-red-100">
+            <span key={i} className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded-md font-medium border border-red-100">
               {feature}
             </span>
           ))}
@@ -58,7 +59,7 @@ const ServiceCard = memo<ServiceCardProps>(({ img, title, desc, link, features }
           variant="primary"
           size="sm"
           iconRight={<ArrowRight className="w-4 h-4" />}
-          className="w-full mt-auto rounded-lg border-none font-semibold"
+          className="w-full mt-auto rounded-2xl border-none font-semibold"
           style={{
             background: "linear-gradient(135deg, #dc2626 0%, #ea580c 100%)",
           }}

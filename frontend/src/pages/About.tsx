@@ -95,7 +95,7 @@ const About: React.FC = () => {
       />
 
       {/* Stats Section */}
-      <section className="relative -mt-12 z-20 pb-16">
+      <section className="relative -mt-12 z-20 pb-26">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {statsConfig.map((stat, i) => {

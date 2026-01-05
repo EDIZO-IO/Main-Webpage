@@ -207,7 +207,7 @@ const ProjectsSection = memo(() => {
           <AnimatedSection>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/80 border border-gray-200 rounded-full mb-4 shadow-sm">
               <Sparkles className="w-3 h-3 text-red-600" />
-              <span className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">
+              <span className="text-lg font-serif text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">
                 Portfolio
               </span>
             </div>

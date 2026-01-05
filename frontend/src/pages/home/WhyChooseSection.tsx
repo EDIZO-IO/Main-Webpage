@@ -38,10 +38,10 @@ const WhyChooseSection = memo(() => {
           <AnimatedSection>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-100 rounded-full mb-4">
               <Sparkles className="w-3 h-3 text-red-500" />
-              <span className="text-xs font-semibold text-red-700">Our Promise</span>
+              <span className="text-lg font-serif text-red-700">Our Promise</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
-              Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Edizo?</span>
+              Why Choose <span className="text-transparent bg-clip-text font-serif bg-gradient-to-r from-red-600 to-orange-500">Edizo?</span>
             </h2>
             <p className="text-lg text-gray-600">
               We deliver unmatched results

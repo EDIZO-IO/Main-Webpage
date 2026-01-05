@@ -292,7 +292,7 @@ const PageHeader = memo<PageHeaderProps>(({ title, subtitle, showVerifyButton })
                   className="text-center"
                   whileHover={{ scale: 1.05 }}
                 >
-                  <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-400">
+                  <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-red-700">
                     {stat.value}
                   </div>
                   <div className="text-sm text-white/60 font-medium">{stat.label}</div>
@@ -304,7 +304,7 @@ const PageHeader = memo<PageHeaderProps>(({ title, subtitle, showVerifyButton })
       </div>
 
       {/* Bottom gradient fade to white */}
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-gray-50 via-gray-50/80 to-transparent z-[4]" />
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/10 via-white/10 to-transparent z-[4]" />
     </section>
   );
 });
@@ -395,7 +395,7 @@ const InternshipCard = memo<InternshipCardProps>(({ internship, index, showTrend
         transition={{ duration: 0.2 }}
         className="group relative bg-white border border-gray-200 shadow-md overflow-hidden h-full flex flex-col hover:shadow-lg transition-all"
         style={{
-          borderRadius: "1.125rem", // classic rounded
+          borderRadius: "1.025rem", // classic rounded
         }}
       >
         {/* Flat geometric image section */}
@@ -403,8 +403,8 @@ const InternshipCard = memo<InternshipCardProps>(({ internship, index, showTrend
           <img
             src={internship.image}
             alt={internship.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            loading="lazy"
+            className="w-40 h-40 object-cover transition-transform duration-700 group-hover:scale-105"
+            loading="eager"
             onError={(e) => {
               e.currentTarget.src = "https://via.placeholder.com/400x300?text=No+Image";
             }}
@@ -427,8 +427,8 @@ const InternshipCard = memo<InternshipCardProps>(({ internship, index, showTrend
             )
           )}
           {/* Title Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 py-2 px-5 bg-gradient-to-t from-white/95 to-white/60 border-t border-gray-100 flex flex-col">
-            <span className="text-lg font-bold text-gray-900">{internship.title}</span>
+          <div className="absolute bottom-0 left-0 right-0 py-2 px-5 bg-gradient-to-t from-white/10 to-white/10 border-t border-gray-300 flex flex-col">
+            <span className="text-l font-bold text-orange-600">{internship.title}</span>
             <span className="text-xs text-gray-500 font-medium">{internship.mode}</span>
           </div>
         </div>
@@ -451,7 +451,7 @@ const InternshipCard = memo<InternshipCardProps>(({ internship, index, showTrend
             variant="primary"
             size="sm"
             iconRight={<ArrowRight className="w-4 h-4" />}
-            className="w-full mt-auto rounded-lg border-none font-bold shadow-none"
+            className="w-full mt-auto rounded-2xl border-none font-bold shadow-none"
           >
             Apply Now
           </Button>

@@ -5,6 +5,7 @@ import Button from '../../components/common/Button';
 import { AnimatedSection } from './AnimatedSection';
 import { useStats } from '../../components/hooks/useStats';
 
+
 // Typewriter phrases
 const phrases = [
   "Creative Services & Real-World Learning",
@@ -23,8 +24,8 @@ const TypewriterText = memo(() => {
 
   useEffect(() => {
     const currentPhrase = phrases[phraseIndex];
-    const typeSpeed = isDeleting ? 30 : 80;
-    const pauseDuration = 2000;
+    const typeSpeed = isDeleting ? 20 : 60;
+    const pauseDuration = 1000;
 
     if (isPaused) {
       const pauseTimeout = setTimeout(() => {
@@ -37,7 +38,7 @@ const TypewriterText = memo(() => {
     const typeTimeout = setTimeout(() => {
       if (!isDeleting) {
         if (text.length < currentPhrase.length) {
-          setText(currentPhrase.slice(0, text.length + 1));
+          setText(currentPhrase.slice(0, text.length + 2));
         } else {
           setIsPaused(true);
         }
@@ -201,14 +202,14 @@ const Hero = memo(() => {
                   id="hero-title"
                   className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight"
                 >
-                  <span className="text-white">Welcome to </span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-400 to-orange-500">
-                    EDIZO
+                  <span className="text-white font-serif">Welcome to </span>
+                  <span className="text-transparent font-serif bg-clip-text bg-gradient-to-r from-orange-400 via-red-400 to-orange-500">
+                   EDIZO
                   </span>
                 </h1>
 
                 {/* Typewriter */}
-                <div className="text-xl md:text-2xl lg:text-3xl text-white/80 font-medium mb-6">
+                <div className="text-xl md:text-2xl lg:text-3xl text-white/80 font-bold-medium mb-6">
                   <TypewriterText />
                 </div>
 
@@ -241,7 +242,7 @@ const Hero = memo(() => {
                     variant="outline"
                     size="lg"
                     iconRight={<Play className="w-5 h-5 fill-current" />}
-                    className="px-8 py-4 text-lg font-bold rounded-2xl border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
+                    className="px-8 py-4 text-lg font-bold rounded-2xl border-2 border-white text-black hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
                   >
                     Start Learning
                   </Button>
@@ -278,20 +279,20 @@ const Hero = memo(() => {
         ].map((item, i) => (
           <div
             key={i}
-            className="p-3 rounded-xl backdrop-blur-xl animate-float"
+            className="p-3 rounded-xl backdrop-blur-xl animate-float pt-0.5"
             style={{
-              background: 'rgba(255, 255, 255, 0.1)',
+              background: 'rgba(255, 255, 255, 0.02)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               animationDelay: `${i * 0.2}s`
             }}
           >
-            <item.icon className="w-5 h-5 text-white/80" strokeWidth={1.5} />
+            <item.icon className="w-5 h-5 text-red-400" strokeWidth={1.5} />
           </div>
         ))}
       </div>
 
       {/* Bottom Gradient Fade */}
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white/80 to-transparent z-[4]" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white/10 via-white/20 to-transparent z-[4]" />
     </section>
   );
 });

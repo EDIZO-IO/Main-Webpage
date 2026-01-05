@@ -23,7 +23,7 @@ const InternshipsSection = memo(() => {
         <div className="text-center mb-12 max-w-3xl mx-auto">
           <AnimatedSection>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/80 border border-gray-200 rounded-full mb-4 shadow-sm">
-              <span className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Career Growth</span>
+              <span className="text-lg font-serif text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Career Growth</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
               Trending <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Internships</span>
@@ -71,7 +71,7 @@ const InternshipsSection = memo(() => {
                 size="lg"
                 iconRight={<ArrowRight className="w-5 h-5" />}
                 style={{
-                  background: "linear-gradient(135deg, #dc2626 0%, #ea580c 100%)",
+                  background: "linear-gradient(131deg, #dc2612 0%, #ea580c 100%)",
                   boxShadow: "0 8px 30px -8px rgba(220,38,38,0.4)"
                 }}
               >

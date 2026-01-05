@@ -3,7 +3,7 @@ import { useState, useEffect, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mail, Phone, Send, CheckCircle, Loader2, Facebook, Twitter, Linkedin, Instagram,
-  Youtube, MessageCircle, ArrowRight, Clock, User, Hash, MessageSquare, AlertCircle, Globe,
+  Youtube, ArrowRight, Clock, User, Hash, MessageSquare, AlertCircle, Globe,
   Sparkles, X, MapPin, Zap, HeadphonesIcon
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
@@ -73,7 +73,7 @@ const GlassFormInput = memo<{
   icon?: React.ReactNode;
 }>(({ id, name, type = 'text', label, value, onChange, placeholder, required, error, icon }) => (
   <div>
-    <label htmlFor={id} className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+    <label htmlFor={id} className=" text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
       {icon && <span className="text-orange-500">{icon}</span>}
       {label} {required && <span className="text-red-500">*</span>}
     </label>
@@ -451,8 +451,8 @@ const Contact = () => {
               {/* Right Side - Form */}
               <div className="lg:col-span-3 p-8 md:p-12">
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-lg">
-                    <Send className="w-7 h-7 text-white" />
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg">
+                    <Mail className="w-7 h-7 text-white" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">Send a Message</h3>
@@ -534,7 +534,7 @@ const Contact = () => {
                           label="Full Name"
                           value={formData.name}
                           onChange={handleInputChange}
-                          placeholder="John Doe"
+                          placeholder="Your Name"
                           required
                           error={formErrors.name}
                           icon={<User className="w-4 h-4" />}
@@ -546,7 +546,7 @@ const Contact = () => {
                           label="Email Address"
                           value={formData.email}
                           onChange={handleInputChange}
-                          placeholder="john@example.com"
+                          placeholder="yourmail@example.com"
                           required
                           error={formErrors.email}
                           icon={<Mail className="w-4 h-4" />}
@@ -561,7 +561,7 @@ const Contact = () => {
                           label="Phone Number"
                           value={formData.phone}
                           onChange={handleInputChange}
-                          placeholder="+91 98765 43210"
+                          placeholder="Mobile Number"
                           icon={<Phone className="w-4 h-4" />}
                         />
                         <GlassFormInput
@@ -578,7 +578,7 @@ const Contact = () => {
                       </div>
 
                       <div>
-                        <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2  items-center gap-2">
                           <span className="text-orange-500"><MessageSquare className="w-4 h-4" /></span>
                           Your Message <span className="text-red-500">*</span>
                         </label>

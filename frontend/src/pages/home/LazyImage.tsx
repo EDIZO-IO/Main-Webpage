@@ -11,7 +11,7 @@ export const LazyImage = memo<LazyImageProps>(({ src, alt, className = "" }) => 
   <img
     src={src}
     alt={alt}
-    loading="lazy"
+    loading="eager"
     className={className}
     onError={(e) => {
       const target = e.target as HTMLImageElement;

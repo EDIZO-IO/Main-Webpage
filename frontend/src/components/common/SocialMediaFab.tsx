@@ -131,7 +131,7 @@ const SocialMediaFab: React.FC = () => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+                        className="fixed inset-0 bg-black/20  z-40"
                         onClick={toggleMenu}
                     />
                 )}
@@ -171,7 +171,7 @@ const SocialMediaFab: React.FC = () => {
                                         className="absolute right-full mr-4 px-4 py-2 rounded-xl text-sm font-bold text-white whitespace-nowrap pointer-events-none"
                                         style={{
                                             background: 'rgba(15, 23, 42, 0.9)',
-                                            backdropFilter: 'blur(12px)',
+                                            backdropFilter: 'blur(8px)',
                                             border: '1px solid rgba(255, 255, 255, 0.1)',
                                             boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
                                         }}
@@ -182,7 +182,7 @@ const SocialMediaFab: React.FC = () => {
 
                                     {/* Icon Button */}
                                     <div
-                                        className="flex items-center justify-center w-12 h-12 rounded-2xl text-white backdrop-blur-xl"
+                                        className="flex items-center justify-center w-12 h-12 rounded-2xl text-white backdrop-blur-3xl"
                                         style={{
                                             background: 'rgba(255, 255, 255, 0.15)',
                                             border: '1px solid rgba(255, 255, 255, 0.25)',
