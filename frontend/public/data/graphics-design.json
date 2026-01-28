@@ -1,0 +1,67 @@
+[
+  {
+    "id": "edizo-logo",
+    "title": "Edizo Brand Identity",
+    "category": "Logo Design",
+    "client": "Edizo",
+    "year": "2024",
+    "description": "Complete brand identity system including logo, color palette, typography, and brand guidelines.",
+    "image": "https://drive.google.com/uc?export=view&id=10iw7mezzjb5u-Q2jAF7yTtAxhLZXIh57",
+    "type": "logo",
+    "dimensions": "500x500px",
+    "tools": ["Adobe Illustrator", "Photoshop"],
+    "viewLink": "https://drive.google.com/file/d/10iw7mezzjb5u-Q2jAF7yTtAxhLZXIh57/view"
+  },
+  {
+    "id": "recap-logo",
+    "title": "RedCap Logistics Logo",
+    "category": "Logo Design",
+    "client": "RedCap",
+    "year": "2024",
+    "description": "Modern logo design with red cap iconography representing speed and reliability in logistics.",
+    "image": "https://drive.google.com/uc?export=view&id=2bCdEfGhIjKlMnOpQrStUvWxYz789012",
+    "type": "logo",
+    "dimensions": "500x500px",
+    "tools": ["Adobe Illustrator", "Photoshop"],
+    "viewLink": "https://drive.google.com/file/d/2bCdEfGhIjKlMnOpQrStUvWxYz789012/view"
+  },
+  {
+    "id": "cybersecurity-poster",
+    "title": "Cybersecurity Awareness",
+    "category": "Poster Design",
+    "client": "TechCorp",
+    "year": "2024",
+    "description": "Educational poster series on cybersecurity best practices for corporate training.",
+    "image": "https://drive.google.com/uc?export=view&id=3cDeFgHiJkLmNoPqRsTuVwXyZ1234567",
+    "type": "poster",
+    "dimensions": "1200x1800px",
+    "tools": ["Adobe Illustrator", "InDesign"],
+    "viewLink": "https://drive.google.com/file/d/3cDeFgHiJkLmNoPqRsTuVwXyZ1234567/view"
+  },
+  {
+    "id": "web-banner",
+    "title": "Website Banners",
+    "category": "Banner Design",
+    "client": "E-Commerce Store",
+    "year": "2024",
+    "description": "Series of animated and static banners for homepage promotions and seasonal sales.",
+    "image": "https://drive.google.com/uc?export=view&id=4dEfGhIjKlMnOpQrStUvWxYz7890123",
+    "type": "banner",
+    "dimensions": "1920x600px",
+    "tools": ["Adobe Photoshop", "After Effects"],
+    "viewLink": "https://drive.google.com/file/d/4dEfGhIjKlMnOpQrStUvWxYz7890123/view"
+  },
+  {
+    "id": "branding-kit",
+    "title": "Startup Branding Kit",
+    "category": "Branding",
+    "client": "InnovateTech",
+    "year": "2024",
+    "description": "Complete branding package including logo, business cards, letterhead, and social media templates.",
+    "image": "https://drive.google.com/uc?export=view&id=5eFgHiJkLmNoPqRsTuVwXyZ12345678",
+    "type": "branding",
+    "dimensions": "Multiple formats",
+    "tools": ["Adobe Illustrator", "Photoshop", "InDesign"],
+    "viewLink": "https://drive.google.com/file/d/5eFgHiJkLmNoPqRsTuVwXyZ12345678/view"
+  }
+]

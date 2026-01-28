@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#ff6b6b" />
+
+  <!-- Favicon & App Icons -->
+  <link rel="icon" type="image/png" href="/logo.png" sizes="192x192" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/logo.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Primary Meta -->
+  <title>Edizo | Design.Develop.Learn - Digital Agency</title>
+  <meta name="description"
+    content="Edizo offers expert web development, UI/UX design, app development & digital marketing in India. Transform your business with our creative solutions." />
+  <meta name="keywords"
+    content="Edizo, digital agency India, UI/UX design, web development, app development, React development, Next.js, Flutter, internships India, creative agency, branding, SEO services, digital marketing" />
+  <meta name="author" content="Edizo - Creative Digital Agency">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="google-site-verification" content="141rasQoMiaY0HDOj4An8WXDYXbbsStgrGLfs" />
+  <link rel="canonical" href="https://www.edizo.in/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Edizo" />
+  <meta property="og:title" content="Edizo | Design.Develop.Learn - Digital Agency" />
+  <meta property="og:description"
+    content="Transform your business with Edizo - India's leading creative digital agency. Expert UI/UX design, web development, app development & internships." />
+  <meta property="og:url" content="https://www.edizo.in/" />
+  <meta property="og:image" content="https://www.edizo.in/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Edizo - Creative Digital Agency" />
+  <meta property="og:locale" content="en_IN" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@edizo_official" />
+  <meta name="twitter:creator" content="@edizo_official" />
+  <meta name="twitter:title" content="Edizo | Design.Develop.Learn - Digital Agency" />
+  <meta name="twitter:description"
+    content="Transform your business with Edizo - India's leading creative digital agency. Expert UI/UX design, web development, app development & internships." />
+  <meta name="twitter:image" content="https://www.edizo.in/og-image.png" />
+
+  <!-- Geo Meta (Local SEO) -->
+  <meta name="geo.region" content="IN" />
+  <meta name="geo.placename" content="India" />
+  <meta name="geo.position" content="20.5937;78.9629" />
+  <meta name="ICBM" content="20.5937, 78.9629" />
+
+  <!-- Performance: Preconnect to critical origins -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://sheets.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+
+  <!-- Fonts - Load only essential weights, use font-display: swap -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"
+    media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  </noscript>
+
+  <!-- Critical CSS inline (optional - for above-the-fold content) -->
+  <style>
+    /* Critical CSS - Prevents Flash of Unstyled Content */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box
+    }
+
+    html {
+      line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #fff
+    }
+
+    #root {
+      min-height: 100vh
+    }
+
+    /* Loader styles */
+    .initial-loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fafafa 0%, #fff 100%)
+    }
+
+    .loader-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #fed7aa;
+      border-top-color: #f97316;
+      border-radius: 50%;
+      animation: spin 1s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+  </style>
+
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.edizo.in/#organization",
+        "name": "Edizo",
+        "url": "https://www.edizo.in",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.edizo.in/logo.png",
+          "width": 512,
+          "height": 512
+        },
+        "description": "A top-rated digital agency: UI/UX design, web & app development, branding, and digital career internships.",
+        "founder": "Edizo Team",
+        "foundingDate": "2023",
+        "email": "edizoofficial@gmail.com",
+        "telephone": "+917092435729",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "IN"
+        },
+        "contactPoint": [
+          {
+            "@type": "ContactPoint",
+            "telephone": "+917092435729",
+            "contactType": "Customer Service",
+            "areaServed": "IN",
+            "availableLanguage": ["English", "Hindi", "Tamil"]
+          }
+        ],
+        "sameAs": [
+          "https://www.linkedin.com/in/edizo-pvt-ltd-149748367/",
+          "https://www.instagram.com/edizo_official",
+          "https://x.com/edizo_official",
+          "https://www.facebook.com/profile.php?id=61576742758066",
+          "https://www.youtube.com/@edizo_official",
+          "https://whatsapp.com/channel/0029VbAcqFjG3R3hEF6IsT2O"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.edizo.in/#website",
+        "url": "https://www.edizo.in",
+        "name": "Edizo - Creative Digital Agency",
+        "description": "Design.Develop.Learn - Creative Services & Real-World Learning",
+        "publisher": {
+          "@id": "https://www.edizo.in/#organization"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://www.edizo.in/services?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://www.edizo.in/#webpage",
+        "url": "https://www.edizo.in",
+        "name": "Edizo | Design.Develop.Learn - Digital Agency",
+        "isPartOf": {
+          "@id": "https://www.edizo.in/#website"
+        },
+        "about": {
+          "@id": "https://www.edizo.in/#organization"
+        },
+        "description": "Transform your business with Edizo - India's leading creative digital agency offering UI/UX design, web development, app development, and professional internships."
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": "https://www.edizo.in/#localbusiness",
+        "name": "Edizo",
+        "image": "https://www.edizo.in/logo.png",
+        "priceRange": "₹₹",
+        "telephone": "+917092435729",
+        "email": "edizoofficial@gmail.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 20.5937,
+          "longitude": 78.9629
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "5.0",
+          "reviewCount": "10",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      },
+      {
+        "@type": "ItemList",
+        "name": "Edizo Services",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "item": {
+              "@type": "Service",
+              "name": "UI/UX Design",
+              "description": "Human-centered digital product design for web and mobile applications.",
+              "provider": {"@id": "https://www.edizo.in/#organization"}
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "item": {
+              "@type": "Service",
+              "name": "Web Development",
+              "description": "Performance-driven web development using React, Next.js, Node.js.",
+              "provider": {"@id": "https://www.edizo.in/#organization"}
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "item": {
+              "@type": "Service",
+              "name": "App Development",
+              "description": "Cross-platform mobile app development with Flutter and React Native.",
+              "provider": {"@id": "https://www.edizo.in/#organization"}
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "item": {
+              "@type": "Service",
+              "name": "Digital Marketing & SEO",
+              "description": "Data-driven marketing strategies to grow your online presence.",
+              "provider": {"@id": "https://www.edizo.in/#organization"}
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+
+<body>
+  <!-- Initial loader while React loads -->
+  <div id="root">
+    <div class="initial-loader">
+      <div class="loader-spinner"></div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <script type="module" src="/src/main.jsx"></script>
+
+  <!-- Noscript fallback for SEO -->
+  <noscript>
+    <div style="padding: 20px; text-align: center;">
+      <h1>Edizo - Creative Digital Agency</h1>
+      <p>Please enable JavaScript to view this website.</p>
+      <p>Contact us at: <a href="mailto:edizoofficial@gmail.com">edizoofficial@gmail.com</a></p>
+    </div>
+  </noscript>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+# Robots.txt for Edizo - https://www.edizo.in
+# Last updated: 2024-12-17
+
+User-agent: *
+Allow: /
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Disallow admin/private paths (add as needed)
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+
+# Sitemap location
+Sitemap: https://www.edizo.in/sitemap.xml
+
+# Crawl-delay for polite crawling (optional)
+Crawl-delay: 1

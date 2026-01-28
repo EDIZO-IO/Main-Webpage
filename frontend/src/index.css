@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+/* Custom theme configuration for Tailwind v4 */
+@theme {
+    /* Edizo brand colors */
+    --color-edizo-red: #D32F2F;
+    --color-edizo-silver: #C0C0C0;
+    --color-edizo-black: #121212;
+
+    /* Edizo gray scale */
+    --color-edizo-gray-100: #F5F5F5;
+    --color-edizo-gray-200: #EEEEEE;
+    --color-edizo-gray-300: #E0E0E0;
+    --color-edizo-gray-400: #BDBDBD;
+    --color-edizo-gray-500: #9E9E9E;
+    --color-edizo-gray-600: #757575;
+    --color-edizo-gray-700: #616161;
+    --color-edizo-gray-800: #424242;
+    --color-edizo-gray-900: #333333;
+
+    /* Font family */
+    --font-sans: 'Inter', sans-serif;
+
+    /* Custom spacing */
+    --spacing-72: 18rem;
+    --spacing-80: 20rem;
+    --spacing-96: 24rem;
+    --spacing-128: 32rem;
+
+    /* Custom animations */
+    --animate-fade-in: fadeIn 0.5s ease-in-out;
+    --animate-slide-up: slideUp 0.5s ease-in-out;
+}
+
+/* Custom keyframes */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Additional keyframes for components */
+@keyframes blob {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Base layer styles */
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Custom utility classes for animations */
+@layer utilities {
+
+    /* Blob animation for background elements */
+    .animate-blob {
+        animation: blob 7s infinite;
+    }
+
+    /* Fade in up animation */
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* Animation delays */
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+
+    /* Delay utilities for sequential animations */
+    .delay-100 {
+        animation-delay: 100ms;
+    }
+
+    .delay-200 {
+        animation-delay: 200ms;
+    }
+
+    .delay-300 {
+        animation-delay: 300ms;
+    }
+
+    .delay-400 {
+        animation-delay: 400ms;
+    }
+
+    .delay-500 {
+        animation-delay: 500ms;
+    }
+
+    .delay-600 {
+        animation-delay: 600ms;
+    }
+}
