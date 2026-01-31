@@ -15,5 +15,29 @@ export default defineConfig({
 
     // Minification
     minify: 'esbuild',
+
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          ui: ['@mui/material', '@mui/icons-material'],
+          utils: ['axios', 'framer-motion'],
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000,
+    cssCodeSplit: true,
+  },
+
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
+  },
+
+  // Enable gzip and brotli compression
+  server: {
+    headers: {
+      'Accept-Encoding': 'gzip, deflate, br',
+    },
   },
 });

@@ -1,6 +1,7 @@
 // frontend/src/pages/Projects.tsx
 import { useState, useEffect, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   Shield,
@@ -16,8 +17,17 @@ import {
   X,
   Play,
   ZoomIn,
-  Download
+  Download,
+  TrendingUp,
+  Users,
+  Truck
 } from 'lucide-react';
+
+// Import project images
+import RedCapImage from '../assets/project/redcap.png';
+import RansomwareImage from '../assets/project/Ransomware.png';
+import FaceGuardImage from '../assets/project/face-Guard.png';
+import EpicNexusImage from '../assets/project/Epic-nexus.png';
 import PageHeader from '../components/common/PageHeader';
 import AnimatedSection from '../components/common/AnimatedSection';
 
@@ -85,11 +95,25 @@ const ProjectCategoryCard = memo(({ category, index, viewMode }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, delay: index * 0.03 }}
         className={`
-          rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 border border-gray-200 
+          rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 border border-gray-200
           bg-gradient-to-br ${category.gradient}
         `}
       >
         <div className="p-6">
+          {category.image && (
+            <div className="mb-4 flex justify-center">
+              <img
+                src={category.image}
+                alt={category.title}
+                className="max-h-40 object-contain rounded-lg bg-white p-2"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const parentDiv = e.currentTarget.parentElement;
+                  if (parentDiv) parentDiv.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
           <div className="flex items-center mb-4">
             <category.icon className="text-red-600 mr-3" size={32} />
             <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
@@ -97,12 +121,12 @@ const ProjectCategoryCard = memo(({ category, index, viewMode }) => {
           <p className="text-gray-600 text-sm mb-4">{category.description}</p>
           <a
             href={category.link}
-            target="_blank"
-            rel="noopener noreferrer"
+            target={category.link.startsWith('http') ? "_blank" : undefined}
+            rel={category.link.startsWith('http') ? "noopener noreferrer" : undefined}
             className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 font-medium group mt-4"
           >
             View Projects
-            <ExternalLink size={16} />
+            {category.link.startsWith('http') && <ExternalLink size={16} />}
             <ArrowRight
               size={16}
               className="ml-1 transition-transform group-hover:translate-x-1"
@@ -279,13 +303,15 @@ const TabButton = memo(({ tab, activeTab, onClick }) => {
       case 'development': return Shield;
       case 'graphics': return Palette;
       case 'video': return Video;
+      case 'casestudies': return TrendingUp;
     }
   }, [tab]);
 
   const tabLabels = {
     development: 'Development',
     graphics: 'Graphic Design',
-    video: 'Video Editing'
+    video: 'Video Editing',
+    casestudies: 'Case Studies'
   };
 
   return (
@@ -440,28 +466,40 @@ const Projects = () => {
   // ✅ Memoize static project data
   const developmentCategories = useMemo(() => [
     {
+      id: 'redcap-logistics',
+      title: 'RedCap Logistics',
+      icon: Shield,
+      description: 'Goods Transport App & Website - Flutter & React',
+      gradient: 'from-blue-50 to-cyan-50',
+      link: '#',
+      image: RedCapImage
+    },
+    {
       id: 'cybersecurity',
       title: 'Cybersecurity',
       icon: Shield,
       description: 'AI-Based Ransomware Detection System',
       gradient: 'from-blue-50 to-cyan-50',
-      link: 'https://bytecode.edizo.in'
+      link: 'https://bytecode.edizo.in',
+      image: RansomwareImage
     },
     {
-      id: 'computer-vision-ai',
+      id: 'face-guard',
       title: 'Computer Vision & AI',
       icon: Eye,
       description: 'FaceGuard-GAN Deepfake Detection',
       gradient: 'from-green-50 to-emerald-50',
-      link: 'https://bytecode.edizo.in'
+      link: 'https://bytecode.edizo.in',
+      image: FaceGuardImage
     },
     {
-      id: 'web-development',
+      id: 'epic-nexus',
       title: 'Web Development',
       icon: Search,
       description: 'Epic Nexus Gaming Community Platform',
       gradient: 'from-purple-50 to-pink-50',
-      link: 'https://bytecode.edizo.in'
+      link: 'https://bytecode.edizo.in',
+      image: EpicNexusImage
     },
   ], []);
 
@@ -606,7 +644,7 @@ const Projects = () => {
 
           {/* Tabs */}
           <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {(['development', 'graphics', 'video']).map((tab) => (
+            {(['development', 'casestudies', 'graphics', 'video']).map((tab) => (
               <TabButton
                 key={tab}
                 tab={tab}
@@ -702,6 +740,199 @@ const Projects = () => {
                     ))}
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {activeTab === 'casestudies' && (
+              <motion.div
+                key="casestudies"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Case Studies Section */}
+                <div className="space-y-12">
+                  {/* RedCap Logistics Case Study */}
+                  <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-lg">
+                    <div className="flex flex-col lg:flex-row gap-8">
+                      <div className="lg:w-1/2">
+                        <h3 className="text-2xl font-bold text-gray-900 mb-4">RedCap Logistics: Goods Transport Solution</h3>
+                        <p className="text-gray-700 mb-4">
+                          A comprehensive logistics platform featuring both a mobile app for drivers and a web dashboard for administrators.
+                        </p>
+                        <div className="space-y-3 mb-6">
+                          <div className="flex items-center">
+                            <Sparkles className="w-5 h-5 text-blue-600 mr-2" />
+                            <span className="text-gray-700"><strong>Technologies:</strong> Flutter, React, Firebase</span>
+                          </div>
+                          <div className="flex items-center">
+                            <TrendingUp className="w-5 h-5 text-blue-600 mr-2" />
+                            <span className="text-gray-700"><strong>Impact:</strong> 40% reduction in delivery time tracking errors</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Users className="w-5 h-5 text-blue-600 mr-2" />
+                            <span className="text-gray-700"><strong>Users:</strong> 500+ drivers and 50+ admin staff</span>
+                          </div>
+                        </div>
+                        <Link
+                          to="/casestudy/redcap-logistics"
+                          className="inline-block bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+                        >
+                          View Full Case Study
+                        </Link>
+                      </div>
+                      <div className="lg:w-1/2 flex justify-center items-center">
+                        <div className="bg-gray-50 p-6 rounded-2xl shadow-inner w-full max-w-md">
+                          <div className="aspect-video bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="bg-white rounded-full p-4 inline-block shadow-md mb-4">
+                                <Truck className="w-12 h-12 text-blue-600" />
+                              </div>
+                              <h4 className="font-bold text-gray-900">RedCap Logistics</h4>
+                              <p className="text-gray-600 text-sm">Mobile & Web Platform</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cybersecurity Case Study */}
+                  <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-lg">
+                    <div className="flex flex-col lg:flex-row gap-8">
+                      <div className="lg:w-1/2">
+                        <h3 className="text-2xl font-bold text-gray-900 mb-4">AI-Based Ransomware Detection System</h3>
+                        <p className="text-gray-700 mb-4">
+                          Advanced cybersecurity solution using machine learning to detect and prevent ransomware attacks in real-time.
+                        </p>
+                        <div className="space-y-3 mb-6">
+                          <div className="flex items-center">
+                            <Sparkles className="w-5 h-5 text-purple-600 mr-2" />
+                            <span className="text-gray-700"><strong>Technologies:</strong> Python, TensorFlow, Flask</span>
+                          </div>
+                          <div className="flex items-center">
+                            <TrendingUp className="w-5 h-5 text-purple-600 mr-2" />
+                            <span className="text-gray-700"><strong>Impact:</strong> 99.8% detection accuracy rate</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Shield className="w-5 h-5 text-purple-600 mr-2" />
+                            <span className="text-gray-700"><strong>Protection:</strong> 1000+ enterprise endpoints</span>
+                          </div>
+                        </div>
+                        <Link
+                          to="/casestudy/cybersecurity"
+                          className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+                        >
+                          View Full Case Study
+                        </Link>
+                      </div>
+                      <div className="lg:w-1/2 flex justify-center items-center">
+                        <div className="bg-gray-50 p-6 rounded-2xl shadow-inner w-full max-w-md">
+                          <div className="aspect-video bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="bg-white rounded-full p-4 inline-block shadow-md mb-4">
+                                <Shield className="w-12 h-12 text-purple-600" />
+                              </div>
+                              <h4 className="font-bold text-gray-900">Cybersecurity Platform</h4>
+                              <p className="text-gray-600 text-sm">AI-Powered Protection</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* FaceGuard Case Study */}
+                  <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-lg">
+                    <div className="flex flex-col lg:flex-row gap-8">
+                      <div className="lg:w-1/2">
+                        <h3 className="text-2xl font-bold text-gray-900 mb-4">FaceGuard-GAN Deepfake Detection</h3>
+                        <p className="text-gray-700 mb-4">
+                          Advanced AI system to detect and prevent deepfake content using Generative Adversarial Networks.
+                        </p>
+                        <div className="space-y-3 mb-6">
+                          <div className="flex items-center">
+                            <Sparkles className="w-5 h-5 text-amber-600 mr-2" />
+                            <span className="text-gray-700"><strong>Technologies:</strong> Python, PyTorch, GANs, Computer Vision</span>
+                          </div>
+                          <div className="flex items-center">
+                            <TrendingUp className="w-5 h-5 text-amber-600 mr-2" />
+                            <span className="text-gray-700"><strong>Impact:</strong> 95% accuracy in deepfake detection</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Eye className="w-5 h-5 text-amber-600 mr-2" />
+                            <span className="text-gray-700"><strong>Scale:</strong> Processed 1M+ media files for verification</span>
+                          </div>
+                        </div>
+                        <Link
+                          to="/casestudy/face-guard"
+                          className="inline-block bg-gradient-to-r from-amber-600 to-orange-600 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+                        >
+                          View Full Case Study
+                        </Link>
+                      </div>
+                      <div className="lg:w-1/2 flex justify-center items-center">
+                        <div className="bg-gray-50 p-6 rounded-2xl shadow-inner w-full max-w-md">
+                          <div className="aspect-video bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="bg-white rounded-full p-4 inline-block shadow-md mb-4">
+                                <Eye className="w-12 h-12 text-amber-600" />
+                              </div>
+                              <h4 className="font-bold text-gray-900">FaceGuard AI</h4>
+                              <p className="text-gray-600 text-sm">Deepfake Detection System</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Epic Nexus Case Study */}
+                  <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-lg">
+                    <div className="flex flex-col lg:flex-row gap-8">
+                      <div className="lg:w-1/2">
+                        <h3 className="text-2xl font-bold text-gray-900 mb-4">Epic Nexus Gaming Community Platform</h3>
+                        <p className="text-gray-700 mb-4">
+                          A comprehensive gaming community platform connecting players, streamers, and content creators.
+                        </p>
+                        <div className="space-y-3 mb-6">
+                          <div className="flex items-center">
+                            <Sparkles className="w-5 h-5 text-green-600 mr-2" />
+                            <span className="text-gray-700"><strong>Technologies:</strong> React, Node.js, MongoDB</span>
+                          </div>
+                          <div className="flex items-center">
+                            <TrendingUp className="w-5 h-5 text-green-600 mr-2" />
+                            <span className="text-gray-700"><strong>Impact:</strong> 50k+ registered users in first year</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Gamepad className="w-5 h-5 text-green-600 mr-2" />
+                            <span className="text-gray-700"><strong>Features:</strong> Live streaming, tournaments, social features</span>
+                          </div>
+                        </div>
+                        <Link
+                          to="/casestudy/epic-nexus"
+                          className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+                        >
+                          View Full Case Study
+                        </Link>
+                      </div>
+                      <div className="lg:w-1/2 flex justify-center items-center">
+                        <div className="bg-gray-50 p-6 rounded-2xl shadow-inner w-full max-w-md">
+                          <div className="aspect-video bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="bg-white rounded-full p-4 inline-block shadow-md mb-4">
+                                <Gamepad className="w-12 h-12 text-green-600" />
+                              </div>
+                              <h4 className="font-bold text-gray-900">Epic Nexus</h4>
+                              <p className="text-gray-600 text-sm">Gaming Community Platform</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             )}
 

@@ -1,105 +1,180 @@
-// frontend/src/pages/home/FinalCTA.tsx
-import { memo } from 'react';
-import { Sparkles, ArrowRight, CheckCircle, Code, Palette, Video, Server, Bot, Globe } from 'lucide-react';
-import Button from '../../components/common/Button';
-import { AnimatedSection } from './AnimatedSection';
+import React, { useState } from 'react';
+import { Download, CheckCircle, Star, Users, Award, Briefcase, Zap, Lock } from 'lucide-react';
 
-const FinalCTA = memo(() => {
+const LeadMagnetModal = ({ isOpen, onClose, onSubmit }) => {
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [consent, setConsent] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email || !name || !consent) return;
+    
+    onSubmit({ email, name });
+    setEmail('');
+    setName('');
+    setConsent(false);
+  };
+
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-900 to-gray-800 text-white relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute bottom-20 right-10 w-64 h-64 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-      </div>
-
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-5xl mx-auto">
-          <AnimatedSection>
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8 md:p-12 text-center">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="flex-1 text-center md:text-left">
-                  {/* Icon */}
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl mb-6 shadow-lg">
-                    <Sparkles className="w-8 h-8 text-white" />
-                  </div>
-
-                  {/* Title */}
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                    Ready to Transform Your Business?
-                  </h2>
-
-                  {/* Description */}
-                  <p className="text-lg text-gray-300 mb-6 max-w-xl mx-auto md:mx-0">
-                    Join 10+ clients who trust us with their digital transformation.
-                  </p>
-
-                  {/* Guarantee badges */}
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 mb-8 text-gray-400">
-                    <span className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                      100% Satisfaction Guaranteed
-                    </span>
-                    <span className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                      Free Consultation
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex-1">
-                  {/* Service category icons */}
-                  <div className="grid grid-cols-3 gap-4 mb-8">
-                    {[
-                      { icon: Code, label: 'Development' },
-                      { icon: Palette, label: 'Design' },
-                      { icon: Video, label: 'Video' },
-                      { icon: Bot, label: 'AI' },
-                      { icon: Server, label: 'Hosting' },
-                      { icon: Globe, label: 'Web' }
-                    ].map((item, i) => (
-                      <div
-                        key={i}
-                        className="bg-gray-700/50 border border-gray-600 rounded-xl p-4 flex flex-col items-center justify-center hover:bg-gray-700 transition-colors"
-                      >
-                        <item.icon className="w-6 h-6 text-white mb-2" strokeWidth={1.5} />
-                        <span className="text-xs text-gray-300">{item.label}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Buttons */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <Button
-                      to="/contact"
-                      variant="primary"
-                      size="lg"
-                      iconRight={<ArrowRight className="w-5 h-5" />}
-                      className="rounded-xl"
-                      style={{
-                        background: "linear-gradient(135deg, #dc2626 0%, #ea580c 100%)",
-                      }}
-                    >
-                      Contact Us Today
-                    </Button>
-                    <Button
-                      to="/services"
-                      variant="secondary"
-                      size="lg"
-                      className="bg-white/10 text-white border border-white/20 hover:bg-white hover:text-gray-900 rounded-xl"
-                    >
-                      View Our Services
-                    </Button>
-                  </div>
-                </div>
-              </div>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+        <div className="bg-gradient-to-r from-edizo-red to-orange-500 p-6 text-white">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-2xl font-bold">Free Digital Strategy Guide</h3>
+            <button 
+              onClick={onClose} 
+              className="text-white hover:text-gray-200 transition-colors"
+            >
+              <Zap className="w-6 h-6" />
+            </button>
+          </div>
+          <p className="text-white/90">Get our exclusive guide to boost your business growth</p>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-edizo-red focus:border-transparent outline-none transition-all"
+                placeholder="Enter your name"
+                required
+              />
             </div>
-          </AnimatedSection>
+            
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-edizo-red focus:border-transparent outline-none transition-all"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+            
+            <div className="flex items-start">
+              <input
+                type="checkbox"
+                id="consent"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                className="mt-1 mr-3 h-4 w-4 text-edizo-red focus:ring-edizo-red border-gray-300 rounded"
+                required
+              />
+              <label htmlFor="consent" className="text-sm text-gray-600">
+                I agree to receive emails from Edizo and consent to the processing of my personal data.
+              </label>
+            </div>
+            
+            <button
+              type="submit"
+              className="w-full bg-edizo-red text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-lg"
+            >
+              Get Free Guide Now
+            </button>
+          </div>
+        </form>
+        
+        <div className="bg-gray-50 p-6 border-t">
+          <div className="flex items-center text-sm text-gray-600">
+            <Lock className="w-4 h-4 mr-2 text-green-600" />
+            <span>Your information is secure. We never share your data.</span>
+          </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const FinalCTA = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleLeadMagnetSubmit = (userData) => {
+    console.log('Lead magnet submitted:', userData);
+    alert('Thank you! Your free guide is on its way to your email.');
+    setIsModalOpen(false);
+  };
+
+  return (
+    <section className="py-20 px-4 bg-gradient-to-br from-edizo-red to-orange-600 text-white">
+      <div className="max-w-6xl mx-auto text-center">
+        <div className="mb-8">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            Ready to Transform Your Business?
+          </h2>
+          <p className="text-xl text-white/90 max-w-3xl mx-auto">
+            Join hundreds of businesses that have accelerated their growth with our digital solutions.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
+            <Award className="w-10 h-10 mx-auto mb-4 text-yellow-300" />
+            <h3 className="text-lg font-semibold mb-2">Expert Guidance</h3>
+            <p className="text-white/80">Personalized strategies from industry experts</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
+            <Zap className="w-10 h-10 mx-auto mb-4 text-yellow-300" />
+            <h3 className="text-lg font-semibold mb-2">Quick Results</h3>
+            <p className="text-white/80">See measurable impact within 30 days</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
+            <Briefcase className="w-10 h-10 mx-auto mb-4 text-yellow-300" />
+            <h3 className="text-lg font-semibold mb-2">Proven Process</h3>
+            <p className="text-white/80">Trusted by 500+ successful businesses</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="bg-white text-edizo-red px-8 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition-colors shadow-lg flex items-center"
+          >
+            <Download className="w-5 h-5 mr-2" />
+            Get Free Strategy Guide
+          </button>
+          <button className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-white hover:text-edizo-red transition-colors">
+            Schedule Consultation
+          </button>
+        </div>
+
+        <div className="flex flex-wrap justify-center items-center gap-6 text-sm text-white/80">
+          <div className="flex items-center">
+            <CheckCircle className="w-4 h-4 mr-2 text-green-300" />
+            <span>No credit card required</span>
+          </div>
+          <div className="flex items-center">
+            <CheckCircle className="w-4 h-4 mr-2 text-green-300" />
+            <span>Cancel anytime</span>
+          </div>
+          <div className="flex items-center">
+            <CheckCircle className="w-4 h-4 mr-2 text-green-300" />
+            <span>30-day money-back guarantee</span>
+          </div>
+        </div>
+      </div>
+
+      <LeadMagnetModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSubmit={handleLeadMagnetSubmit} 
+      />
     </section>
   );
-});
+};
 
-FinalCTA.displayName = 'FinalCTA';
 export default FinalCTA;
