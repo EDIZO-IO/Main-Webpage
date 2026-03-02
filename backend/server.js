@@ -45,13 +45,15 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// CORS configuration
+// CORS configuration - Allow all domains directly
 app.use(cors({
   origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5173','https://www.edizo.in',
-    process.env.ADMIN_URL || 'http://localhost:5174','https://adminedizo.netlify.app',
     'http://localhost:5173',
-    'http://localhost:5174'
+    'http://localhost:5174',
+    'https://www.edizo.in',
+    'https://edizo.in',
+    'https://adminedizo.netlify.app',
+    'https://main-webpage-l85m.onrender.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
