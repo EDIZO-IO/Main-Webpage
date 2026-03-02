@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { AxiosResponse } from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -54,7 +55,7 @@ export interface ChangePasswordRequest {
 }
 
 export const authAPI = {
-  login: (email: string, password: string): Promise<axios.AxiosResponse<LoginResponse>> =>
+  login: (email: string, password: string): Promise<AxiosResponse<LoginResponse>> =>
     api.post('/api/auth/login', { email, password }),
   logout: () => {
     localStorage.removeItem('admin_token');

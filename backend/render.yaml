@@ -5,6 +5,7 @@ services:
     env: node
     region: oregon
     plan: free
+    rootDirectory: backend
     buildCommand: npm install
     startCommand: node server.js
     envVars:
@@ -14,22 +15,30 @@ services:
         value: 3001
       - key: DB_HOST
         sync: false
+        description: "Your MySQL database host (e.g., your-db-host.com)"
       - key: DB_USER
         sync: false
+        description: "Your MySQL database username"
       - key: DB_PASSWORD
         sync: false
+        description: "Your MySQL database password"
       - key: DB_NAME
-        sync: false
+        value: edizo_db
+      - key: DB_PORT
+        value: "3306"
       - key: JWT_SECRET
         generateValue: true
+        description: "Auto-generated secure random string for JWT tokens"
       - key: FRONTEND_URL
         sync: false
+        description: "Your frontend URL (e.g., https://edizo-frontend.netlify.app)"
       - key: ADMIN_URL
         sync: false
-
-  # Database (MySQL)
-  - type: pserv
-    name: edizo-database
-    databaseName: edizo_db
-    plan: free
-    ipAllowList: []
+        description: "Your admin panel URL (e.g., https://edizo-admin.netlify.app)"
+      - key: CORS_ORIGIN
+        sync: false
+        description: "Comma-separated list of allowed origins"
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: "100"

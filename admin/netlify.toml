@@ -1,6 +1,10 @@
 [build]
+  base = "admin"
   command = "npm run build"
   publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 # SPA Redirect - Required for React Router
 [[redirects]]
@@ -23,5 +27,5 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Environment Variables (set these in Netlify UI)
+# Environment Variables (set these in Netlify UI or add here)
 # VITE_API_URL = https://edizo-backend.onrender.com/api

@@ -3,6 +3,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// SSL configuration for production
+const sslConfig = process.env.NODE_ENV === 'production' ? {
+  rejectUnauthorized: false
+} : false;
+
 // Create connection pool
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
@@ -14,7 +19,9 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 0
+  keepAliveInitialDelay: 0,
+  ssl: sslConfig,
+  connectTimeout: 10000
 });
 
 // Test connection
