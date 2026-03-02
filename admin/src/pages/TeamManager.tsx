@@ -235,7 +235,7 @@ export default function TeamManager() {
                         alt={member.name}
                         style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #e2e8f0' }}
                         onError={(e) => {
-                          e.target.src = 'https://placehold.co/100x100?text=No+Photo';
+                          (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=No+Photo';
                         }}
                       />
                     ) : (
@@ -485,15 +485,6 @@ export default function TeamManager() {
                       style={{ width: '16px', height: '16px', accentColor: '#f97316' }}
                     />
                     <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Active</span>
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.is_featured}
-                      onChange={e => setFormData({ ...formData, is_featured: e.target.checked })}
-                      style={{ width: '16px', height: '16px', accentColor: '#f97316' }}
-                    />
-                    <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Featured</span>
                   </label>
                 </div>
               </div>

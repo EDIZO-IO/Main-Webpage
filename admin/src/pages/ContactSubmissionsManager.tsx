@@ -450,10 +450,14 @@ export default function ContactSubmissionsManager() {
                   Reply via Email
                 </a>
                 <a
-                  href={`tel:${selectedSubmission.phone}`}
-                  className="btn btn-secondary"
+                  href={selectedSubmission.phone ? `tel:${selectedSubmission.phone}` : '#'}
+                  className={`btn ${selectedSubmission.phone ? 'btn-primary' : 'btn-secondary'}`}
                   style={{ flex: 1 }}
-                  disabled={!selectedSubmission.phone}
+                  onClick={(e) => {
+                    if (!selectedSubmission.phone) {
+                      e.preventDefault();
+                    }
+                  }}
                 >
                   <Phone size={16} />
                   Call

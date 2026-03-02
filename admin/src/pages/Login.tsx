@@ -20,7 +20,7 @@ export default function Login({ onLogin }: LoginProps) {
 
         try {
             const response = await authAPI.login(email, password);
-            const { token, user } = response.data;
+            const { token, user } = response;
             
             // Store token and user info
             localStorage.setItem('admin_token', token);

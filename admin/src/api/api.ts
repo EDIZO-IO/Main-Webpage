@@ -36,16 +36,31 @@ api.interceptors.response.use(
 );
 
 // Auth API
+export interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    role: string;
+    name: string;
+  };
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export const authAPI = {
-  login: (email, password) => 
+  login: (email: string, password: string): Promise<LoginResponse> =>
     api.post('/api/auth/login', { email, password }),
   logout: () => {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
   },
   getMe: () => api.get('/api/auth/me'),
-  changePassword: (currentPassword, newPassword) =>
-    api.put('/api/auth/change-password', { currentPassword, newPassword })
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.put<ChangePasswordRequest>('/api/auth/change-password', { currentPassword, newPassword })
 };
 
 // Users API (Admin Management)
@@ -79,7 +94,7 @@ export const servicesAPI = {
 
 // Applications API (Internship)
 export const applicationsAPI = {
-  getAll: (params) => api.get('/api/applications', { params }),
+  getAll: (params?: any) => api.get('/api/applications', { params }),
   getById: (id) => api.get(`/api/applications/internship/${id}`),
   update: (id, data) => api.put(`/api/applications/internship/${id}`, data),
   delete: (id) => api.delete(`/api/applications/internship/${id}`)
@@ -87,7 +102,7 @@ export const applicationsAPI = {
 
 // Service Applications API
 export const serviceApplicationsAPI = {
-  getAll: (params) => api.get('/api/applications?type=service', { params }),
+  getAll: (params?: any) => api.get('/api/applications?type=service', { params }),
   getById: (id) => api.get(`/api/applications/service/${id}`),
   create: (data) => api.post('/api/applications/service', data),
   update: (id, data) => api.put(`/api/applications/service/${id}`, data),

@@ -36,7 +36,7 @@ export default function ServiceApplicationsManager() {
     setLoading(true);
     try {
       const [appsRes, servicesRes] = await Promise.all([
-        serviceApplicationsAPI.getAll(),
+        serviceApplicationsAPI.getAll({}),
         servicesAPI.getAll()
       ]);
 
@@ -68,14 +68,14 @@ export default function ServiceApplicationsManager() {
     }
   };
 
-  const handleStatusUpdate = async (id: string, newStatus: string) => {
+  const handleStatusUpdate = async (id: string, newStatus: 'submitted' | 'under_review' | 'accepted' | 'rejected' | 'withdrawn') => {
     try {
       await serviceApplicationsAPI.update(id, { application_status: newStatus });
       toast.success('Status updated successfully');
 
       setApplications(apps => apps.map(app =>
         app.id === id ? { ...app, application_status: newStatus } : app
-      ));
+      ) as any);
 
       if (selectedApp && selectedApp.id === id) {
         setSelectedApp(prev => prev ? { ...prev, application_status: newStatus } : null);
@@ -86,14 +86,14 @@ export default function ServiceApplicationsManager() {
     }
   };
 
-  const handlePaymentStatusUpdate = async (id: string, newStatus: string) => {
+  const handlePaymentStatusUpdate = async (id: string, newStatus: 'pending' | 'paid' | 'failed' | 'refunded') => {
     try {
       await serviceApplicationsAPI.update(id, { payment_status: newStatus });
       toast.success('Payment status updated');
 
       setApplications(apps => apps.map(app =>
         app.id === id ? { ...app, payment_status: newStatus } : app
-      ));
+      ) as any);
     } catch (error: any) {
       console.error('Error updating payment status:', error);
       toast.error('Failed to update payment status');

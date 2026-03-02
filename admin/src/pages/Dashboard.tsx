@@ -86,7 +86,7 @@ export default function Dashboard() {
         eventsAPI.getAll(),
         testimonialsAPI.getAll(),
         certificatesAPI.getAll(),
-        applicationsAPI.getAll(),
+        applicationsAPI.getAll({}),
         usersAPI.getAll()
       ]);
 
@@ -129,9 +129,9 @@ export default function Dashboard() {
         totalTestimonials: testimonials.length,
         approvedTestimonials: testimonials.filter((t: any) => t.is_approved).length,
         pendingTestimonials: testimonials.filter((t: any) => !t.is_approved).length,
-        averageRating: testimonials.length > 0 
-          ? (testimonials.reduce((sum: number, t: any) => sum + (t.rating || 0), 0) / testimonials.length).toFixed(1)
-          : '0.0',
+        averageRating: testimonials.length > 0
+          ? Number((testimonials.reduce((sum: number, t: any) => sum + (t.rating || 0), 0) / testimonials.length).toFixed(1))
+          : 0,
         
         // Certificates
         totalCertificates: certificates.length,

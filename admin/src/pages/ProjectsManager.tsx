@@ -240,7 +240,7 @@ export default function ProjectsManager() {
                         alt={project.title}
                         style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #e2e8f0' }}
                         onError={(e) => {
-                          e.target.src = 'https://placehold.co/100x100?text=No+Image';
+                          (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=No+Image';
                         }}
                       />
                     ) : (

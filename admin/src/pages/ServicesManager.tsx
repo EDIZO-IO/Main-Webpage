@@ -159,8 +159,10 @@ export default function ServicesManager() {
               setFormData({
                 title: '',
                 slug: '',
+                subtitle: '',
                 short_description: '',
                 description: '',
+                cta_text: 'Learn More',
                 category: 'Development',
                 tags: '',
                 features: '',

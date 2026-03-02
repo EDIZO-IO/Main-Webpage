@@ -7,34 +7,41 @@ export default defineConfig({
   plugins: [react()],
 
   build: {
-    // Disable source maps for smaller bundles
+    // Disable source maps for smaller bundles and faster builds
     sourcemap: false,
 
-    // Target modern browsers for smaller bundles
+    // Target modern browsers
     target: 'es2020',
 
     // Minification
     minify: 'esbuild',
+
+    // Reduce concurrent operations to avoid file handle limits
+    maxParallelFileOps: 10,
 
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          ui: ['@mui/material', '@mui/icons-material'],
           utils: ['axios', 'framer-motion'],
+          // Don't split MUI - keeps imports together
         }
       }
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1500,
     cssCodeSplit: true,
   },
 
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
+    include: ['react', 'react-dom', 'react-router-dom', 'axios', 'framer-motion'],
+    // Pre-bundle MUI to reduce file operations
+    esbuildOptions: {
+      preserveSymlinks: true,
+    }
   },
 
-  // Enable gzip and brotli compression
+  // Server configuration
   server: {
     headers: {
       'Accept-Encoding': 'gzip, deflate, br',
