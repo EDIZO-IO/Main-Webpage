@@ -53,7 +53,7 @@ app.use(cors({
     'https://www.edizo.in',
     'https://edizo.in',
     'https://adminedizo.netlify.app',
-    'https://main-webpage-l85m.onrender.com'
+    'https://edizo-backend.onrender.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
