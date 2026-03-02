@@ -48,8 +48,8 @@ app.use(helmet({
 // CORS configuration
 app.use(cors({
   origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    process.env.ADMIN_URL || 'http://localhost:5174',
+    process.env.FRONTEND_URL || 'http://localhost:5173','https://www.edizo.in',
+    process.env.ADMIN_URL || 'http://localhost:5174','https://adminedizo.netlify.app',
     'http://localhost:5173',
     'http://localhost:5174'
   ],
