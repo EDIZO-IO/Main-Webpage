@@ -20,12 +20,18 @@ export default function Login({ onLogin }: LoginProps) {
 
         try {
             const response = await authAPI.login(email, password);
-            const { token, user } = response;
-            
+            const { token, user } = response.data;
+
+            // Check if user has admin role
+            if (user.role !== 'admin' && user.role !== 'super_admin') {
+                setError('Admin access required. Please contact administrator.');
+                return;
+            }
+
             // Store token and user info
             localStorage.setItem('admin_token', token);
             localStorage.setItem('admin_user', JSON.stringify(user));
-            
+
             onLogin();
         } catch (err: any) {
             setError(err.response?.data?.error || 'Login failed. Please check your credentials.');

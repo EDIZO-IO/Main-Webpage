@@ -51,29 +51,29 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     // Validation
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
-    
+
     // Get user
     const users = await query('SELECT * FROM users WHERE email = ? AND is_active = true', [email]);
     if (users.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
+
     const user = users[0];
-    
+
     // Verify password
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
+
     // Generate token
     const token = generateToken(user);
-    
+
     res.json({
       message: 'Login successful',
       user: {

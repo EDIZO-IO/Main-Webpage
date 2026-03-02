@@ -37,12 +37,14 @@ api.interceptors.response.use(
 
 // Auth API
 export interface LoginResponse {
+  message: string;
   token: string;
   user: {
     id: string;
     email: string;
     role: string;
-    name: string;
+    fullName: string;
+    avatarUrl?: string;
   };
 }
 
@@ -52,7 +54,7 @@ export interface ChangePasswordRequest {
 }
 
 export const authAPI = {
-  login: (email: string, password: string): Promise<LoginResponse> =>
+  login: (email: string, password: string): Promise<axios.AxiosResponse<LoginResponse>> =>
     api.post('/api/auth/login', { email, password }),
   logout: () => {
     localStorage.removeItem('admin_token');

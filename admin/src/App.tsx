@@ -21,12 +21,14 @@ import './index.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const auth = localStorage.getItem('admin_token');
     if (auth) {
       setIsAuthenticated(true);
     }
+    setLoading(false);
   }, []);
 
   const handleLogin = () => {
@@ -39,30 +41,45 @@ function App() {
     setIsAuthenticated(false);
   };
 
-  if (!isAuthenticated) {
-    return <Login onLogin={handleLogin} />;
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div className="loading-spinner" />
+      </div>
+    );
   }
 
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Layout onLogout={handleLogout} />}>
-            <Route index element={<Dashboard />} />
-            <Route path="certificates" element={<CertificatesManager />} />
-            <Route path="internships" element={<InternshipsManager />} />
-            <Route path="services" element={<ServicesManager />} />
-            <Route path="projects" element={<ProjectsManager />} />
-            <Route path="team" element={<TeamManager />} />
-            <Route path="users" element={<UsersManager />} />
-            <Route path="admin-users" element={<AdminUsersManager />} />
-            <Route path="contact" element={<ContactSubmissionsManager />} />
-            <Route path="events" element={<EventsManager />} />
-            <Route path="testimonials" element={<TestimonialsManager />} />
-            <Route path="applications" element={<ServiceApplicationsManager />} />
-            <Route path="internship-applications" element={<InternshipApplicationsManager />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
+          {/* Login Route */}
+          <Route 
+            path="/login" 
+            element={isAuthenticated ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />} 
+          />
+          
+          {/* Protected Admin Routes */}
+          {isAuthenticated ? (
+            <Route path="/" element={<Layout onLogout={handleLogout} />}>
+              <Route index element={<Dashboard />} />
+              <Route path="certificates" element={<CertificatesManager />} />
+              <Route path="internships" element={<InternshipsManager />} />
+              <Route path="services" element={<ServicesManager />} />
+              <Route path="projects" element={<ProjectsManager />} />
+              <Route path="team" element={<TeamManager />} />
+              <Route path="users" element={<UsersManager />} />
+              <Route path="admin-users" element={<AdminUsersManager />} />
+              <Route path="contact" element={<ContactSubmissionsManager />} />
+              <Route path="events" element={<EventsManager />} />
+              <Route path="testimonials" element={<TestimonialsManager />} />
+              <Route path="applications" element={<ServiceApplicationsManager />} />
+              <Route path="internship-applications" element={<InternshipApplicationsManager />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          ) : (
+            <Route path="/*" element={<Navigate to="/login" replace />} />
+          )}
         </Routes>
       </BrowserRouter>
       <ToastContainer
