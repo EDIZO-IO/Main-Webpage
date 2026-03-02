@@ -10,7 +10,7 @@ import InternshipsSection from './InternshipSection.jsx';
 import FinalCTA from './FinalCTA.jsx';
 import SocialMediaFab from '../../components/common/SocialMediaFab.jsx';
 import TestimonialsSection from '../../components/TestimonialsSection.jsx';
-import CaseStudiesSection from '../../components/CaseStudiesSection.jsx';
+
 
 // Scroll reveal animation function
 const useScrollReveal = () => {
@@ -56,9 +56,7 @@ const Home = () => {
       <div className="scroll-reveal opacity-0 translate-y-10 transition-all duration-700 ease-out delay-200">
         <TestimonialsSection />
       </div>
-      <div className="scroll-reveal opacity-0 translate-y-10 transition-all duration-700 ease-out delay-300">
-        <CaseStudiesSection />
-      </div>
+ 
       <div className="scroll-reveal opacity-0 translate-y-10 transition-all duration-700 ease-out delay-400">
         <ProjectsSection />
       </div>

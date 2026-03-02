@@ -7,10 +7,10 @@ import {
   CheckCircle, ArrowRight, Mail, Heart, Lightbulb, Eye, Rocket, Code, Palette,
   Smartphone, BarChart
 } from 'lucide-react';
-import { useTeamMembers } from '../components/hooks/useTeamMembers';
+import { useTeamMembers } from '../hooks/useTeamMembers';
 import Button from '../components/common/Button';
 import PageHeader from '../components/common/PageHeader';
-import { useStats } from '../components/hooks/useStats';
+import { useStats } from '../hooks/useStats';
 
 // Enhanced Glass Card Component
 const GlassCard = memo(({ children, className = "", hover = true }) => (

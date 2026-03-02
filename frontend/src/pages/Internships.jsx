@@ -25,11 +25,12 @@ import {
   Film,
   Globe,
   Phone,
+  Building,
 } from "lucide-react";
-import { useInternships } from "../components/hooks/useInternships";
+import { useInternships } from "../hooks/useInternships";
 import { getHighestDiscount, hasDiscount } from "../utils/internshipUtils";
 import Button from '../components/common/Button'; // Update path as needed
-import { useStats } from '../components/hooks/useStats';
+import { useStats } from '../hooks/useStats';
 import PageHeader from '../components/common/PageHeader'; // Import the common PageHeader
 
 
@@ -125,6 +126,23 @@ const InternshipCard = memo(({ internship, index, showTrendingBadge = false }) =
   const maxDiscount = useMemo(() => getHighestDiscount(internship.discount), [internship.discount]);
   const hasDiscountBadge = useMemo(() => hasDiscount(internship.discount), [internship.discount]);
 
+  // Category color mapping
+  const categoryColors = {
+    Development: 'bg-blue-500',
+    Design: 'bg-purple-500',
+    'Data Science': 'bg-indigo-500',
+    Marketing: 'bg-orange-500',
+    Management: 'bg-teal-500',
+    HR: 'bg-pink-500',
+    Java: 'bg-red-500',
+    Python: 'bg-green-500',
+    'AI/ML': 'bg-cyan-500',
+    'C#': 'bg-violet-500',
+    default: 'bg-gray-500'
+  };
+
+  const categoryColor = categoryColors[internship.category] || categoryColors.default;
+
   return (
     <AnimatedSection delay={index * 0.04}>
       <motion.div
@@ -132,63 +150,63 @@ const InternshipCard = memo(({ internship, index, showTrendingBadge = false }) =
         transition={{ duration: 0.2 }}
         className="group relative bg-white border border-gray-200 shadow-md overflow-hidden h-full flex flex-col hover:shadow-lg transition-all"
         style={{
-          borderRadius: "1.025rem", // classic rounded
+          borderRadius: "1.025rem",
         }}
       >
-        {/* Flat geometric image section */}
-        <div className="relative h-48 overflow-hidden bg-gray-50">
-          <img
-            src={internship.image}
-            alt={internship.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            loading="eager"
-            onError={(e) => {
-              e.currentTarget.src = "https://via.placeholder.com/400x300?text=No+Image";
-            }}
-          />
-          {/* Category badge */}
-          <span className="absolute top-5 left-5 px-3 py-1.5 text-xs font-bold rounded bg-blue-500 text-white shadow backdrop-blur">
-            {internship.category}
-          </span>
-          {/* Trending or Discount Badge */}
-          {showTrendingBadge ? (
-            <span className="absolute top-5 right-5 px-2.5 py-1 text-xs rounded bg-orange-500 text-white font-bold shadow flex items-center gap-1">
-              <Sparkles className="w-4 h-4" /> Trending
-            </span>
-          ) : (
-            hasDiscountBadge && maxDiscount > 0 && (
-              <span className="absolute top-5 right-5 px-2.5 py-1 text-xs rounded bg-green-500 text-white font-bold shadow flex items-center gap-1">
-                <Percent size={12} />
-                {maxDiscount}% OFF
-              </span>
-            )
-          )}
-          {/* Title Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 py-2 px-5 bg-gradient-to-t from-white/10 to-white/10 border-t border-gray-300 flex flex-col">
-            <span className="text-l font-bold text-orange-600">{internship.title}</span>
-            <span className="text-xs text-gray-500 font-medium">{internship.mode}</span>
-          </div>
-        </div>
+        {/* Color-coded header instead of image */}
+        <div className={`h-3 ${categoryColor}`}></div>
 
         {/* Main Content */}
         <div className="p-5 flex flex-col flex-grow">
-          <div className="flex items-center gap-2 mb-2 text-[13px]">
-            <span className="flex items-center gap-1 rounded px-2 py-0.5 bg-gray-100 text-orange-700 font-medium text-xs">
-              <Star className="w-4 h-4 text-yellow-400" /> {internship.rating}/5
+          {/* Category and Badges */}
+          <div className="flex items-center justify-between mb-3">
+            <span className={`px-3 py-1 text-xs font-bold rounded ${categoryColor} text-white`}>
+              {internship.category}
             </span>
-            {hasDiscountBadge && maxDiscount > 0 && (
-              <span className="flex items-center gap-1 bg-green-50 text-green-800 px-2 py-0.5 rounded text-xs font-bold border border-green-200">
-                <Percent size={12} /> {maxDiscount}% Off
+            {showTrendingBadge ? (
+              <span className="px-2.5 py-1 text-xs rounded bg-orange-500 text-white font-bold shadow flex items-center gap-1">
+                <Sparkles className="w-4 h-4" /> Trending
               </span>
+            ) : (
+              hasDiscountBadge && maxDiscount > 0 && (
+                <span className="px-2.5 py-1 text-xs rounded bg-green-500 text-white font-bold shadow flex items-center gap-1">
+                  <Percent size={12} />
+                  {maxDiscount}% OFF
+                </span>
+              )
             )}
           </div>
-          <p className="text-gray-700 text-xs mb-3 line-clamp-2">{internship.description}</p>
+
+          {/* Title and Company */}
+          <h3 className="text-lg font-bold text-gray-900 mb-2">{internship.title}</h3>
+          <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">
+            <Building className="w-4 h-4" />
+            {internship.company}
+          </p>
+
+          {/* Rating and Mode */}
+          <div className="flex items-center gap-2 mb-3 text-[13px]">
+            <span className="flex items-center gap-1 rounded px-2 py-0.5 bg-yellow-100 text-yellow-800 font-medium text-xs">
+              <Star className="w-4 h-4 text-yellow-400" /> {internship.rating}/5
+            </span>
+            <span className="flex items-center gap-1 rounded px-2 py-0.5 bg-gray-100 text-gray-700 font-medium text-xs">
+              <Wifi className="w-4 h-4" /> {internship.mode}
+            </span>
+          </div>
+
+          {/* Description */}
+          <p className="text-gray-700 text-xs mb-4 line-clamp-2">{internship.description}</p>
+
+          {/* Action Button */}
           <Button
             to={`/internships/${internship.id}`}
             variant="primary"
             size="sm"
             iconRight={<ArrowRight className="w-4 h-4" />}
             className="w-full mt-auto rounded-2xl border-none font-bold shadow-none"
+            style={{
+              background: "linear-gradient(135deg, #dc2626 0%, #ea580c 100%)",
+            }}
           >
             Apply Now
           </Button>

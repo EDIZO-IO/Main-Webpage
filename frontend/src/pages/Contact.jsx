@@ -7,7 +7,7 @@ import {
   HeadphonesIcon
 } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
-import { useStats } from '../components/hooks/useStats';
+import { useStats } from '../hooks/useStats';
 
 // === TypeScript Interfaces ===
 
@@ -156,26 +156,17 @@ const Contact = () => {
     setFormError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/submit-contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      // Import API dynamically to avoid circular dependency
+      const { contactAPI } = await import('../api/api');
+      
+      const response = await contactAPI.submit(formData);
 
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
+      if (response.data) {
         setFormSubmitted(true);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
         setFormErrors({});
 
         setTimeout(() => setFormSubmitted(false), 10000);
-      } else {
-        throw new Error(result.message || "An error occurred while sending the message.");
       }
     } catch (error) {
       let errorMessage = "Failed to send message. ";
@@ -185,7 +176,7 @@ const Contact = () => {
       } else if (error.message.includes('429')) {
         errorMessage += "Too many requests. Please wait and try again.";
       } else {
-        errorMessage += error.message || "Please try again later.";
+        errorMessage += error.response?.data?.error || error.message || "Please try again later.";
       }
 
       setFormError(errorMessage);

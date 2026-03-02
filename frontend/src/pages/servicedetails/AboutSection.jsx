@@ -13,7 +13,7 @@ const AboutSection = memo(({ longDescription }) => (
       About This Service
     </h2>
     <p className="text-gray-700 text-lg leading-relaxed relative z-10">
-      {longDescription}
+      {longDescription || 'Detailed information about this service will be available soon.'}
     </p>
   </div>
 ));

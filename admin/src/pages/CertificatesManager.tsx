@@ -1,74 +1,86 @@
-
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Search, RefreshCw, Copy, X, Award } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { Plus, Trash2, Search, RefreshCw, Copy, X, Award, CheckCircle } from 'lucide-react';
+import { certificatesAPI, internshipsAPI } from '../api/api';
+import { toast } from 'react-toastify';
 
 interface Certificate {
-    id: number;
-    certificateId: string;
-    internName: string;
-    programName: string;
-    startDate: string;
-    endDate: string;
-    issueDate: string;
-    status: string;
-    email: string;
+    id: string;
+    certificate_id: string;
+    recipient_name: string;
+    recipient_email: string;
+    course_name: string;
+    duration: string;
+    completion_date: string;
+    issue_date: string;
+    grade?: string;
+    score?: number;
+    is_verified: boolean;
+    is_active: boolean;
+    internship_id?: string;
+    user_id?: string;
+}
+
+interface Internship {
+    id: string;
+    title: string;
 }
 
 export default function CertificatesManager() {
     const [certificates, setCertificates] = useState<Certificate[]>([]);
+    const [internships, setInternships] = useState<Internship[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
-    const [deleteId, setDeleteId] = useState<number | null>(null);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
 
     const [newItem, setNewItem] = useState({
-        certificateId: '',
-        internName: '',
-        programName: '',
-        startDate: '',
-        endDate: '',
-        issueDate: new Date().toISOString().split('T')[0],
-        status: 'Completed',
-        email: ''
+        certificate_id: '',
+        recipient_name: '',
+        recipient_email: '',
+        course_name: '',
+        duration: '1-month',
+        completion_date: '',
+        grade: '',
+        score: 0,
+        internship_id: '',
+        is_verified: true,
+        is_active: true
     });
 
     const [submitting, setSubmitting] = useState(false);
 
-    const fetchCertificates = async () => {
+    const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/admin/certificates`);
-            const data = await response.json();
-            if (data.success) {
-                setCertificates(data.data);
-            }
+            const [certsRes, internshipsRes] = await Promise.all([
+                certificatesAPI.getAll(),
+                internshipsAPI.getAll()
+            ]);
+            
+            setCertificates(certsRes.data.certificates || []);
+            setInternships(internshipsRes.data.internships || []);
         } catch (error) {
-            console.error('Error fetching certificates:', error);
+            console.error('Error fetching data:', error);
+            toast.error('Failed to fetch data');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchCertificates();
+        fetchData();
     }, []);
 
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (id: string) => {
         try {
-            // Server expects 0-based index relative to data rows
-            const response = await fetch(`${API_URL}/api/admin/certificates/${id - 1}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                setCertificates(certificates.filter(c => c.id !== id));
-                setDeleteId(null);
-                fetchCertificates(); // Refresh to resync IDs
-            }
+            await certificatesAPI.delete(id);
+            toast.success('Certificate deleted successfully');
+            setDeleteId(null);
+            fetchData();
         } catch (error) {
             console.error('Error deleting certificate:', error);
-            alert('Failed to delete certificate');
+            toast.error('Failed to delete certificate');
         }
     };
 
@@ -76,44 +88,46 @@ export default function CertificatesManager() {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const response = await fetch(`${API_URL}/api/admin/certificates`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newItem)
+            await certificatesAPI.create(newItem);
+            toast.success('Certificate created successfully');
+            setShowAddModal(false);
+            setNewItem({
+                certificate_id: `CERT-${Date.now()}`,
+                recipient_name: '',
+                recipient_email: '',
+                course_name: '',
+                duration: '1-month',
+                completion_date: '',
+                grade: '',
+                score: 0,
+                internship_id: '',
+                is_verified: true,
+                is_active: true
             });
-            const data = await response.json();
-            if (data.success) {
-                setShowAddModal(false);
-                setNewItem({
-                    certificateId: '',
-                    internName: '',
-                    programName: '',
-                    startDate: '',
-                    endDate: '',
-                    issueDate: new Date().toISOString().split('T')[0],
-                    status: 'Completed',
-                    email: ''
-                });
-                fetchCertificates();
-            } else {
-                alert(data.message || 'Failed to add certificate');
-            }
-        } catch (error) {
+            fetchData();
+        } catch (error: any) {
             console.error('Error adding certificate:', error);
+            toast.error(error.response?.data?.error || 'Failed to add certificate');
         } finally {
             setSubmitting(false);
         }
     };
 
     const filteredCertificates = certificates.filter(c =>
-        c.internName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.certificateId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.programName.toLowerCase().includes(searchTerm.toLowerCase())
+        c.recipient_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.certificate_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.course_name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        // Could add a toast here
+        toast.success('Copied to clipboard');
+    };
+
+    const getInternshipTitle = (internshipId?: string) => {
+        if (!internshipId) return 'N/A';
+        const internship = internships.find(i => i.id === internshipId);
+        return internship?.title || internshipId;
     };
 
     if (loading) {
@@ -144,13 +158,13 @@ export default function CertificatesManager() {
                         <input
                             type="text"
                             className="form-input"
-                            placeholder="Search by name, ID or program..."
+                            placeholder="Search by name, ID or course..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             style={{ paddingLeft: '2.5rem' }}
                         />
                     </div>
-                    <button className="btn btn-secondary" onClick={fetchCertificates}>
+                    <button className="btn btn-secondary" onClick={fetchData}>
                         <RefreshCw size={18} /> Refresh
                     </button>
                 </div>
@@ -168,10 +182,10 @@ export default function CertificatesManager() {
                             <thead>
                                 <tr>
                                     <th>Certificate ID</th>
-                                    <th>Intern Name</th>
-                                    <th>Program</th>
+                                    <th>Recipient Name</th>
+                                    <th>Course</th>
                                     <th>Duration</th>
-                                    <th>Issue Date</th>
+                                    <th>Completion Date</th>
                                     <th>Status</th>
                                     <th style={{ textAlign: 'right' }}>Actions</th>
                                 </tr>
@@ -182,10 +196,10 @@ export default function CertificatesManager() {
                                         <td>
                                             <div className="flex items-center gap-2">
                                                 <span style={{ fontFamily: 'monospace', fontWeight: '500', color: '#1e293b' }}>
-                                                    {cert.certificateId}
+                                                    {cert.certificate_id}
                                                 </span>
                                                 <button
-                                                    onClick={() => copyToClipboard(cert.certificateId)}
+                                                    onClick={() => copyToClipboard(cert.certificate_id)}
                                                     className="btn btn-icon btn-sm"
                                                     title="Copy ID"
                                                 >
@@ -193,27 +207,33 @@ export default function CertificatesManager() {
                                                 </button>
                                             </div>
                                         </td>
-                                        <td>{cert.internName}</td>
-                                        <td>{cert.programName}</td>
                                         <td>
-                                            <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
-                                                {cert.startDate} - {cert.endDate}
-                                            </span>
+                                            <div style={{ fontWeight: '500', color: '#1e293b' }}>{cert.recipient_name}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{cert.recipient_email}</div>
+                                        </td>
+                                        <td>{cert.course_name}</td>
+                                        <td>
+                                            <span className="badge badge-primary">{cert.duration}</span>
                                         </td>
                                         <td>
                                             <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
-                                                {cert.issueDate}
+                                                {cert.completion_date}
                                             </span>
                                         </td>
                                         <td>
-                                            <span className={`badge ${cert.status === 'Completed' ? 'badge-success' : 'badge-warning'}`}>
-                                                {cert.status}
-                                            </span>
+                                            {cert.is_verified ? (
+                                                <span className="badge badge-success">
+                                                    <CheckCircle size={12} style={{ marginRight: '4px' }} />
+                                                    Verified
+                                                </span>
+                                            ) : (
+                                                <span className="badge badge-warning">Not Verified</span>
+                                            )}
                                         </td>
                                         <td>
                                             <div className="flex gap-2" style={{ justifyContent: 'flex-end' }}>
                                                 <a
-                                                    href={`https://edizo.in/verification?id=${cert.certificateId}`} // Assuming main site URL
+                                                    href={`https://edizo.in/verification?id=${cert.certificate_id}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="btn btn-secondary btn-sm"
@@ -221,6 +241,13 @@ export default function CertificatesManager() {
                                                 >
                                                     <Award size={14} />
                                                 </a>
+                                                <button
+                                                    className="btn btn-secondary btn-sm"
+                                                    onClick={() => setSelectedCertificate(cert)}
+                                                    title="View Details"
+                                                >
+                                                    <Search size={14} />
+                                                </button>
                                                 <button
                                                     className="btn btn-danger btn-sm"
                                                     onClick={() => setDeleteId(cert.id)}
@@ -256,81 +283,91 @@ export default function CertificatesManager() {
                                         <input
                                             type="text"
                                             className="form-input"
-                                            value={newItem.certificateId}
-                                            onChange={e => setNewItem({ ...newItem, certificateId: e.target.value.toUpperCase() })}
-                                            placeholder="EDIZO-WEB-2024-001"
+                                            value={newItem.certificate_id}
+                                            onChange={e => setNewItem({ ...newItem, certificate_id: e.target.value.toUpperCase() })}
+                                            placeholder="EDIZO-CERT-2024-001"
                                             required
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label">Intern Name *</label>
+                                        <label className="form-label">Recipient Name *</label>
                                         <input
                                             type="text"
                                             className="form-input"
-                                            value={newItem.internName}
-                                            onChange={e => setNewItem({ ...newItem, internName: e.target.value })}
+                                            value={newItem.recipient_name}
+                                            onChange={e => setNewItem({ ...newItem, recipient_name: e.target.value })}
                                             placeholder="John Doe"
                                             required
                                         />
                                     </div>
-                                    <div className="form-group span-2">
-                                        <label className="form-label">Program Name *</label>
+                                    <div className="form-group">
+                                        <label className="form-label">Recipient Email *</label>
                                         <input
-                                            type="text"
+                                            type="email"
                                             className="form-input"
-                                            value={newItem.programName}
-                                            onChange={e => setNewItem({ ...newItem, programName: e.target.value })}
-                                            placeholder="Web Development Internship"
+                                            value={newItem.recipient_email}
+                                            onChange={e => setNewItem({ ...newItem, recipient_email: e.target.value })}
+                                            placeholder="john@example.com"
                                             required
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label">Start Date</label>
-                                        <input
-                                            type="date"
-                                            className="form-input"
-                                            value={newItem.startDate}
-                                            onChange={e => setNewItem({ ...newItem, startDate: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label className="form-label">End Date</label>
-                                        <input
-                                            type="date"
-                                            className="form-input"
-                                            value={newItem.endDate}
-                                            onChange={e => setNewItem({ ...newItem, endDate: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label className="form-label">Issue Date</label>
-                                        <input
-                                            type="date"
-                                            className="form-input"
-                                            value={newItem.issueDate}
-                                            onChange={e => setNewItem({ ...newItem, issueDate: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label className="form-label">Status</label>
+                                        <label className="form-label">Course Name *</label>
                                         <select
                                             className="form-input"
-                                            value={newItem.status}
-                                            onChange={e => setNewItem({ ...newItem, status: e.target.value })}
+                                            value={newItem.course_name}
+                                            onChange={e => setNewItem({ ...newItem, course_name: e.target.value, internship_id: e.target.value })}
+                                            required
                                         >
-                                            <option value="Completed">Completed</option>
-                                            <option value="Ongoing">Ongoing</option>
-                                            <option value="Terminated">Terminated</option>
+                                            <option value="">Select Course</option>
+                                            {internships.map(i => (
+                                                <option key={i.id} value={i.id}>{i.title}</option>
+                                            ))}
                                         </select>
                                     </div>
-                                    <div className="form-group span-2">
-                                        <label className="form-label">Email (Optional)</label>
-                                        <input
-                                            type="email"
+                                    <div className="form-group">
+                                        <label className="form-label">Duration</label>
+                                        <select
                                             className="form-input"
-                                            value={newItem.email}
-                                            onChange={e => setNewItem({ ...newItem, email: e.target.value })}
-                                            placeholder="intern@example.com"
+                                            value={newItem.duration}
+                                            onChange={e => setNewItem({ ...newItem, duration: e.target.value })}
+                                        >
+                                            <option value="15-days">15 Days</option>
+                                            <option value="1-month">1 Month</option>
+                                            <option value="2-months">2 Months</option>
+                                            <option value="3-months">3 Months</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Completion Date *</label>
+                                        <input
+                                            type="date"
+                                            className="form-input"
+                                            value={newItem.completion_date}
+                                            onChange={e => setNewItem({ ...newItem, completion_date: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Grade (Optional)</label>
+                                        <input
+                                            type="text"
+                                            className="form-input"
+                                            value={newItem.grade}
+                                            onChange={e => setNewItem({ ...newItem, grade: e.target.value })}
+                                            placeholder="A+"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Score (Optional)</label>
+                                        <input
+                                            type="number"
+                                            className="form-input"
+                                            value={newItem.score}
+                                            onChange={e => setNewItem({ ...newItem, score: parseFloat(e.target.value) })}
+                                            placeholder="95"
+                                            min="0"
+                                            max="100"
                                         />
                                     </div>
                                 </div>
@@ -346,6 +383,77 @@ export default function CertificatesManager() {
                 </div>
             )}
 
+            {/* View Details Modal */}
+            {selectedCertificate && (
+                <div className="modal-overlay" onClick={() => setSelectedCertificate(null)}>
+                    <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+                        <div className="modal-header">
+                            <h3 style={{ fontWeight: '600' }}>Certificate Details</h3>
+                            <button onClick={() => setSelectedCertificate(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-sm text-gray-500">Certificate ID</p>
+                                    <p className="font-mono font-medium">{selectedCertificate.certificate_id}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Recipient</p>
+                                    <p className="font-medium">{selectedCertificate.recipient_name}</p>
+                                    <p className="text-sm text-gray-600">{selectedCertificate.recipient_email}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Course</p>
+                                    <p className="font-medium">{getInternshipTitle(selectedCertificate.internship_id)}</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-sm text-gray-500">Duration</p>
+                                        <p className="font-medium">{selectedCertificate.duration}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-500">Completion Date</p>
+                                        <p className="font-medium">{selectedCertificate.completion_date}</p>
+                                    </div>
+                                </div>
+                                {selectedCertificate.grade && (
+                                    <div>
+                                        <p className="text-sm text-gray-500">Grade</p>
+                                        <p className="font-medium">{selectedCertificate.grade}</p>
+                                    </div>
+                                )}
+                                {selectedCertificate.score && (
+                                    <div>
+                                        <p className="text-sm text-gray-500">Score</p>
+                                        <p className="font-medium">{selectedCertificate.score}%</p>
+                                    </div>
+                                )}
+                                <div>
+                                    <p className="text-sm text-gray-500">Status</p>
+                                    <p className={`font-medium ${selectedCertificate.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
+                                        {selectedCertificate.is_verified ? 'Verified' : 'Not Verified'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-secondary" onClick={() => setSelectedCertificate(null)}>Close</button>
+                            <a
+                                href={`https://edizo.in/verification?id=${selectedCertificate.certificate_id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-primary"
+                            >
+                                <Award size={16} style={{ marginRight: '8px' }} />
+                                Verify Certificate
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Delete Confirmation Modal */}
             {deleteId !== null && (
                 <div className="modal-overlay" onClick={() => setDeleteId(null)}>
@@ -354,7 +462,7 @@ export default function CertificatesManager() {
                             <h3 style={{ fontWeight: '600' }}>Delete Certificate</h3>
                         </div>
                         <div className="modal-body">
-                            <p style={{ color: '#334155' }}>Are you sure you want to delete this certificate? This action cannot be undone and will remove the row from Google Sheets.</p>
+                            <p style={{ color: '#334155' }}>Are you sure you want to delete this certificate? This action cannot be undone.</p>
                         </div>
                         <div className="modal-footer">
                             <button className="btn btn-secondary" onClick={() => setDeleteId(null)}>Cancel</button>

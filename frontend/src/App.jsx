@@ -9,6 +9,7 @@ import MultiServiceApplication from './pages/MultiServiceApplication.jsx';
 import Internships from './pages/Internships.jsx';
 import InternshipDetails from './pages/InternshipDetails.jsx';
 import Projects from './pages/Projects.jsx';
+import Testimonials from './pages/Testimonials.jsx';
 import CaseStudyDetail from './pages/CaseStudyDetail.jsx';
 import Contact from './pages/Contact.jsx';
 import NotFound from './pages/NotFound.jsx';
@@ -21,6 +22,12 @@ import Team from './pages/Team.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import SEO from './components/common/SEO.jsx';
+import ProtectedRoute from './components/common/ProtectedRoute.jsx';
+
+// Auth pages
+import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
+import Profile from './pages/Profile.jsx';
 
 const App = () => {
   return (
@@ -69,16 +76,34 @@ const App = () => {
         }}
       />
       <Routes>
+        {/* Auth routes (outside MainLayout) */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Main routes */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="services" element={<Services />} />
-          <Route path="services/apply-multiple" element={<MultiServiceApplication />} />
+          <Route path="services/apply-multiple" element={
+            <ProtectedRoute>
+              <MultiServiceApplication />
+            </ProtectedRoute>
+          } />
           <Route path="services/:id" element={<ServiceDetails />} />
           <Route path="internships" element={<Internships />} />
           <Route path="internships/:id" element={<InternshipDetails />} />
-          <Route path="apply/:id" element={<InternshipApplication />} />
+          <Route path="apply/:id" element={
+            <ProtectedRoute>
+              <InternshipApplication />
+            </ProtectedRoute>
+          } />
           <Route path="projects" element={<Projects />} />
-          <Route path="contact" element={<Contact />} />
+          <Route path="testimonials" element={<Testimonials />} />
+          <Route path="contact" element={
+            <ProtectedRoute>
+              <Contact />
+            </ProtectedRoute>
+          } />
           <Route path="events" element={<UpcomingEvents />} />
           {/* <Route path="blogs" element={<Blogs />} />
           <Route path="blogs/:slugOrId" element={<BlogView />} /> */}
@@ -86,6 +111,7 @@ const App = () => {
           <Route path="verification" element={<CertificateVerification />} />
           <Route path="about" element={<About />} />
           <Route path="team" element={<Team />} />
+          <Route path="profile" element={<Profile />} />
           <Route path="casestudy/:id" element={<CaseStudyDetail />} />
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="terms" element={<TermsAndConditions />} />

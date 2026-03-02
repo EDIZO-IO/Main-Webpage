@@ -1,28 +1,16 @@
-// src/firebaseConfig.ts
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+// Firebase configuration (kept for backward compatibility if needed)
+// Currently not used - authentication handled by backend API
 
-// Updated Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBa_gD1ALHXV7aiOK-pMKOqIoS7DGgoLIw",
-  authDomain: "edizobackend.firebaseapp.com",
-  databaseURL: "https://edizobackend-default-rtdb.asia-southeast1.firebasedatabase.app", // Removed trailing spaces
-  projectId: "edizobackend",
-  storageBucket: "edizobackend.firebasestorage.app",
-  messagingSenderId: "1002381596917",
-  appId: "1:1002381596917:web:eb9e1aadfbc1a49c638dbc",
-  measurementId: "G-HGQB8FZ18D"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Note: Authentication is now handled via backend REST API
+// See src/api/api.js for auth methods
 
-// Initialize Firebase Authentication and get a reference to the service
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
-// Add these to prevent redirect issues
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
-
-export default app;
+export default firebaseConfig;

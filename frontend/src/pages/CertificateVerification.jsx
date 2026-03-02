@@ -75,26 +75,20 @@ const CertificateVerification = () => {
         }
 
         try {
-            const response = await fetch(`${API_URL}/api/certificates/${encodeURIComponent(trimmedId)}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            const { certificatesAPI } = await import('../api/api');
+            const response = await certificatesAPI.verify(trimmedId);
 
-            const data = await response.json();
-
-            if (response.ok && data.isValid) {
-                setVerificationResult({ isValid: data.isValid, data: data.data });
+            if (response.data.valid) {
+                setVerificationResult({ isValid: response.data.valid, data: response.data.certificate });
             } else {
                 setVerificationResult({
-                    isValid: data.isValid,
-                    message: data.message || 'Certificate not found.'
+                    isValid: false,
+                    message: response.data.message || 'Certificate not found.'
                 });
             }
         } catch (err) {
             console.error("Verification failed:", err);
-            setError('Network error. Please check your connection and try again.');
+            setError(err.response?.data?.message || 'Network error. Please check your connection and try again.');
             setVerificationResult(null);
         } finally {
             setIsLoading(false);
@@ -114,7 +108,7 @@ const CertificateVerification = () => {
     const handleShareLink = () => {
         if (!verificationResult?.data) return;
 
-        const shareUrl = `${window.location.origin}/verification?id=${encodeURIComponent(verificationResult.data.certificateId)}`;
+        const shareUrl = `${window.location.origin}/verification?id=${encodeURIComponent(verificationResult.data.certificate_id)}`;
         navigator.clipboard.writeText(shareUrl);
         alert('Verification link copied to clipboard!');
     };
@@ -259,9 +253,9 @@ const CertificateVerification = () => {
                                                 {/* Success Header */}
                                                 <div className="bg-green-100 p-6 text-center border-b border-green-200">
                                                     <motion.div
-                                                        initial={{ scale }}
-                                                        animate={{ scale }}
-                                                        transition={{ type: "spring", stiffness, delay: 0.2 }}
+                                                        initial={{ scale: 0.8 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
                                                     >
                                                         <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-3" />
                                                     </motion.div>
@@ -276,55 +270,68 @@ const CertificateVerification = () => {
                                                             <Award className="w-5 h-5 text-green-600 mt-0.5" />
                                                             <div>
                                                                 <p className="text-sm text-gray-500">Certificate ID</p>
-                                                                <p className="font-bold text-gray-900">{verificationResult.data.certificateId}</p>
+                                                                <p className="font-bold text-gray-900">{verificationResult.data.certificate_id}</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-start gap-3 p-4 bg-white rounded-xl border border-green-100">
                                                             <User className="w-5 h-5 text-green-600 mt-0.5" />
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Intern Name</p>
-                                                                <p className="font-bold text-gray-900">{verificationResult.data.internName}</p>
+                                                                <p className="text-sm text-gray-500">Recipient Name</p>
+                                                                <p className="font-bold text-gray-900">{verificationResult.data.recipient_name}</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-start gap-3 p-4 bg-white rounded-xl border border-green-100">
                                                             <BookOpen className="w-5 h-5 text-green-600 mt-0.5" />
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Program</p>
-                                                                <p className="font-bold text-gray-900">{verificationResult.data.programName}</p>
+                                                                <p className="text-sm text-gray-500">Course Name</p>
+                                                                <p className="font-bold text-gray-900">{verificationResult.data.course_name}</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-start gap-3 p-4 bg-white rounded-xl border border-green-100">
                                                             <Sparkles className="w-5 h-5 text-green-600 mt-0.5" />
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Status</p>
-                                                                <p className="font-bold text-green-600">{verificationResult.data.status}</p>
+                                                                <p className="text-sm text-gray-500">Duration</p>
+                                                                <p className="font-bold text-green-600">{verificationResult.data.duration}</p>
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                                                         <div className="flex items-start gap-3 p-4 bg-white rounded-xl border border-green-100">
                                                             <Calendar className="w-5 h-5 text-green-600 mt-0.5" />
                                                             <div>
-                                                                <p className="text-sm text-gray-500">Start Date</p>
-                                                                <p className="font-semibold text-gray-900">{formatDate(verificationResult.data.startDate)}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-start gap-3 p-4 bg-white rounded-xl border border-green-100">
-                                                            <Calendar className="w-5 h-5 text-green-600 mt-0.5" />
-                                                            <div>
-                                                                <p className="text-sm text-gray-500">End Date</p>
-                                                                <p className="font-semibold text-gray-900">{formatDate(verificationResult.data.endDate)}</p>
+                                                                <p className="text-sm text-gray-500">Completion Date</p>
+                                                                <p className="font-semibold text-gray-900">{formatDate(verificationResult.data.completion_date)}</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-start gap-3 p-4 bg-white rounded-xl border border-green-100">
                                                             <Calendar className="w-5 h-5 text-green-600 mt-0.5" />
                                                             <div>
                                                                 <p className="text-sm text-gray-500">Issue Date</p>
-                                                                <p className="font-semibold text-gray-900">{formatDate(verificationResult.data.issueDate)}</p>
+                                                                <p className="font-semibold text-gray-900">{formatDate(verificationResult.data.issue_date)}</p>
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                    {verificationResult.data.grade && (
+                                                        <div className="flex items-start gap-3 p-4 bg-white rounded-xl border border-green-100">
+                                                            <Award className="w-5 h-5 text-green-600 mt-0.5" />
+                                                            <div>
+                                                                <p className="text-sm text-gray-500">Grade</p>
+                                                                <p className="font-bold text-gray-900">{verificationResult.data.grade}</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {verificationResult.data.score && (
+                                                        <div className="flex items-start gap-3 p-4 bg-white rounded-xl border border-green-100">
+                                                            <Award className="w-5 h-5 text-green-600 mt-0.5" />
+                                                            <div>
+                                                                <p className="text-sm text-gray-500">Score</p>
+                                                                <p className="font-bold text-gray-900">{verificationResult.data.score}%</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
 
                                                     {/* Action Buttons */}
                                                     <div className="flex flex-col sm:flex-row gap-3 mt-6">
@@ -473,7 +480,7 @@ const CertificateVerification = () => {
                                 {/* --- Main Content Container --- */}
                                 <div style={{
                                     position: 'relative',
-                                    zIndex,
+                                    zIndex: 1,
                                     padding: '35px 30px 30px 50px',
                                     height: '100%',
                                     boxSizing: 'border-box',
@@ -492,7 +499,7 @@ const CertificateVerification = () => {
                                                     fontWeight: '900',
                                                     color: '#ef4444',
                                                     letterSpacing: '2px',
-                                                    lineHeight
+                                                    lineHeight: '1.2'
                                                 }}>EDIZO</div>
                                                 <div style={{
                                                     fontSize: 'clamp(12px, 2vw, 16px)',
@@ -534,7 +541,7 @@ const CertificateVerification = () => {
                                     </div>
 
                                     {/* Content Body */}
-                                    <div style={{ flex, paddingLeft: '5px', maxWidth: '60%' }}>
+                                    <div style={{ display: 'flex', paddingLeft: '5px', maxWidth: '60%' }}>
                                         {/* CERTIFICATE Title - Red Italic Style */}
                                         <h1 style={{
                                             fontSize: 'clamp(36px, 6vw, 56px)',
@@ -579,7 +586,7 @@ const CertificateVerification = () => {
                                             margin: '5px 0 15px 0',
                                             fontFamily: "'Times New Roman', Georgia, serif",
                                         }}>
-                                            {verificationResult.data.internName}
+                                            {verificationResult.data.recipient_name}
                                         </div>
 
                                         {/* Description */}
@@ -590,13 +597,13 @@ const CertificateVerification = () => {
                                             marginBottom: '15px',
                                             maxWidth: '100%'
                                         }}>
-                                            has successfully completed the <strong>{verificationResult.data.programName}</strong> webinar conducted by EDIZO on <strong>{formatDate(verificationResult.data.issueDate)}</strong> via Zoom.
+                                            has successfully completed the <strong>{verificationResult.data.course_name}</strong> program conducted by EDIZO on <strong>{formatDate(verificationResult.data.issue_date)}</strong>.
                                         </p>
 
                                         {/* Certificate ID and Date */}
                                         <div style={{ fontSize: 'clamp(8px, 1.1vw, 10px)', color: '#ef4444', marginBottom: '20px' }}>
-                                            <p style={{ margin: '2px 0', fontWeight: '600' }}>CERTIFICATE ID: {verificationResult.data.certificateId}</p>
-                                            <p style={{ margin: '2px 0', fontWeight: '600' }}>DATE: {formatDate(verificationResult.data.issueDate)}</p>
+                                            <p style={{ margin: '2px 0', fontWeight: '600' }}>CERTIFICATE ID: {verificationResult.data.certificate_id}</p>
+                                            <p style={{ margin: '2px 0', fontWeight: '600' }}>DATE: {formatDate(verificationResult.data.issue_date)}</p>
                                         </div>
                                     </div>
 

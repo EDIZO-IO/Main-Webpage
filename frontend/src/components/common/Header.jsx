@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   Menu, X, Home, Briefcase, Code, Users, Phone, ChevronRight, Sparkles, GraduationCap,
+  LogIn, UserPlus, LogOut, User
 } from 'lucide-react';
 import Logo from './Logo.jsx';
-
 
 const navLinks = [
   { name: 'Home', path: '/', icon: Home },
@@ -16,10 +16,37 @@ const navLinks = [
 ];
 
 const Header = () => {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState(null);
+  const [user, setUser] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const mobileNavRef = useRef(null);
+  const userMenuRef = useRef(null);
+
+  // Check if user is logged in
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (token && userData) {
+        setUser(JSON.parse(userData));
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showUserMenu && userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showUserMenu]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 18);
@@ -29,7 +56,10 @@ const Header = () => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') setIsMenuOpen(false);
+      if (e.key === 'Escape') {
+        setIsMenuOpen(false);
+        setShowUserMenu(false);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -45,7 +75,6 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMenuOpen]);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -56,6 +85,15 @@ const Header = () => {
       document.body.style.overflow = 'unset';
     };
   }, [isMenuOpen]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setShowUserMenu(false);
+    navigate('/');
+    window.location.reload();
+  };
 
   return (
     <>
@@ -130,6 +168,64 @@ const Header = () => {
               })}
             </nav>
 
+            {/* Desktop Auth Buttons */}
+            <div className="hidden lg:flex items-center gap-3">
+              {user ? (
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all duration-200"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>{user.fullName?.split(' ')[0] || 'User'}</span>
+                  </button>
+                  
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-semibold text-gray-800">{user.fullName}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          navigate('/profile');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <User className="w-4 h-4" />
+                        My Profile
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-orange-500 text-orange-500 font-semibold hover:bg-orange-50 transition-all duration-200"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all duration-200"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+
             {/* Mobile menu button */}
             <button
               className={`
@@ -157,7 +253,7 @@ const Header = () => {
             onClick={() => setIsMenuOpen(false)}
           />
 
-          {/* Drawer with Glass Effect - More Transparent */}
+          {/* Drawer with Glass Effect */}
           <div
             ref={mobileNavRef}
             className="fixed top-0 right-0 bottom-0 w-full max-w-sm z-50 flex flex-col transform transition-transform duration-300 overflow-hidden"
@@ -172,7 +268,7 @@ const Header = () => {
             <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white/10 to-transparent pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-red-200/20 to-transparent rounded-tr-full pointer-events-none" />
 
-            {/* Header - Very Transparent Glass */}
+            {/* Header */}
             <div
               className="relative z-10 m-4 mb-2 p-5 rounded-2xl"
               style={{
@@ -196,7 +292,63 @@ const Header = () => {
               </div>
             </div>
 
-            {/* Navigation - Slightly more opaque for readability */}
+            {/* User Auth Section (Mobile) */}
+            {user ? (
+              <div className="mx-4 mb-2 p-4 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    <User className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">{user.fullName}</p>
+                    <p className="text-white/80 text-sm">{user.email}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full py-2.5 rounded-xl bg-white/20 text-white font-semibold hover:bg-white/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    My Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-white/20 text-white font-semibold hover:bg-white/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mx-4 mb-2 p-4 rounded-2xl bg-gray-50">
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full py-3 rounded-xl border-2 border-orange-500 text-orange-500 font-semibold hover:bg-orange-50 transition-all flex items-center justify-center gap-2"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation */}
             <nav className="flex-1 overflow-y-auto px-4 py-2 relative z-10">
               <ul className="space-y-2">
                 {navLinks.map((link) => {
@@ -240,11 +392,8 @@ const Header = () => {
                     </li>
                   );
                 })}
-
               </ul>
             </nav>
-
-
           </div>
         </>
       )}

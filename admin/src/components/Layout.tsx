@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Menu, X, Award, Briefcase, Users } from 'lucide-react';
+import { LayoutDashboard, LogOut, Menu, X, Award, Briefcase, Users, FileText, Settings, UserCog, Calendar, Star, FolderKanban, UserCheck, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 
 interface LayoutProps {
@@ -12,9 +12,18 @@ export default function Layout({ onLogout }: LayoutProps) {
 
     const navItems = [
         { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-        { path: '/certificates', label: 'Certificates', icon: Award },
         { path: '/internships', label: 'Internships', icon: Briefcase },
-        { path: '/internship-applications', label: 'Applications', icon: Users },
+        { path: '/services', label: 'Services', icon: FileText },
+        { path: '/projects', label: 'Projects', icon: FolderKanban },
+        { path: '/team', label: 'Team', icon: UserCheck },
+        { path: '/users', label: 'Users', icon: Users },
+        { path: '/admin-users', label: 'Admin Users', icon: UserCog },
+        { path: '/contact', label: 'Contact Messages', icon: MessageSquare },
+        { path: '/events', label: 'Events', icon: Calendar },
+        { path: '/testimonials', label: 'Testimonials', icon: Star },
+        { path: '/applications', label: 'Service Applications', icon: Users },
+        { path: '/certificates', label: 'Certificates', icon: Award },
+        { path: '/internship-applications', label: 'Internship Applications', icon: Users },
     ];
 
     const isActive = (path: string) => {
@@ -67,17 +76,15 @@ export default function Layout({ onLogout }: LayoutProps) {
             {/* Sidebar */}
             <aside style={{
                 width: '280px',
-                background: 'rgba(255, 255, 255, 0.55)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
-                borderRight: '1px solid rgba(255, 255, 255, 0.3)',
+                background: '#ffffff',
+                borderRight: '1px solid #e5e7eb',
                 padding: '1.5rem',
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'fixed',
                 height: '100vh',
                 zIndex: 50,
-                boxShadow: '4px 0 30px rgba(0, 0, 0, 0.04), inset -1px 0 0 rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                 transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
             }}>
                 {/* Logo */}
@@ -112,7 +119,7 @@ export default function Layout({ onLogout }: LayoutProps) {
                         }}>EDIZO</h1>
                         <p style={{
                             fontSize: '0.75rem',
-                            color: '#94a3b8',
+                            color: '#64748b',
                             fontWeight: '500'
                         }}>Admin Panel</p>
                     </div>
@@ -122,7 +129,7 @@ export default function Layout({ onLogout }: LayoutProps) {
                 <p style={{
                     fontSize: '0.6875rem',
                     fontWeight: '600',
-                    color: '#94a3b8',
+                    color: '#6b7280',
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
                     marginBottom: '0.75rem',
@@ -132,7 +139,7 @@ export default function Layout({ onLogout }: LayoutProps) {
                 </p>
 
                 {/* Navigation */}
-                <nav style={{ flex: 1 }}>
+                <nav style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
                     {navItems.map(item => (
                         <Link
                             key={item.path}
@@ -145,34 +152,34 @@ export default function Layout({ onLogout }: LayoutProps) {
                                 padding: '0.875rem 1rem',
                                 borderRadius: '0.75rem',
                                 marginBottom: '0.375rem',
-                                color: isActive(item.path) ? '#f97316' : '#64748b',
+                                color: isActive(item.path) ? '#f97316' : '#4b5563',
                                 background: isActive(item.path)
-                                    ? 'linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(249, 115, 22, 0.06))'
+                                    ? 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05))'
                                     : 'transparent',
                                 textDecoration: 'none',
                                 transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                                 border: isActive(item.path)
-                                    ? '1px solid rgba(249, 115, 22, 0.15)'
+                                    ? '1px solid rgba(249, 115, 22, 0.2)'
                                     : '1px solid transparent',
                                 fontWeight: isActive(item.path) ? '600' : '500'
                             }}
                             onMouseEnter={(e) => {
                                 if (!isActive(item.path)) {
-                                    e.currentTarget.style.background = 'rgba(148, 163, 184, 0.08)';
+                                    e.currentTarget.style.background = 'rgba(243, 244, 246, 0.8)';
                                     e.currentTarget.style.color = '#1e293b';
                                 }
                             }}
                             onMouseLeave={(e) => {
                                 if (!isActive(item.path)) {
                                     e.currentTarget.style.background = 'transparent';
-                                    e.currentTarget.style.color = '#64748b';
+                                    e.currentTarget.style.color = '#4b5563';
                                 }
                             }}
                         >
                             <item.icon
                                 size={20}
                                 style={{
-                                    color: isActive(item.path) ? '#f97316' : '#94a3b8',
+                                    color: isActive(item.path) ? '#f97316' : '#9ca3af',
                                     transition: 'color 0.2s'
                                 }}
                             />
@@ -190,9 +197,9 @@ export default function Layout({ onLogout }: LayoutProps) {
                         gap: '0.875rem',
                         padding: '0.875rem 1rem',
                         borderRadius: '0.75rem',
-                        color: '#ef4444',
-                        background: 'rgba(239, 68, 68, 0.08)',
-                        border: '1px solid rgba(239, 68, 68, 0.12)',
+                        color: '#dc2626',
+                        background: 'rgba(220, 38, 38, 0.1)',
+                        border: '1px solid rgba(220, 38, 38, 0.2)',
                         cursor: 'pointer',
                         width: '100%',
                         textAlign: 'left',
@@ -201,12 +208,12 @@ export default function Layout({ onLogout }: LayoutProps) {
                         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                     }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
-                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                        e.currentTarget.style.background = 'rgba(220, 38, 38, 0.15)';
+                        e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.3)';
                     }}
                     onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.12)';
+                        e.currentTarget.style.background = 'rgba(220, 38, 38, 0.1)';
+                        e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.2)';
                     }}
                 >
                     <LogOut size={20} />
@@ -230,15 +237,34 @@ export default function Layout({ onLogout }: LayoutProps) {
                 @media (max-width: 768px) {
                     .mobile-menu-btn { display: flex !important; align-items: center; justify-content: center; }
                     .sidebar-overlay { display: block !important; }
-                    aside { 
+                    aside {
                         transform: ${sidebarOpen ? 'translateX(0)' : 'translateX(-100%)'} !important;
                         width: 280px !important;
                     }
-                    main { 
-                        margin-left: 0 !important; 
+                    main {
+                        margin-left: 0 !important;
                         padding: 1.5rem !important;
                         padding-top: 5rem !important;
                     }
+                }
+                
+                /* Custom scrollbar for navigation */
+                nav::-webkit-scrollbar {
+                    width: 6px;
+                }
+                
+                nav::-webkit-scrollbar-track {
+                    background: rgba(241, 245, 249, 0.5);
+                    border-radius: 3px;
+                }
+                
+                nav::-webkit-scrollbar-thumb {
+                    background: rgba(249, 115, 22, 0.3);
+                    border-radius: 3px;
+                }
+                
+                nav::-webkit-scrollbar-thumb:hover {
+                    background: rgba(249, 115, 22, 0.5);
                 }
             `}</style>
         </div>

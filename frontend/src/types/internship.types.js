@@ -1,372 +1,218 @@
-// frontend/src/types/internship.types.ts
+// Internship types for TypeScript/JavaScript
+// Updated: 2026-03-02 - Based on new spreadsheet schema
 
-/**
- * Duration options as a const for better type safety
- */
-export const INTERNSHIP_DURATIONS = ['15-days', '1-month', '2-months', '3-months'] as const;
-
-/**
- * Pricing information for different durations
- */
-export 
-
-/**
- * Discount information for different durations (percentage 0-100)
- */
-export 
-
-/**
- * Coupon discount information for different durations (percentage 0-100)
- */
-export 
-
-/**
- * Coupon code interface
- */
-export 
-
-/**
- * Internship basic information interface
- */
-export 
-
-/**
- * Why Choose Edizo points (7 points)
- */
-export 
-
-/**
- * Benefits points (7 points)
- */
-export 
-
-/**
- * Syllabus for different durations
- */
-export 
-
-/**
- * Complete internship details interface
- */
-export interface InternshipDetails extends InternshipBasic {
-  whyChooseEdizo;
-  benefits;
-  syllabus;
-  pricing;
-  discount;
-}
-
-/**
- * Simplified version for arrays (like in the original JSON)
- */
-export interface InternshipData {
-  id;
-  title;
-  category;
-  mode: 'Online' | 'Offline';
-  company;
-  image;
-  rating;
-  description;
-  whyChooseEdizo;
-  benefits;
-  syllabus: {
-    '15-days';
-    '1-month';
-    '2-months';
-    '3-months';
-  };
-  pricing: {
-    '15-days';
-    '1-month';
-    '2-months';
-    '3-months';
-  };
-  discount: {
-    '15-days';
-    '1-month';
-    '2-months';
-    '3-months';
-  };
-  couponDiscounts?: {
-    '15-days';
-    '1-month';
-    '2-months';
-    '3-months';
-  };
-  availableCoupons?;
-}
-
-/**
- * Response from Google Sheets API (Extended with discount columns 30-33)
- * Columns A-AH (33 columns total)
- */
-export 
-
-/**
- * Category types
- */
-export const INTERNSHIP_CATEGORIES = [
-  'All',
-  'Design',
-  'Development',
-  'HR',
-  'Data Science',
-  'Java',
-  'Python',
-  'Marketing',
-  'AI/ML',
-  'C#'
-] as const;
-
-/**
- * Filter options for internships
- */
-export 
-
-/**
- * API Response wrapper
- */
-export 
-
-/**
- * Pricing tier for display purposes (with discount support)
- * ✅ UNIFIED: This is now the single source of truth for pricing display
- */
-export 
-
-/**
- * Applied coupon information
- */
-export 
-
-/**
- * Course period configuration (for application form with discount)
- * ✅ Now just an alias of PricingTier for backwards compatibility
- */
-
-/**
- * Currency formatter helper type
- */
-
-/**
- * Price display options
- */
-export 
-
-/**
- * Form data for internship application
- */
-export 
-
-/**
- * Application submission status
- */
-
-/**
- * Application API response
- */
-export interface ApplicationAPIResponse {
-  success;
-  message;
-  data?: {
-    applicationId?;
-    confirmationEmail?;
-  };
-  error?;
-}
-
-/**
- * Coupon validation response
- */
-export 
-
-/**
- * Utility functions for price calculations
- */
-export const calculateFinalPrice = (originalPrice, discountPercent) => {
-  if (originalPrice < 0 || discountPercent < 0 || discountPercent > 100) {
-    console.warn('Invalid price or discount values');
-    return originalPrice;
-  }
-  return Math.round(originalPrice - (originalPrice * discountPercent / 100));
-};
-
-export const calculateSavings = (originalPrice, finalPrice) => {
-  return Math.max(0, originalPrice - finalPrice);
-};
-
-/**
- * Calculate price with coupon discount
- */
-export const calculatePriceWithCoupon = (
-  originalPrice,
-  coupon
-) => {
-  const now = new Date();
+export interface Internship {
+  id: string;
+  internship_id: string;
+  title: string;
+  slug?: string;
+  category: string;
+  mode: 'Online' | 'Offline' | 'Hybrid';
+  company: string;
+  image_url?: string;
+  rating: number;
+  description: string;
   
-  // Check if coupon is active
-  if (!coupon.isActive) {
-    return {
-      code: coupon.code,
-      discountType: coupon.discountType,
-      discountValue: coupon.discountValue,
-      appliedDiscountAmount,
-      originalPrice,
-      finalPrice,
-      isValid,
-      errorMessage: 'Coupon is not active'
-    };
-  }
+  // Why Choose Edizo (6 items)
+  why_choose_edizo_1?: string;
+  why_choose_edizo_2?: string;
+  why_choose_edizo_3?: string;
+  why_choose_edizo_4?: string;
+  why_choose_edizo_5?: string;
+  why_choose_edizo_6?: string;
+  
+  // Benefits (7 items)
+  benefit_1?: string;
+  benefit_2?: string;
+  benefit_3?: string;
+  benefit_4?: string;
+  benefit_5?: string;
+  benefit_6?: string;
+  benefit_7?: string;
+  
+  // Syllabus by duration (JSON arrays)
+  syllabus_15_days?: string[];
+  syllabus_1_month?: string[];
+  syllabus_2_months?: string[];
+  syllabus_3_months?: string[];
+  
+  // Pricing by duration
+  price_15_days?: number;
+  price_1_month?: number;
+  price_2_months?: number;
+  price_3_months?: number;
+  
+  // Discount by duration
+  discount_15_days?: number;
+  discount_1_month?: number;
+  discount_2_months?: number;
+  discount_3_months?: number;
+  
+  // Coupon information
+  coupon_code?: string;
+  coupon_discount_15_days?: number;
+  coupon_discount_1_month?: number;
+  coupon_discount_2_months?: number;
+  coupon_discount_3_months?: number;
+  
+  // Additional fields
+  duration_weeks?: number;
+  skills_taught?: string[];
+  prerequisites?: string[];
+  certification_included?: boolean;
+  placement_support?: boolean;
+  mentor_support?: boolean;
+  is_active?: boolean;
+  is_featured?: boolean;
+  enrollment_count?: number;
+  display_order?: number;
+  created_at?: string;
+  updated_at?: string;
+}
 
-  // Check validity dates if specified
-  if (coupon.validFrom && new Date(coupon.validFrom) > now) {
-    return {
-      code: coupon.code,
-      discountType: coupon.discountType,
-      discountValue: coupon.discountValue,
-      appliedDiscountAmount,
-      originalPrice,
-      finalPrice,
-      isValid,
-      errorMessage: 'Coupon is not yet valid'
-    };
-  }
+// Helper interface for legacy compatibility
+export interface InternshipLegacy {
+  id: string;
+  internship_id: string;
+  title: string;
+  slug?: string;
+  category: string;
+  mode: 'Online' | 'Offline' | 'Hybrid';
+  company: string;
+  image_url?: string;
+  rating: number;
+  review_count?: number;
+  description: string;
+  why_choose_edizo?: string[];
+  benefits?: string[];
+  syllabus?: {
+    '15-days'?: string[];
+    '1-month'?: string[];
+    '2-months'?: string[];
+    '3-months'?: string[];
+  };
+  pricing?: {
+    '15-days'?: number;
+    '1-month'?: number;
+    '2-months'?: number;
+    '3-months'?: number;
+  };
+  discount?: {
+    '15-days'?: number;
+    '1-month'?: number;
+    '2-months'?: number;
+    '3-months'?: number;
+  };
+  available_coupons?: Coupon[];
+  coupon_discounts?: {
+    '15-days'?: number;
+    '1-month'?: number;
+    '2-months'?: number;
+    '3-months'?: number;
+  };
+  duration_weeks?: number;
+  skills_taught?: string[];
+  prerequisites?: string[];
+  certification_included?: boolean;
+  placement_support?: boolean;
+  mentor_support?: boolean;
+  is_active?: boolean;
+  is_featured?: boolean;
+  enrollment_count?: number;
+  display_order?: number;
+  created_at?: string;
+  updated_at?: string;
+}
 
-  if (coupon.validUntil && new Date(coupon.validUntil) < now) {
-    return {
-      code: coupon.code,
-      discountType: coupon.discountType,
-      discountValue: coupon.discountValue,
-      appliedDiscountAmount,
-      originalPrice,
-      finalPrice,
-      isValid,
-      errorMessage: 'Coupon has expired'
-    };
-  }
+export interface Coupon {
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  applicableDurations?: string[];
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+  validFrom?: string;
+  validUntil?: string;
+  usageLimit?: number;
+  usedCount?: number;
+  isActive: boolean;
+}
 
-  // Check usage limit
-  if (coupon.usageLimit && coupon.usedCount && coupon.usedCount >= coupon.usageLimit) {
-    return {
-      code: coupon.code,
-      discountType: coupon.discountType,
-      discountValue: coupon.discountValue,
-      appliedDiscountAmount,
-      originalPrice,
-      finalPrice,
-      isValid,
-      errorMessage: 'Coupon usage limit reached'
-    };
-  }
+export interface InternshipFilters {
+  category?: string;
+  mode?: string;
+  searchTerm?: string;
+  minRating?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  duration?: string;
+}
 
-  let discountAmount = 0;
-  let finalPrice = originalPrice;
-
-  if (coupon.discountType === 'percentage') {
-    discountAmount = Math.min(
-      originalPrice * (coupon.discountValue / 100),
-      coupon.maxDiscountAmount || Infinity
-    );
-  } else { // fixed
-    discountAmount = Math.min(coupon.discountValue, originalPrice);
-    if (coupon.maxDiscountAmount) {
-      discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
-    }
-  }
-
-  finalPrice = Math.max(0, originalPrice - discountAmount);
-
+// Helper function to convert new schema to legacy format for compatibility
+export const convertToInternshipLegacy = (internship: Internship): InternshipLegacy => {
   return {
-    code: coupon.code,
-    discountType: coupon.discountType,
-    discountValue: coupon.discountValue,
-    appliedDiscountAmount: Math.round(discountAmount),
-    originalPrice,
-    finalPrice: Math.round(finalPrice),
-    isValid
+    id: internship.id,
+    internship_id: internship.internship_id,
+    title: internship.title,
+    slug: internship.slug,
+    category: internship.category,
+    mode: internship.mode,
+    company: internship.company,
+    image_url: internship.image_url,
+    rating: internship.rating,
+    description: internship.description,
+    why_choose_edizo: [
+      internship.why_choose_edizo_1,
+      internship.why_choose_edizo_2,
+      internship.why_choose_edizo_3,
+      internship.why_choose_edizo_4,
+      internship.why_choose_edizo_5,
+      internship.why_choose_edizo_6
+    ].filter(Boolean) as string[],
+    benefits: [
+      internship.benefit_1,
+      internship.benefit_2,
+      internship.benefit_3,
+      internship.benefit_4,
+      internship.benefit_5,
+      internship.benefit_6,
+      internship.benefit_7
+    ].filter(Boolean) as string[],
+    syllabus: {
+      '15-days': internship.syllabus_15_days,
+      '1-month': internship.syllabus_1_month,
+      '2-months': internship.syllabus_2_months,
+      '3-months': internship.syllabus_3_months
+    },
+    pricing: {
+      '15-days': internship.price_15_days,
+      '1-month': internship.price_1_month,
+      '2-months': internship.price_2_months,
+      '3-months': internship.price_3_months
+    },
+    discount: {
+      '15-days': internship.discount_15_days,
+      '1-month': internship.discount_1_month,
+      '2-months': internship.discount_2_months,
+      '3-months': internship.discount_3_months
+    },
+    coupon_discounts: {
+      '15-days': internship.coupon_discount_15_days,
+      '1-month': internship.coupon_discount_1_month,
+      '2-months': internship.coupon_discount_2_months,
+      '3-months': internship.coupon_discount_3_months
+    },
+    duration_weeks: internship.duration_weeks,
+    skills_taught: internship.skills_taught,
+    prerequisites: internship.prerequisites,
+    certification_included: internship.certification_included,
+    placement_support: internship.placement_support,
+    mentor_support: internship.mentor_support,
+    is_active: internship.is_active,
+    is_featured: internship.is_featured,
+    enrollment_count: internship.enrollment_count,
+    display_order: internship.display_order,
+    created_at: internship.created_at,
+    updated_at: internship.updated_at
   };
-};
-
-/**
- * Format price with currency
- */
-export const formatPrice = (
-  price,
-  options = { currency: 'INR', showDecimals, showCurrencySymbol }
-) => {
-  const { currency, showDecimals, showCurrencySymbol, locale } = options;
-  
-  const formatter = new Intl.NumberFormat(locale || 'en-IN', {
-    style: showCurrencySymbol ? 'currency' : 'decimal',
-    currency,
-    minimumFractionDigits: showDecimals ? 2 ,
-    maximumFractionDigits: showDecimals ? 2 ,
-  });
-  
-  return formatter.format(price);
-};
-
-/**
- * Validate discount percentage
- */
-export const isValidDiscount = (discount) => {
-  return discount >= 0 && discount <= 100;
-};
-
-/**
- * Get discount label
- */
-export const getDiscountLabel = (discount) => {
-  if (discount === 0) return '';
-  return `${discount}% OFF`;
-};
-
-/**
- * Type guard to check if internship has pricing
- */
-export const hasValidPricing = (internship): internship is InternshipBasic & { pricing } => {
-  return internship.pricing !== undefined;
-};
-
-/**
- * Type guard to check if internship has discount
- */
-export const hasValidDiscount = (internship): internship is InternshipBasic & { discount } => {
-  return internship.discount !== undefined;
-};
-
-/**
- * Find valid coupon by code for a specific internship and duration
- */
-export const findValidCoupon = (
-  internship,
-  couponCode,
-  duration
-): CouponCode | null => {
-  if (!internship.availableCoupons) return null;
-
-  const coupon = internship.availableCoupons.find(
-    c => c.code.toUpperCase() === couponCode.toUpperCase() && c.isActive
-  );
-
-  if (!coupon) return null;
-
-  // Check if coupon is valid for this duration
-  if (coupon.applicableDurations && !coupon.applicableDurations.includes(duration)) {
-    return null;
-  }
-
-  const now = new Date();
-  
-  // Check validity dates
-  if (coupon.validFrom && new Date(coupon.validFrom) > now) return null;
-  if (coupon.validUntil && new Date(coupon.validUntil) < now) return null;
-
-  // Check usage limit
-  if (coupon.usageLimit && coupon.usedCount && coupon.usedCount >= coupon.usageLimit) {
-    return null;
-  }
-
-  return coupon;
 };

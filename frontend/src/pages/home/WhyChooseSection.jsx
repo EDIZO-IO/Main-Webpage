@@ -1,9 +1,22 @@
-// frontend/src/pages/home/WhyChooseSection.tsx
 import { memo, useMemo } from 'react';
-import { Zap as ZapIcon, Shield as ShieldIcon2, Target as TargetIcon, Sparkles } from 'lucide-react';
+import { Zap as ZapIcon, Shield as ShieldIcon2, Target as TargetIcon, Sparkles, Award, Users, CheckCircle, TrendingUp } from 'lucide-react';
 import { AnimatedSection } from './AnimatedSection';
+import { useStats } from '../../hooks/useStats';
 
 const WhyChooseSection = memo(() => {
+  const { stats, loading } = useStats('general');
+
+  const defaultStats = [
+    { key: 'projects_delivered', value: '100+', label: 'Projects Done' },
+    { key: 'client_rating', value: '4.9/5', label: 'Client Rating' },
+    { key: 'on_time_delivery', value: 'On Time', label: 'Delivery' },
+    { key: 'satisfaction_rate', value: '100%', label: 'Satisfaction' },
+    { key: 'happy_clients', value: '10+', label: 'Happy Clients' },
+    { key: 'years_experience', value: '2+', label: 'Years Experience' }
+  ];
+
+  const displayStats = loading || stats.length === 0 ? defaultStats : stats;
+
   const whyChooseItems = useMemo(() => [
     {
       icon: ZapIcon,
@@ -24,6 +37,15 @@ const WhyChooseSection = memo(() => {
       gradient: "from-red-600 to-rose-500"
     },
   ], []);
+
+  const statIcons = {
+    projects_delivered: TrendingUp,
+    client_rating: Award,
+    on_time_delivery: CheckCircle,
+    satisfaction_rate: Users,
+    happy_clients: Users,
+    years_experience: Award
+  };
 
   return (
     <section className="py-16 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
@@ -50,26 +72,38 @@ const WhyChooseSection = memo(() => {
           </AnimatedSection>
         </div>
 
-        {/* Professional Layout - Alternating Rows */}
-        <div className="space-y-10 max-w-4xl mx-auto">
-          {whyChooseItems.map((item, i) => (
-            <div
-              key={item.title}
-              className={`opacity-0 animate-fade-in-up ${i % 2 === 0 ? 'flex flex-col md:flex-row' : 'flex flex-col md:flex-row-reverse'} items-center gap-8`}
-              style={{ animationDelay: `${i * 100}ms`, animationFillMode: 'forwards' }}
-            >
-              <div className="flex-1">
-                <div className={`w-16 h-16 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center shadow-lg`}>
-                  <item.icon size={32} className="text-white" />
+        {/* Why Choose Cards */}
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          {whyChooseItems.map((item, index) => (
+            <AnimatedSection key={index} animation="fadeInUp">
+              <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 overflow-hidden">
+                <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${item.gradient}`}></div>
+                <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${item.gradient} text-white shadow-lg mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <item.icon className="w-8 h-8" />
                 </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
               </div>
-
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">{item.title}</h3>
-                <p className="text-gray-600 text-lg">{item.desc}</p>
-              </div>
-            </div>
+            </AnimatedSection>
           ))}
+        </div>
+
+        {/* Statistics from API */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          {displayStats.slice(0, 6).map((stat, index) => {
+            const IconComponent = statIcons[stat.key] || Award;
+            return (
+              <AnimatedSection key={stat.key} animation="fadeInUp" delay={index * 0.1}>
+                <div className="text-center p-6 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-orange-200 hover:shadow-lg transition-all">
+                  <IconComponent className="w-8 h-8 text-orange-500 mx-auto mb-3" />
+                  <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500 mb-2">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
+                </div>
+              </AnimatedSection>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -77,4 +111,5 @@ const WhyChooseSection = memo(() => {
 });
 
 WhyChooseSection.displayName = 'WhyChooseSection';
+
 export default WhyChooseSection;

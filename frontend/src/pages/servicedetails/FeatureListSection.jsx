@@ -30,7 +30,7 @@ const FeatureListSection = memo(({ title, features, icon }) => (
       {title}
     </h3>
     <ul className="space-y-3 relative z-10">
-      {features.map((feature, i) => (
+      {features && features.length > 0 && features.map((feature, i) => (
         <FeatureListItem key={i} feature={feature} index={i} />
       ))}
     </ul>

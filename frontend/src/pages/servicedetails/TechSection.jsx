@@ -28,7 +28,7 @@ const TechSection = memo(({ technologies }) => (
       Technologies We Use
     </h3>
     <div className="flex flex-wrap gap-3 relative z-10">
-      {technologies.map((tech, index) => (
+      {technologies && technologies.length > 0 && technologies.map((tech, index) => (
         <TechnologyBadge key={index} tech={tech} index={index} />
       ))}
     </div>

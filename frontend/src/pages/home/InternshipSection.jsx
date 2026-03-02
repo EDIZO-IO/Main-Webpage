@@ -1,13 +1,27 @@
 // frontend/src/pages/home/InternshipsSection.tsx
 import { memo } from 'react';
-import { ArrowRight, Loader2, Star, Tag, Percent } from 'lucide-react';
+import { ArrowRight, Loader2, Star, Tag, Percent, Building, Wifi } from 'lucide-react';
 import Button from '../../components/common/Button';
-import { useTrendingInternships } from '../../components/hooks/useInternships';
+import { useTrendingInternships } from '../../hooks/useInternships';
 import { AnimatedSection } from './AnimatedSection';
 import { getHighestDiscount, hasDiscount } from '../../utils/internshipUtils';
 
 const InternshipsSection = memo(() => {
   const { internships, loading } = useTrendingInternships(0, 3);
+
+  // Category color mapping
+  const categoryColors = {
+    Development: 'bg-blue-500',
+    Design: 'bg-purple-500',
+    'Data Science': 'bg-indigo-500',
+    Marketing: 'bg-orange-500',
+    Management: 'bg-teal-500',
+    HR: 'bg-pink-500',
+    Java: 'bg-red-500',
+    Python: 'bg-green-500',
+    'AI/ML': 'bg-cyan-500',
+    default: 'bg-gray-500'
+  };
 
   return (
     <section className="py-16 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
@@ -40,68 +54,69 @@ const InternshipsSection = memo(() => {
           </div>
         ) : internships.length > 0 ? (
           <>
-            {/* Internships List - Professional Layout */}
+            {/* Internships List - Professional Layout without images */}
             <div className="space-y-6 max-w-4xl mx-auto mb-12">
-              {internships.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="opacity-0 animate-fade-in-up bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row gap-6"
-                  style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
-                >
-                  <div className="flex-shrink-0">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-32 h-32 object-cover rounded-xl"
-                    />
-                  </div>
+              {internships.map((item, index) => {
+                const categoryColor = categoryColors[item.category] || categoryColors.default;
+                return (
+                  <div
+                    key={item.id}
+                    className="opacity-0 animate-fade-in-up bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row gap-6"
+                    style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
+                  >
+                    {/* Color bar instead of image */}
+                    <div className={`w-full md:w-2 ${categoryColor} rounded-full md:rounded-l-full md:rounded-r-none`}></div>
 
-                  <div className="flex-grow">
-                    <div className="flex flex-wrap justify-between items-start gap-4 mb-3">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900">{item.title}</h3>
-                        <p className="text-gray-600 mt-1">{item.description}</p>
-                      </div>
+                    <div className="flex-grow">
+                      <div className="flex flex-wrap justify-between items-start gap-4 mb-3">
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900">{item.title}</h3>
+                          <p className="text-gray-600 mt-1 flex items-center gap-2">
+                            <Building className="w-4 h-4" />
+                            {item.company} • <Wifi className="w-4 h-4 inline" /> {item.mode}
+                          </p>
+                        </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        {item.category && (
-                          <span className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                        <div className="flex flex-wrap gap-2">
+                          <span className={`inline-flex items-center px-3 py-1 ${categoryColor} text-white text-xs font-semibold rounded-full`}>
                             {item.category}
                           </span>
-                        )}
 
-                        {hasDiscount(item.discount) && getHighestDiscount(item.discount) > 0 && (
-                          <span className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                            <Tag size={12} className="mr-1" />
-                            {getHighestDiscount(item.discount)}% OFF
-                          </span>
-                        )}
+                          {hasDiscount(item.discount) && getHighestDiscount(item.discount) > 0 && (
+                            <span className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                              <Tag size={12} className="mr-1" />
+                              {getHighestDiscount(item.discount)}% OFF
+                            </span>
+                          )}
 
-                        {item.rating && (
-                          <span className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
-                            <Star size={12} className="mr-1" />
-                            {item.rating}/5
-                          </span>
-                        )}
+                          {item.rating && (
+                            <span className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                              <Star size={12} className="mr-1" />
+                              {item.rating}/5
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <p className="text-gray-700 mb-4">{item.description}</p>
+
+                      <div className="mt-4">
+                        <Button
+                          to={`/internships/${item.id}`}
+                          variant="primary"
+                          size="md"
+                          className="rounded-xl"
+                          style={{
+                            background: "linear-gradient(135deg, #dc2626 0%, #ea580c 100%)",
+                          }}
+                        >
+                          Apply Now
+                        </Button>
                       </div>
                     </div>
-
-                    <div className="mt-4">
-                      <Button
-                        to={`/internships/${item.id}`}
-                        variant="primary"
-                        size="md"
-                        className="rounded-xl"
-                        style={{
-                          background: "linear-gradient(135deg, #dc2626 0%, #ea580c 100%)",
-                        }}
-                      >
-                        Apply Now
-                      </Button>
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="text-center">

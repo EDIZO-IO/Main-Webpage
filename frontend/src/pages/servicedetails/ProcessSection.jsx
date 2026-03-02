@@ -47,7 +47,7 @@ const ProcessSection = memo(({ process }) => (
       Our Process
     </h3>
     <div className="space-y-6 relative z-10">
-      {process.map((step, index) => (
+      {process && process.length > 0 && process.map((step, index) => (
         <ProcessStep key={index} step={step} index={index} total={process.length} />
       ))}
     </div>

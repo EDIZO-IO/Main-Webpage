@@ -7,34 +7,23 @@ import {
   MapPin, Building, School, Code, Palette, Smartphone, Globe,
   Users, Target, Award, Zap, Shield, Coffee, Star
 } from 'lucide-react';
-import { useInternship } from '../components/hooks/useInternships';
-import { useStats } from '../components/hooks/useStats';
+import { useInternship } from '../hooks/useInternships';
+import { useStats } from '../hooks/useStats';
 import Button from '../components/common/Button';
 import PageHeader from '../components/common/PageHeader';
 
-// Fallback image map
-const fallbackImages = {
-  'ui-ux-design': '/assets/images/web-design.png',
-  'frontend-development': '/assets/images/responsive-design.png',
-  'backend-development': '/assets/images/back-end.png',
-  'hr-management': '/assets/images/hr-manager.png',
-  'data-science': '/assets/images/data-science.png',
-  'java-development': '/assets/images/java.png',
-  'python-development': '/assets/images/python.png',
-  'marketing': '/assets/images/marketing.png',
-  'ai-ml': '/assets/images/ai-ml.png',
-  'csharp': '/assets/images/c-sharp.png',
-  default: 'https://via.placeholder.com/800x400?text=Internship+Image',
-};
-
-const getImageSrc = (id, image) => {
-  if (image && (image.startsWith('/') || image.startsWith('http'))) {
-    return image;
-  }
-  if (id && fallbackImages[id]) {
-    return fallbackImages[id];
-  }
-  return fallbackImages.default;
+// Category color mapping
+const categoryColors = {
+  Development: { bg: 'bg-blue-500', gradient: 'from-blue-500 to-blue-600' },
+  Design: { bg: 'bg-purple-500', gradient: 'from-purple-500 to-purple-600' },
+  'Data Science': { bg: 'bg-indigo-500', gradient: 'from-indigo-500 to-indigo-600' },
+  Marketing: { bg: 'bg-orange-500', gradient: 'from-orange-500 to-orange-600' },
+  Management: { bg: 'bg-teal-500', gradient: 'from-teal-500 to-teal-600' },
+  HR: { bg: 'bg-pink-500', gradient: 'from-pink-500 to-pink-600' },
+  Java: { bg: 'bg-red-500', gradient: 'from-red-500 to-red-600' },
+  Python: { bg: 'bg-green-500', gradient: 'from-green-500 to-green-600' },
+  'AI/ML': { bg: 'bg-cyan-500', gradient: 'from-cyan-500 to-cyan-600' },
+  default: { bg: 'bg-gray-500', gradient: 'from-gray-500 to-gray-600' }
 };
 
 
@@ -71,18 +60,19 @@ const InternshipApplication = () => {
   // Update form data when internship loads
   useEffect(() => {
     if (internship) {
+      const price1Month = internship.price_1_month || 0;
+      const discount1Month = internship.discount_1_month || 0;
+      const finalPrice = price1Month - (price1Month * discount1Month / 100);
+      const savings = price1Month - finalPrice;
+
       setFormData(prev => ({
         ...prev,
         internshipTitle: internship.title,
         company: internship.company,
-        selectedOriginalPrice: internship.pricing?.['1-month'] || 0,
-        selectedDiscount: internship.discount?.['1-month'] || 0,
-        selectedFinalPrice: internship.pricing?.['1-month']
-          ? internship.pricing['1-month'] - (internship.pricing['1-month'] * (internship.discount?.['1-month'] || 0) / 100)
-          : 0,
-        selectedSavings: internship.pricing?.['1-month'] && internship.discount?.['1-month']
-          ? (internship.pricing['1-month'] * internship.discount['1-month'] / 100)
-          : 0,
+        selectedOriginalPrice: price1Month,
+        selectedDiscount: discount1Month,
+        selectedFinalPrice: finalPrice,
+        selectedSavings: savings,
       }));
     }
   }, [internship]);
@@ -106,21 +96,33 @@ const InternshipApplication = () => {
 
   // Handle course period change
   const handleCoursePeriodChange = (period) => {
-    setFormData(prev => {
-      const originalPrice = internship?.pricing?.[period] || 0;
-      const discount = internship?.discount?.[period] || 0;
-      const finalPrice = originalPrice - (originalPrice * discount / 100);
-      const savings = originalPrice - finalPrice;
+    const priceMap = {
+      '15-days': internship?.price_15_days || 0,
+      '1-month': internship?.price_1_month || 0,
+      '2-months': internship?.price_2_months || 0,
+      '3-months': internship?.price_3_months || 0
+    };
+    
+    const discountMap = {
+      '15-days': internship?.discount_15_days || 0,
+      '1-month': internship?.discount_1_month || 0,
+      '2-months': internship?.discount_2_months || 0,
+      '3-months': internship?.discount_3_months || 0
+    };
 
-      return {
-        ...prev,
-        coursePeriod: period,
-        selectedOriginalPrice: originalPrice,
-        selectedDiscount: discount,
-        selectedFinalPrice: finalPrice,
-        selectedSavings: savings,
-      };
-    });
+    const originalPrice = priceMap[period] || 0;
+    const discount = discountMap[period] || 0;
+    const finalPrice = originalPrice - (originalPrice * discount / 100);
+    const savings = originalPrice - finalPrice;
+
+    setFormData(prev => ({
+      ...prev,
+      coursePeriod: period,
+      selectedOriginalPrice: originalPrice,
+      selectedDiscount: discount,
+      selectedFinalPrice: finalPrice,
+      selectedSavings: savings,
+    }));
   };
 
   // Validate form
@@ -175,8 +177,27 @@ const InternshipApplication = () => {
     setSubmitError('');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Import API dynamically
+      const { applicationsAPI } = await import('../api/api');
+
+      // Prepare application data
+      const applicationData = {
+        internship_id: id,  // Use the internship ID from URL params
+        full_name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        college_name: formData.university,
+        current_year: parseInt(formData.yearOfStudy),
+        branch: formData.education,
+        cover_letter: formData.message,
+        duration_selected: formData.coursePeriod,
+        payment_amount: formData.selectedFinalPrice,
+        payment_status: 'pending',
+        application_status: 'submitted'
+      };
+
+      // Submit to API
+      await applicationsAPI.create(applicationData);
 
       // Success
       setSubmitSuccess(true);
@@ -203,7 +224,8 @@ const InternshipApplication = () => {
         });
       }, 3000);
     } catch (error) {
-      setSubmitError('Failed to submit application. Please try again.');
+      console.error('Submit error:', error);
+      setSubmitError(error.response?.data?.error || 'Failed to submit application. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -298,7 +320,33 @@ const InternshipApplication = () => {
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-
+            {/* Color-coded header instead of image */}
+            {(() => {
+              const colors = categoryColors[internship?.category] || categoryColors.default;
+              return (
+                <div className={`bg-gradient-to-br ${colors.gradient} p-6 text-white`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <Building className="w-6 h-6 opacity-80" />
+                    <span className="font-semibold text-lg">{internship?.company}</span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-2">{internship?.title}</h2>
+                  <div className="flex items-center gap-4 mt-4 flex-wrap">
+                    <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-semibold">
+                      <Star className="w-4 h-4 text-yellow-300 fill-current" />
+                      {internship?.rating}/5
+                    </span>
+                    <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-semibold">
+                      <MapPin className="w-4 h-4" />
+                      {internship?.mode}
+                    </span>
+                    <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-semibold">
+                      <Target className="w-4 h-4" />
+                      {internship?.category}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Application Form */}
             <form onSubmit={handleSubmit} className="p-6">
@@ -492,26 +540,31 @@ const InternshipApplication = () => {
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {['15-days', '1-month', '2-months', '3-months'].map((period) => {
-                    const originalPrice = internship?.pricing?.[period] || 0;
-                    const discount = internship?.discount?.[period] || 0;
+                  {[
+                    { key: '15-days', label: '15 Days', price: internship?.price_15_days, discount: internship?.discount_15_days },
+                    { key: '1-month', label: '1 Month', price: internship?.price_1_month, discount: internship?.discount_1_month },
+                    { key: '2-months', label: '2 Months', price: internship?.price_2_months, discount: internship?.discount_2_months },
+                    { key: '3-months', label: '3 Months', price: internship?.price_3_months, discount: internship?.discount_3_months }
+                  ].map((period) => {
+                    const originalPrice = period.price || 0;
+                    const discount = period.discount || 0;
                     const finalPrice = originalPrice - (originalPrice * discount / 100);
                     const savings = originalPrice - finalPrice;
 
                     return (
                       <motion.div
-                        key={period}
+                        key={period.key}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${formData.coursePeriod === period
+                        className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${formData.coursePeriod === period.key
                             ? 'border-orange-500 bg-orange-50'
                             : 'border-gray-200 hover:border-orange-300'
                           }`}
-                        onClick={() => handleCoursePeriodChange(period)}
+                        onClick={() => handleCoursePeriodChange(period.key)}
                       >
                         <div className="text-center">
                           <div className="font-semibold text-gray-900 capitalize">
-                            {period.replace('-', ' ')}
+                            {period.label}
                           </div>
                           <div className="mt-2">
                             <div className="text-lg font-bold text-gray-900">

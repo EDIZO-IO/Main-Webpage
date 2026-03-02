@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Star, Clock, Target } from 'lucide-react';
-import { useStats } from '../../components/hooks/useStats';
+import { useStats } from '../../hooks/useStats';
 
 const statConfig = [
   { key: 'projects_delivered', icon: <TrendingUp className="w-6 h-6" />, gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-200/50" },
@@ -16,7 +16,7 @@ const StatsSection = memo(() => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
       {statConfig.map((config, index) => {
-        const statData = stats[config.key] || { value: 'Loading...', label: 'Loading...' };
+        const statData = stats?.[config.key] || { value: 'N/A', label: 'Loading...' };
 
         return (
           <motion.div

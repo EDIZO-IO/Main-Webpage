@@ -1,315 +1,509 @@
-
 import { useEffect, useState } from 'react';
-import { Trash2, Search, RefreshCw, Eye, XCircle } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { Trash2, Search, RefreshCw, Eye, XCircle, CheckCircle, Clock, XOctagon, Mail, Phone, Calendar, FileText } from 'lucide-react';
+import { applicationsAPI, internshipsAPI } from '../api/api';
+import { toast } from 'react-toastify';
 
 interface Application {
-    id: number; // 0-based index from data slice (so relative to data rows)
-    timestamp: string;
-    name: string;
-    email: string;
-    phone: string;
-    university: string;
-    year: string;
-    education: string;
-    program: string;
-    company: string;
-    duration: string;
-    price: string;
-    status: string;
-    message?: string; // Cover letter?
+  id: string;
+  internship_id: string;
+  user_id?: string;
+  full_name: string;
+  email: string;
+  phone?: string;
+  college_name?: string;
+  graduation_year?: number;
+  current_year?: number;
+  branch?: string;
+  duration_selected?: string;
+  mode_selected?: string;
+  coupon_code?: string;
+  payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
+  payment_amount?: number;
+  application_status: 'submitted' | 'under_review' | 'accepted' | 'rejected' | 'withdrawn';
+  review_comments?: string;
+  created_at: string;
+  internship_title?: string;
+}
+
+interface Internship {
+  id: string;
+  title: string;
 }
 
 export default function InternshipApplicationsManager() {
-    const [applications, setApplications] = useState<Application[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedApp, setSelectedApp] = useState<Application | null>(null); // For Details Modal
-    const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [internships, setInternships] = useState<Internship[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedApp, setSelectedApp] = useState<Application | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
-    const fetchApplications = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch(`${API_URL}/api/admin/applications`);
-            const data = await response.json();
-            if (data.success) {
-                setApplications(data.data);
-            }
-        } catch (error) {
-            console.error('Error fetching applications:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [appsRes, internshipsRes] = await Promise.all([
+        applicationsAPI.getAll(),
+        internshipsAPI.getAll()
+      ]);
 
-    useEffect(() => {
-        fetchApplications();
-    }, []);
+      // Filter only internship applications (those with internship_id)
+      const allApps = appsRes.data.applications || [];
+      const internshipApps = allApps.filter((app: any) => app.internship_id !== null);
+      
+      setApplications(internshipApps);
+      setInternships(internshipsRes.data.internships || []);
+    } catch (error: any) {
+      console.error('Error fetching data:', error);
+      toast.error(error.response?.data?.error || 'Failed to fetch data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleDelete = async () => {
-        if (deleteIndex === null) return;
-        try {
-            const response = await fetch(`${API_URL}/api/admin/applications/${deleteIndex}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                setDeleteIndex(null);
-                fetchApplications(); // Refresh list
-                if (selectedApp?.id === deleteIndex) setSelectedApp(null);
-            } else {
-                alert('Failed to delete application');
-            }
-        } catch (error) {
-            console.error('Error deleting application:', error);
-        }
-    };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-    const handleStatusUpdate = async (id: number, newStatus: string) => {
-        try {
-            const response = await fetch(`${API_URL}/api/admin/applications/${id}/status`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus })
-            });
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await applicationsAPI.delete(deleteId);
+      toast.success('Application deleted successfully');
+      setDeleteId(null);
+      fetchData();
+    } catch (error: any) {
+      console.error('Error deleting application:', error);
+      toast.error('Failed to delete application');
+    }
+  };
 
-            if (response.ok) {
-                // Optimistic update
-                setApplications(apps => apps.map(app =>
-                    app.id === id ? { ...app, status: newStatus } : app
-                ));
-                if (selectedApp && selectedApp.id === id) {
-                    setSelectedApp(prev => prev ? { ...prev, status: newStatus } : null);
-                }
-            } else {
-                alert('Failed to update status');
-            }
-        } catch (error) {
-            console.error('Error updating status:', error);
-        }
-    };
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    try {
+      await applicationsAPI.update(id, { application_status: newStatus });
+      toast.success('Status updated successfully');
+      
+      setApplications(apps => apps.map(app =>
+        app.id === id ? { ...app, application_status: newStatus } : app
+      ));
+      
+      if (selectedApp && selectedApp.id === id) {
+        setSelectedApp(prev => prev ? { ...prev, application_status: newStatus } : null);
+      }
+    } catch (error: any) {
+      console.error('Error updating status:', error);
+      toast.error('Failed to update status');
+    }
+  };
 
-    const filteredApps = applications.filter(app =>
-        app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.program.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const handlePaymentStatusUpdate = async (id: string, newStatus: string) => {
+    try {
+      await applicationsAPI.update(id, { payment_status: newStatus });
+      toast.success('Payment status updated');
+      
+      setApplications(apps => apps.map(app =>
+        app.id === id ? { ...app, payment_status: newStatus } : app
+      ));
+    } catch (error: any) {
+      console.error('Error updating payment status:', error);
+      toast.error('Failed to update payment status');
+    }
+  };
 
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'Accepted': return <span className="badge badge-success">Accepted</span>;
-            case 'Rejected': return <span className="badge badge-danger">Rejected</span>;
-            case 'Pending':
-            default: return <span className="badge badge-warning">Pending</span>;
-        }
-    };
+  const filteredApps = applications.filter(app => {
+    const matchesSearch = 
+      app.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.internship_title?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || app.application_status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
-    if (loading) return <div className="flex justify-center items-center h-[50vh]"><div className="loading-spinner" /></div>;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'accepted':
+        return <span className="badge badge-success"><CheckCircle size={12} style={{ marginRight: '4px' }} />Accepted</span>;
+      case 'rejected':
+        return <span className="badge badge-danger"><XOctagon size={12} style={{ marginRight: '4px' }} />Rejected</span>;
+      case 'under_review':
+        return <span className="badge badge-warning"><Clock size={12} style={{ marginRight: '4px' }} />Under Review</span>;
+      case 'withdrawn':
+        return <span className="badge" style={{ background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0' }}>Withdrawn</span>;
+      default:
+        return <span className="badge badge-primary"><Clock size={12} style={{ marginRight: '4px' }} />Submitted</span>;
+    }
+  };
 
+  const getPaymentStatusBadge = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return <span className="badge badge-success">Paid</span>;
+      case 'failed':
+        return <span className="badge badge-danger">Failed</span>;
+      case 'refunded':
+        return <span className="badge" style={{ background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0' }}>Refunded</span>;
+      default:
+        return <span className="badge badge-warning">Pending</span>;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const stats = {
+    total: applications.length,
+    submitted: applications.filter(a => a.application_status === 'submitted').length,
+    underReview: applications.filter(a => a.application_status === 'under_review').length,
+    accepted: applications.filter(a => a.application_status === 'accepted').length,
+    rejected: applications.filter(a => a.application_status === 'rejected').length,
+    paid: applications.filter(a => a.payment_status === 'paid').length,
+    pending: applications.filter(a => a.payment_status === 'pending').length
+  };
+
+  if (loading) {
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b' }}>Internship Applications</h1>
-                    <p style={{ color: '#64748b' }}>Manage incoming applications</p>
-                </div>
-            </div>
-
-            <div className="card mb-6">
-                <div className="flex gap-4">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input
-                            type="text"
-                            className="form-input pl-10"
-                            placeholder="Search by name, email, or program..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                    <button className="btn btn-secondary" onClick={fetchApplications}>
-                        <RefreshCw size={18} /> Refresh
-                    </button>
-                </div>
-            </div>
-
-            <div className="card overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="text-left border-b border-gray-700">
-                                <th className="p-4">Date</th>
-                                <th className="p-4">Name</th>
-                                <th className="p-4">Program</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredApps.map((app) => (
-                                <tr key={app.id} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.15)' }}>
-                                    <td style={{ padding: '1rem', fontSize: '0.875rem', color: '#64748b' }}>{app.timestamp.split(',')[0]}</td>
-                                    <td style={{ padding: '1rem' }}>
-                                        <div style={{ fontWeight: '500', color: '#1e293b' }}>{app.name}</div>
-                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{app.email}</div>
-                                    </td>
-                                    <td style={{ padding: '1rem' }}>
-                                        <div style={{ color: '#334155' }}>{app.program}</div>
-                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{app.duration}</div>
-                                    </td>
-                                    <td style={{ padding: '1rem' }}>{getStatusBadge(app.status)}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'right' }}>
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                                className="btn btn-secondary btn-sm"
-                                                onClick={() => setSelectedApp(app)}
-                                                title="View Details"
-                                            >
-                                                <Eye size={14} />
-                                            </button>
-                                            <button
-                                                className="btn btn-danger btn-sm"
-                                                onClick={() => setDeleteIndex(app.id)}
-                                                title="Delete"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            {filteredApps.length === 0 && (
-                                <tr>
-                                    <td colSpan={5} className="p-8 text-center text-gray-500">
-                                        No applications found
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Details Modal */}
-            {selectedApp && (
-                <div className="modal-overlay" onClick={() => setSelectedApp(null)}>
-                    <div className="modal" style={{ maxWidth: '700px' }} onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3 style={{ fontWeight: '600', color: '#1e293b' }}>Application Details</h3>
-                            <button onClick={() => setSelectedApp(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
-                                <XCircle size={20} />
-                            </button>
-                        </div>
-
-                        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-
-                            {/* Header Info */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
-                                    <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>{selectedApp.name}</h3>
-                                    <p style={{ color: '#f97316', fontWeight: '500' }}>{selectedApp.program} ({selectedApp.duration})</p>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>{selectedApp.timestamp}</div>
-                                    {getStatusBadge(selectedApp.status)}
-                                </div>
-                            </div>
-
-                            {/* Contact Info */}
-                            <div style={{ background: 'rgba(148, 163, 184, 0.08)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(148, 163, 184, 0.15)' }}>
-                                <h4 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Contact Information</h4>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Email</p>
-                                        <p style={{ color: '#334155' }}>{selectedApp.email}</p>
-                                    </div>
-                                    <div>
-                                        <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Phone</p>
-                                        <p style={{ color: '#334155' }}>{selectedApp.phone || 'N/A'}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Academic Info */}
-                            <div style={{ background: 'rgba(148, 163, 184, 0.08)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(148, 163, 184, 0.15)' }}>
-                                <h4 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Academic Background</h4>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                    <div>
-                                        <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>University</p>
-                                        <p style={{ color: '#334155' }}>{selectedApp.university}</p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Degree/Branch</p>
-                                            <p style={{ color: '#334155' }}>{selectedApp.education}</p>
-                                        </div>
-                                        <div>
-                                            <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Year</p>
-                                            <p style={{ color: '#334155' }}>{selectedApp.year}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Pricing Info */}
-                            <div style={{ background: 'rgba(148, 163, 184, 0.08)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(148, 163, 184, 0.15)' }}>
-                                <h4 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Payment Details</h4>
-                                <div>
-                                    <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Final Price Agreed</p>
-                                    <p style={{ fontSize: '1.25rem', fontWeight: '700', color: '#16a34a' }}>{selectedApp.price}</p>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(148, 163, 184, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Update Status:</p>
-                                <div className="flex gap-2">
-                                    <button
-                                        className={`btn btn-sm ${selectedApp.status === 'Pending' ? 'btn-warning' : 'btn-secondary'}`}
-                                        onClick={() => handleStatusUpdate(selectedApp.id, 'Pending')}
-                                        style={{ opacity: selectedApp.status === 'Pending' ? 1 : 0.8 }}
-                                    >
-                                        Pending
-                                    </button>
-                                    <button
-                                        className={`btn btn-sm ${selectedApp.status === 'Accepted' ? 'btn-success' : 'btn-secondary'}`}
-                                        onClick={() => handleStatusUpdate(selectedApp.id, 'Accepted')}
-                                        style={{ opacity: selectedApp.status === 'Accepted' ? 1 : 0.8 }}
-                                    >
-                                        Accept
-                                    </button>
-                                    <button
-                                        className={`btn btn-sm ${selectedApp.status === 'Rejected' ? 'btn-danger' : 'btn-secondary'}`}
-                                        onClick={() => handleStatusUpdate(selectedApp.id, 'Rejected')}
-                                        style={{ opacity: selectedApp.status === 'Rejected' ? 1 : 0.8 }}
-                                    >
-                                        Reject
-                                    </button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Delete Confirmation */}
-            {deleteIndex !== null && (
-                <div className="modal-overlay">
-                    <div className="modal" style={{ maxWidth: '400px' }}>
-                        <div className="modal-header">
-                            <h3 style={{ fontWeight: '600', color: '#1e293b' }}>Confirm Delete</h3>
-                        </div>
-                        <div className="modal-body">
-                            <p style={{ color: '#334155' }}>Are you sure you want to delete this application? This cannot be undone.</p>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn btn-secondary" onClick={() => setDeleteIndex(null)}>Cancel</button>
-                            <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <div className="loading-spinner" />
+      </div>
     );
+  }
+
+  return (
+    <div>
+      {/* Page Header */}
+      <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+        <div>
+          <h1>Internship Applications</h1>
+          <p style={{ color: '#64748b', marginTop: '0.25rem' }}>Manage internship program applications</p>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.15)' }}>
+            <FileText size={24} color="#3b82f6" />
+          </div>
+          <div>
+            <div className="stat-value">{stats.total}</div>
+            <div className="stat-label">Total Applications</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(249, 115, 22, 0.15)' }}>
+            <Clock size={24} color="#f97316" />
+          </div>
+          <div>
+            <div className="stat-value">{stats.submitted}</div>
+            <div className="stat-label">Submitted</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(168, 85, 247, 0.15)' }}>
+            <Eye size={24} color="#a855f7" />
+          </div>
+          <div>
+            <div className="stat-value">{stats.underReview}</div>
+            <div className="stat-label">Under Review</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(34, 197, 94, 0.15)' }}>
+            <CheckCircle size={24} color="#22c55e" />
+          </div>
+          <div>
+            <div className="stat-value">{stats.accepted}</div>
+            <div className="stat-label">Accepted</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(239, 68, 68, 0.15)' }}>
+            <XOctagon size={24} color="#ef4444" />
+          </div>
+          <div>
+            <div className="stat-value">{stats.rejected}</div>
+            <div className="stat-label">Rejected</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(34, 197, 94, 0.15)' }}>
+            <CheckCircle size={24} color="#22c55e" />
+          </div>
+          <div>
+            <div className="stat-value">{stats.paid}</div>
+            <div className="stat-label">Paid</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(251, 191, 36, 0.15)' }}>
+            <Clock size={24} color="#fbbf24" />
+          </div>
+          <div>
+            <div className="stat-value">{stats.pending}</div>
+            <div className="stat-label">Pending Payment</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="card mb-6">
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', flex: 1, minWidth: '250px' }}>
+            <Search size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Search by name, email, or program..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ paddingLeft: '2.5rem' }}
+            />
+          </div>
+          <select
+            className="form-input"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{ minWidth: '150px' }}
+          >
+            <option value="all">All Status</option>
+            <option value="submitted">Submitted</option>
+            <option value="under_review">Under Review</option>
+            <option value="accepted">Accepted</option>
+            <option value="rejected">Rejected</option>
+            <option value="withdrawn">Withdrawn</option>
+          </select>
+          <button className="btn btn-secondary" onClick={fetchData}>
+            <RefreshCw size={18} />
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* Applications Table */}
+      <div className="card">
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Applicant</th>
+                <th>Internship</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredApps.map((app) => (
+                <tr key={app.id}>
+                  <td style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                    {formatDate(app.created_at).split(',')[0]}
+                  </td>
+                  <td>
+                    <div style={{ fontWeight: '600', color: '#1e293b' }}>{app.full_name}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{app.email}</div>
+                  </td>
+                  <td>
+                    <div style={{ color: '#334155' }}>{app.internship_title || 'N/A'}</div>
+                  </td>
+                  <td>
+                    <span className="badge badge-primary">{app.duration_selected || 'N/A'}</span>
+                  </td>
+                  <td>{getStatusBadge(app.application_status)}</td>
+                  <td>{getPaymentStatusBadge(app.payment_status)}</td>
+                  <td>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => setSelectedApp(app)}
+                        title="View Details"
+                      >
+                        <Eye size={14} />
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => setDeleteId(app.id)}
+                        title="Delete"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filteredApps.length === 0 && (
+                <tr>
+                  <td colSpan={7} style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                      <FileText size={48} style={{ color: '#e2e8f0' }} />
+                      <p>No internship applications found</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Details Modal */}
+      {selectedApp && (
+        <div className="modal-overlay" onClick={() => setSelectedApp(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '700px' }}>
+            <div className="modal-header">
+              <h3>Application Details</h3>
+              <button onClick={() => setSelectedApp(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
+                <XCircle size={20} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {/* Header Info */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b', marginBottom: '0.5rem' }}>{selectedApp.full_name}</h3>
+                  <p style={{ color: '#f97316', fontWeight: '600' }}>
+                    {selectedApp.internship_title} ({selectedApp.duration_selected})
+                  </p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>
+                    <Calendar size={14} style={{ display: 'inline', marginRight: '4px' }} />
+                    {formatDate(selectedApp.created_at)}
+                  </div>
+                  {getStatusBadge(selectedApp.application_status)}
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
+                <h4 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Contact Information</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem' }}>Email</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#334155' }}>
+                      <Mail size={14} style={{ color: '#64748b' }} />
+                      {selectedApp.email}
+                    </div>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem' }}>Phone</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#334155' }}>
+                      <Phone size={14} style={{ color: '#64748b' }} />
+                      {selectedApp.phone || 'N/A'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Academic Info */}
+              {selectedApp.college_name && (
+                <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
+                  <h4 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Academic Information</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem' }}>College</p>
+                      <p style={{ color: '#334155', fontWeight: '600' }}>{selectedApp.college_name}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem' }}>Branch</p>
+                      <p style={{ color: '#334155', fontWeight: '600' }}>{selectedApp.branch || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Payment Info */}
+              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
+                <h4 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Payment Details</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem' }}>Amount</p>
+                    <p style={{ fontSize: '1.25rem', fontWeight: '700', color: '#16a34a' }}>₹{selectedApp.payment_amount || 0}</p>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem' }}>Status</p>
+                    {getPaymentStatusBadge(selectedApp.payment_status)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ paddingTop: '1rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: '600' }}>Update Application Status:</p>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      className={`btn btn-sm ${selectedApp.application_status === 'under_review' ? 'btn-warning' : 'btn-secondary'}`}
+                      onClick={() => handleStatusUpdate(selectedApp.id, 'under_review')}
+                    >
+                      Review
+                    </button>
+                    <button
+                      className={`btn btn-sm ${selectedApp.application_status === 'accepted' ? 'btn-success' : 'btn-secondary'}`}
+                      onClick={() => handleStatusUpdate(selectedApp.id, 'accepted')}
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className={`btn btn-sm ${selectedApp.application_status === 'rejected' ? 'btn-danger' : 'btn-secondary'}`}
+                      onClick={() => handleStatusUpdate(selectedApp.id, 'rejected')}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: '600' }}>Update Payment Status:</p>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      className={`btn btn-sm ${selectedApp.payment_status === 'paid' ? 'btn-success' : 'btn-secondary'}`}
+                      onClick={() => handlePaymentStatusUpdate(selectedApp.id, 'paid')}
+                    >
+                      Paid
+                    </button>
+                    <button
+                      className={`btn btn-sm ${selectedApp.payment_status === 'pending' ? 'btn-warning' : 'btn-secondary'}`}
+                      onClick={() => handlePaymentStatusUpdate(selectedApp.id, 'pending')}
+                    >
+                      Pending
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      {deleteId !== null && (
+        <div className="modal-overlay" onClick={() => setDeleteId(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h3>Confirm Delete</h3>
+            </div>
+            <div className="modal-body">
+              <p style={{ color: '#334155' }}>Are you sure you want to delete this application? This cannot be undone.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setDeleteId(null)}>Cancel</button>
+              <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

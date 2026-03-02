@@ -1,44 +1,30 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Star, Users, Clock, Award, TrendingUp, MapPin, Building,
-  Calendar, Tag, Percent, CheckCircle, AlertCircle, ExternalLink,
-  ArrowLeft, Mail, Phone, Globe, Target, Zap, Shield, Coffee,
-  BookOpen, Briefcase, FileText, Send
+  Calendar, Tag, CheckCircle, AlertCircle, ExternalLink,
+  ArrowLeft, Mail, Phone, Globe, Target, Zap, Shield,
+  BookOpen, Briefcase, FileText, Send, Wifi
 } from 'lucide-react';
-import { useInternship } from '../components/hooks/useInternships';
-import { useStats } from '../components/hooks/useStats';
+import { useInternship } from '../hooks/useInternships';
+import { useStats } from '../hooks/useStats';
 import Button from '../components/common/Button';
 import PageHeader from '../components/common/PageHeader';
-import { getHighestDiscount, hasDiscount, findValidCoupon, calculatePriceWithCoupon, getPricingTiers } from '../utils/internshipUtils';
 
-// Fallback image map
-const fallbackImages = {
-  'ui-ux-design': '/assets/images/web-design.png',
-  'frontend-development': '/assets/images/responsive-design.png',
-  'backend-development': '/assets/images/back-end.png',
-  'hr-management': '/assets/images/hr-manager.png',
-  'data-science': '/assets/images/data-science.png',
-  'java-development': '/assets/images/java.png',
-  'python-development': '/assets/images/python.png',
-  'marketing': '/assets/images/Marketing.png',
-  'ai-ml': '/assets/images/ai-ml.png',
-  'csharp': '/assets/images/c-sharp.png',
-  default: 'https://via.placeholder.com/800x400?text=Internship+Image',
+// Category color mapping
+const categoryColors = {
+  Development: { bg: 'bg-blue-500', gradient: 'from-blue-500 to-blue-600' },
+  Design: { bg: 'bg-purple-500', gradient: 'from-purple-500 to-purple-600' },
+  'Data Science': { bg: 'bg-indigo-500', gradient: 'from-indigo-500 to-indigo-600' },
+  Marketing: { bg: 'bg-orange-500', gradient: 'from-orange-500 to-orange-600' },
+  Management: { bg: 'bg-teal-500', gradient: 'from-teal-500 to-teal-600' },
+  HR: { bg: 'bg-pink-500', gradient: 'from-pink-500 to-pink-600' },
+  Java: { bg: 'bg-red-500', gradient: 'from-red-500 to-red-600' },
+  Python: { bg: 'bg-green-500', gradient: 'from-green-500 to-green-600' },
+  'AI/ML': { bg: 'bg-cyan-500', gradient: 'from-cyan-500 to-cyan-600' },
+  default: { bg: 'bg-gray-500', gradient: 'from-gray-500 to-gray-600' }
 };
-
-// ✅ Memoized image source function
-const getImageSrc = (id, image) => {
-  if (image && (image.startsWith('/') || image.startsWith('http'))) {
-    return image;
-  }
-  if (id && fallbackImages[id]) {
-    return fallbackImages[id];
-  }
-  return fallbackImages.default;
-};
-
 
 const InternshipDetails = () => {
   const { id } = useParams();
@@ -46,62 +32,8 @@ const InternshipDetails = () => {
   const { internship, loading, error } = useInternship(id);
   const { stats } = useStats();
 
-
-  const [selectedDuration, setSelectedDuration] = useState('1-month');
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [showCouponInput, setShowCouponInput] = useState(false);
-  const [showCouponMessage, setShowCouponMessage] = useState(false);
-
-  // Calculate pricing tiers
-  const pricingTiers = useMemo(() => {
-    if (!internship) return [];
-    return getPricingTiers(internship.pricing, internship.discount, appliedCoupon, internship.couponDiscounts);
-  }, [internship, appliedCoupon]);
-
-  // Get selected pricing tier
-  const selectedTier = useMemo(() => {
-    return pricingTiers.find(tier => tier.duration === selectedDuration) || pricingTiers[0];
-  }, [pricingTiers, selectedDuration]);
-
-
-
-  // Handle duration change
-  const handleDurationChange = (duration) => {
-    setSelectedDuration(duration);
-  };
-
-  // Handle coupon application
-  const handleApplyCoupon = () => {
-    if (!internship || !couponCode.trim()) {
-      setShowCouponMessage(true);
-      setTimeout(() => setShowCouponMessage(false), 3000);
-      return;
-    }
-
-    const coupon = findValidCoupon(internship, couponCode, selectedDuration);
-    if (coupon) {
-      const couponApplied = calculatePriceWithCoupon(selectedTier.finalPrice, coupon);
-      setAppliedCoupon(couponApplied);
-      setShowCouponMessage(true);
-      setTimeout(() => setShowCouponMessage(false), 3000);
-    } else {
-      setAppliedCoupon({ isValid: false, errorMessage: 'Invalid or expired coupon' });
-      setShowCouponMessage(true);
-      setTimeout(() => setShowCouponMessage(false), 3000);
-    }
-  };
-
-  // Handle remove coupon
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCode('');
-  };
-
-  // Calculate total price
-  const totalPrice = useMemo(() => {
-    return selectedTier?.finalPrice || 0;
-  }, [selectedTier]);
+  // Get category colors
+  const colors = categoryColors[internship?.category] || categoryColors.default;
 
   // Loading state
   if (loading) {
@@ -176,57 +108,58 @@ const InternshipDetails = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              {/* Hero Section */}
+              {/* Hero Section - Color-coded header instead of image */}
               <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden mb-8">
-                <div className="relative">
-                  <img
-                    src={getImageSrc(internship?.id, internship?.image)}
-                    alt={internship?.title}
-                    className="w-full h-64 md:h-80 object-cover"
-                    onError={(e) => {
-                      e.target.src = fallbackImages.default;
-                    }}
-                  />
-                  <div className="absolute top-4 right-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${internship?.mode === 'Online'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-blue-100 text-blue-800'
-                      }`}>
-                      {internship?.mode}
-                    </span>
+                <div className={`relative h-64 bg-gradient-to-br ${colors.gradient} p-8 text-white`}>
+                  <div className="flex flex-col h-full justify-between">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Building className="w-5 h-5 opacity-80" />
+                          <span className="font-semibold text-lg">{internship?.company}</span>
+                        </div>
+                        <h1 className="text-3xl md:text-4xl font-bold mb-3">{internship?.title}</h1>
+                        <div className="flex items-center gap-4 mt-4 flex-wrap">
+                          <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold">
+                            <Wifi className="w-4 h-4" />
+                            {internship?.mode}
+                          </span>
+                          <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold">
+                            <Tag className="w-4 h-4" />
+                            {internship?.category}
+                          </span>
+                          <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold">
+                            <Star className="w-4 h-4 text-yellow-300 fill-current" />
+                            {internship?.rating}/5
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 <div className="p-6">
-                  <div className="flex flex-wrap items-center gap-4 mb-4">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                      <span className="font-bold text-gray-900">{internship?.rating}/5</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Building className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-700">{internship?.company}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Tag className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-700">{internship?.category}</span>
-                    </div>
-                  </div>
-
-                  <h1 className="text-3xl font-bold text-gray-900 mb-4">{internship?.title}</h1>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">About This Internship</h2>
                   <p className="text-gray-700 text-lg leading-relaxed">{internship?.description}</p>
                 </div>
               </div>
 
-              {/* Why Choose Section - Only show if data exists */}
-              {internship?.whyChooseEdizo && internship.whyChooseEdizo.length > 0 && (
+              {/* Why Choose Section */}
+              {internship?.why_choose_edizo_1 && (
                 <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <Target className="w-6 h-6 text-orange-500" />
                     Why Choose This Internship?
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {internship.whyChooseEdizo.map((point, index) => (
+                    {[
+                      internship.why_choose_edizo_1,
+                      internship.why_choose_edizo_2,
+                      internship.why_choose_edizo_3,
+                      internship.why_choose_edizo_4,
+                      internship.why_choose_edizo_5,
+                      internship.why_choose_edizo_6
+                    ].filter(Boolean).map((point, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                         <span className="text-gray-700">{point}</span>
@@ -236,15 +169,23 @@ const InternshipDetails = () => {
                 </div>
               )}
 
-              {/* Benefits Section - Only show if data exists */}
-              {internship?.benefits && internship.benefits.length > 0 && (
+              {/* Benefits Section */}
+              {internship?.benefit_1 && (
                 <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <Zap className="w-6 h-6 text-orange-500" />
                     Key Benefits
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {internship.benefits.map((benefit, index) => (
+                    {[
+                      internship.benefit_1,
+                      internship.benefit_2,
+                      internship.benefit_3,
+                      internship.benefit_4,
+                      internship.benefit_5,
+                      internship.benefit_6,
+                      internship.benefit_7
+                    ].filter(Boolean).map((benefit, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <Award className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
                         <span className="text-gray-700">{benefit}</span>
@@ -254,8 +195,8 @@ const InternshipDetails = () => {
                 </div>
               )}
 
-              {/* Syllabus Section - Only show if data exists */}
-              {internship?.syllabus && Object.values(internship.syllabus).some(topics => topics && topics.length > 0) && (
+              {/* Syllabus Section */}
+              {internship?.syllabus_1_month && (
                 <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <BookOpen className="w-6 h-6 text-orange-500" />
@@ -263,23 +204,70 @@ const InternshipDetails = () => {
                   </h2>
 
                   <div className="space-y-6">
-                    {Object.entries(internship.syllabus).map(([duration, topics]) => (
-                      topics && topics.length > 0 && (
-                        <div key={duration}>
-                          <h3 className="text-lg font-semibold text-gray-900 mb-3 capitalize">
-                            {duration.replace('-', ' ')}
-                          </h3>
-                          <ul className="space-y-2">
-                            {topics.map((topic, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                                <span className="text-gray-700">{topic}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )
-                    ))}
+                    {internship.syllabus_15_days && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-orange-500" />
+                          15 Days Program
+                        </h3>
+                        <ul className="space-y-2">
+                          {JSON.parse(internship.syllabus_15_days).map((topic, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                              <span className="text-gray-700">{topic}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {internship.syllabus_1_month && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-orange-500" />
+                          1 Month Program
+                        </h3>
+                        <ul className="space-y-2">
+                          {JSON.parse(internship.syllabus_1_month).map((topic, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                              <span className="text-gray-700">{topic}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {internship.syllabus_2_months && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-orange-500" />
+                          2 Months Program
+                        </h3>
+                        <ul className="space-y-2">
+                          {JSON.parse(internship.syllabus_2_months).map((topic, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                              <span className="text-gray-700">{topic}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {internship.syllabus_3_months && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-orange-500" />
+                          3 Months Program
+                        </h3>
+                        <ul className="space-y-2">
+                          {JSON.parse(internship.syllabus_3_months).map((topic, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                              <span className="text-gray-700">{topic}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -288,9 +276,33 @@ const InternshipDetails = () => {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-6 space-y-6">
-                {/* Pricing Card */}
+                {/* Pricing Overview Card */}
                 <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
-
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Program Pricing</h3>
+                  
+                  <div className="space-y-3 mb-6">
+                    {[
+                      { label: '15 Days', price: internship?.price_15_days, discount: internship?.discount_15_days },
+                      { label: '1 Month', price: internship?.price_1_month, discount: internship?.discount_1_month },
+                      { label: '2 Months', price: internship?.price_2_months, discount: internship?.discount_2_months },
+                      { label: '3 Months', price: internship?.price_3_months, discount: internship?.discount_3_months }
+                    ].map((tier, index) => {
+                      const originalPrice = tier.price || 0;
+                      const discount = tier.discount || 0;
+                      const finalPrice = originalPrice - (originalPrice * discount / 100);
+                      return (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                          <span className="font-medium text-gray-700">{tier.label}</span>
+                          <div className="text-right">
+                            <div className="font-bold text-gray-900">₹{finalPrice.toLocaleString()}</div>
+                            {discount > 0 && (
+                              <div className="text-xs text-green-600">Save {discount}%</div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
 
                   {/* Action Buttons */}
                   <div className="space-y-3">
@@ -308,13 +320,39 @@ const InternshipDetails = () => {
                       variant="outline"
                       size="lg"
                       className="w-full border-gray-300 text-gray-800"
+                      icon={<Mail className="w-5 h-5" />}
                     >
                       Contact Us
                     </Button>
                   </div>
                 </div>
 
-
+                {/* Quick Info */}
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl border border-orange-200 p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Program Highlights</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-700">100% Internship Certification</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-700">Real-Time Hands-On Projects</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-700">Expert Mentor Support</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-700">Placement Guidance</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-700">Flexible Learning Schedule</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

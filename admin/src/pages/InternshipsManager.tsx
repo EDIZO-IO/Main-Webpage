@@ -1,821 +1,794 @@
-
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Search, RefreshCw, Edit2, X, FileText, DollarSign, List, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Search, RefreshCw, Edit2, X, Package } from 'lucide-react';
+import { internshipsAPI } from '../api/api';
+import { toast } from 'react-toastify';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
-// Detailed Interface matching Sheet Columns
 interface Internship {
-    rowIndex: number; // 0-based index in the spreadsheet (including header)
-    id: string; // Col A
-    title: string; // Col B
-    category: string; // Col C
-    mode: string; // Col D
-    company: string; // Col E
-    image: string; // Col F
-    rating: string; // Col G
-    description: string; // Col H
-    price1Month: string; // Col AA (index 27)
-    discount1Month: string; // Col AB (index 31)
-    fullRow: string[]; // Store full row to preserve unedited data
+  id: string;
+  internship_id: string;
+  title: string;
+  category: string;
+  mode: 'Online' | 'Offline' | 'Hybrid';
+  company: string;
+  rating: number;
+  description: string;
+  why_choose_edizo_1?: string;
+  why_choose_edizo_2?: string;
+  why_choose_edizo_3?: string;
+  why_choose_edizo_4?: string;
+  why_choose_edizo_5?: string;
+  why_choose_edizo_6?: string;
+  benefit_1?: string;
+  benefit_2?: string;
+  benefit_3?: string;
+  benefit_4?: string;
+  benefit_5?: string;
+  benefit_6?: string;
+  benefit_7?: string;
+  price_15_days: number;
+  price_1_month: number;
+  price_2_months: number;
+  price_3_months: number;
+  discount_15_days: number;
+  discount_1_month: number;
+  discount_2_months: number;
+  discount_3_months: number;
+  coupon_code: string;
+  coupon_discount_15_days: number;
+  coupon_discount_1_month: number;
+  coupon_discount_2_months: number;
+  coupon_discount_3_months: number;
+  is_active: boolean;
+  is_featured: boolean;
+  display_order: number;
 }
 
-// Column Indices mapping
-const COL_ID = 0;
-const COL_TITLE = 1;
-const COL_CATEGORY = 2;
-const COL_MODE = 3;
-const COL_COMPANY = 4;
-const COL_IMAGE = 5;
-const COL_RATING = 6;
-const COL_DESCRIPTION = 7;
-
-// Why Choose (8-14)
-const COL_WHY_START = 8;
-const COL_WHY_END = 14;
-
-// Benefits (15-21)
-const COL_BENEFITS_START = 15;
-const COL_BENEFITS_END = 21;
-
-// Syllabus (22-25)
-const COL_SYLLABUS_15D = 22;
-const COL_SYLLABUS_1M = 23;
-const COL_SYLLABUS_2M = 24;
-const COL_SYLLABUS_3M = 25;
-
-// Pricing: AA(26)..AD(29)
-const COL_PRICE_15D = 26;
-const COL_PRICE_1M = 27;
-const COL_PRICE_2M = 28;
-const COL_PRICE_3M = 29;
-
-// Discount: AE(30)..AH(33)
-const COL_DISC_15D = 30;
-const COL_DISC_1M = 31;
-const COL_DISC_2M = 32;
-const COL_DISC_3M = 33;
-
-const COL_COUPONS = 34; // AI
-
-// Coupon Discounts: AJ(35)..AM(38)
-const COL_COUPON_DISC_15D = 35;
-const COL_COUPON_DISC_1M = 36;
-const COL_COUPON_DISC_2M = 37;
-const COL_COUPON_DISC_3M = 38;
-
 export default function InternshipsManager() {
-    const [internships, setInternships] = useState<Internship[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-    const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
-    const [editingIndex, setEditingIndex] = useState<number | null>(null);
-    const [activeTab, setActiveTab] = useState<'general' | 'pricing' | 'content'>('general');
+  const [internships, setInternships] = useState<Internship[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-    // Form State
-    const [formData, setFormData] = useState({
-        id: '',
-        title: '',
-        category: 'Development',
-        mode: 'Online',
-        company: 'EDIZO',
-        image: '',
-        rating: '4.5',
-        description: '',
-        // Pricing
-        price15d: '0', price1m: '0', price2m: '0', price3m: '0',
-        // Discounts
-        disc15d: '0', disc1m: '0', disc2m: '0', disc3m: '0',
-        // Coupon Discounts
-        cdisc15d: '0', cdisc1m: '0', cdisc2m: '0', cdisc3m: '0',
-        coupons: '', // Comma sep
-        // Content (newlines)
-        whyChoose: '',
-        benefits: '',
-        // Syllabus (comma sep)
-        syl15d: '', syl1m: '', syl2m: '', syl3m: ''
+  const [formData, setFormData] = useState({
+    internship_id: '',
+    title: '',
+    category: 'Development',
+    mode: 'Online' as 'Online' | 'Offline' | 'Hybrid',
+    company: 'EDIZO',
+    rating: 4.5,
+    description: '',
+
+    // Why Choose Edizo (6 items)
+    why_choose_edizo_1: '100% Internship Certification',
+    why_choose_edizo_2: 'Real-Time, Hands-On Project for Each Course',
+    why_choose_edizo_3: 'Learn from Experienced Industry Mentors',
+    why_choose_edizo_4: 'Placement Guidance & Portfolio Support',
+    why_choose_edizo_5: 'Paid Internship Opportunities',
+    why_choose_edizo_6: 'Gain In-Demand Industry Skills',
+
+    // Benefits (7 items)
+    benefit_1: 'Build Strong Resume with Real-Time Projects',
+    benefit_2: 'Internship Certificate Recognized by Companies',
+    benefit_3: 'Boost Confidence for Interviews & Job Roles',
+    benefit_4: 'Get Exposure to Professional Tools & Platforms',
+    benefit_5: '',
+    benefit_6: '',
+    benefit_7: '',
+
+    // Pricing
+    price_15_days: 1499,
+    price_1_month: 2499,
+    price_2_months: 3999,
+    price_3_months: 5499,
+
+    // Discounts
+    discount_15_days: 0,
+    discount_1_month: 0,
+    discount_2_months: 0,
+    discount_3_months: 0,
+
+    // Coupon
+    coupon_code: 'EDIZOCOP',
+    coupon_discount_15_days: 0,
+    coupon_discount_1_month: 0,
+    coupon_discount_2_months: 0,
+    coupon_discount_3_months: 0,
+    
+    is_active: true,
+    is_featured: false,
+    display_order: 0
+  });
+
+  const [submitting, setSubmitting] = useState(false);
+
+  const fetchInternships = async () => {
+    setLoading(true);
+    try {
+      const response = await internshipsAPI.getAll();
+      setInternships(response.data.internships || []);
+    } catch (error: any) {
+      console.error('Error fetching internships:', error);
+      toast.error(error.response?.data?.error || 'Failed to fetch internships');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInternships();
+  }, []);
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await internshipsAPI.delete(deleteId);
+      toast.success('Internship deleted successfully');
+      setDeleteId(null);
+      fetchInternships();
+    } catch (error: any) {
+      console.error('Error deleting internship:', error);
+      toast.error(error.response?.data?.error || 'Failed to delete internship');
+    }
+  };
+
+  const handleEditClick = async (internship: Internship) => {
+    setModalMode('edit');
+    setEditingId(internship.id);
+
+    setFormData({
+      internship_id: internship.internship_id || '',
+      title: internship.title,
+      category: internship.category,
+      mode: internship.mode,
+      company: internship.company,
+      rating: internship.rating,
+      description: internship.description,
+      why_choose_edizo_1: internship.why_choose_edizo_1 || formData.why_choose_edizo_1,
+      why_choose_edizo_2: internship.why_choose_edizo_2 || formData.why_choose_edizo_2,
+      why_choose_edizo_3: internship.why_choose_edizo_3 || formData.why_choose_edizo_3,
+      why_choose_edizo_4: internship.why_choose_edizo_4 || formData.why_choose_edizo_4,
+      why_choose_edizo_5: internship.why_choose_edizo_5 || formData.why_choose_edizo_5,
+      why_choose_edizo_6: internship.why_choose_edizo_6 || formData.why_choose_edizo_6,
+      benefit_1: internship.benefit_1 || formData.benefit_1,
+      benefit_2: internship.benefit_2 || formData.benefit_2,
+      benefit_3: internship.benefit_3 || formData.benefit_3,
+      benefit_4: internship.benefit_4 || formData.benefit_4,
+      benefit_5: internship.benefit_5 || '',
+      benefit_6: internship.benefit_6 || '',
+      benefit_7: internship.benefit_7 || '',
+      price_15_days: internship.price_15_days || 0,
+      price_1_month: internship.price_1_month || 0,
+      price_2_months: internship.price_2_months || 0,
+      price_3_months: internship.price_3_months || 0,
+      discount_15_days: internship.discount_15_days || 0,
+      discount_1_month: internship.discount_1_month || 0,
+      discount_2_months: internship.discount_2_months || 0,
+      discount_3_months: internship.discount_3_months || 0,
+      coupon_code: internship.coupon_code || 'EDIZOCOP',
+      coupon_discount_15_days: internship.coupon_discount_15_days || 0,
+      coupon_discount_1_month: internship.coupon_discount_1_month || 0,
+      coupon_discount_2_months: internship.coupon_discount_2_months || 0,
+      coupon_discount_3_months: internship.coupon_discount_3_months || 0,
+      is_active: internship.is_active,
+      is_featured: internship.is_featured,
+      display_order: internship.display_order
     });
+    setShowModal(true);
+  };
 
-    const [submitting, setSubmitting] = useState(false);
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
 
-    const fetchInternships = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch(`${API_URL}/api/admin/internships`);
-            const data = await response.json();
+    try {
+      const data = {
+        ...formData,
+        slug: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      };
 
-            if (data.values && Array.isArray(data.values)) {
-                const parsed = data.values.slice(1).map((row: string[], idx: number) => ({
-                    rowIndex: idx + 1,
-                    id: row[COL_ID] || '',
-                    title: row[COL_TITLE] || '',
-                    category: row[COL_CATEGORY] || '',
-                    mode: row[COL_MODE] || '',
-                    company: row[COL_COMPANY] || '',
-                    image: row[COL_IMAGE] || '',
-                    rating: row[COL_RATING] || '',
-                    description: row[COL_DESCRIPTION] || '',
-                    price1Month: row[COL_PRICE_1M] || '0',
-                    discount1Month: row[COL_DISC_1M] || '0',
-                    fullRow: row
-                }));
-                setInternships(parsed);
-            }
-        } catch (error) {
-            console.error('Error fetching internships:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+      if (modalMode === 'add') {
+        await internshipsAPI.create(data);
+        toast.success('Internship created successfully');
+      } else if (editingId) {
+        await internshipsAPI.update(editingId, data);
+        toast.success('Internship updated successfully');
+      }
 
-    useEffect(() => {
-        fetchInternships();
-    }, []);
+      setShowModal(false);
+      fetchInternships();
+    } catch (error: any) {
+      console.error('Error saving internship:', error);
+      toast.error(error.response?.data?.error || 'Failed to save internship');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-    const handleDelete = async () => {
-        if (deleteIndex === null) return;
-        try {
-            const response = await fetch(`${API_URL}/api/admin/internships/${deleteIndex}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                setDeleteIndex(null);
-                fetchInternships();
-            } else {
-                alert('Failed to delete internship');
-            }
-        } catch (error) {
-            console.error('Error deleting internship:', error);
-        }
-    };
+  const filteredInternships = internships.filter(i =>
+    i.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    i.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    i.internship_id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    const handleEditClick = async (internship: Internship) => {
-        setModalMode('edit');
-        setEditingIndex(internship.rowIndex);
-        setActiveTab('general');
-
-        const row = internship.fullRow || [];
-
-        // Join multiple columns into single string for textareas
-        const whyChoose = row.slice(COL_WHY_START, COL_WHY_END + 1).filter(Boolean).join('\n');
-        const benefits = row.slice(COL_BENEFITS_START, COL_BENEFITS_END + 1).filter(Boolean).join('\n');
-
-        setFormData({
-            id: internship.id,
-            title: internship.title,
-            category: internship.category,
-            mode: internship.mode,
-            company: internship.company,
-            image: internship.image,
-            rating: internship.rating,
-            description: internship.description,
-
-            price15d: row[COL_PRICE_15D] || '0',
-            price1m: row[COL_PRICE_1M] || '0',
-            price2m: row[COL_PRICE_2M] || '0',
-            price3m: row[COL_PRICE_3M] || '0',
-
-            disc15d: row[COL_DISC_15D] || '0',
-            disc1m: row[COL_DISC_1M] || '0',
-            disc2m: row[COL_DISC_2M] || '0',
-            disc3m: row[COL_DISC_3M] || '0',
-
-            cdisc15d: row[COL_COUPON_DISC_15D] || '0',
-            cdisc1m: row[COL_COUPON_DISC_1M] || '0',
-            cdisc2m: row[COL_COUPON_DISC_2M] || '0',
-            cdisc3m: row[COL_COUPON_DISC_3M] || '0',
-
-            coupons: row[COL_COUPONS] || '',
-
-            whyChoose,
-            benefits,
-
-            syl15d: row[COL_SYLLABUS_15D] || '',
-            syl1m: row[COL_SYLLABUS_1M] || '',
-            syl2m: row[COL_SYLLABUS_2M] || '',
-            syl3m: row[COL_SYLLABUS_3M] || ''
-        });
-        setShowModal(true);
-    };
-
-    const handleFormSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSubmitting(true);
-
-        try {
-            // New row array (39 cols)
-            const row = new Array(39).fill('');
-
-            // Basic
-            row[COL_ID] = formData.id;
-            row[COL_TITLE] = formData.title;
-            row[COL_CATEGORY] = formData.category;
-            row[COL_MODE] = formData.mode;
-            row[COL_COMPANY] = formData.company;
-            row[COL_IMAGE] = formData.image;
-            row[COL_RATING] = formData.rating;
-            row[COL_DESCRIPTION] = formData.description;
-
-            // Why Choose (Split by newline, max 7)
-            const whyChooseArr = formData.whyChoose.split('\n').filter(s => s.trim());
-            for (let i = 0; i < 7; i++) {
-                row[COL_WHY_START + i] = whyChooseArr[i] || '';
-            }
-
-            // Benefits (Split by newline, max 7)
-            const benefitsArr = formData.benefits.split('\n').filter(s => s.trim());
-            for (let i = 0; i < 7; i++) {
-                row[COL_BENEFITS_START + i] = benefitsArr[i] || '';
-            }
-
-            // Syllabus
-            row[COL_SYLLABUS_15D] = formData.syl15d;
-            row[COL_SYLLABUS_1M] = formData.syl1m;
-            row[COL_SYLLABUS_2M] = formData.syl2m;
-            row[COL_SYLLABUS_3M] = formData.syl3m;
-
-            // Pricing
-            row[COL_PRICE_15D] = formData.price15d;
-            row[COL_PRICE_1M] = formData.price1m;
-            row[COL_PRICE_2M] = formData.price2m;
-            row[COL_PRICE_3M] = formData.price3m;
-
-            // Discounts
-            row[COL_DISC_15D] = formData.disc15d;
-            row[COL_DISC_1M] = formData.disc1m;
-            row[COL_DISC_2M] = formData.disc2m;
-            row[COL_DISC_3M] = formData.disc3m;
-
-            // Coupons
-            row[COL_COUPONS] = formData.coupons;
-
-            // Coupon Discounts
-            row[COL_COUPON_DISC_15D] = formData.cdisc15d;
-            row[COL_COUPON_DISC_1M] = formData.cdisc1m;
-            row[COL_COUPON_DISC_2M] = formData.cdisc2m;
-            row[COL_COUPON_DISC_3M] = formData.cdisc3m;
-
-            let url = `${API_URL}/api/admin/internships`;
-            let method = 'POST';
-
-            if (modalMode === 'edit' && editingIndex !== null) {
-                url = `${API_URL}/api/admin/internships/${editingIndex}`;
-                method = 'PUT';
-            }
-
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ values: row })
-            });
-
-            if (response.ok) {
-                setShowModal(false);
-                fetchInternships();
-            } else {
-                alert('Failed to save');
-            }
-        } catch (error) {
-            console.error('Error saving:', error);
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const filteredInternships = internships.filter(i =>
-        i.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        i.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        i.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    if (loading) return <div className="flex justify-center items-center h-[50vh]"><div className="loading-spinner" /></div>;
-
+  if (loading) {
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b' }}>Internships</h1>
-                    <p style={{ color: '#64748b' }}>Manage internship opportunities</p>
-                </div>
-                <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                        setModalMode('add');
-                        setFormData({
-                            id: `INT-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000)}`,
-                            title: '', category: 'Development', mode: 'Online', company: 'EDIZO',
-                            image: '', rating: '4.5', description: '',
-                            price15d: '0', price1m: '0', price2m: '0', price3m: '0',
-                            disc15d: '0', disc1m: '0', disc2m: '0', disc3m: '0',
-                            cdisc15d: '0', cdisc1m: '0', cdisc2m: '0', cdisc3m: '0',
-                            coupons: '', whyChoose: '', benefits: '',
-                            syl15d: '', syl1m: '', syl2m: '', syl3m: ''
-                        });
-                        setActiveTab('general');
-                        setShowModal(true);
-                    }}
-                >
-                    <Plus size={18} /> Add Internship
-                </button>
-            </div>
-
-            <div className="card mb-6">
-                <div className="flex gap-4">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input
-                            type="text"
-                            className="form-input pl-10"
-                            placeholder="Search internships..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                    <button className="btn btn-secondary" onClick={fetchInternships}>
-                        <RefreshCw size={18} /> Refresh
-                    </button>
-                </div>
-            </div>
-
-            <div className="card overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="text-left border-b border-gray-700">
-                                <th className="p-4">ID</th>
-                                <th className="p-4">Title</th>
-                                <th className="p-4">Category</th>
-                                <th className="p-4">Mode</th>
-                                <th className="p-4">Price (1m)</th>
-                                <th className="p-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredInternships.map((internship) => (
-                                <tr key={internship.rowIndex} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.15)' }}>
-                                    <td style={{ padding: '1rem', fontFamily: 'monospace', fontSize: '0.875rem', color: '#64748b' }}>{internship.id}</td>
-                                    <td style={{ padding: '1rem', fontWeight: '500', color: '#1e293b' }}>{internship.title}</td>
-                                    <td style={{ padding: '1rem' }}>
-                                        <span className="badge badge-primary">
-                                            {internship.category}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '1rem', color: '#334155' }}>{internship.mode}</td>
-                                    <td style={{ padding: '1rem', color: '#1e293b', fontWeight: '500' }}>₹{internship.price1Month}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'right' }}>
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                                className="btn btn-secondary btn-sm"
-                                                onClick={() => handleEditClick(internship)}
-                                            >
-                                                <Edit2 size={14} />
-                                            </button>
-                                            <button
-                                                className="btn btn-danger btn-sm"
-                                                onClick={() => setDeleteIndex(internship.rowIndex)}
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Modal */}
-            {showModal && (
-                <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="modal" style={{ maxWidth: '900px' }} onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3 style={{ fontWeight: '600', color: '#1e293b' }}>{modalMode === 'add' ? 'New Internship' : 'Edit Internship'}</h3>
-                            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        {/* Tabs */}
-                        <div style={{ display: 'flex', borderBottom: '1px solid rgba(148, 163, 184, 0.2)', padding: '0 1rem' }}>
-                            <button
-                                style={{
-                                    padding: '0.875rem 1.25rem',
-                                    fontWeight: '500',
-                                    fontSize: '0.875rem',
-                                    display: 'flex',
-                                    gap: '0.5rem',
-                                    alignItems: 'center',
-                                    color: activeTab === 'general' ? '#f97316' : '#64748b',
-                                    borderBottom: activeTab === 'general' ? '2px solid #f97316' : '2px solid transparent',
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer'
-                                }}
-                                onClick={() => setActiveTab('general')}
-                            >
-                                <FileText size={16} /> General Info
-                            </button>
-                            <button
-                                style={{
-                                    padding: '0.875rem 1.25rem',
-                                    fontWeight: '500',
-                                    fontSize: '0.875rem',
-                                    display: 'flex',
-                                    gap: '0.5rem',
-                                    alignItems: 'center',
-                                    color: activeTab === 'pricing' ? '#f97316' : '#64748b',
-                                    borderBottom: activeTab === 'pricing' ? '2px solid #f97316' : '2px solid transparent',
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer'
-                                }}
-                                onClick={() => setActiveTab('pricing')}
-                            >
-                                <DollarSign size={16} /> Pricing & Coupons
-                            </button>
-                            <button
-                                style={{
-                                    padding: '0.875rem 1.25rem',
-                                    fontWeight: '500',
-                                    fontSize: '0.875rem',
-                                    display: 'flex',
-                                    gap: '0.5rem',
-                                    alignItems: 'center',
-                                    color: activeTab === 'content' ? '#f97316' : '#64748b',
-                                    borderBottom: activeTab === 'content' ? '2px solid #f97316' : '2px solid transparent',
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer'
-                                }}
-                                onClick={() => setActiveTab('content')}
-                            >
-                                <List size={16} /> Content & Syllabus
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleFormSubmit} className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-
-                            {activeTab === 'general' && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                                    {/* Basic Info Section */}
-                                    <div style={{
-                                        background: 'rgba(148, 163, 184, 0.06)',
-                                        borderRadius: '1rem',
-                                        padding: '1.25rem',
-                                        border: '1px solid rgba(148, 163, 184, 0.1)'
-                                    }}>
-                                        <h4 style={{
-                                            fontSize: '0.75rem',
-                                            fontWeight: '600',
-                                            color: '#f97316',
-                                            marginBottom: '1rem',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.05em',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem'
-                                        }}>
-                                            <FileText size={14} /> Basic Information
-                                        </h4>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                            <div className="form-group" style={{ margin: 0 }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Internship ID</label>
-                                                <input className="form-input" value={formData.id} onChange={e => setFormData({ ...formData, id: e.target.value })} placeholder="INT-2024-001" />
-                                            </div>
-                                            <div className="form-group" style={{ margin: 0 }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Company</label>
-                                                <input className="form-input" value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} placeholder="EDIZO" />
-                                            </div>
-                                            <div className="form-group" style={{ margin: 0, gridColumn: 'span 2' }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Title *</label>
-                                                <input className="form-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="Web Development Internship" style={{ fontWeight: '500' }} />
-                                            </div>
-                                            <div className="form-group" style={{ margin: 0 }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Category</label>
-                                                <select className="form-select" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}>
-                                                    <option>Development</option>
-                                                    <option>Design</option>
-                                                    <option>Data Science</option>
-                                                    <option>Marketing</option>
-                                                    <option>Management</option>
-                                                </select>
-                                            </div>
-                                            <div className="form-group" style={{ margin: 0 }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Mode</label>
-                                                <select className="form-select" value={formData.mode} onChange={e => setFormData({ ...formData, mode: e.target.value })}>
-                                                    <option>Online</option>
-                                                    <option>Offline</option>
-                                                    <option>Hybrid</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Details Section */}
-                                    <div style={{
-                                        background: 'rgba(148, 163, 184, 0.06)',
-                                        borderRadius: '1rem',
-                                        padding: '1.25rem',
-                                        border: '1px solid rgba(148, 163, 184, 0.1)'
-                                    }}>
-                                        <h4 style={{
-                                            fontSize: '0.75rem',
-                                            fontWeight: '600',
-                                            color: '#f97316',
-                                            marginBottom: '1rem',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.05em',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem'
-                                        }}>
-                                            <ImageIcon size={14} /> Media & Details
-                                        </h4>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                            <div className="form-group" style={{ margin: 0 }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Rating</label>
-                                                <input type="number" step="0.1" min="0" max="5" className="form-input" value={formData.rating} onChange={e => setFormData({ ...formData, rating: e.target.value })} placeholder="4.5" />
-                                            </div>
-                                            <div className="form-group" style={{ margin: 0 }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Image URL</label>
-                                                <input className="form-input" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} placeholder="https://..." />
-                                            </div>
-                                            <div className="form-group" style={{ margin: 0, gridColumn: 'span 2' }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Description</label>
-                                                <textarea className="form-input" style={{ minHeight: '100px', resize: 'vertical' }} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Enter a compelling description for this internship..." />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeTab === 'pricing' && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                                    {/* Pricing Cards */}
-                                    <div style={{
-                                        background: 'rgba(148, 163, 184, 0.06)',
-                                        borderRadius: '1rem',
-                                        padding: '1.25rem',
-                                        border: '1px solid rgba(148, 163, 184, 0.1)'
-                                    }}>
-                                        <h4 style={{
-                                            fontSize: '0.75rem',
-                                            fontWeight: '600',
-                                            color: '#f97316',
-                                            marginBottom: '1rem',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.05em',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem'
-                                        }}>
-                                            <DollarSign size={14} /> Pricing Plans
-                                        </h4>
-
-                                        {/* Header */}
-                                        <div style={{
-                                            display: 'grid',
-                                            gridTemplateColumns: '140px 1fr 1fr 1fr',
-                                            gap: '0.75rem',
-                                            marginBottom: '0.75rem',
-                                            padding: '0.5rem 0.75rem',
-                                            background: 'rgba(148, 163, 184, 0.08)',
-                                            borderRadius: '0.5rem'
-                                        }}>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase' }}>Duration</div>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase' }}>Price (₹)</div>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase' }}>Discount %</div>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase' }}>Coupon Disc %</div>
-                                        </div>
-
-                                        {/* Pricing Rows */}
-                                        {[
-                                            { l: '15 Days', p: 'price15d', d: 'disc15d', c: 'cdisc15d', color: '#94a3b8' },
-                                            { l: '1 Month', p: 'price1m', d: 'disc1m', c: 'cdisc1m', color: '#22c55e' },
-                                            { l: '2 Months', p: 'price2m', d: 'disc2m', c: 'cdisc2m', color: '#3b82f6' },
-                                            { l: '3 Months', p: 'price3m', d: 'disc3m', c: 'cdisc3m', color: '#f97316' }
-                                        ].map((row, i) => (
-                                            <div key={i} style={{
-                                                display: 'grid',
-                                                gridTemplateColumns: '140px 1fr 1fr 1fr',
-                                                gap: '0.75rem',
-                                                alignItems: 'center',
-                                                padding: '0.75rem',
-                                                background: i % 2 === 0 ? 'transparent' : 'rgba(148, 163, 184, 0.04)',
-                                                borderRadius: '0.5rem'
-                                            }}>
-                                                <div style={{
-                                                    fontWeight: '600',
-                                                    color: '#1e293b',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '0.5rem'
-                                                }}>
-                                                    <span style={{
-                                                        width: '8px',
-                                                        height: '8px',
-                                                        borderRadius: '50%',
-                                                        background: row.color
-                                                    }} />
-                                                    {row.l}
-                                                </div>
-                                                <input
-                                                    type="number"
-                                                    className="form-input"
-                                                    style={{ padding: '0.625rem 0.75rem' }}
-                                                    value={(formData as any)[row.p]}
-                                                    onChange={e => setFormData({ ...formData, [row.p]: e.target.value })}
-                                                    placeholder="0"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    className="form-input"
-                                                    style={{ padding: '0.625rem 0.75rem' }}
-                                                    value={(formData as any)[row.d]}
-                                                    onChange={e => setFormData({ ...formData, [row.d]: e.target.value })}
-                                                    placeholder="0"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    className="form-input"
-                                                    style={{ padding: '0.625rem 0.75rem' }}
-                                                    value={(formData as any)[row.c]}
-                                                    onChange={e => setFormData({ ...formData, [row.c]: e.target.value })}
-                                                    placeholder="0"
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Coupons Section */}
-                                    <div style={{
-                                        background: 'rgba(148, 163, 184, 0.06)',
-                                        borderRadius: '1rem',
-                                        padding: '1.25rem',
-                                        border: '1px solid rgba(148, 163, 184, 0.1)'
-                                    }}>
-                                        <h4 style={{
-                                            fontSize: '0.75rem',
-                                            fontWeight: '600',
-                                            color: '#f97316',
-                                            marginBottom: '1rem',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.05em'
-                                        }}>
-                                            🎟️ Coupon Codes
-                                        </h4>
-                                        <div className="form-group" style={{ margin: 0 }}>
-                                            <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Available Coupons (Comma Separated)</label>
-                                            <input
-                                                className="form-input"
-                                                value={formData.coupons}
-                                                onChange={e => setFormData({ ...formData, coupons: e.target.value })}
-                                                placeholder="SAVE10, SAVE20, WELCOME50"
-                                            />
-                                            <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem' }}>
-                                                These codes will apply the Coupon Discount % from the pricing table above
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeTab === 'content' && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                                    {/* Features Section */}
-                                    <div style={{
-                                        background: 'rgba(148, 163, 184, 0.06)',
-                                        borderRadius: '1rem',
-                                        padding: '1.25rem',
-                                        border: '1px solid rgba(148, 163, 184, 0.1)'
-                                    }}>
-                                        <h4 style={{
-                                            fontSize: '0.75rem',
-                                            fontWeight: '600',
-                                            color: '#f97316',
-                                            marginBottom: '1rem',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.05em',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem'
-                                        }}>
-                                            ✨ Features & Benefits
-                                        </h4>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                            <div className="form-group" style={{ margin: 0 }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Why Choose EDIZO</label>
-                                                <textarea
-                                                    className="form-input"
-                                                    style={{ minHeight: '140px', resize: 'vertical' }}
-                                                    value={formData.whyChoose}
-                                                    onChange={e => setFormData({ ...formData, whyChoose: e.target.value })}
-                                                    placeholder="Enter one feature per line:&#10;Expert mentors&#10;Real projects&#10;Certificate"
-                                                />
-                                                <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.375rem' }}>One feature per line (max 7)</p>
-                                            </div>
-                                            <div className="form-group" style={{ margin: 0 }}>
-                                                <label className="form-label" style={{ color: '#475569', fontSize: '0.8125rem' }}>Benefits</label>
-                                                <textarea
-                                                    className="form-input"
-                                                    style={{ minHeight: '140px', resize: 'vertical' }}
-                                                    value={formData.benefits}
-                                                    onChange={e => setFormData({ ...formData, benefits: e.target.value })}
-                                                    placeholder="Enter one benefit per line:&#10;Industry recognition&#10;Career growth&#10;Networking"
-                                                />
-                                                <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.375rem' }}>One benefit per line (max 7)</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Syllabus Section */}
-                                    <div style={{
-                                        background: 'rgba(148, 163, 184, 0.06)',
-                                        borderRadius: '1rem',
-                                        padding: '1.25rem',
-                                        border: '1px solid rgba(148, 163, 184, 0.1)'
-                                    }}>
-                                        <h4 style={{
-                                            fontSize: '0.75rem',
-                                            fontWeight: '600',
-                                            color: '#f97316',
-                                            marginBottom: '1rem',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.05em',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem'
-                                        }}>
-                                            <List size={14} /> Syllabus by Duration
-                                        </h4>
-                                        <div style={{ display: 'grid', gap: '1rem' }}>
-                                            {[
-                                                { label: '15 Days Program', key: 'syl15d', color: '#94a3b8' },
-                                                { label: '1 Month Program', key: 'syl1m', color: '#22c55e' },
-                                                { label: '2 Months Program', key: 'syl2m', color: '#3b82f6' },
-                                                { label: '3 Months Program', key: 'syl3m', color: '#f97316' }
-                                            ].map((item, i) => (
-                                                <div key={i} className="form-group" style={{ margin: 0 }}>
-                                                    <label className="form-label" style={{
-                                                        color: '#475569',
-                                                        fontSize: '0.8125rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '0.5rem'
-                                                    }}>
-                                                        <span style={{
-                                                            width: '8px',
-                                                            height: '8px',
-                                                            borderRadius: '50%',
-                                                            background: item.color
-                                                        }} />
-                                                        {item.label}
-                                                    </label>
-                                                    <input
-                                                        className="form-input"
-                                                        value={(formData as any)[item.key]}
-                                                        onChange={e => setFormData({ ...formData, [item.key]: e.target.value })}
-                                                        placeholder="HTML, CSS, JavaScript, React, Node.js"
-                                                    />
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.75rem' }}>
-                                            Enter comma-separated topics for each duration
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-                        </form>
-
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                            <button type="button" className="btn btn-primary" onClick={handleFormSubmit} disabled={submitting}>{submitting ? 'Saving...' : 'Save Internship'}</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {deleteIndex !== null && (
-                <div className="modal-overlay">
-                    <div className="modal" style={{ maxWidth: '400px' }}>
-                        <div className="modal-header">
-                            <h3 style={{ fontWeight: '600', color: '#1e293b' }}>Confirm Delete</h3>
-                        </div>
-                        <div className="modal-body">
-                            <p style={{ color: '#334155' }}>Are you sure? This cannot be undone.</p>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn btn-secondary" onClick={() => setDeleteIndex(null)}>Cancel</button>
-                            <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <div className="loading-spinner" />
+      </div>
     );
+  }
+
+  return (
+    <div>
+      {/* Page Header */}
+      <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h1>Internships</h1>
+            <p style={{ color: '#64748b', marginTop: '0.25rem' }}>Manage internship opportunities</p>
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setModalMode('add');
+              setFormData({
+                internship_id: `INT-${Date.now()}`,
+                title: '',
+                category: 'Development',
+                mode: 'Online',
+                company: 'EDIZO',
+                rating: 4.5,
+                description: '',
+                why_choose_edizo_1: '100% Internship Certification',
+                why_choose_edizo_2: 'Real-Time, Hands-On Project for Each Course',
+                why_choose_edizo_3: 'Learn from Experienced Industry Mentors',
+                why_choose_edizo_4: 'Placement Guidance & Portfolio Support',
+                why_choose_edizo_5: 'Paid Internship Opportunities',
+                why_choose_edizo_6: 'Gain In-Demand Industry Skills',
+                benefit_1: 'Build Strong Resume with Real-Time Projects',
+                benefit_2: 'Internship Certificate Recognized by Companies',
+                benefit_3: 'Boost Confidence for Interviews & Job Roles',
+                benefit_4: 'Get Exposure to Professional Tools & Platforms',
+                benefit_5: '',
+                benefit_6: '',
+                benefit_7: '',
+                price_15_days: 1499,
+                price_1_month: 2499,
+                price_2_months: 3999,
+                price_3_months: 5499,
+                discount_15_days: 0,
+                discount_1_month: 0,
+                discount_2_months: 0,
+                discount_3_months: 0,
+                coupon_code: 'EDIZOCOP',
+                coupon_discount_15_days: 0,
+                coupon_discount_1_month: 0,
+                coupon_discount_2_months: 0,
+                coupon_discount_3_months: 0,
+                is_active: true,
+                is_featured: false,
+                display_order: 0
+              });
+              setShowModal(true);
+            }}
+          >
+            <Plus size={18} />
+            Add Internship
+          </button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="card mb-6">
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <Search size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Search internships..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ paddingLeft: '2.5rem' }}
+            />
+          </div>
+          <button className="btn btn-secondary" onClick={fetchInternships}>
+            <RefreshCw size={18} />
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* Internships Table */}
+      <div className="card">
+        {filteredInternships.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+            <Package size={48} style={{ margin: '0 auto 1rem', color: '#e2e8f0' }} />
+            <p>No internships found</p>
+          </div>
+        ) : (
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Mode</th>
+                  <th>Price (1m)</th>
+                  <th>Status</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredInternships.map((internship) => (
+                  <tr key={internship.id}>
+                    <td style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#64748b' }}>{internship.internship_id}</td>
+                    <td>
+                      <div style={{ fontWeight: '600', color: '#1e293b' }}>{internship.title}</div>
+                    </td>
+                    <td>
+                      <span className="badge badge-primary">{internship.category}</span>
+                    </td>
+                    <td style={{ color: '#475569' }}>{internship.mode}</td>
+                    <td style={{ fontWeight: '600', color: '#1e293b' }}>₹{internship.price_1_month || 0}</td>
+                    <td>
+                      {internship.is_active ? (
+                        <span className="badge badge-success">Active</span>
+                      ) : (
+                        <span className="badge" style={{ background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0' }}>Inactive</span>
+                      )}
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => handleEditClick(internship)}
+                          title="Edit"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => setDeleteId(internship.id)}
+                          title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '900px', maxHeight: '90vh', overflow: 'auto' }}>
+            <div className="modal-header">
+              <h3>{modalMode === 'add' ? 'New Internship' : 'Edit Internship'}</h3>
+              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleFormSubmit} className="modal-body">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                {/* Basic Info */}
+                <div className="form-group">
+                  <label className="form-label">Internship ID</label>
+                  <input
+                    className="form-input"
+                    value={formData.internship_id}
+                    onChange={e => setFormData({ ...formData, internship_id: e.target.value })}
+                    placeholder="INT-2024-001"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Company</label>
+                  <input
+                    className="form-input"
+                    value={formData.company}
+                    onChange={e => setFormData({ ...formData, company: e.target.value })}
+                    placeholder="EDIZO"
+                  />
+                </div>
+                <div className="form-group span-2">
+                  <label className="form-label">Title *</label>
+                  <input
+                    className="form-input"
+                    value={formData.title}
+                    onChange={e => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Web Development Internship"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Category</label>
+                  <select
+                    className="form-input"
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                  >
+                    <option value="Development">Development</option>
+                    <option value="Design">Design</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Management">Management</option>
+                    <option value="HR">HR</option>
+                    <option value="Java">Java</option>
+                    <option value="Python">Python</option>
+                    <option value="AI/ML">AI/ML</option>
+                    <option value="C#">C#</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Mode</label>
+                  <select
+                    className="form-input"
+                    value={formData.mode}
+                    onChange={e => setFormData({ ...formData, mode: e.target.value as 'Online' | 'Offline' | 'Hybrid' })}
+                  >
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+                <div className="form-group span-2">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    className="form-input"
+                    value={formData.description}
+                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                    rows={4}
+                    placeholder="Internship description..."
+                  />
+                </div>
+
+                {/* Why Choose Edizo Section */}
+                <div className="form-group span-2">
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#f97316', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e2e8f0' }}>Why Choose Edizo</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Point 1</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.why_choose_edizo_1}
+                        onChange={e => setFormData({ ...formData, why_choose_edizo_1: e.target.value })}
+                        placeholder="Why choose edizo 1..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Point 2</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.why_choose_edizo_2}
+                        onChange={e => setFormData({ ...formData, why_choose_edizo_2: e.target.value })}
+                        placeholder="Why choose edizo 2..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Point 3</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.why_choose_edizo_3}
+                        onChange={e => setFormData({ ...formData, why_choose_edizo_3: e.target.value })}
+                        placeholder="Why choose edizo 3..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Point 4</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.why_choose_edizo_4}
+                        onChange={e => setFormData({ ...formData, why_choose_edizo_4: e.target.value })}
+                        placeholder="Why choose edizo 4..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Point 5</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.why_choose_edizo_5}
+                        onChange={e => setFormData({ ...formData, why_choose_edizo_5: e.target.value })}
+                        placeholder="Why choose edizo 5..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Point 6</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.why_choose_edizo_6}
+                        onChange={e => setFormData({ ...formData, why_choose_edizo_6: e.target.value })}
+                        placeholder="Why choose edizo 6..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Benefits Section */}
+                <div className="form-group span-2">
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#16a34a', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e2e8f0' }}>Benefits</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Benefit 1</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.benefit_1}
+                        onChange={e => setFormData({ ...formData, benefit_1: e.target.value })}
+                        placeholder="Benefit 1..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Benefit 2</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.benefit_2}
+                        onChange={e => setFormData({ ...formData, benefit_2: e.target.value })}
+                        placeholder="Benefit 2..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Benefit 3</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.benefit_3}
+                        onChange={e => setFormData({ ...formData, benefit_3: e.target.value })}
+                        placeholder="Benefit 3..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Benefit 4</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.benefit_4}
+                        onChange={e => setFormData({ ...formData, benefit_4: e.target.value })}
+                        placeholder="Benefit 4..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Benefit 5</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.benefit_5}
+                        onChange={e => setFormData({ ...formData, benefit_5: e.target.value })}
+                        placeholder="Benefit 5..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Benefit 6</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.benefit_6}
+                        onChange={e => setFormData({ ...formData, benefit_6: e.target.value })}
+                        placeholder="Benefit 6..."
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Benefit 7</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.benefit_7}
+                        onChange={e => setFormData({ ...formData, benefit_7: e.target.value })}
+                        placeholder="Benefit 7..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pricing Section */}
+                <div className="form-group span-2">
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#f97316', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e2e8f0' }}>Pricing (₹)</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.75rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>15 Days</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.price_15_days}
+                        onChange={e => setFormData({ ...formData, price_15_days: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>1 Month</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.price_1_month}
+                        onChange={e => setFormData({ ...formData, price_1_month: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>2 Months</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.price_2_months}
+                        onChange={e => setFormData({ ...formData, price_2_months: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>3 Months</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.price_3_months}
+                        onChange={e => setFormData({ ...formData, price_3_months: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Discount Section */}
+                <div className="form-group span-2">
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#16a34a', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e2e8f0' }}>Discount (%)</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.75rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>15 Days</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.discount_15_days}
+                        onChange={e => setFormData({ ...formData, discount_15_days: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>1 Month</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.discount_1_month}
+                        onChange={e => setFormData({ ...formData, discount_1_month: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>2 Months</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.discount_2_months}
+                        onChange={e => setFormData({ ...formData, discount_2_months: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>3 Months</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.discount_3_months}
+                        onChange={e => setFormData({ ...formData, discount_3_months: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Coupon Section */}
+                <div className="form-group span-2">
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#8b5cf6', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e2e8f0' }}>Coupon Code</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>Coupon Code</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={formData.coupon_code}
+                        onChange={e => setFormData({ ...formData, coupon_code: e.target.value.toUpperCase() })}
+                        placeholder="EDIZOCOP"
+                        maxLength={50}
+                      />
+                    </div>
+                  </div>
+                  <h5 style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.5rem' }}>Coupon Discount (%)</h5>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.75rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>15 Days</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.coupon_discount_15_days}
+                        onChange={e => setFormData({ ...formData, coupon_discount_15_days: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>1 Month</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.coupon_discount_1_month}
+                        onChange={e => setFormData({ ...formData, coupon_discount_1_month: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>2 Months</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.coupon_discount_2_months}
+                        onChange={e => setFormData({ ...formData, coupon_discount_2_months: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '0.25rem', display: 'block' }}>3 Months</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.coupon_discount_3_months}
+                        onChange={e => setFormData({ ...formData, coupon_discount_3_months: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group span-2" style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(formData.is_active)}
+                      onChange={e => setFormData({ ...formData, is_active: e.target.checked })}
+                      style={{ width: '16px', height: '16px', accentColor: '#f97316' }}
+                    />
+                    <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Active</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(formData.is_featured)}
+                      onChange={e => setFormData({ ...formData, is_featured: e.target.checked })}
+                      style={{ width: '16px', height: '16px', accentColor: '#f97316' }}
+                    />
+                    <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Featured</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={submitting}>
+                  {submitting ? 'Saving...' : (modalMode === 'add' ? 'Create Internship' : 'Update Internship')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteId !== null && (
+        <div className="modal-overlay" onClick={() => setDeleteId(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h3>Delete Internship</h3>
+            </div>
+            <div className="modal-body">
+              <p style={{ color: '#334155' }}>Are you sure you want to delete this internship? This action cannot be undone.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setDeleteId(null)}>Cancel</button>
+              <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

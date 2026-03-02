@@ -1,31 +1,37 @@
 import { useState } from 'react';
-import { Lock, Eye, EyeOff } from 'lucide-react';
+import { Lock, Eye, EyeOff, Mail } from 'lucide-react';
+import { authAPI } from '../api/api';
 
 interface LoginProps {
     onLogin: () => void;
 }
 
 export default function Login({ onLogin }: LoginProps) {
+    const [email, setEmail] = useState('admin@edizo.in');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'edizo@admin2025';
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
-        setTimeout(() => {
-            if (password === ADMIN_PASSWORD) {
-                onLogin();
-            } else {
-                setError('Invalid password');
-            }
+        try {
+            const response = await authAPI.login(email, password);
+            const { token, user } = response.data;
+            
+            // Store token and user info
+            localStorage.setItem('admin_token', token);
+            localStorage.setItem('admin_user', JSON.stringify(user));
+            
+            onLogin();
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
+        } finally {
             setLoading(false);
-        }, 500);
+        }
     };
 
     return (
@@ -96,12 +102,37 @@ export default function Login({ onLogin }: LoginProps) {
                         EDIZO Admin
                     </h1>
                     <p style={{ color: '#64748b', fontSize: '0.9375rem' }}>
-                        Enter password to access the admin panel
+                        Enter your credentials to access the admin panel
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
+                        <label className="form-label">Email</label>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type="email"
+                                className="form-input"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="admin@edizo.in"
+                                required
+                                style={{ paddingLeft: '3rem' }}
+                            />
+                            <Mail
+                                size={18}
+                                style={{
+                                    position: 'absolute',
+                                    left: '1rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: '#94a3b8'
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-group" style={{ marginTop: '1.25rem' }}>
                         <label className="form-label">Password</label>
                         <div style={{ position: 'relative' }}>
                             <input
@@ -109,9 +140,19 @@ export default function Login({ onLogin }: LoginProps) {
                                 className="form-input"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Enter admin password"
+                                placeholder="Enter your password"
                                 required
-                                style={{ paddingRight: '3rem' }}
+                                style={{ paddingRight: '3rem', paddingLeft: '3rem' }}
+                            />
+                            <Lock
+                                size={18}
+                                style={{
+                                    position: 'absolute',
+                                    left: '1rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: '#94a3b8'
+                                }}
                             />
                             <button
                                 type="button"
@@ -167,14 +208,35 @@ export default function Login({ onLogin }: LoginProps) {
                     </button>
                 </form>
 
+                <div style={{
+                    marginTop: '1.5rem',
+                    padding: '1rem',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    borderRadius: '0.75rem',
+                    border: '1px solid rgba(59, 130, 246, 0.2)'
+                }}>
+                    <p style={{
+                        fontSize: '0.75rem',
+                        color: '#1e40af',
+                        fontWeight: '500',
+                        marginBottom: '0.5rem'
+                    }}>
+                        Default Admin Credentials:
+                    </p>
+                    <p style={{ fontSize: '0.7rem', color: '#3b82f6' }}>
+                        Email: admin@edizo.in<br />
+                        Password: (Set in database)
+                    </p>
+                </div>
+
                 <p style={{
                     textAlign: 'center',
-                    marginTop: '2rem',
+                    marginTop: '1.5rem',
                     color: '#94a3b8',
                     fontSize: '0.75rem',
                     fontWeight: '500'
                 }}>
-                    © 2025 Edizo. Admin Panel v1.0
+                    © 2025 Edizo. Admin Panel v2.0
                 </p>
             </div>
         </div>

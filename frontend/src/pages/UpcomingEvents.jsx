@@ -4,7 +4,7 @@ import {
   UserCheck, Clock, Info, AlertCircle, Calendar, Users, TrendingUp, 
   Award, Globe, Zap, Star, ExternalLink, MapPin, Mail, Phone 
 } from 'lucide-react';
-import { useWebinars } from '../components/hooks/useWebinars';
+import { useWebinars } from '../hooks/useWebinars';
 import PageHeader from '../components/common/PageHeader';
 import Button from '../components/common/Button';
 

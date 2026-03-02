@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Linkedin, Twitter, Users, Calendar, Award, Code, Palette, Smartphone, Globe, Heart, Lightbulb, Trophy, GraduationCap, MessageSquare } from 'lucide-react';
-import { useTeamMembers } from '../components/hooks/useTeamMembers';
+import { useTeamMembers } from '../hooks/useTeamMembers';
 import PageHeader from '../components/common/PageHeader';
 import Button from '../components/common/Button';
 
